@@ -1,0 +1,22 @@
+div#analytics_body div.profile_picture {
+  float: left;
+  padding-right: 20px;
+}
+
+div#analytics_body table tr td {
+  padding: 3px 10px;
+  font-size: 1.3em;
+}
+
+div#analytics_body table tr th {
+  padding: 3px 10px;
+  font-size: 1.3em;
+}
+
+div#analytics_body table.user_graphs {
+/*  width: 700px;*/
+}
+
+div#analytics_body table.user_summary {
+  margin-bottom: 30px;
+}

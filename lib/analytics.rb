@@ -26,4 +26,11 @@ class Analytics
     return {"page_views" => page_views}
   end
 
+  def start_date(courses, users, sections)
+    return Time.now.utc - 30.days
+  end
+
+  def end_date(courses, users, sections)
+    return Time.now.utc
+  end
 end
