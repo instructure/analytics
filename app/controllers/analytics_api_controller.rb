@@ -13,6 +13,14 @@ class AnalyticsApiController < ApplicationController
         api_find_all(User, params[:user_ids] || []), api_find_all(CourseSection, params[:section_ids] || []))
   end
 
+  def course_assignments
+    render :json => @analytics.assignments(api_find(Course, params[:course_id]), api_find_all(User, params[:user_ids] || []))
+  end
+
+  def course_user_assignments
+    render :json => @analytics.assignments(api_find(Course, params[:course_id]), [api_find(User, params[:user_id])])
+  end
+
 private
 
   def setup_analytics
