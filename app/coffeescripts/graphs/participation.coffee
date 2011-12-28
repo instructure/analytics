@@ -1,9 +1,10 @@
 define [
   'jquery'
   'vendor/graphael'
+  'canvalytics/compiled/graphael_ext'
   'canvalytics/compiled/helpers'
   'jquery.ajaxJSON'
-], ($, graphael, helpers) ->
+], ($, graphael, gext, helpers) ->
 
   PADDING = 5
   GRID_COLS = 1
@@ -38,6 +39,12 @@ define [
               i = i + 1
 
             r = graphael(div_id, width, height)
+
+            rows = max_count
+            rows = 1 if rows == 0
+            gext.drawGrid r, PADDING, PADDING, width - PADDING * 2,
+                height - PADDING * 2, (width - PADDING * 2)/GRID_COLS,
+                (height - PADDING * 2)/rows, GRID_COLOR
 
             r.g.barchart PADDING, PADDING, width - PADDING * 2,
                 height - PADDING * 2, [pageViewHistogram],
