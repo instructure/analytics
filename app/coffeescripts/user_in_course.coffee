@@ -8,7 +8,8 @@ require [
   'canvalytics/jst/user_in_course'
   'ENV'
   'canvalytics/compiled/graphs/participation'
-], ($, template, ENV, participation) ->
+  'canvalytics/compiled/graphs/assignments'
+], ($, template, ENV, participation, assignments) ->
 
   $("#analytics_body").html(template(
     user: ENV.analytics.user
@@ -17,3 +18,7 @@ require [
 
   participation.loadCourse ENV.analytics.course, [ENV.analytics.user], (courseData) ->
     courseData.drawPageViews "participating-graph", 500, 100, ENV.analytics.startDate, ENV.analytics.endDate
+
+  assignments.loadCourse ENV.analytics.course, [ENV.analytics.user], (courseData) ->
+    courseData.drawAssignmentTardiness "assignment-finishing-graph", 500, 100, ENV.analytics.startDate, ENV.analytics.endDate
+    courseData.drawGrades "grades-graph", 500, 100, ENV.analytics.startDate, ENV.analytics.endDate
