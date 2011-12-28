@@ -69,21 +69,53 @@ class Analytics
         end
       end
 
-      results[assignment.id] = {
-        :max_score => scores.max,
-        :min_score => scores.min,
-        :average_score => scores.mean,
-        :std_dev_score => scores.standard_deviation,
-        :on_time_count => on_time_count,
-        :late_count => late_count,
-        :submission_count => on_time_count + late_count,
-        :unlock_at => assignment.unlock_at,
-        :due_at => assignment.due_at
-      }
+      results[assignment.id] = score_stats_to_hash(scores).merge!({
+          :on_time_count => on_time_count,
+          :late_count => late_count,
+          :submission_count => on_time_count + late_count,
+          :unlock_at => assignment.unlock_at,
+          :due_at => assignment.due_at })
 
       results[assignment.id][:submission] = submission_data if submission_data
     end
 
     return { :assignments => results, :turn_around_times => turn_around_times }
+  end
+
+  def courses_final_scores(courses, options={})
+    course_scores = {}
+    user_scores = {}
+    all_scores = Stats::Counter.new
+
+    Enrollment.all_student.find(:all, :conditions => {:course_id => courses.map(&:id)}, :order => :course_id).each do |enrollment|
+      if enrollment.computed_final_score
+        (course_scores[enrollment.course_id] ||= Stats::Counter.new) << enrollment.computed_final_score
+        (user_scores[enrollment.user_id] ||= []) << enrollment.computed_final_score if options[:include_individuals]
+        all_scores << enrollment.computed_final_score if options[:include_totals]
+      end
+    end
+
+    course_scores.each do |course_id, stats|
+      course_scores[course_id] = score_stats_to_hash(stats, true)
+      course_scores[course_id][:course_id] = course_id
+    end
+
+    result = { :course_results => course_scores }
+    result[:individual_results] = user_scores if options[:include_individuals]
+    result[:all_results] = score_stats_to_hash(all_scores, true) if options[:include_totals]
+    result
+  end
+
+private
+
+  def score_stats_to_hash(stats, include_histogram=false)
+    result = {
+      :max_score => stats.max,
+      :min_score => stats.min,
+      :average_score => stats.mean,
+      :std_dev_score => stats.standard_deviation
+    }
+    result[:histogram] = stats.histogram if include_histogram
+    result
   end
 end

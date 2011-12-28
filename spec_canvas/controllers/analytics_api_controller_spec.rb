@@ -253,4 +253,104 @@ describe AnalyticsApiController, :type => :integration do
     end
   end
 
+  context "enrollments with computed final scores" do
+    before do
+      num_users = 5
+      @students = []
+      @enrollments = []
+      num_users.times {|u| @students << user(:active_all => true)}
+
+      course_with_teacher(:active_all => true)
+      @course1 = @course
+      @default_section = @course1.default_section
+      @section = factory_with_protected_attributes(@course1.course_sections, :name => 'section2')
+
+      @students.each {|s| @enrollments << @course1.enroll_user(s, 'StudentEnrollment', :section => @section)}
+
+      for e_index in 0..(num_users-1)
+        @enrollments[e_index].computed_final_score = e_index * 20
+        @enrollments[e_index].save!
+      end
+
+      @course2 = course
+      @course2.offer!
+
+      enrollments_course_2 = []
+      @students.each {|s| enrollments_course_2 << @course2.enroll_user(s, 'StudentEnrollment', :section => @course2.default_section)}
+
+      (@enrollments + enrollments_course_2).each do |enrollment|
+        enrollment.workflow_state = 'active'
+        enrollment.save!
+      end
+
+      for e_index in 0..(num_users-1)
+        enrollments_course_2[e_index].computed_final_score = e_index * 20 + 5
+        enrollments_course_2[e_index].save
+      end
+
+    end
+
+    it "should return a student computed_final_score" do
+      json = api_call(:get,
+            "/api/v1/analytics/final_scores/courses/#{@enrollments[0].course.id}/users/#{@enrollments[0].user.id}",
+            { :controller => 'analytics_api', :action => 'course_user_final_scores',
+              :format => 'json', :course_id => @enrollments[0].course.id.to_s, :user_id => @enrollments[0].user.id.to_s},
+            {})
+      json.should == {"final_score" => 0.0}
+    end
+
+    it "should return a course computed_final_score" do
+      json = api_call(:get,
+            "/api/v1/analytics/final_scores/courses/#{@course1.id}",
+            { :controller => 'analytics_api', :action => 'course_final_scores',
+              :format => 'json', :course_id => @course1.id.to_s},
+            {})
+      json.should == {"course_results"=> {@course1.id.to_s =>
+         {"course_id"=>@course1.id,
+          "max_score"=>80,
+          "std_dev_score"=>28.2842712474619,
+          "average_score"=>40.0,
+          "histogram"=>
+            {"data"=>{"80"=>1, "60"=>1, "0"=>1, "40"=>1, "20"=>1},
+             "bin_base"=>0, "bin_width"=>1},
+          "min_score"=>0}},
+          "individual_results"=>{@students[0].id.to_s=>[0], @students[1].id.to_s=>[20], @students[2].id.to_s=>[40], @students[3].id.to_s=>[60], @students[4].id.to_s=>[80]}}
+    end
+
+    it "should return a computed_final_scores for a list of courses" do
+      json = api_call(:get,
+            "/api/v1/analytics/final_scores",
+            { :controller => 'analytics_api', :action => 'final_scores',
+              :format => 'json', },
+            { :course_ids => [@course1.id, @course2.id] })
+      json.should == {"all_results"=>
+                       {"std_dev_score"=>28.3945417290014,
+                        "max_score"=>85,
+                        "average_score"=>42.5,
+                        "histogram"=>{
+                          "data"=>{"45"=>1, "25"=>1, "85"=>1, "65"=>1, "5"=>1,"80"=>1, "60"=>1, "0"=>1, "40"=>1, "20"=>1},
+                          "bin_base"=>0, "bin_width"=>1},
+                        "min_score"=>0},
+                      "course_results"=> {
+                        @course2.id.to_s=> {
+                          "std_dev_score"=>28.2842712474619,
+                          "max_score"=>85,
+                          "average_score"=>45,
+                          "histogram"=>{
+                            "data"=>{"45"=>1, "25"=>1, "85"=>1, "65"=>1, "5"=>1},
+                            "bin_base"=>0, "bin_width"=>1},
+                          "min_score"=>5,
+                          "course_id"=>@course2.id},
+                        @course1.id.to_s=>
+                             {"max_score"=>80,
+                              "std_dev_score"=>28.2842712474619,
+                              "average_score"=>40,
+                              "histogram"=>
+                                {"data"=>{"80"=>1, "60"=>1, "0"=>1, "40"=>1, "20"=>1},
+                                 "bin_base"=>0, "bin_width"=>1},
+                              "min_score"=>0,
+                              "course_id"=>@course1.id}}}
+    end
+  end
+
 end
