@@ -3,8 +3,9 @@ define [
   'vendor/graphael'
   'canvalytics/compiled/graphael_ext'
   'canvalytics/compiled/helpers'
+  'canvalytics/compiled/graphs/box_and_whiskers'
   'jquery.ajaxJSON'
-], ($, graphael, gext, helpers) ->
+], ($, graphael, gext, helpers, box_and_whiskers) ->
 
   PADDING = 5
   BAR_COLOR = "#4B7092"
@@ -42,6 +43,18 @@ define [
 
 
           drawGrades: (div_id, width, height, start, end) ->
+            r = graphael(div_id, width, height)
+
+            data = [
+                [10,  0, 15, 55, 30,  0,  5, 20, 10,  0, 15, 55, 30,  0,  5, 20], # min
+                [20, 10, 29, 70, 60, 30, 25, 40, 20, 10, 29, 70, 60, 30, 25, 40], # lowerQuartile
+                [55, 70, 60, 80, 75, 50, 45, 70, 55, 70, 60, 80, 75, 50, 45, 70], # median
+                [60, 80, 85, 83, 81, 70, 55, 75, 60, 80, 85, 83, 81, 70, 55, 75], # uppperQuartile
+                [90, 95,100, 95, 88, 95, 70,100, 90, 95,100, 95, 88, 95, 70,100], # max
+                [null, 30, 50, 83, 45, 0, 5, null, null, 30, 50, 70, 45, 0, 5, null]] # value
+
+            box_and_whiskers r, PADDING, PADDING, width - PADDING * 2,
+                height - PADDING * 2, data
 
         loadedCb callbackObj
 

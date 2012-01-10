@@ -7,8 +7,8 @@ require [
   'jquery'
   'canvalytics/jst/user_in_course'
   'ENV'
-  'canvalytics/compiled/graphs/participation'
-  'canvalytics/compiled/graphs/assignments'
+  'canvalytics/compiled/calls/participation'
+  'canvalytics/compiled/calls/assignments'
 ], ($, template, ENV, participation, assignments) ->
 
   $("#analytics_body").html(template(
