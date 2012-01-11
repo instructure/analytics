@@ -9,7 +9,7 @@ class Analytics
     page_views = {}
     ActiveRecord::Base.connection.execute("SELECT DATE(created_at) AS day, controller, COUNT(*) FROM page_views WHERE context_type = 'Course' AND user_id = #{user.id} AND (#{conditions}) GROUP BY day, controller;").each do |row|
       page_views[row[0]] ||= {}
-      page_views[row[0]][row[1]] = row[2].to_i
+      page_views[row[0]][controller_to_action(row[1])] = row[2].to_i
     end
 
     return {"page_views" => page_views}
@@ -20,7 +20,7 @@ class Analytics
     page_views = {}
     ActiveRecord::Base.connection.execute("SELECT DATE(created_at) AS day, controller, COUNT(*) FROM page_views WHERE context_type = 'Course' AND context_id = #{course.id} AND (#{conditions}) GROUP BY day, controller;").each do |row|
       page_views[row[0]] ||= {}
-      page_views[row[0]][row[1]] = row[2].to_i
+      page_views[row[0]][controller_to_action(row[1])] = row[2].to_i
     end
 
     return {"page_views" => page_views}
@@ -117,5 +117,70 @@ private
     }
     result[:histogram] = stats.histogram if include_histogram
     result
+  end
+
+#  in the last 30 days (as of 2012-01-10, the following controllers were hit with context_type 'Course'
+#       controller      |  count
+#  ---------------------+---------
+#   assignments         | 1214410
+#   courses             | 1092132
+#   quizzes             |  462845
+#   wiki_pages          |  415780
+#   gradebooks          |  361526
+#   submissions         |  348491
+#   discussion_topics   |  314077
+#   files               |  259048
+#   context_modules     |  224857
+#   announcements       |  112211
+#   context             |   95230
+#   content_imports     |   28346
+#   calendar_events     |   22565
+#   collaborations      |   10888
+#   conferences         |    9761
+#   groups              |    7921
+#   question_banks      |    5217
+#   getting_started     |    4116
+#   gradebook2          |    3896
+#   outcomes            |    2951
+#   sections            |    2623
+#   wiki_page_revisions |    2012
+#   rubrics             |    1601
+#   eportfolio_entries  |    1588
+#   folders             |    1166
+#   content_exports     |    1115
+#   grading_standards   |     283
+#   discussion_entries  |      89
+#   user_notes          |      81
+#   external_tools      |      76
+#   assignment_groups   |       2
+#   quiz_questions      |       1
+#   gradebook_uploads   |       1
+
+  CONTROLLER_TO_ACTION = {
+    :assignments => :assignments,
+    :courses => :general,
+    :quizzes => :quizzes,
+    :wiki_pages => :pages,
+    :gradebooks => :grades,
+    :submissions => :assignments,
+    :discussion_topics => :discussions,
+    :files => :files,
+    :context_modules => :modules,
+    :announcements => :announcements,
+    :collaborations => :collaborations,
+    :conferences => :conferences,
+    :groups => :groups,
+    :question_banks => :quizzes,
+    :gradebook2 => :grades,
+    :wiki_page_revisions => :pages,
+    :folders => :files,
+    :grading_standards => :grades,
+    :discussion_entries => :discussions,
+    :assignment_groups => :assignments,
+    :quiz_questions => :quizzes,
+    :gradebook_uploads => :grades}
+
+  def controller_to_action(controller)
+    return CONTROLLER_TO_ACTION[controller.downcase.to_sym] || :other
   end
 end
