@@ -6,24 +6,12 @@ class Analytics
 
   def user_participation(user, courses)
     conditions = courses.map {|c| "(context_id = #{c.id})"}.join(" OR ")
-    page_views = {}
-    ActiveRecord::Base.connection.execute("SELECT DATE(created_at) AS day, controller, COUNT(*) FROM page_views WHERE context_type = 'Course' AND user_id = #{user.id} AND (#{conditions}) GROUP BY day, controller;").each do |row|
-      page_views[row[0]] ||= {}
-      page_views[row[0]][controller_to_action(row[1])] = row[2].to_i
-    end
-
-    return {"page_views" => page_views}
+    return participation("user_id = #{user.id} AND (#{conditions})", start_date(courses, [user], []), end_date(courses, [user], []))
   end
 
   def course_participation(course, users=[], sections=[])
     conditions = users.map {|u| "(user_id = #{u.id})"}.join(" OR ")
-    page_views = {}
-    ActiveRecord::Base.connection.execute("SELECT DATE(created_at) AS day, controller, COUNT(*) FROM page_views WHERE context_type = 'Course' AND context_id = #{course.id} AND (#{conditions}) GROUP BY day, controller;").each do |row|
-      page_views[row[0]] ||= {}
-      page_views[row[0]][controller_to_action(row[1])] = row[2].to_i
-    end
-
-    return {"page_views" => page_views}
+    return participation("context_id = #{course.id} AND (#{conditions})", start_date([course], users, sections), end_date([course], users, sections))
   end
 
   def start_date(courses, users, sections)
@@ -117,6 +105,32 @@ private
     }
     result[:histogram] = stats.histogram if include_histogram
     result
+  end
+
+  def participation(conditions, start_date, end_date)
+    page_views = {}
+    participations = []
+    general_conditions = ActiveRecord::Base.send(:sanitize_sql_array, ["created_at >= ? AND created_at <= ? AND summarized IS NULL AND context_type = 'Course' AND (#{conditions})", start_date, end_date])
+    ActiveRecord::Base.connection.execute("SELECT DATE(created_at) AS day, controller, COUNT(*) FROM page_views WHERE #{general_conditions} GROUP BY day, controller;").each do |row|
+      page_views[row[0]] ||= {}
+      page_views[row[0]][controller_to_action(row[1])] ||= 0
+      page_views[row[0]][controller_to_action(row[1])] += row[2].to_i
+    end
+    participation_page_views = PageView.find(:all, :conditions => "#{general_conditions} AND participated AND asset_user_access_id",
+        :select => "created_at, url, asset_user_access_id")
+    asset_user_accesses = {}
+    AssetUserAccess.find(participation_page_views.map(&:asset_user_access_id).uniq).each do |asset_user_access|
+      asset_user_accesses[asset_user_access.id] = asset_user_access
+    end
+    participation_page_views.each do |page_view|
+      participations << { :created_at => page_view.created_at,
+                          :url => page_view.url,
+                          :asset_code => asset_user_accesses[page_view.asset_user_access_id].try(:asset_code),
+                          :asset_category => asset_user_accesses[page_view.asset_user_access_id].try(:asset_category),
+                          :display_name => asset_user_accesses[page_view.asset_user_access_id].try(:display_name) }
+    end
+
+    return {"page_views" => page_views, "participations" => participations}
   end
 
 #  in the last 30 days (as of 2012-01-10, the following controllers were hit with context_type 'Course'
