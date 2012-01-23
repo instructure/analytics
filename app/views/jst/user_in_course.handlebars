@@ -1,16 +1,12 @@
-<div class="profile_picture"><img src="{{user.avatar_50}}"/></div>
+<div class="profile_picture"><img src="{{user.avatar_url}}"/></div>
 
-<h2>{{user.name}}, <a href="{{course.html_url}}">{{course.name}}</a></h2>
+<h2><a href="{{user.html_url}}">{{user.name}}</a>, <a href="{{course.html_url}}">{{course.name}}</a></h2>
 
-<table class="user_summary">
-<tr><th>Current Total:</th><td></td></tr>
-<tr><th>Status:</th><td></td></tr>
-</table>
+<h3 class="user_summary">Current Total: {{user.current_score}}</h3>
 
 <table class="user_graphs">
-<tr><th>Participating</th><td>Very Active</td><td><div id="participating-graph"/></td></tr>
-<tr><th>Responsiveness</th><td>Responsive</td><td><div id="responsiveness-graph"/></td></tr>
-<tr><th>Finishing Assignments</th><td>On Time</td><td><div id="assignment-finishing-graph"/></td></tr>
-<tr><th>Grades</th><td>Below Average</td><td><div id="grades-graph"/></td></tr>
-<tr><th>Outcomes</th><td>Satisfactory</td><td><div id="outcomes-graph"/></td></tr>
+<tr><th>Participating</th><td><div id="participating-graph"/></td></tr>
+<tr><th>Responsiveness</th><td><div id="responsiveness-graph"/></td></tr>
+<tr><th>Finishing Assignments</th><td><div id="assignment-finishing-graph"/></td></tr>
+<tr><th>Grades</th><td><div id="grades-graph"/></td></tr>
 </table>

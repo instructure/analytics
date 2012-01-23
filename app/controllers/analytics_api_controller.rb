@@ -1,44 +1,53 @@
 class AnalyticsApiController < ApplicationController
   unloadable
 
-  before_filter :setup_analytics
+  before_filter :require_user
+  before_filter :setup_user_in_course_analytics
+  before_filter :require_view_statistics
+  before_filter :require_course_read
 
-  def user_participation
-    render :json => @analytics.user_participation(api_find(User, params[:user_id]),
-        api_find_all(Course, params[:course_ids] || []))
+  def user_in_course_participation
+    render :json => {
+      :page_views => @analytics.page_views,
+      :participations => @analytics.participations
+    }
   end
 
-  def course_participation
-    render :json => @analytics.course_participation(api_find(Course, params[:course_id]),
-        api_find_all(User, params[:user_ids] || []), api_find_all(CourseSection, params[:section_ids] || []))
+  def user_in_course_assignments
+    render :json => @analytics.assignments
   end
 
-  def course_assignments
-    render :json => @analytics.assignments(api_find(Course, params[:course_id]), api_find_all(User, params[:user_ids] || []))
-  end
-
-  def course_user_assignments
-    render :json => @analytics.assignments(api_find(Course, params[:course_id]), [api_find(User, params[:user_id])])
-  end
-
-  def final_scores
-    render :json => @analytics.courses_final_scores(api_find_all(Course, params[:course_ids] || []), :include_totals => true)
-  end
-
-  def course_final_scores
-    render :json => @analytics.courses_final_scores([api_find(Course, params[:course_id])], :include_individuals => true)
-  end
-
-  def course_user_final_scores
-    enrollment = api_find(Course, params[:course_id]).student_enrollments.find_by_user_id(api_find(User, params[:user_id]).id)
-    raise ActiveRecord::RecordNotFound unless enrollment
-    render :json => {:final_score => enrollment.computed_final_score }
+  def user_in_course_messaging
+    render :json => @analytics.messages
   end
 
 private
 
-  def setup_analytics
-    @analytics = Analytics.new @current_user
+  def setup_user_in_course_analytics
+    if !service_enabled?(:analytics)
+      # analytics? what analytics?
+      render :json => {}, :status => :not_found
+      return false
+    end
+
+    @course = api_find(Course, params[:course_id])
+    @user = api_find(User, params[:user_id])
+    @analytics = Analytics::UserInCourse.new(@current_user, session, @course, @user)
+    if @analytics.enrollments.empty?
+      # the user is not in the course (that you know of!)
+      render :json => {}, :status => :not_found
+      return false
+    else
+      return true
+    end
+  end
+
+  def require_view_statistics
+    @user == @current_user || authorized_action(@user, @current_user, :view_statistics)
+  end
+
+  def require_course_read
+    authorized_action(@course, @current_user, :read)
   end
 
 end

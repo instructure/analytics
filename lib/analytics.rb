@@ -1,200 +1,217 @@
-class Analytics
-
-  def initialize(current_user)
-    @current_user = current_user
-  end
-
-  def user_participation(user, courses)
-    conditions = courses.map {|c| "(context_id = #{c.id})"}.join(" OR ")
-    return participation("user_id = #{user.id} AND (#{conditions})", start_date(courses, [user], []), end_date(courses, [user], []))
-  end
-
-  def course_participation(course, users=[], sections=[])
-    conditions = users.map {|u| "(user_id = #{u.id})"}.join(" OR ")
-    return participation("context_id = #{course.id} AND (#{conditions})", start_date([course], users, sections), end_date([course], users, sections))
-  end
-
-  def start_date(courses, users, sections)
-    return Time.now.utc - 30.days
-  end
-
-  def end_date(courses, users, sections)
-    return Time.now.utc
-  end
-
-  def assignments(course, users)
-    results = {}
-    turn_around_times = {}
-    user_ids = users.map(&:id).to_set
-
-    Assignment.active.find(:all, :include => [:submissions],
-        :joins => "LEFT OUTER JOIN submissions ON submissions.assignment_id = assignments.id",
-        :conditions => ["assignments.context_type = 'Course' AND assignments.context_id = ?", course.id],
-        :order => "assignments.id").each do |assignment|
-
-      scores = Stats::Counter.new
-      on_time_count = 0
-      late_count = 0
-      submission_data = nil
-
-      assignment.submissions.each do |submission|
-        scores << submission.score if submission.score
-
-        if assignment.due_date && (submission.submitted_at && submission.submitted_at > assignment.due_date)
-          late_count += 1
-        else
-          on_time_count += 1
-        end
-
-        if submission.graded? && submission.submitted_at && submission.graded_at
-          days_before_grade = ((submission.graded_at - submission.submitted_at) / 1.day).to_i
-          turn_around_times[days_before_grade] ||= 0
-          turn_around_times[days_before_grade] += 1
-        end
-
-        if user_ids.include?(submission.user_id)
-          submission_data = { :score => submission.score, :submitted_at => submission.submitted_at }
-        end
-      end
-
-      results[assignment.id] = score_stats_to_hash(scores).merge!({
-          :on_time_count => on_time_count,
-          :late_count => late_count,
-          :submission_count => on_time_count + late_count,
-          :unlock_at => assignment.unlock_at,
-          :due_at => assignment.due_at })
-
-      results[assignment.id][:submission] = submission_data if submission_data
+module Analytics
+  class UserInCourse
+    def initialize(current_user, session, course, user)
+      @current_user = current_user
+      @session = session
+      @course = course
+      @user = user
     end
 
-    return { :assignments => results, :turn_around_times => turn_around_times }
-  end
+    def enrollments
+      @enrollments ||= Enrollment.all_student.find(:all, :conditions => {
+        :course_id => @course.id,
+        :user_id => @user.id
+      }).select{ |e| e.grants_right?(@current_user, @session, :read) }
+    end
 
-  def courses_final_scores(courses, options={})
-    course_scores = {}
-    user_scores = {}
-    all_scores = Stats::Counter.new
+    def start_date
+      # TODO the javascript will break if this comes back nil, so we need a
+      # sensible default. using "now" for the time being, but there's gotta be
+      # something better
+      @start_date ||= enrollments.map{ |e| e.effective_start_at }.compact.min || Time.zone.now
+    end
 
-    Enrollment.all_student.find(:all, :conditions => {:course_id => courses.map(&:id)}, :order => :course_id).each do |enrollment|
-      if enrollment.computed_final_score
-        (course_scores[enrollment.course_id] ||= Stats::Counter.new) << enrollment.computed_final_score
-        (user_scores[enrollment.user_id] ||= []) << enrollment.computed_final_score if options[:include_individuals]
-        all_scores << enrollment.computed_final_score if options[:include_totals]
+    def end_date
+      # TODO ditto. "now" makes more sense this time, but it could also make
+      # sense to go past "now" if the course has assignments due in the future,
+      # for instance.
+      @end_date ||= enrollments.map{ |e| e.effective_end_at }.compact.max || Time.zone.now
+    end
+
+    def page_views
+      @page_views ||= begin
+        page_views = {}
+        page_view_scope.find(:all,
+          :select => "DATE(created_at) AS day, controller, COUNT(*) AS ct",
+          :group => "DATE(created_at), controller").each do |row|
+          day = row.day
+          action = controller_to_action(row.controller)
+          count = row.ct.to_i
+          page_views[day] ||= {}
+          page_views[day][action] ||= 0
+          page_views[day][action] += count
+        end
+        page_views
       end
     end
 
-    course_scores.each do |course_id, stats|
-      course_scores[course_id] = score_stats_to_hash(stats, true)
-      course_scores[course_id][:course_id] = course_id
+    def participations
+      @participations ||= begin
+        foo = {}
+        page_view_scope.find(:all,
+          :select => "page_views.created_at, page_views.url, asset_user_accesses.asset_code, asset_user_accesses.asset_category",
+          :include => :asset_user_access,
+          :conditions => "page_views.participated AND page_views.asset_user_access_id IS NOT NULL").map do |participation|
+
+          foo[participation.asset_user_access_id] ||= {}
+          foo[participation.asset_user_access_id][participation.url] ||= {
+            :created_at => participation.created_at,
+            :url => participation.url,
+            :asset_code => participation.asset_user_access.asset_code,
+            :asset_category => participation.asset_user_access.asset_category
+          }
+        end
+        foo.map{ |_,bin| bin.map{ |_,hash| hash } }.flatten
+      end
     end
 
-    result = { :course_results => course_scores }
-    result[:individual_results] = user_scores if options[:include_individuals]
-    result[:all_results] = score_stats_to_hash(all_scores, true) if options[:include_totals]
-    result
-  end
+    def assignments
+      @assignments ||= begin
+        assignments = assignment_scope.find(:all)
+        submissions = Submission.scoped(:select => "assignment_id, score, user_id, submission_type, submitted_at, updated_at").
+          find(:all, :conditions => { :assignment_id => assignments.map(&:id) })
+        submissions = submissions.group_by{ |s| s.assignment_id }
 
-private
+        student_view = !@course.grants_rights?(@current_user, @session, :manage_grades, :view_all_grades).values.any?
 
-  def score_stats_to_hash(stats, include_histogram=false)
-    result = {
-      :max_score => stats.max,
-      :min_score => stats.min,
-      :average_score => stats.mean,
-      :std_dev_score => stats.standard_deviation
+        assignments.map do |assignment|
+          hash = {
+            :assignment_id => assignment.id,
+            :title => assignment.title,
+            :unlock_at => assignment.unlock_at,
+            :due_at => assignment.due_at
+          }
+
+          show_grade_distribution =
+
+          scores = Stats::Counter.new
+          (submissions[assignment.id] || []).each do |submission|
+            scores << submission.score if submission.score
+            if @user.id == submission.user_id
+              hash[:submission] = {
+                :score => student_view && assignment.muted? ? nil : submission.score,
+                :submitted_at => submission.submitted_at
+              }
+            end
+          end
+
+          if student_view && assignment.muted?
+            hash
+          else
+            hash.merge(score_stats_to_hash(scores))
+          end
+        end
+      end
+    end
+
+    def section_ids
+      @section_ids ||= enrollments.map(&:course_section_id).compact.uniq
+    end
+
+    def instructors
+      @instructors ||= @course.instructors.restrict_to_sections(section_ids)
+    end
+
+    def user_conversation_ids
+      # conversations related to this course in which the user has a hook
+      @user_conversation_ids ||= ConversationParticipant.
+        tagged("course_#{@course.id}").
+        scoped(:conditions => { :user_id => @user.id }).
+        find(:all, :select => 'DISTINCT conversation_id').
+        map{ |cp| cp.conversation_id }
+    end
+
+    def shared_conversation_ids
+      # subset of user conversations in which a course instructor also has a
+      # hook
+      return {} if user_conversation_ids.empty?
+      @shared_conversation_ids ||= ConversationParticipant.
+        scoped(:conditions => { :user_id => instructors.map(&:id) }).
+        scoped(:conditions => { :conversation_id => user_conversation_ids }).
+        find(:all, :select => 'DISTINCT conversation_id').
+        map{ |cp| cp.conversation_id }
+    end
+
+    def messages
+      # count up the messages from those conversations authored by the user or
+      # by an instructor, binned by day and whether it was the user or an
+      # instructor that sent it
+      return {} if shared_conversation_ids.empty?
+      @messages ||= begin
+        messages = {}
+        ConversationMessage.
+          scoped(:conditions => { :conversation_id => shared_conversation_ids }).
+          scoped(:conditions => { :author_id => [@user, *instructors].map(&:id) }).
+          scoped(:select => "DATE(created_at) AS day, author_id=#{@user.id} AS student, COUNT(*) AS ct",
+                 :group => "DATE(created_at), author_id").each do |row|
+
+          day = row.day
+          type = ActiveRecord::ConnectionAdapters::Column.value_to_boolean(row.student) ?
+            :studentMessages :
+            :instructorMessages
+          count = row.ct.to_i
+
+          messages[day] ||= {}
+          messages[day][type] = count
+        end
+        messages
+      end
+    end
+
+  private
+
+    def page_view_scope
+      @page_view_scope ||= PageView.
+        scoped(:conditions => "page_views.summarized IS NULL").
+        scoped(:conditions => { :context_type => 'Course', :context_id => @course.id, :user_id => @user.id })
+    end
+
+    def assignment_scope
+      @assignment_scope ||= Assignment.active.scoped(
+        :conditions => { :context_type => 'Course', :context_id => @course.id },
+        :order => "assignments.due_at, assignments.id")
+    end
+
+    def score_stats_to_hash(stats, include_histogram=false)
+      quartiles = stats.quartiles
+      result = {
+        :max_score => stats.max,
+        :min_score => stats.min,
+        :first_quartile => quartiles[0],
+        :median => quartiles[1],
+        :third_quartile => quartiles[2]
+      }
+      result[:histogram] = stats.histogram if include_histogram
+      result
+    end
+
+    CONTROLLER_TO_ACTION = {
+      :assignments         => :assignments,
+      :courses             => :general,
+      :quizzes             => :quizzes,
+      :wiki_pages          => :pages,
+      :gradebooks          => :grades,
+      :submissions         => :assignments,
+      :discussion_topics   => :discussions,
+      :files               => :files,
+      :context_modules     => :modules,
+      :announcements       => :announcements,
+      :collaborations      => :collaborations,
+      :conferences         => :conferences,
+      :groups              => :groups,
+      :question_banks      => :quizzes,
+      :gradebook2          => :grades,
+      :wiki_page_revisions => :pages,
+      :folders             => :files,
+      :grading_standards   => :grades,
+      :discussion_entries  => :discussions,
+      :assignment_groups   => :assignments,
+      :quiz_questions      => :quizzes,
+      :gradebook_uploads   => :grades
     }
-    result[:histogram] = stats.histogram if include_histogram
-    result
-  end
 
-  def participation(conditions, start_date, end_date)
-    page_views = {}
-    participations = []
-    general_conditions = ActiveRecord::Base.send(:sanitize_sql_array, ["created_at >= ? AND created_at <= ? AND summarized IS NULL AND context_type = 'Course' AND (#{conditions})", start_date, end_date])
-    ActiveRecord::Base.connection.execute("SELECT DATE(created_at) AS day, controller, COUNT(*) FROM page_views WHERE #{general_conditions} GROUP BY day, controller;").each do |row|
-      page_views[row[0]] ||= {}
-      page_views[row[0]][controller_to_action(row[1])] ||= 0
-      page_views[row[0]][controller_to_action(row[1])] += row[2].to_i
+    def controller_to_action(controller)
+      return CONTROLLER_TO_ACTION[controller.downcase.to_sym] || :other
     end
-    participation_page_views = PageView.find(:all, :conditions => "#{general_conditions} AND participated AND asset_user_access_id",
-        :select => "created_at, url, asset_user_access_id")
-    asset_user_accesses = {}
-    AssetUserAccess.find(participation_page_views.map(&:asset_user_access_id).uniq).each do |asset_user_access|
-      asset_user_accesses[asset_user_access.id] = asset_user_access
-    end
-    participation_page_views.each do |page_view|
-      participations << { :created_at => page_view.created_at,
-                          :url => page_view.url,
-                          :asset_code => asset_user_accesses[page_view.asset_user_access_id].try(:asset_code),
-                          :asset_category => asset_user_accesses[page_view.asset_user_access_id].try(:asset_category),
-                          :display_name => asset_user_accesses[page_view.asset_user_access_id].try(:display_name) }
-    end
-
-    return {"page_views" => page_views, "participations" => participations}
-  end
-
-#  in the last 30 days (as of 2012-01-10, the following controllers were hit with context_type 'Course'
-#       controller      |  count
-#  ---------------------+---------
-#   assignments         | 1214410
-#   courses             | 1092132
-#   quizzes             |  462845
-#   wiki_pages          |  415780
-#   gradebooks          |  361526
-#   submissions         |  348491
-#   discussion_topics   |  314077
-#   files               |  259048
-#   context_modules     |  224857
-#   announcements       |  112211
-#   context             |   95230
-#   content_imports     |   28346
-#   calendar_events     |   22565
-#   collaborations      |   10888
-#   conferences         |    9761
-#   groups              |    7921
-#   question_banks      |    5217
-#   getting_started     |    4116
-#   gradebook2          |    3896
-#   outcomes            |    2951
-#   sections            |    2623
-#   wiki_page_revisions |    2012
-#   rubrics             |    1601
-#   eportfolio_entries  |    1588
-#   folders             |    1166
-#   content_exports     |    1115
-#   grading_standards   |     283
-#   discussion_entries  |      89
-#   user_notes          |      81
-#   external_tools      |      76
-#   assignment_groups   |       2
-#   quiz_questions      |       1
-#   gradebook_uploads   |       1
-
-  CONTROLLER_TO_ACTION = {
-    :assignments => :assignments,
-    :courses => :general,
-    :quizzes => :quizzes,
-    :wiki_pages => :pages,
-    :gradebooks => :grades,
-    :submissions => :assignments,
-    :discussion_topics => :discussions,
-    :files => :files,
-    :context_modules => :modules,
-    :announcements => :announcements,
-    :collaborations => :collaborations,
-    :conferences => :conferences,
-    :groups => :groups,
-    :question_banks => :quizzes,
-    :gradebook2 => :grades,
-    :wiki_page_revisions => :pages,
-    :folders => :files,
-    :grading_standards => :grades,
-    :discussion_entries => :discussions,
-    :assignment_groups => :assignments,
-    :quiz_questions => :quizzes,
-    :gradebook_uploads => :grades}
-
-  def controller_to_action(controller)
-    return CONTROLLER_TO_ACTION[controller.downcase.to_sym] || :other
   end
 end

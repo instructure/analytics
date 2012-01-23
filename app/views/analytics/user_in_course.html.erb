@@ -1,23 +1,21 @@
-<% add_crumb t(:analytics, "Analytics") %>
-<% add_crumb t(:analytics_view, "User in Course") %>
-<% content_for :page_title do %><%= t(:page_title, "Analytics: User in Course") %><% end %>
-<% content_for :stylesheets do %>
-  <link href="/plugins/canvalytics/stylesheets/static/analytics.css" media="all" rel="stylesheet" type="text/css" />
+<%
+  js_env :ANALYTICS => {
+    :course => @course_json,
+    :user => @user_json,
+    :startDate => @start_date,
+    :endDate => @end_date
+  }
+
+  add_crumb t(:analytics, "Analytics")
+  add_crumb t(:analytics_view, "User in Course")
+%>
+
+<% content_for :page_title do %>
+  <%= t(:page_title, "Analytics: User in Course") %>
 <% end %>
+
 
 <div id="analytics_body"></div>
 
-<% js_block do %>
-<script>
-  require(['ENV'], function(ENV) {
-    ENV.analytics = {
-      course: <%= @course_json.to_json.html_safe %>,
-      user: <%= @user_json.to_json.html_safe %>,
-      startDate: Date.parse(<%= @start_date.to_json.html_safe %>),
-      endDate: Date.parse(<%= @end_date.to_json.html_safe %>)
-    };
-  });
-</script>
-<script src="/plugins/canvalytics/javascripts/compiled/user_in_course.js"></script>
-
-<% end %>
+<% jammit_css :analytics, :plugin => :analytics %>
+<% js_bundle :user_in_course, :plugin => :analytics %>
