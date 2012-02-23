@@ -59,36 +59,36 @@ define [
     gutterPercent: 0.20
 
     ##
-    # The color to stroke the whiskers.
-    whiskerStroke: "dimgray"
+    # The minimum spacing, in pixels, between grid lines.
+    minGridSpacing: 10
 
     ##
-    # The color to stroke the borders of the boxes.
-    boxStroke: "dimgray"
+    # The color of the grid, if any. Not drawn if unset.
+    gridColor: null
 
     ##
-    # The fill color of the boxes.
-    boxFill: "lightgray"
+    # The color of the whiskers.
+    whiskerColor: "dimgray"
 
     ##
-    # The color to stroke the median line.
-    medianStroke: "dimgray"
+    # The color of the boxes.
+    boxColor: "lightgray"
 
     ##
-    # The color to stroke the border of the value dot.
-    valueStroke: "dimgray"
+    # The color of the median line.
+    medianColor: "dimgray"
 
     ##
-    # A function that returns the fill color for the value dot of a given
-    # assignment. If this is being called, it's implied there is a distribution
-    # and a user score for the assignment.
-    valueFill: (assignment) ->
-      if assignment.userScore >= assignment.scoreDistribution.thirdQuartile
-        "green"
-      else if assignment.userScore >= assignment.scoreDistribution.firstQuartile
-        "yellow"
-      else
-        "red"
+    # The colors of the outer rings of value dots, by performance level.
+    goodRingColor: "lightgreen"
+    fairRingColor: "lightyellow"
+    poorRingColor: "lightred"
+
+    ##
+    # The colors of the centers of value dots, by performance level.
+    goodCenterColor: "darkgreen"
+    fairCenterColor: "darkyellow"
+    poorCenterColor: "darkred"
 
   class Grades extends Base
     ##
@@ -117,26 +117,77 @@ define [
     graph: (assignments) ->
       assignments = assignments.assignments
       @scaleToAssignments assignments
+      @drawGrid assignments if @gridColor
       _.each assignments, @graphAssignment
 
     ##
     # Choose appropriate sizes for the graph elements based on number of
     # assignments and maximum score being graphed.
     scaleToAssignments: (assignments) ->
-      # left-edge of start bar = @leftMargin + leftPadding
-      # right-edge of end bar = @leftMargin + @width - rightPadding
-      # space between bars = gutterPercent of barWidth
+      # left-edge of start bar = @leftMargin + @leftPadding
+      # right-edge of end bar = @leftMargin + @width - @rightPadding
+      # space between bars = @gutterPercent of @barWidth
       n = assignments.length
       @barWidth = (@width - @leftPadding - @rightPadding) / (n + (n - 1) * @gutterPercent)
       @barSpacing = (1 + @gutterPercent) * @barWidth
       @x0 = @leftMargin + @leftPadding + @barWidth / 2
 
-      # top of max bar = @topMargin + topPadding
-      # base of bars = @topMargin + @height - bottomPadding
+      # top of max bar = @topMargin + @topPadding
+      # base of bars = @topMargin + @height - @bottomPadding
       distributions = (assignment.scoreDistribution for assignment in assignments)
       maxScores = ((if distribution then distribution.maxScore else 0) for distribution in distributions)
       max = Math.max(0, maxScores...)
       @pointSpacing = (@height - @topPadding - @bottomPadding) / max
+      @gridPoints = @calculateGridPoints @minGridSpacing
+      @gridSpacing = @gridPoints * @pointSpacing
+
+    ##
+    # Calculates the number of points between grid lines such that grid lines
+    # are at least minSpacing pixels apart, and the points fall in the sequence
+    # [1, 5, 10, 25, 50, 100, 250, 500, 1000, ...]
+    calculateGridPoints: (minSpacing) ->
+      # a line every point is acceptable if the point spacing is large enough
+      if @pointSpacing >= minSpacing
+        return 1
+
+      # exponent and mantissa (base 10) of the minimum number of points to
+      # get above the minimum grid spacing. since minSpacing > @pointSpacing,
+      # minPoints > 1 and exponent >= 0
+      minPoints = minSpacing / @pointSpacing
+      exponent = Math.floor(Math.log(minPoints) * Math.LOG10E)
+      mantissa = minPoints / Math.pow(10, exponent)
+
+      # if the mantissa is 1, the minPoints are a power of 10 and we can just
+      # use them as is
+      if mantissa == 1
+        return minPoints
+
+      # bump the (1, 2.5] range up to a (10, 25] range, but only if minPoints
+      # is actually > 10
+      if mantissa <= 2.5 && exponent > 0
+        mantissa *= 10
+        exponent -= 1
+
+      # select the smallest of [5, 10, 25] (modulo exponent) that's greater
+      # than minPoints
+      return 5 * Math.pow(10, exponent) if mantissa <= 5
+      return 10 * Math.pow(10, exponent) if mantissa <= 10
+      return 25 * Math.pow(10, exponent)
+
+    ##
+    # Draws the grid lines.
+    drawGrid: ->
+      # draw a grid line at most every 10 pixels
+      y = @base
+      while y >= @topMargin + @topPadding
+        @drawGridLine y
+        y -= @gridSpacing
+
+    ##
+    # Draw a grid line at y.
+    drawGridLine: (y) ->
+      gridline = @paper.path ["M", @leftMargin, y, "l", @width, 0]
+      gridline.attr stroke: @gridColor
 
     ##
     # Graph a single assignment. Fat arrowed because it's called by _.each
@@ -168,7 +219,7 @@ define [
       whiskerBottom = @scoreY assignment.scoreDistribution.minScore
       whiskerHeight = whiskerBottom - whiskerTop
       whisker = @paper.rect x, whiskerTop, 1, whiskerHeight
-      whisker.attr stroke: @whiskerStroke, fill: "none"
+      whisker.attr stroke: @whiskerColor, fill: "none"
 
     ##
     # Draw the box for an assignment's score distribution
@@ -177,21 +228,39 @@ define [
       boxBottom = @scoreY assignment.scoreDistribution.firstQuartile
       boxHeight = boxBottom - boxTop
       box = @paper.rect x - @barWidth / 2, boxTop, @barWidth, boxHeight
-      box.attr stroke: @boxStroke, fill: @boxFill
+      box.attr stroke: @boxColor, fill: @boxColor
 
     ##
     # Draw the median of an assignment's score distribution
     drawMedian: (x, assignment) ->
       medianY = @scoreY assignment.scoreDistribution.median
       median = @paper.rect x - @barWidth / 2, medianY, @barWidth, 1
-      median.attr stroke: @medianStroke, fill: "none"
+      median.attr stroke: @medianColor, fill: "none"
 
     ##
     # Draw the dot for the user's score in an assignment
     drawUserScore: (x, assignment) ->
       scoreY = @scoreY assignment.userScore
-      score = @paper.circle x, scoreY, @barWidth / 4
-      score.attr stroke: @valueStroke, fill: @valueFill assignment
+      colors = @valueColors assignment
+      ring = @paper.circle x, scoreY, @barWidth / 4
+      ring.attr stroke: colors.ring, fill: colors.ring
+      center = @paper.circle x, scoreY, @barWidth / 12
+      center.attr stroke: colors.center, fill: colors.center
+
+    ##
+    # Returns colors to use for the value dot of an assignment. If this is
+    # being called, it's implied there is a distribution and a user score for
+    # the assignment.
+    valueColors: (assignment) ->
+      if assignment.userScore >= assignment.scoreDistribution.thirdQuartile
+        ring: @goodRingColor
+        center: @goodCenterColor
+      else if assignment.userScore >= assignment.scoreDistribution.firstQuartile
+        ring: @fairRingColor
+        center: @fairCenterColor
+      else
+        ring: @poorRingColor
+        center: @poorCenterColor
 
     ##
     # Draw a muted assignment indicator

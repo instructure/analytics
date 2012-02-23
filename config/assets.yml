@@ -1,3 +1,5 @@
 stylesheets:
   analytics:
     - public/stylesheets/compiled/analytics.css
+  analytics_buttons:
+    - public/stylesheets/compiled/analytics_buttons.css

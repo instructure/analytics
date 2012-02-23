@@ -22,10 +22,25 @@ require [
   # populate the template and inject it into the page
   $("#analytics_body").append template {user, course}
 
+  # colors for the graphs
+  frame = "#d7d7d7"
+  grid = "#f4f4f4"
+  blue = "#29abe1"
+  darkgray = "#898989"
+  gray = "#a1a1a1"
+  lightgray = "#cccccc"
+  lightgreen = "#95ee86"
+  darkgreen = "#2fa23e"
+  lightyellow = "#efe33e"
+  darkyellow = "#b3a700"
+  lightred = "#dea8a9"
+  darkred = "#da181d"
+
   # setup the graphs
   graphOpts =
     width: 800
     height: 100
+    frameColor: frame
 
   dateGraphOpts = $.extend {}, graphOpts,
     startDate: startDate
@@ -34,19 +49,42 @@ require [
     rightPadding: 15 # responsiveness bubbles
 
   pageViews = new PageViews "participating-graph", $.extend {}, dateGraphOpts,
-    verticalPadding: 5
+    verticalPadding: 9
+    barColor: lightgray
+    participationColor: blue
 
   responsiveness = new Responsiveness "responsiveness-graph", $.extend {}, dateGraphOpts,
-    verticalPadding: 10
-    gutterHeight: 25
-    caratSize: 5
+    verticalPadding: 14
+    gutterHeight: 22
+    markerWidth: 31
+    caratOffset: 7
+    caratSize: 10
+    studentColor: lightgray
+    instructorColor: blue
 
   assignmentTardiness = new AssignmentTardiness "assignment-finishing-graph", $.extend {}, dateGraphOpts,
     verticalPadding: 10
+    barColorOnTime: lightgreen
+    diamondColorOnTime: darkgreen
+    barColorLate: lightyellow
+    diamondColorLate: darkyellow
+    diamondColorMissing: darkred
+    diamondColorUndated: gray
+    gridColor: grid
 
   grades = new Grades "grades-graph", $.extend {}, graphOpts,
     height: 200
     padding: 15
+    whiskerColor: darkgray
+    boxColor: lightgray
+    medianColor: darkgray
+    goodRingColor: lightgreen
+    goodCenterColor: darkgreen
+    fairRingColor: lightyellow
+    fairCenterColor: darkyellow
+    poorRingColor: lightred
+    poorCenterColor: darkred
+    gridColor: grid
 
   # request data
   participation = new Participation course, user

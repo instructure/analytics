@@ -9,6 +9,7 @@ ContextController.class_eval do
 
       js_env :ANALYTICS => { :student_links => @student_analytics_links }
       js_bundle :inject_roster_analytics, :plugin => :analytics
+      jammit_css :analytics_buttons, :plugin => :analytics
     end
     render :action => 'roster'
   end
@@ -22,6 +23,7 @@ ContextController.class_eval do
         :user_name => @user.short_name || @user.name
       }
       js_bundle :inject_roster_user_analytics, :plugin => :analytics
+      jammit_css :analytics_buttons, :plugin => :analytics
     end
     render :action => 'roster_user'
   end

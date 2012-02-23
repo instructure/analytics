@@ -71,24 +71,20 @@ define [
     markerWidth: 30
 
     ##
+    # The distance, in pixels, from the carat to the right edge of the marker.
+    caratOffset: 7
+
+    ##
     # The size of the carat, in pixels.
     caratSize: 3
 
     ##
-    # The color to stroke the icons in the student track.
-    studentStroke: "dimgray"
-
-    ##
     # The fill color of the icons in the student track.
-    studentFill: "lightblue"
-
-    ##
-    # The color to stroke the icons in the instructor track.
-    instructorStroke: "dimgray"
+    studentColor: "lightblue"
 
     ##
     # The fill color of the icons in the instructor track.
-    instructorFill: "lightgreen"
+    instructorColor: "lightgreen"
 
   class Responsiveness extends Base
     ##
@@ -172,22 +168,22 @@ define [
     # Place a student marker for the given day.
     drawStudentMarker: (day) ->
       icon = @paper.path @studentPath day
-      icon.attr stroke: @studentStroke, fill: @studentFill
+      icon.attr stroke: "white", fill: @studentColor
 
     ##
     # Place an instructor marker for the given day.
     drawInstructorMarker: (day) ->
       icon = @paper.path @instructorPath day
-      icon.attr stroke: @instructorStroke, fill: @instructorFill
+      icon.attr stroke: "white", fill: @instructorColor
 
     ##
     # Calculate the marker's bounding box (excluding carat) for a given day and
     # track.
     markerBox: (day, track) ->
       x = @x0 + (day - @startDay) * @daySpacing
-      left: x - 0.75 * @markerWidth
-      right: x + 0.25 * @markerWidth
       carat: x
+      right: x + @caratOffset
+      left: x + @caratOffset - @markerWidth
       top: track
       bottom: track + @markerHeight
 
@@ -203,8 +199,7 @@ define [
     # Calculate the carat values for a given bounding box and carat direction.
     markerCarat: (box, direction) ->
       left: box.carat - @caratSize
-      right: box.carat + @caratSize
-      middle: box.carat
+      right: box.carat
       tip: switch direction
         when 'up' then box.top - @caratSize
         when 'down' then box.bottom + @caratSize
@@ -224,7 +219,7 @@ define [
         'A', 3, 3, 0, 0, 1,
              corners.right, box.bottom, # around the bottom-right corner
         'L', carat.right, box.bottom,   # across the bottom to the carat
-             carat.middle, carat.tip,   # down to the carat tip
+             carat.right, carat.tip,    # down to the carat tip
              carat.left, box.bottom,    # back up to the bottom
              corners.left, box.bottom,  # across the rest of the bottom
         'A', 3, 3, 0, 0, 1,
@@ -243,7 +238,7 @@ define [
 
       [ 'M', corners.left, box.top,     # start at the top-left
         'L', carat.left, box.top,       # across the top to the carat
-             carat.middle, carat.tip,   # ip to the carat tip
+             carat.right, carat.tip,    # up to the carat tip
              carat.right, box.top,      # back down to the top
              corners.right, box.top,    # across the rest of the top
         'A', 3, 3, 0, 0, 1,

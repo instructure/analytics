@@ -67,20 +67,12 @@ define [
     gutterPercent: 0.20
 
     ##
-    # The color to stroke the bars on days without participations.
-    barStroke: "dimgray"
-
-    ##
     # The fill color of the bars on days without participations.
-    barFill: "lightgray"
-
-    ##
-    # The color to stroke the bars on days with participations.
-    participationStroke: "dimgray"
+    barColor: "lightgray"
 
     ##
     # The fill color of the bars on days with participations.
-    participationFill: "lightblue"
+    participationColor: "lightblue"
 
   class PageViews extends Base
     ##
@@ -186,11 +178,11 @@ define [
     # Determine the colors to use for a bin.
     binColors: (bin) ->
       if bin.participations?
-        stroke: @participationStroke
-        fill: @participationFill
+        stroke: "white"
+        fill: @participationColor
       else
-        stroke: @barStroke
-        fill: @barFill
+        stroke: "white"
+        fill: @barColor
 
     ##
     # Create a tooltip for the bin.

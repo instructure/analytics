@@ -61,9 +61,8 @@ define [
     rightPadding: null
 
     ##
-    # The size of the vertical gutter between elements as a percent of the
-    # height of those elements.
-    gutterPercent: 0.20
+    # The height of the submission bars, in pixels.
+    barHeight: 8
 
     ##
     # The height of the due date diamonds, in pixels. Defaults to barHeight + 2
@@ -71,28 +70,38 @@ define [
     diamondHeight: null
 
     ##
-    # The color to stroke the due date diamonds.
-    diamondStroke: "black"
+    # The size of the vertical gutter between elements as a percent of the
+    # height of those elements.
+    gutterPercent: 0.25
 
     ##
-    # The height of the submission bars, in pixels.
-    barHeight: 6
+    # Bar color for on time assignments.
+    barColorOnTime: "lightgreen"
 
     ##
-    # A function that returns a color for a given assignment.
-    barColor: (assignment) ->
-      if !assignment.submittedAt?
-        # not turned in
-        null
-      else if !assignment.dueAt?
-        # no due date, turned in
-        "lightgray"
-      else if assignment.onTime is true
-        # has due date, turned in on time
-        "green"
-      else
-        # has due date, turned in late
-        "red"
+    # Diamond color for on time assignments.
+    diamondColorOnTime: "darkgreen"
+
+    ##
+    # Bar color for late assignments.
+    barColorLate: "lightyellow"
+
+    ##
+    # Diamond color for late assignments.
+    diamondColorLate: "darkyellow"
+
+    ##
+    # Diamond color for missing assignments.
+    diamondColorMissing: "red"
+
+    ##
+    # Diamond color for undated assignments.
+    diamondColorUndated: "darkgray"
+
+    ##
+    # The color of the grid (drawn in gutters between bars), if any. Not drawn
+    # if unset.
+    gridColor: null
 
   class AssignmentTardiness extends Base
     ##
@@ -121,7 +130,8 @@ define [
       # calculate remaining pieces
       @startHour = @hour @startDate
       @endHour = @hour @endDate
-      @barSpacing = (1 + @gutterPercent) * @diamondHeight
+      @gutterHeight = @gutterPercent * @barHeight
+      @barSpacing = @barHeight + @gutterHeight
 
       # center of start diamond = @leftMargin + @leftPadding
       # center of end diamond = @leftMargin + @width - @rightPadding
@@ -148,6 +158,7 @@ define [
         return
 
       @scaleToAssignments assignments
+      @drawGrid assignments if @gridColor
       _.each assignments, @graphAssignment
 
     ##
@@ -157,16 +168,53 @@ define [
         @topPadding + (assignments.length - 1) * @barSpacing + @diamondHeight + @bottomPadding
 
     ##
+    # Draws the gutters between the assignments.
+    drawGrid: (assignments) ->
+      for i in [0..assignments.length]
+        @drawGridLine @gridY i
+
+    drawGridLine: (y) ->
+      gridline = @paper.path ["M", @leftMargin, y, "l", @width, 0]
+      gridline.attr stroke: @gridColor
+
+    gridY: (index) ->
+      (@indexY index) - @barSpacing / 2
+
+    ##
     # Graph a single assignment. Fat arrowed because it's called by _.each
     graphAssignment: (assignment, index) =>
       dueX = @dueX assignment
       submittedX = @submittedX assignment
       y = @indexY index
-      color = @barColor assignment
+      colors = @colors assignment
       if submittedX? && submittedX != dueX
-        @drawSubmittedBar dueX, submittedX, y, color
-      @drawDiamond dueX, y, color
+        @drawSubmittedBar dueX, submittedX, y, colors.barColor
+      @drawDiamond dueX, y, colors.diamondColor, colors.diamondFill
       @cover dueX, y, assignment
+
+    ##
+    # Determine the colors to use for an assignment.
+    colors: (assignment) ->
+      if !assignment.dueAt?
+        # no due date
+        barColor: "none"
+        diamondColor: @diamondColorUndated
+        diamondFill: assignment.submittedAt?
+      else if assignment.onTime is true
+        # has due date, turned in on time
+        barColor: @barColorOnTime
+        diamondColor: @diamondColorOnTime
+        diamondFill: true
+      else if assignment.onTime is false
+        # has due date, turned in late
+        barColor: @barColorLate
+        diamondColor: @diamondColorLate
+        diamondFill: true
+      else
+        # has due date, not turned in
+        barColor: "none"
+        diamondColor: @diamondColorMissing
+        diamondFill: true
 
     ##
     # Convert an assignment's due date to an x-coordinate. If no due date, use
@@ -200,7 +248,7 @@ define [
 
     ##
     # Draw the diamond representing the due date.
-    drawDiamond: (x, y, color) ->
+    drawDiamond: (x, y, color, fill) ->
       diamondTop = y - @diamondHeight / 2
       diamondBottom = y + @diamondHeight / 2
       diamondLeft = x - @diamondHeight / 2
@@ -212,7 +260,7 @@ define [
               "L", x, diamondTop,
               "z"]
       diamond = @paper.path path
-      diamond.attr stroke: @diamondStroke, fill: color
+      diamond.attr stroke: color, fill: (if fill then color else "none")
 
     ##
     # Create a tooltip for the assignment.
