@@ -62,6 +62,10 @@ define [
     # Color of the graph frame.
     frameColor: "#eee"
 
+    ##
+    # The color of the grid, if any. Not drawn if unset.
+    gridColor: null
+
   class Base
     ##
     # Takes an element id on which to draw the graph and the options described

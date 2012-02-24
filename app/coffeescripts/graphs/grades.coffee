@@ -63,10 +63,6 @@ define [
     minGridSpacing: 10
 
     ##
-    # The color of the grid, if any. Not drawn if unset.
-    gridColor: null
-
-    ##
     # The color of the whiskers.
     whiskerColor: "dimgray"
 

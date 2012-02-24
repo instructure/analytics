@@ -3,8 +3,9 @@ define [
   'vendor/underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
+  'analytics/compiled/graphs/date_axis'
   'analytics/compiled/helpers'
-], (I18n, _, Base, Cover, helpers) ->
+], (I18n, _, Base, Cover, dateAxis, helpers) ->
 
   ##
   # PageViews visualizes the student's activity within the course. Each bar
@@ -124,6 +125,7 @@ define [
     graph: (participation) ->
       histogram = @binData participation
       @scaleToData histogram
+      dateAxis this
       _.each histogram, @graphBin
 
     ##
@@ -168,6 +170,11 @@ define [
     # Convert an day index to an x-coordinate.
     dayX: (day) ->
       @x0 + (day - @startDay) * @daySpacing
+
+    ##
+    # Convert a date to an x-coordinate.
+    dateX: (date) ->
+      @dayX @day date
 
     ##
     # Calculate the height of a bin, in pixels.

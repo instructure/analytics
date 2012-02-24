@@ -4,8 +4,9 @@ define [
   'vendor/underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
+  'analytics/compiled/graphs/date_axis'
   'analytics/compiled/helpers'
-], (I18n, $, _, Base, Cover, helpers) ->
+], (I18n, $, _, Base, Cover, dateAxis, helpers) ->
 
   ##
   # AssignmentTardiness visualizes the student's ability to turn in assignments
@@ -98,11 +99,6 @@ define [
     # Diamond color for undated assignments.
     diamondColorUndated: "darkgray"
 
-    ##
-    # The color of the grid (drawn in gutters between bars), if any. Not drawn
-    # if unset.
-    gridColor: null
-
   class AssignmentTardiness extends Base
     ##
     # Takes an element id and options, same as for Base. Recognizes the options
@@ -158,6 +154,7 @@ define [
         return
 
       @scaleToAssignments assignments
+      dateAxis this
       @drawGrid assignments if @gridColor
       _.each assignments, @graphAssignment
 
@@ -232,6 +229,11 @@ define [
     # Convert an hour index to an x-coordinate.
     hourX: (hour) ->
       @x0 + (hour - @startHour) * @hourSpacing
+
+    ##
+    # Convert a date to an x-coordinate.
+    dateX: (date) ->
+      @hourX @hour date
 
     ##
     # Convert an assignment index to a y-coordinate.

@@ -3,8 +3,9 @@ define [
   'vendor/underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
+  'analytics/compiled/graphs/date_axis'
   'analytics/compiled/helpers'
-], (I18n, _, Base, Cover, helpers) ->
+], (I18n, _, Base, Cover, dateAxis, helpers) ->
 
   ##
   # Responsiveness visualizes the student's communication frequency with the
@@ -136,6 +137,7 @@ define [
     # Graph the data.
     graph: (messaging) ->
       messages = @binMessages messaging.messages
+      dateAxis this
       _.each messages, @graphDay
 
     ##
@@ -177,10 +179,20 @@ define [
       icon.attr stroke: "white", fill: @instructorColor
 
     ##
+    # Convert a day index to an x-coordinate.
+    dayX: (day) ->
+      @x0 + (day - @startDay) * @daySpacing
+
+    ##
+    # Convert a date to an x-coordinate.
+    dateX: (date) ->
+      @dayX @day date
+
+    ##
     # Calculate the marker's bounding box (excluding carat) for a given day and
     # track.
     markerBox: (day, track) ->
-      x = @x0 + (day - @startDay) * @daySpacing
+      x = @dayX day
       carat: x
       right: x + @caratOffset
       left: x + @caratOffset - @markerWidth

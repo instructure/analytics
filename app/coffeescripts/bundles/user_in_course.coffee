@@ -16,8 +16,16 @@ require [
 
   # unpackage the environment
   {user, course, startDate, endDate} = ENV.ANALYTICS
+
   startDate = Date.parse(startDate)
+  startDate.setMinutes(0)
+  startDate.setSeconds(0)
+  startDate.setHours(0)
+
   endDate = Date.parse(endDate)
+  endDate.setMinutes(0)
+  endDate.setSeconds(0)
+  endDate.setHours(0)
 
   # populate the template and inject it into the page
   $("#analytics_body").append template {user, course}
@@ -41,6 +49,10 @@ require [
     width: 800
     height: 100
     frameColor: frame
+    gridColor: grid
+    topMargin: 15
+    verticalMargin: 15
+    horizontalMargin: 25
 
   dateGraphOpts = $.extend {}, graphOpts,
     startDate: startDate
@@ -70,7 +82,6 @@ require [
     diamondColorLate: darkyellow
     diamondColorMissing: darkred
     diamondColorUndated: gray
-    gridColor: grid
 
   grades = new Grades "grades-graph", $.extend {}, graphOpts,
     height: 200
@@ -84,7 +95,6 @@ require [
     fairCenterColor: darkyellow
     poorRingColor: lightred
     poorCenterColor: darkred
-    gridColor: grid
 
   # request data
   participation = new Participation course, user
