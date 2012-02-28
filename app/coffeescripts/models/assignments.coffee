@@ -17,6 +17,9 @@ define [ 'analytics/compiled/models/base' ], (Base) ->
         if original.due_at?
           assignment.dueAt = Date.parse(original.due_at)
 
+        if original.points_possible?
+          assignment.pointsPossible = original.points_possible
+
         if original.submission?
           if original.submission.submitted_at?
             assignment.submittedAt = Date.parse(original.submission.submitted_at)

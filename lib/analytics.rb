@@ -79,10 +79,9 @@ module Analytics
             :assignment_id => assignment.id,
             :title => assignment.title,
             :unlock_at => assignment.unlock_at,
-            :due_at => assignment.due_at
+            :due_at => assignment.due_at,
+            :points_possible => assignment.points_possible
           }
-
-          show_grade_distribution =
 
           scores = Stats::Counter.new
           (submissions[assignment.id] || []).each do |submission|

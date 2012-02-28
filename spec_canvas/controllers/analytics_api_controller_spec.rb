@@ -65,6 +65,7 @@ describe AnalyticsApiController, :type => :integration do
         "unlock_at" => nil,
         "min_score" => 9,
         "due_at" => nil,
+        "points_possible" => 0,
         "submission" => {
           "submitted_at" => @submitted_at.iso8601,
           "score" => 9

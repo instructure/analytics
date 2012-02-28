@@ -289,8 +289,16 @@ define [
         tooltip += "<br/>#{I18n.beforeLabel 'high', "High"} #{assignment.scoreDistribution.maxScore}"
         tooltip += "<br/>#{I18n.beforeLabel 'median', "Median"} #{assignment.scoreDistribution.median}"
         tooltip += "<br/>#{I18n.beforeLabel 'low', "Low"} #{assignment.scoreDistribution.minScore}"
-        if assignment.userScore?
+        if assignment.userScore? && assignment.pointsPossible?
+          score = I18n.t 'out_of_points_possible', '%{score} / %{possible}',
+            score: assignment.userScore,
+            possible: assignment.pointsPossible
+          tooltip += "<br/>#{I18n.beforeLabel 'score', "Score"} #{score}"
+        else if assignment.userScore?
           tooltip += "<br/>#{I18n.beforeLabel 'score', "Score"} #{assignment.userScore}"
+        else if assignment.pointsPossible?
+          tooltip += "<br/>#{I18n.beforeLabel 'possible', "Possible"} #{assignment.pointsPossible}"
+
       else
         tooltip += "<br/>#{I18n.t 'score_muted', '(muted)'}"
       tooltip
