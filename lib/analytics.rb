@@ -1,5 +1,9 @@
 module Analytics
   class UserInCourse
+    def self.available_for?(current_user, session, course, user)
+      new(current_user, session, course, user).available?
+    end
+
     def initialize(current_user, session, course, user)
       @current_user = current_user
       @session = session
@@ -7,12 +11,17 @@ module Analytics
       @user = user
     end
 
+    def available?
+      !enrollments.empty?
+    end
+
     def enrollments
       @enrollments ||= slaved do
-        Enrollment.all_student.find(:all, :conditions => {
-          :course_id => @course.id,
-          :user_id => @user.id
-        }).select{ |e| e.grants_right?(@current_user, @session, :read) }
+        @course.enrollments_visible_to(@current_user, true).
+          find(:all, :conditions => {
+            :workflow_state => ['active', 'completed'],
+            :user_id => @user.id
+          })
       end
     end
 
