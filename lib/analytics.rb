@@ -8,28 +8,34 @@ module Analytics
     end
 
     def enrollments
-      @enrollments ||= Enrollment.all_student.find(:all, :conditions => {
-        :course_id => @course.id,
-        :user_id => @user.id
-      }).select{ |e| e.grants_right?(@current_user, @session, :read) }
+      @enrollments ||= slaved do
+        Enrollment.all_student.find(:all, :conditions => {
+          :course_id => @course.id,
+          :user_id => @user.id
+        }).select{ |e| e.grants_right?(@current_user, @session, :read) }
+      end
     end
 
     def start_date
       # TODO the javascript will break if this comes back nil, so we need a
       # sensible default. using "now" for the time being, but there's gotta be
       # something better
-      @start_date ||= enrollments.map{ |e| e.effective_start_at }.compact.min || Time.zone.now
+      @start_date ||= slaved do
+        enrollments.map{ |e| e.effective_start_at }.compact.min || Time.zone.now
+      end
     end
 
     def end_date
       # TODO ditto. "now" makes more sense this time, but it could also make
       # sense to go past "now" if the course has assignments due in the future,
       # for instance.
-      @end_date ||= enrollments.map{ |e| e.effective_end_at }.compact.max || Time.zone.now
+      @end_date ||= slaved do
+        enrollments.map{ |e| e.effective_end_at }.compact.max || Time.zone.now
+      end
     end
 
     def page_views
-      @page_views ||= begin
+      @page_views ||= slaved do
         page_views = {}
         page_view_scope.find(:all,
           :select => "DATE(created_at) AS day, controller, COUNT(*) AS ct",
@@ -46,7 +52,7 @@ module Analytics
     end
 
     def participations
-      @participations ||= begin
+      @participations ||= slaved do
         foo = {}
         page_view_scope.find(:all,
           :select => "page_views.created_at, page_views.url, asset_user_accesses.asset_code, asset_user_accesses.asset_category",
@@ -66,7 +72,7 @@ module Analytics
     end
 
     def assignments
-      @assignments ||= begin
+      @assignments ||= slaved do
         assignments = assignment_scope.find(:all)
         submissions = Submission.scoped(:select => "assignment_id, score, user_id, submission_type, submitted_at, updated_at").
           find(:all, :conditions => { :assignment_id => assignments.map(&:id) })
@@ -103,6 +109,51 @@ module Analytics
       end
     end
 
+    def messages
+      # count up the messages from those conversations authored by the user or
+      # by an instructor, binned by day and whether it was the user or an
+      # instructor that sent it
+      @messages ||= slaved do
+        messages = {}
+        unless shared_conversation_ids.empty?
+          ConversationMessage.
+            scoped(:conditions => { :conversation_id => shared_conversation_ids }).
+            scoped(:conditions => { :author_id => [@user, *instructors].map(&:id) }).
+            scoped(:select => "DATE(created_at) AS day, author_id=#{@user.id} AS student, COUNT(*) AS ct",
+                   :group => "DATE(created_at), author_id").each do |row|
+
+            day = row.day
+            type = ActiveRecord::ConnectionAdapters::Column.value_to_boolean(row.student) ?
+              :studentMessages :
+              :instructorMessages
+            count = row.ct.to_i
+
+            messages[day] ||= {}
+            messages[day][type] = count
+          end
+        end
+        messages
+      end
+    end
+
+  private
+
+    def slaved
+      ActiveRecord::Base::ConnectionSpecification.with_environment(:slave) { yield }
+    end
+
+    def page_view_scope
+      @page_view_scope ||= PageView.
+        scoped(:conditions => "page_views.summarized IS NULL").
+        scoped(:conditions => { :context_type => 'Course', :context_id => @course.id, :user_id => @user.id })
+    end
+
+    def assignment_scope
+      @assignment_scope ||= Assignment.active.scoped(
+        :conditions => { :context_type => 'Course', :context_id => @course.id },
+        :order => "assignments.due_at, assignments.id")
+    end
+
     def section_ids
       @section_ids ||= enrollments.map(&:course_section_id).compact.uniq
     end
@@ -129,46 +180,6 @@ module Analytics
         scoped(:conditions => { :conversation_id => user_conversation_ids }).
         find(:all, :select => 'DISTINCT conversation_id').
         map{ |cp| cp.conversation_id }
-    end
-
-    def messages
-      # count up the messages from those conversations authored by the user or
-      # by an instructor, binned by day and whether it was the user or an
-      # instructor that sent it
-      return {} if shared_conversation_ids.empty?
-      @messages ||= begin
-        messages = {}
-        ConversationMessage.
-          scoped(:conditions => { :conversation_id => shared_conversation_ids }).
-          scoped(:conditions => { :author_id => [@user, *instructors].map(&:id) }).
-          scoped(:select => "DATE(created_at) AS day, author_id=#{@user.id} AS student, COUNT(*) AS ct",
-                 :group => "DATE(created_at), author_id").each do |row|
-
-          day = row.day
-          type = ActiveRecord::ConnectionAdapters::Column.value_to_boolean(row.student) ?
-            :studentMessages :
-            :instructorMessages
-          count = row.ct.to_i
-
-          messages[day] ||= {}
-          messages[day][type] = count
-        end
-        messages
-      end
-    end
-
-  private
-
-    def page_view_scope
-      @page_view_scope ||= PageView.
-        scoped(:conditions => "page_views.summarized IS NULL").
-        scoped(:conditions => { :context_type => 'Course', :context_id => @course.id, :user_id => @user.id })
-    end
-
-    def assignment_scope
-      @assignment_scope ||= Assignment.active.scoped(
-        :conditions => { :context_type => 'Course', :context_id => @course.id },
-        :order => "assignments.due_at, assignments.id")
     end
 
     def score_stats_to_hash(stats, include_histogram=false)
