@@ -1,5 +1,5 @@
 define [
-  'vendor/underscore'
+  'use!underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
 ], (_, Base, Cover) ->

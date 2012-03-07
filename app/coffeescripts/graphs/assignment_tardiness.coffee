@@ -1,6 +1,6 @@
 define [
   'jquery'
-  'vendor/underscore'
+  'use!underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/date_axis'

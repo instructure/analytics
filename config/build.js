@@ -21,7 +21,10 @@
   paths: {
     jquery: '../../../../../public/javascripts/vendor/jquery-1.6.4',
     jqueryui: '../../../../../public/javascripts/vendor/jqueryui',
+    underscore: '../../../../../public/javascripts/vendor/underscore',
+    backbone: '../../../../../public/javascripts/vendor/backbone',
     uploadify: '../../../../../public/flash/uploadify/jquery.uploadify.v2.1.4',
+    use: '../../../../../public/javascripts/vendor/use',
     common: '../../../../../public/javascripts/compiled/bundles/common',
 
     // everything pulled in by either handlebars_helpers or common (when it's
@@ -78,6 +81,17 @@
 
     // finally, us
     analytics: "."
+  },
+
+  // non-amd shims
+  use: {
+    backbone: {
+      deps: ['use!underscore', 'jquery'],
+      attach: 'Backbone'
+    },
+    underscore: {
+      attach: '_'
+    }
   },
 
   // which modules should have their dependencies concatenated into them
