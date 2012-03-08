@@ -32,18 +32,27 @@ div#analytics_body
     width: 100%
     tr
       border-top: 1px solid #eaeaea
-    th, td
+    td
       padding: 10px 0
       vertical-align: top
-    th
-      font-size: 1.3em
-    tr.description
-      border: none
-      td
-        padding-top: 0
+      h4
+        position: relative
+        font-size: 1.3em
+        margin-bottom: 0
+        padding-right: 150px
+        span.qualifier
+          padding-left: 1em
+          position: absolute
+          right: 0
+          top: 0
+          width: 150px
+      p.description
+        padding-top: 1em
         font-style: italic
         font-size: 90%
         color: #888
+    div.graph
+      width: 850px
 
 .analytics-tooltip
   position: absolute

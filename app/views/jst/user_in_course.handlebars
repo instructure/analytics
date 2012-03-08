@@ -15,52 +15,61 @@
 
 <table class="user_graphs">
   <tr>
-    <th>Participation</th>
-    <th><!-- class="status_green">Active --></th>
-    <td rowspan="2"><div id="participating-graph"/></td>
-  </tr>
-  <tr class="description">
-    <td colspan="2">
-      Each bar represents the number of page views on that day. A blue bar
-      indicates that the student took some action within the course on that
-      day.
+    <td>
+      <h4>
+        <span class="graph_name">Participation</span>
+        <!-- <span class="qualifier status_green">Active</span> -->
+      </h4>
+      <p class="description">
+        Each bar represents the number of page views on that day. A blue bar
+        indicates that the student took some action within the course on that
+        day.
+      </p>
     </td>
-  <tr>
-    <th>Responsiveness</th>
-    <th><!-- class="status_red">Responsive --></th>
-    <td rowspan="2"><div id="responsiveness-graph"/></td>
-  </tr>
-  <tr class="description">
-    <td colspan="2">
-      The top track represents days on which the student sent messages to
-      course instructors. The bottom track is for messages from the
-      instructors to the student.
-    </td>
+    <td><div class="graph" id="participating-graph"/></td>
   </tr>
   <tr>
-    <th>Finishing Assignments</th>
-    <th><!-- class="status_green">On Time --></th>
-    <td rowspan="2"><div id="assignment-finishing-graph"/></td>
-  </tr>
-  <tr class="description">
-    <td colspan="2">
-      Each row is one assignment. The diamond is the due date and the bar
-      extends to the submission date. Green indicates an on time submission,
-      yellow a late submission, and red a missed assignment. Gray diamonds
-      are assignments without due dates, placed at the time of submission.
+    <td>
+      <h4>
+        <span class="graph_name">Responsiveness</span>
+        <!-- <span class="qualifier status_red">Responsive</span> -->
+      </h4>
+      <p class="description">
+        The top track represents days on which the student sent messages to
+        course instructors. The bottom track is for messages from the
+        instructors to the student.
+      </p>
     </td>
+    <td><div class="graph" id="responsiveness-graph"/></td>
   </tr>
   <tr>
-    <th>Grades</th>
-    <th><!-- class="status_yellow">Fair --></th>
-    <td rowspan="2"><div id="grades-graph"/></td>
-  </tr>
-  <tr class="description">
-    <td colspan="2">
-      Each bar is one assignment. The thin whisker extends from the minimum
-      score for any student in the course to the maximum score. The wider bar
-      extends from the 25th percentile to the 75th, with the median marked.
-      The student's score is marked with a dot.
+    <td>
+      <h4>
+        <span class="graph_name">Finishing Assignments</span>
+        <!-- <span class="qualifier status_green">On Time</span> -->
+      </h4>
+      <p class="description">
+        Each row is one assignment. The diamond is the due date and the bar
+        extends to the submission date. Green indicates an on time submission,
+        yellow a late submission, and red a missed assignment. Gray diamonds
+        are assignments without due dates, placed at the time of submission.
+      </p>
     </td>
+    <td><div class="graph" id="assignment-finishing-graph"/></td>
+  </tr>
+  <tr>
+    <td>
+      <h4>
+        <span class="graph_name">Grades</span>
+        <!-- <span class="qualifier status_yellow">Fair</span> -->
+      </h4>
+      <p class="description">
+        Each bar is one assignment. The thin whisker extends from the minimum
+        score for any student in the course to the maximum score. The wider bar
+        extends from the 25th percentile to the 75th, with the median marked.
+        The student's score is marked with a dot.
+      </p>
+    </td>
+    <td><div class="graph" id="grades-graph"/></td>
   </tr>
 </table>
