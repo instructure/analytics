@@ -1,4 +1,4 @@
-define [ 'I18n!analytics', 'vendor/underscore' ], (I18n, _) ->
+define [ 'i18nObj', 'vendor/underscore' ], (I18n, _) ->
 
   ##
   # Return the date n days before or after (depending on sign of n) the date.
@@ -30,7 +30,7 @@ define [ 'I18n!analytics', 'vendor/underscore' ], (I18n, _) ->
   drawLabel = (date, graph, x, showMonth, showYear) ->
     if showMonth
       style = if showYear then "medium_month" else "short_month"
-      month = graph.paper.text x, graph.topMargin - 10, I18n.l("#date.formats.#{style}", date)
+      month = graph.paper.text x, graph.topMargin - 10, I18n.l("date.formats.#{style}", date)
       month.attr fill: graph.frameColor
     day = graph.paper.text x, graph.topMargin + graph.height + 10, date.getDate()
     day.attr fill: graph.frameColor

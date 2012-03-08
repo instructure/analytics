@@ -1,11 +1,10 @@
 define [
-  'I18n!analytics'
   'vendor/underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/date_axis'
   'analytics/compiled/helpers'
-], (I18n, _, Base, Cover, dateAxis, helpers) ->
+], (_, Base, Cover, dateAxis, helpers) ->
 
   ##
   # PageViews visualizes the student's activity within the course. Each bar
@@ -207,6 +206,10 @@ define [
     tooltip: (day, bin) ->
       tooltip = helpers.dayToDate(day).toDateString()
       if bin.participations?
-        tooltip += "<br/>#{I18n.t 'participation_count', 'participation', count: bin.participations.length}"
+        count = bin.participations.length
+        noun = if count is 1 then "participation" else "participations"
+        tooltip += "<br/>#{count} #{noun}"
       if bin.total > 0
-        tooltip += "<br/>#{I18n.t 'page_view_count', {one: '%{count} page view', other: '%{count} page views'}, count: bin.total}"
+        count = bin.total
+        noun = if count is 1 then "page view" else "page views"
+        tooltip += "<br/>#{count} #{noun}"

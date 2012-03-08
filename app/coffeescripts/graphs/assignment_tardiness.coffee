@@ -1,12 +1,11 @@
 define [
-  'i18n!analytics'
   'jquery'
   'vendor/underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/date_axis'
   'analytics/compiled/helpers'
-], (I18n, $, _, Base, Cover, dateAxis, helpers) ->
+], ($, _, Base, Cover, dateAxis, helpers) ->
 
   ##
   # AssignmentTardiness visualizes the student's ability to turn in assignments
@@ -280,13 +279,13 @@ define [
     tooltip: (assignment) ->
       tooltip = assignment.title
       if assignment.dueAt?
-        tooltip += "<br/>#{I18n.beforeLabel 'due', "Due"} #{assignment.dueAt.toDateString()}"
+        tooltip += "<br/>Due: #{assignment.dueAt.toDateString()}"
       else
-        tooltip += "<br/>#{I18n.t 'no_due_date', "(no due date)"}"
+        tooltip += "<br/>(no due date)"
       if assignment.submittedAt?
-        tooltip += "<br/>#{I18n.beforeLabel 'submitted', "Submitted"} #{assignment.submittedAt.toDateString()}"
+        tooltip += "<br/>Submitted: #{assignment.submittedAt.toDateString()}"
       if !assignment.scoreDistribution?
-        tooltip += "<br/>#{I18n.beforeLabel 'score', "Score"} #{I18n.t 'score_muted', "(muted)"}"
+        tooltip += "<br/>Score: (muted)"
       else if assignment.userScore?
-        tooltip += "<br/>#{I18n.beforeLabel 'score', "Score"} #{assignment.userScore}"
+        tooltip += "<br/>Score: #{assignment.userScore}"
       tooltip
