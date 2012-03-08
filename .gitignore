@@ -4,3 +4,4 @@ public/javascripts/jst/*
 public/javascripts/compiled/*
 public/stylesheets/compiled/*
 public/stylesheets/compiled/**/*
+public/optimized/

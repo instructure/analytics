@@ -1,9 +1,8 @@
 define [
-  'I18n!analytics'
   'vendor/underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
-], (I18n, _, Base, Cover) ->
+], (_, Base, Cover) ->
 
   ##
   # Grades visualizes the student's scores on assignments compared to the
@@ -282,19 +281,17 @@ define [
     tooltip: (assignment) ->
       tooltip = assignment.title
       if assignment.scoreDistribution?
-        tooltip += "<br/>#{I18n.beforeLabel 'high', "High"} #{assignment.scoreDistribution.maxScore}"
-        tooltip += "<br/>#{I18n.beforeLabel 'median', "Median"} #{assignment.scoreDistribution.median}"
-        tooltip += "<br/>#{I18n.beforeLabel 'low', "Low"} #{assignment.scoreDistribution.minScore}"
+        tooltip += "<br/>High: #{assignment.scoreDistribution.maxScore}"
+        tooltip += "<br/>Median: #{assignment.scoreDistribution.median}"
+        tooltip += "<br/>Low: #{assignment.scoreDistribution.minScore}"
         if assignment.userScore? && assignment.pointsPossible?
-          score = I18n.t 'out_of_points_possible', '%{score} / %{possible}',
-            score: assignment.userScore,
-            possible: assignment.pointsPossible
-          tooltip += "<br/>#{I18n.beforeLabel 'score', "Score"} #{score}"
+          score = "#{assignment.userScore} / #{assignment.pointsPossible}"
+          tooltip += "<br/>Score: #{score}"
         else if assignment.userScore?
-          tooltip += "<br/>#{I18n.beforeLabel 'score', "Score"} #{assignment.userScore}"
+          tooltip += "<br/>Score: #{assignment.userScore}"
         else if assignment.pointsPossible?
-          tooltip += "<br/>#{I18n.beforeLabel 'possible', "Possible"} #{assignment.pointsPossible}"
+          tooltip += "<br/>Possible: #{assignment.pointsPossible}"
 
       else
-        tooltip += "<br/>#{I18n.t 'score_muted', '(muted)'}"
+        tooltip += "<br/>(muted)"
       tooltip

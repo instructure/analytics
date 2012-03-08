@@ -1,11 +1,10 @@
 define [
-  'I18n!analytics'
   'vendor/underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/date_axis'
   'analytics/compiled/helpers'
-], (I18n, _, Base, Cover, dateAxis, helpers) ->
+], (_, Base, Cover, dateAxis, helpers) ->
 
   ##
   # Responsiveness visualizes the student's communication frequency with the
@@ -284,4 +283,5 @@ define [
     ##
     # Build the text for a bin's tooltip.
     tooltip: (day, value) ->
-      "#{helpers.dayToDate(day).toDateString()}<br/>#{I18n.t 'message_count', 'message', count: value}"
+      noun = if value is 1 then "message" else "messages"
+      "#{helpers.dayToDate(day).toDateString()}<br/>#{value} #{noun}"
