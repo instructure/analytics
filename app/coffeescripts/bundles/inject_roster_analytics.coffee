@@ -13,5 +13,8 @@ require [
 ], ($, template) ->
 
   analytics = ENV.ANALYTICS
-  for userId, link of analytics.student_links
-    $("#user_#{userId}").prepend template url: link
+  $('.student_roster tr.user').each ->
+    $row = $(this)
+    userId = parseInt($row.attr('id').slice(5)) # strip off 'user_' and parse
+    link = analytics.student_links[userId]
+    $row.prepend if link? then template(url: link) else '<td/>'

@@ -12,11 +12,7 @@ module AnalyticsPermissions
   module InstanceMethods
     def require_analytics_enabled
       # does the account even have analytics enabled?
-      unless service_enabled?(:analytics)
-        render :json => {}, :status => :not_found
-        return false
-      end
-
+      raise ActiveRecord::RecordNotFound unless service_enabled?(:analytics)
       return true
     end
 
@@ -35,10 +31,7 @@ module AnalyticsPermissions
       # user's enrollment in the course?
       @user = api_request? ? api_find(User, params[:user_id]) : User.find(params[:user_id])
       @analytics = Analytics::UserInCourse.new(@current_user, session, @course, @user)
-      unless @analytics.available?
-        render :json => {}, :status => :not_found
-        return false
-      end
+      raise ActiveRecord::RecordNotFound unless @analytics.available?
 
       return true
     end
