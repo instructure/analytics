@@ -1,13 +1,30 @@
 #!/bin/bash
 
-set -o errexit
+analytics=vendor/plugins/analytics
+canvalytics=vendor/plugins/canvalytics
+mra=vendor/plugins/multiple_root_accounts
+mra_repo="ssh://hudson@gerrit.instructure.com:29418/multiple_root_accounts.git"
 
 # force correct plugin name
-mv vendor/plugins/canvalytics vendor/plugins/analytics
-
-set +e
-rm -rf "vendor/plugins/multiple_root_accounts"
-set -e
+if [ -e $canvalytics ]; then
+  if [ -e $analytics ]; then
+    set +e
+    rm -rf $analytics
+    set -e
+  fi
+  mv $canvalytics $analytics
+else
+  if [ ! -e $analytics ]; then
+    echo "Missing both canvalytics and analytics"
+    exit 1
+  fi
+fi
 
 # checkout MRA plugin since we depend on it
-git clone "ssh://hudson@gerrit.instructure.com:29418/multiple_root_accounts.git" "vendor/plugins/multiple_root_accounts"
+if [ -e $mra ]; then
+  set +e
+  rm -rf $mra
+  set -e
+fi
+
+git clone $mra_repo $mra
