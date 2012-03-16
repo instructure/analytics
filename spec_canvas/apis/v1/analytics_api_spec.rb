@@ -127,6 +127,7 @@ describe "Analytics API", :type => :integration do
         "min_score" => 9,
         "due_at" => nil,
         "points_possible" => 0,
+        "muted" => false,
         "submission" => {
           "submitted_at" => @submitted_at.iso8601,
           "score" => 9

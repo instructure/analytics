@@ -13,6 +13,7 @@ define [ 'analytics/compiled/models/base' ], (Base) ->
         assignment =
           id: original.assignment_id
           title: original.title
+          muted: original.muted
           original: original
 
         if original.due_at?

@@ -193,7 +193,7 @@ define [
         @drawBox x, assignment
         @drawMedian x, assignment
         @drawUserScore x, assignment if assignment.userScore?
-      else
+      else if assignment.muted
         @drawMutedAssignment x
       @cover x, assignment
 
@@ -293,6 +293,7 @@ define [
         else if assignment.pointsPossible?
           tooltip += "<br/>Possible: #{assignment.pointsPossible}"
 
-      else
+      else if assignment.muted
         tooltip += "<br/>(muted)"
+
       tooltip

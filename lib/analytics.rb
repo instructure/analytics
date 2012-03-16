@@ -90,12 +90,15 @@ module Analytics
         student_view = !@course.grants_rights?(@current_user, @session, :manage_grades, :view_all_grades).values.any?
 
         assignments.map do |assignment|
+          muted = student_view && assignment.muted?
+
           hash = {
             :assignment_id => assignment.id,
             :title => assignment.title,
             :unlock_at => assignment.unlock_at,
             :due_at => assignment.due_at,
-            :points_possible => assignment.points_possible
+            :points_possible => assignment.points_possible,
+            :muted => muted
           }
 
           scores = Stats::Counter.new
@@ -103,13 +106,13 @@ module Analytics
             scores << submission.score if submission.score
             if @user.id == submission.user_id
               hash[:submission] = {
-                :score => student_view && assignment.muted? ? nil : submission.score,
+                :score => muted ? nil : submission.score,
                 :submitted_at => submission.submitted_at
               }
             end
           end
 
-          if student_view && assignment.muted?
+          if muted
             hash
           else
             hash.merge(score_stats_to_hash(scores))

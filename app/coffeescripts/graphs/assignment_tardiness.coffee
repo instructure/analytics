@@ -285,7 +285,7 @@ define [
         tooltip += "<br/>(no due date)"
       if assignment.submittedAt?
         tooltip += "<br/>Submitted: #{assignment.submittedAt.toDateString()}"
-      if !assignment.scoreDistribution?
+      if assignment.muted
         tooltip += "<br/>Score: (muted)"
       else if assignment.userScore?
         tooltip += "<br/>Score: #{assignment.userScore}"
