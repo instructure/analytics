@@ -11,6 +11,7 @@ define [ 'analytics/compiled/models/base' ], (Base) ->
       @assignments = []
       for original in data
         assignment =
+          id: original.assignment_id
           title: original.title
           original: original
 

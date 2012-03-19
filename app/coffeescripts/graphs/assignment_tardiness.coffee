@@ -268,6 +268,7 @@ define [
     cover: (x, y, assignment) ->
       new Cover this,
         region: @paper.rect @leftMargin, y - @barSpacing / 2, @width, @barSpacing
+        classes: "assignment_#{assignment.id}"
         tooltip:
           contents: @tooltip assignment
           x: x

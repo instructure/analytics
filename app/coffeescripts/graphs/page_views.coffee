@@ -4,7 +4,8 @@ define [
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/date_axis'
   'analytics/compiled/helpers'
-], (_, Base, Cover, dateAxis, helpers) ->
+  'i18nObj'
+], (_, Base, Cover, dateAxis, helpers, I18n) ->
 
   ##
   # PageViews visualizes the student's activity within the course. Each bar
@@ -195,6 +196,7 @@ define [
     cover: (x, day, bin) ->
       new Cover this,
         region: @paper.rect x - @daySpacing / 2, @topMargin, @daySpacing, @height
+        classes: I18n.l 'date.formats.default', helpers.dayToDate day
         tooltip:
           contents: @tooltip day, bin
           x: x

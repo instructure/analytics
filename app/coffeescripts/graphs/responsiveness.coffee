@@ -4,7 +4,8 @@ define [
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/date_axis'
   'analytics/compiled/helpers'
-], (_, Base, Cover, dateAxis, helpers) ->
+  'i18nObj'
+], (_, Base, Cover, dateAxis, helpers, I18n) ->
 
   ##
   # Responsiveness visualizes the student's communication frequency with the
@@ -269,11 +270,12 @@ define [
     # Create a tooltip for a day and track bin.
     cover: (day, track, value) ->
       box = @markerBox day
-      [top, bottom, direction] = switch track
-        when @studentTrack then [@topMargin, @center, 'down']
-        when @instructorTrack then [@center, @topMargin + @height, 'up']
+      [top, bottom, direction, klass] = switch track
+        when @studentTrack then [@topMargin, @center, 'down', 'student']
+        when @instructorTrack then [@center, @topMargin + @height, 'up', 'instructor']
       new Cover this,
         region: @paper.rect box.left, top, @markerWidth, bottom - top
+        classes: [klass, I18n.l('date.formats.default', helpers.dayToDate day)]
         tooltip:
           contents: @tooltip(day, value)
           x: box.carat

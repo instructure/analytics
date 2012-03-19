@@ -5,9 +5,16 @@ define [ 'analytics/compiled/graphs/tooltip' ], (Tooltip) ->
   # some graph element. Hovering the region displays a popup tooltip. Clicking
   # the cover triggers the provided click callback.
   class Cover
-    constructor: (@graph, {region, tooltip, click}) ->
+    constructor: (@graph, {region, classes, tooltip, click}) ->
       # build tooltip popup that positions itself relative to the graph
       @tooltip = new Tooltip @graph.div, tooltip
+
+      # what classes to tag the region with
+      classes ?= []
+      classes = [classes] if typeof classes is 'string'
+      classes.push 'cover'
+      classes = classes.join(' ')
+      $(region.node).attr class: classes
 
       # make the region invisible and register event handlers
       region.attr stroke: "none", 'fill-opacity': 0, fill: '#000'
