@@ -65,6 +65,7 @@
     'jquery.rails_flash_notifications': '../../../../../public/javascripts/jquery.rails_flash_notifications',
     'jquery.scrollToVisible': '../../../../../public/javascripts/jquery.scrollToVisible',
     'jquery.templateData': '../../../../../public/javascripts/jquery.templateData',
+    'jst/ComboBox': '../../../../../public/javascripts/jst/ComboBox',
     'jst/courseList': '../../../../../public/javascripts/jst/courseList',
     'jst/helpDialog': '../../../../../public/javascripts/jst/helpDialog',
     'link_enrollment': '../../../../../public/javascripts/link_enrollment',

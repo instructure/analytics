@@ -7,7 +7,8 @@ define [
   'analytics/compiled/graphs/responsiveness'
   'analytics/compiled/graphs/assignment_tardiness'
   'analytics/compiled/graphs/grades'
-], ($, _, Backbone, template, PageViews, Responsiveness, AssignmentTardiness, Grades) ->
+  'compiled/widget/ComboBox'
+], ($, _, Backbone, template, PageViews, Responsiveness, AssignmentTardiness, Grades, ComboBox) ->
 
   class StudentInCourseView extends Backbone.View
     initialize: ->
@@ -18,9 +19,24 @@ define [
 
       # cache elements for updates
       @$avatar = @$('.avatar')
-      @$student_link = @$('.student_link')
       @$course_link = @$('.course_link')
       @$current_score = @$('.current_score')
+
+      if @model.get('students').length > 1
+        # build combobox of student names to replace name element
+        @comboBox = new ComboBox @model.get('students'),
+          value: (student) -> student.id
+          label: (student) -> student.name
+          selected: @model.get('student').id
+        @$('.student_link').replaceWith @comboBox.$el
+
+        # drive data from combobox (reverse connection in render)
+        @comboBox.on 'change', (student) =>
+          @model.set 'student', student
+
+      else
+        # cache name element for updates
+        @$student_link = @$('.student_link a')
 
       # setup the graph objects
       @setupGraphs()
@@ -41,9 +57,12 @@ define [
     updateStudent: =>
       student = @model.get 'student'
       @$avatar.attr src: student.avatar_url
-      @$student_link.attr src: student.html_url
-      @$student_link.text student.name
       @$current_score.text if student.current_score? then "#{student.current_score}%" else 'N/A'
+      if @$student_link?
+        @$student_link.text student.name
+        @$student_link.attr src: student.html_url
+      if @comboBox?
+        @comboBox.select student.id
 
     ##
     # Update the course summary info.

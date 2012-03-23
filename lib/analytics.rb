@@ -15,6 +15,19 @@ module Analytics
       !enrollments.empty?
     end
 
+    def self.available_enrollments(user, course)
+      slaved do
+        course.enrollments_visible_to(user, true).
+          scoped(:include => :user).
+          find(:all, :conditions => { 'enrollments.workflow_state' => ['active', 'completed'] },
+               :order => User.sortable_name_order_by_clause('users')).
+          # only first enrollment per user, but still want the enrollment
+          # returned, not the user
+          group_by{ |enrollment| enrollment.user }.
+          map{ |user,enrollments| enrollments.first }
+      end
+    end
+
     def enrollments
       @enrollments ||= slaved do
         @course.enrollments_visible_to(@current_user, true).
@@ -150,8 +163,12 @@ module Analytics
 
   private
 
-    def slaved
+    def self.slaved
       ActiveRecord::Base::ConnectionSpecification.with_environment(:slave) { yield }
+    end
+
+    def slaved
+      self.class.slaved{ yield }
     end
 
     def page_view_scope
