@@ -5,6 +5,7 @@ require.config
 require [
   'jquery'
   'analytics/jst/user_in_course'
+  'analytics/compiled/helpers'
   'analytics/compiled/models/participation'
   'analytics/compiled/models/messaging'
   'analytics/compiled/models/assignments'
@@ -12,20 +13,13 @@ require [
   'analytics/compiled/graphs/responsiveness'
   'analytics/compiled/graphs/assignment_tardiness'
   'analytics/compiled/graphs/grades'
-], ($, template, Participation, Messaging, Assignments, PageViews, Responsiveness, AssignmentTardiness, Grades) ->
+], ($, template, helpers, Participation, Messaging, Assignments, PageViews, Responsiveness, AssignmentTardiness, Grades) ->
 
   # unpackage the environment
   {user, course, startDate, endDate} = ENV.ANALYTICS
 
-  startDate = Date.parse(startDate)
-  startDate.setMinutes(0)
-  startDate.setSeconds(0)
-  startDate.setHours(0)
-
-  endDate = Date.parse(endDate)
-  endDate.setMinutes(0)
-  endDate.setSeconds(0)
-  endDate.setHours(0)
+  startDate = helpers.midnight Date.parse startDate
+  endDate = helpers.midnight Date.parse endDate
 
   # populate the template and inject it into the page
   $("#analytics_body").append template {user, course}

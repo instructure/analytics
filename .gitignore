@@ -6,3 +6,4 @@ public/stylesheets/compiled/*
 public/stylesheets/compiled/**/*
 public/optimized/
 .sass-cache
+spec_canvas/javascripts/

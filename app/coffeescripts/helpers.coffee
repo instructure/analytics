@@ -3,3 +3,9 @@ define ->
   dateToHours: (date) -> parseInt(date.getTime() / (1000*60*60), 10)
   hoursToDate: (hours) -> new Date(hours * 1000*60*60)
   dayToDate: (day) -> new Date(day * 1000*60*60*24)
+  midnight: (date) ->
+    date = new Date date
+    date.setMinutes(0)
+    date.setSeconds(0)
+    date.setHours(0)
+    date
