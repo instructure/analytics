@@ -40,6 +40,7 @@
     'compiled/tinymce': '../../../../../public/javascripts/compiled/tinymce',
     'compiled/util': '../../../../../public/javascripts/compiled/util',
     'compiled/widget': '../../../../../public/javascripts/compiled/widget',
+    'compiled/behaviors': '../../../../../public/javascripts/compiled/behaviors',
     'i18n': '../../../../../public/javascripts/i18n',
     'i18nObj': '../../../../../public/javascripts/i18nObj',
     'instructure': '../../../../../public/javascripts/instructure',
@@ -78,6 +79,7 @@
     'tricktiny': '../../../../../public/javascripts/tricktiny',
     'vendor': '../../../../../public/javascripts/vendor',
     'wikiSidebar': '../../../../../public/javascripts/wikiSidebar',
+    'ENV': '../../../../../public/javascripts/ENV',
 
     // finally, us
     analytics: "."
