@@ -206,8 +206,13 @@ define [
         barColor: @barColorLate
         diamondColor: @diamondColorLate
         diamondFill: true
+      else if assignment.dueAt > new Date
+        # due in the future, not turned in
+        barColor: "none"
+        diamondColor: @diamondColorUndated
+        diamondFill: false
       else
-        # has due date, not turned in
+        # due in the past, not turned in
         barColor: "none"
         diamondColor: @diamondColorMissing
         diamondFill: true
