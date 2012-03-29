@@ -1,6 +1,7 @@
 define [
   'jquery'
   'vendor/graphael'
+  'jquery.disableWhileLoading'
 ], ($, graphael) ->
 
   ##
@@ -115,16 +116,14 @@ define [
     graph: ->
 
     ##
-    # Passes arguments through $.when.then to resolved promises, then passes
-    # the resolved argument to the graph method. Use when any of your arguments
+    # Passes arguments through $.when.then to resolve promises, then passes the
+    # resolved arguments to the graph method. Use when any of your arguments
     # are promises and you want your graph to draw as soon as they are
     # fulfilled.
     graphDeferred: ->
-      # TODO add spinner
       combo = $.when(arguments...)
-      combo.always =>
-        # TODO: remove spinner
       combo.done =>
         @graph arguments...
       combo.fail ->
         # TODO: add error icon
+      @div.disableWhileLoading(combo)
