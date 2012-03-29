@@ -18,6 +18,7 @@ define [ 'analytics/compiled/graphs/tooltip' ], (Tooltip) ->
 
       # make the region invisible and register event handlers
       region.attr stroke: "none", 'fill-opacity': 0, fill: '#000'
-      region.mouseover @tooltip.show
-      region.mouseout @tooltip.hide
-      region.click click
+      $node = $(region.node)
+      $node.mouseover @tooltip.show
+      $node.mouseout @tooltip.hide
+      $node.click click
