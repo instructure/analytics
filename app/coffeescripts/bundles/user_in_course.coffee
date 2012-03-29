@@ -71,8 +71,8 @@ require [
     markerWidth: 31
     caratOffset: 7
     caratSize: 10
-    studentColor: lightgray
-    instructorColor: blue
+    studentColor: blue
+    instructorColor: lightgray
 
   assignmentTardiness = new AssignmentTardiness "assignment-finishing-graph", $.extend {}, dateGraphOpts,
     verticalPadding: 10
