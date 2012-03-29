@@ -131,7 +131,7 @@ define [
       # base of bars = @topMargin + @height - @bottomPadding
       distributions = (assignment.scoreDistribution for assignment in assignments)
       maxScores = ((if distribution then distribution.maxScore else 0) for distribution in distributions)
-      max = Math.max(0, maxScores...)
+      max = Math.max(1, maxScores...)
       @pointSpacing = (@height - @topPadding - @bottomPadding) / max
       @gridPoints = @calculateGridPoints @minGridSpacing
       @gridSpacing = @gridPoints * @pointSpacing
