@@ -21,11 +21,9 @@ else
 fi
 
 # checkout MRA plugin since we depend on it
-if [ -e $mra ]; then
-  set +e
-  rm -rf $mra
-  set -e
+if [ ! -e $mra ]; then
+    git clone $mra_repo $mra
 fi
 
-git clone $mra_repo $mra
 $mra/spec_canvas/hudson_setup.sh
+
