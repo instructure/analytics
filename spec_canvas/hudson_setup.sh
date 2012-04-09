@@ -28,3 +28,4 @@ if [ -e $mra ]; then
 fi
 
 git clone $mra_repo $mra
+$mra/spec_canvas/hudson_setup.sh
