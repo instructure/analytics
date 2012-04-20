@@ -1,10 +1,13 @@
 <div class="user_summary">
-  <img src="{{user.avatar_url}}"/>
-  <h2><a href="{{user.html_url}}">{{user.name}}</a>, <a href="{{course.html_url}}">{{course.name}}</a></h2>
+  <img class="avatar" src="{{user.avatar_url}}" />
+  <h2>
+    <a class="student_link" href="{{user.html_url}}">{{user.name}}</a>,
+    <a class="course_link" href="{{course.html_url}}">{{course.name}}</a>
+  </h2>
   <table>
     <tr>
       <th>Current Total:</th>
-      <td>{{user.current_score}}%</td>
+      <td class="current_score">{{user.current_score}}%</td>
     </tr>
     <!--<tr>
       <th>Status:</th>
