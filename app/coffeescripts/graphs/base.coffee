@@ -71,7 +71,7 @@ define [
     ##
     # Takes an element id on which to draw the graph and the options described
     # above.
-    constructor: (divId, options) ->
+    constructor: (@div, options) ->
       # check for required options
       throw new Error "width is required" unless options.width?
       throw new Error "height is required" unless options.height?
@@ -89,8 +89,7 @@ define [
       @rightMargin ?= @horizontalMargin
 
       # instantiate and resize the paper
-      @div = $("##{divId}")
-      @paper = graphael divId
+      @paper = graphael @div[0]
       @resize()
 
     ##

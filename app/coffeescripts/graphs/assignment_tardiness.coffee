@@ -102,7 +102,7 @@ define [
     ##
     # Takes an element id and options, same as for Base. Recognizes the options
     # described above in addition to the options for Base.
-    constructor: (divId, options) ->
+    constructor: (div, options) ->
       super
 
       # check for required options

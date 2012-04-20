@@ -54,12 +54,12 @@ require [
     leftPadding: 30  # larger padding on left because of assymetrical
     rightPadding: 15 # responsiveness bubbles
 
-  pageViews = new PageViews "participating-graph", $.extend {}, dateGraphOpts,
+  pageViews = new PageViews $("#participating-graph"), $.extend {}, dateGraphOpts,
     verticalPadding: 9
     barColor: lightgray
     participationColor: blue
 
-  responsiveness = new Responsiveness "responsiveness-graph", $.extend {}, dateGraphOpts,
+  responsiveness = new Responsiveness $("#responsiveness-graph"), $.extend {}, dateGraphOpts,
     verticalPadding: 14
     gutterHeight: 22
     markerWidth: 31
@@ -68,7 +68,7 @@ require [
     studentColor: blue
     instructorColor: lightgray
 
-  assignmentTardiness = new AssignmentTardiness "assignment-finishing-graph", $.extend {}, dateGraphOpts,
+  assignmentTardiness = new AssignmentTardiness $("#assignment-finishing-graph"), $.extend {}, dateGraphOpts,
     verticalPadding: 10
     barColorOnTime: lightgreen
     diamondColorOnTime: darkgreen
@@ -77,7 +77,7 @@ require [
     diamondColorMissing: darkred
     diamondColorUndated: gray
 
-  grades = new Grades "grades-graph", $.extend {}, graphOpts,
+  grades = new Grades $("#grades-graph"), $.extend {}, graphOpts,
     height: 200
     padding: 15
     whiskerColor: darkgray
