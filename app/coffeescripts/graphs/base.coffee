@@ -111,18 +111,19 @@ define [
       border.attr stroke: @frameColor, fill: "none"
 
     ##
-    # Draws the graph. Each graph should override this.
-    graph: ->
-
-    ##
-    # Passes arguments through $.when.then to resolve promises, then passes the
-    # resolved arguments to the graph method. Use when any of your arguments
-    # are promises and you want your graph to draw as soon as they are
-    # fulfilled.
-    graphDeferred: ->
-      combo = $.when(arguments...)
-      combo.done =>
-        @graph arguments...
-      combo.fail ->
-        # TODO: add error icon
-      @div.disableWhileLoading(combo)
+    # Draw the graph. Each graph should override this. Each override should
+    # call super as the first action and exit if the return value is false.
+    # E.g. 'return unless super'.
+    #
+    # This base version checks if the data is still loading. If so, places a
+    # spinner and queues to rerun once loaded. Returns false in this case to
+    # indicate that the graph should not be drawn yet. Otherwise (the data is
+    # fully ready), simply returns true to indicate the graph can be drawn.
+    graph: (data) ->
+      if data.loading?
+        @div.disableWhileLoading(data.loading)
+        data.loading.done => @graph data
+        data.loading.fail -> # TODO: add error icon
+        return false
+      else
+        return true

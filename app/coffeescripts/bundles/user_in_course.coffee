@@ -96,7 +96,7 @@ require [
   assignments = new Assignments course, user
 
   # draw graphs
-  pageViews.graphDeferred participation.ready -> participation
-  responsiveness.graphDeferred messaging.ready -> messaging
-  assignmentTardiness.graphDeferred assignments.ready -> assignments
-  grades.graphDeferred assignments.ready -> assignments
+  pageViews.graph participation
+  responsiveness.graph messaging
+  assignmentTardiness.graph assignments
+  grades.graph assignments

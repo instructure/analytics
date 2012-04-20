@@ -136,6 +136,8 @@ define [
     ##
     # Graph the data.
     graph: (messaging) ->
+      return unless super
+
       messages = @binMessages messaging.messages
       dateAxis this
       _.each messages, @graphDay

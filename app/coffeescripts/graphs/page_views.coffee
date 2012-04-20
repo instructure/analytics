@@ -123,6 +123,8 @@ define [
     ##
     # Graph the data.
     graph: (participation) ->
+      return unless super
+
       histogram = @binData participation
       @scaleToData histogram
       dateAxis this

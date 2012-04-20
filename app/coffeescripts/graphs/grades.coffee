@@ -110,6 +110,8 @@ define [
     ##
     # Graph the assignments.
     graph: (assignments) ->
+      return unless super
+
       assignments = assignments.assignments
       @scaleToAssignments assignments
       @drawGrid assignments if @gridColor

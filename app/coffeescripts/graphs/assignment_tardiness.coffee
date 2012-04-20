@@ -147,6 +147,8 @@ define [
     ##
     # Graph the assignments.
     graph: (assignments) =>
+      return unless super
+
       assignments = assignments.assignments
       if !assignments? || assignments.length == 0
         # no data

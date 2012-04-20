@@ -15,6 +15,7 @@ define [ 'jquery', 'jquery.ajaxJSON' ], ($) ->
         # success
         (data) =>
           @populate(data)
+          @loading = null
           deferred.resolve()
         # error
         (data) ->
@@ -24,18 +25,3 @@ define [ 'jquery', 'jquery.ajaxJSON' ], ($) ->
     # Process the data returned by the ajax call to populate the data model.
     # Should be overridden in derived classes.
     populate: (data) ->
-
-    ##
-    # Pipes the requested operation after the promise that waits on the object
-    # being initialized. example:
-    #
-    #   promisedBar = myThing.ready -> myThing.bar
-    #   promisedBar.done (bar) ->
-    #     console.log(bar)
-    #
-    # promisedBar is a Promise, just like the return value of $.ajaxJSON.
-    #
-    # this method is particularly useful for building promises to pass to a
-    # graph object's graphDeferred method.
-    ready: (operation) ->
-      @loading.pipe operation
