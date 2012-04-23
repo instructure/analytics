@@ -24,13 +24,13 @@ module AnalyticsPermissions
       authorized_action(@course, @current_user, :read)
     end
 
-    def require_analytics_for_user_in_course
+    def require_analytics_for_student_in_course
       return false unless require_analytics_for_course
 
       # you can use analytics and see this course, but do you have access to this
-      # user's enrollment in the course?
-      @user = api_request? ? api_find(User, params[:user_id]) : User.find(params[:user_id])
-      @analytics = Analytics::UserInCourse.new(@current_user, session, @course, @user)
+      # student's enrollment in the course?
+      @student = api_request? ? api_find(User, params[:student_id]) : User.find(params[:student_id])
+      @analytics = Analytics::StudentInCourse.new(@current_user, session, @course, @student)
       raise ActiveRecord::RecordNotFound unless @analytics.available?
 
       return true

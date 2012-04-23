@@ -1,13 +1,13 @@
-<div class="user_summary">
-  <img class="avatar" src="{{user.avatar_url}}" />
+<div class="student_summary">
+  <img class="avatar" src="{{student.avatar_url}}" />
   <h2>
-    <span class="student_link"><a href="{{user.html_url}}">{{user.name}}</a>, </span>
+    <span class="student_link"><a href="{{student.html_url}}">{{student.name}}</a>, </span>
     <a class="course_link" href="{{course.html_url}}">{{course.name}}</a>
   </h2>
   <table>
     <tr>
       <th>Current Total:</th>
-      <td class="current_score">{{user.current_score}}%</td>
+      <td class="current_score">{{student.current_score}}%</td>
     </tr>
     <!--<tr>
       <th>Status:</th>
@@ -16,7 +16,7 @@
   </table>
 </div>
 
-<table class="user_graphs">
+<table class="student_graphs">
   <tr>
     <td>
       <h4>

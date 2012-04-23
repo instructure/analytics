@@ -14,7 +14,7 @@ require [
   model = new StudentInCourseModel
     course: ENV.ANALYTICS.course
     courses: [ENV.ANALYTICS.course]
-    student: ENV.ANALYTICS.user
+    student: ENV.ANALYTICS.student
     students: ENV.ANALYTICS.students
 
   # link data and router

@@ -43,7 +43,7 @@ describe ContextController, :type => :controller do
     def expect_roster_user_injection(course, student)
       expected_link = "/analytics/courses/#{course.id}/users/#{student.id}"
       ContextController.any_instance.expects(:js_env).once.
-        with(:ANALYTICS => { :link => expected_link, :user_name => student.short_name })
+        with(:ANALYTICS => { :link => expected_link, :student_name => student.short_name })
       get 'roster_user', :course_id => course.id, :id => student.id
     end
 
@@ -107,7 +107,7 @@ describe ContextController, :type => :controller do
       end
     end
 
-    context "unreadable user" do
+    context "unreadable student" do
       before :each do
         # section limited ta in section other than student1
         @ta = user(:active_all => true)

@@ -101,7 +101,7 @@
   modules: [
     { name: "compiled/bundles/inject_roster_analytics", exclude: ['common'] },
     { name: "compiled/bundles/inject_roster_user_analytics", exclude: ['common'] },
-    { name: "compiled/bundles/user_in_course", exclude: ['common'] }
+    { name: "compiled/bundles/student_in_course", exclude: ['common'] }
   ]
 })
 

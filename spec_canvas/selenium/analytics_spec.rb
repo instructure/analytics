@@ -56,7 +56,7 @@ describe "analytics" do
   end
 
   def validate_student_display(student_name)
-    f('.user_summary').should include_text(student_name)
+    f('.student_summary').should include_text(student_name)
   end
 
   describe "course view" do
@@ -204,7 +204,7 @@ describe "analytics" do
       go_to_analytics
 
       computed_student_score = StudentEnrollment.last.computed_current_score.to_s
-      f('.user_summary').should include_text(computed_student_score)
+      f('.student_summary').should include_text(computed_student_score)
     end
 
     it "should validate participating graph" do

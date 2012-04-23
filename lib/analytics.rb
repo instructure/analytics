@@ -1,14 +1,14 @@
 module Analytics
-  class UserInCourse
-    def self.available_for?(current_user, session, course, user)
-      new(current_user, session, course, user).available?
+  class StudentInCourse
+    def self.available_for?(current_user, session, course, student)
+      new(current_user, session, course, student).available?
     end
 
-    def initialize(current_user, session, course, user)
+    def initialize(current_user, session, course, student)
       @current_user = current_user
       @session = session
       @course = course
-      @user = user
+      @student = student
     end
 
     def available?
@@ -21,10 +21,10 @@ module Analytics
           scoped(:include => :user).
           find(:all, :conditions => { 'enrollments.workflow_state' => ['active', 'completed'] },
                :order => User.sortable_name_order_by_clause('users')).
-          # only first enrollment per user, but still want the enrollment
-          # returned, not the user
+          # only first enrollment per student, but still want the enrollment
+          # returned, not the student
           group_by{ |enrollment| enrollment.user }.
-          map{ |user,enrollments| enrollments.first }
+          map{ |student,enrollments| enrollments.first }
       end
     end
 
@@ -33,7 +33,7 @@ module Analytics
         @course.enrollments_visible_to(@current_user, true).
           find(:all, :conditions => {
             :workflow_state => ['active', 'completed'],
-            :user_id => @user.id
+            :user_id => @student.id
           })
       end
     end
@@ -117,7 +117,7 @@ module Analytics
           scores = Stats::Counter.new
           (submissions[assignment.id] || []).each do |submission|
             scores << submission.score if submission.score
-            if @user.id == submission.user_id
+            if @student.id == submission.user_id
               hash[:submission] = {
                 :score => muted ? nil : submission.score,
                 :submitted_at => submission.submitted_at
@@ -135,16 +135,16 @@ module Analytics
     end
 
     def messages
-      # count up the messages from those conversations authored by the user or
-      # by an instructor, binned by day and whether it was the user or an
+      # count up the messages from those conversations authored by the student
+      # or by an instructor, binned by day and whether it was the student or an
       # instructor that sent it
       @messages ||= slaved do
         messages = {}
         unless shared_conversation_ids.empty?
           ConversationMessage.
             scoped(:conditions => { :conversation_id => shared_conversation_ids }).
-            scoped(:conditions => { :author_id => [@user, *instructors].map(&:id) }).
-            scoped(:select => "DATE(created_at) AS day, author_id=#{@user.id} AS student, COUNT(*) AS ct",
+            scoped(:conditions => { :author_id => [@student, *instructors].map(&:id) }).
+            scoped(:select => "DATE(created_at) AS day, author_id=#{@student.id} AS student, COUNT(*) AS ct",
                    :group => "DATE(created_at), author_id").each do |row|
 
             day = row.day
@@ -174,7 +174,7 @@ module Analytics
     def page_view_scope
       @page_view_scope ||= PageView.
         scoped(:conditions => "page_views.summarized IS NULL").
-        scoped(:conditions => { :context_type => 'Course', :context_id => @course.id, :user_id => @user.id })
+        scoped(:conditions => { :context_type => 'Course', :context_id => @course.id, :user_id => @student.id })
     end
 
     def assignment_scope
@@ -191,22 +191,22 @@ module Analytics
       @instructors ||= @course.instructors.restrict_to_sections(section_ids)
     end
 
-    def user_conversation_ids
-      # conversations related to this course in which the user has a hook
-      @user_conversation_ids ||= ConversationParticipant.
+    def student_conversation_ids
+      # conversations related to this course in which the student has a hook
+      @student_conversation_ids ||= ConversationParticipant.
         tagged("course_#{@course.id}").
-        scoped(:conditions => { :user_id => @user.id }).
+        scoped(:conditions => { :user_id => @student.id }).
         find(:all, :select => 'DISTINCT conversation_id').
         map{ |cp| cp.conversation_id }
     end
 
     def shared_conversation_ids
-      # subset of user conversations in which a course instructor also has a
+      # subset of student conversations in which a course instructor also has a
       # hook
-      return {} if user_conversation_ids.empty?
+      return {} if student_conversation_ids.empty?
       @shared_conversation_ids ||= ConversationParticipant.
         scoped(:conditions => { :user_id => instructors.map(&:id) }).
-        scoped(:conditions => { :conversation_id => user_conversation_ids }).
+        scoped(:conditions => { :conversation_id => student_conversation_ids }).
         find(:all, :select => 'DISTINCT conversation_id').
         map{ |cp| cp.conversation_id }
     end

@@ -8,7 +8,7 @@ ContextController.class_eval do
       @students.each do |student|
         if analytics_enabled_student?(student)
           @student_analytics_links[student.id] =
-            analytics_user_in_course_path :course_id => @context.id, :user_id => student.id
+            analytics_student_in_course_path :course_id => @context.id, :student_id => student.id
         end
       end
 
@@ -31,8 +31,8 @@ ContextController.class_eval do
     if analytics_enabled_course? && analytics_enabled_student?(@user)
       # inject a button to the analytics page for the student in the course
       js_env :ANALYTICS => {
-        :link => analytics_user_in_course_path(:course_id => @context.id, :user_id => @user.id),
-        :user_name => @user.short_name || @user.name
+        :link => analytics_student_in_course_path(:course_id => @context.id, :student_id => @user.id),
+        :student_name => @user.short_name || @user.name
       }
       js_bundle :inject_roster_user_analytics, :plugin => :analytics
       jammit_css :analytics_buttons, :plugin => :analytics
@@ -55,6 +55,6 @@ ContextController.class_eval do
 
   # can the user view analytics for this student in the course?
   def analytics_enabled_student?(student)
-    Analytics::UserInCourse.available_for?(@current_user, session, @context, student)
+    Analytics::StudentInCourse.available_for?(@current_user, session, @context, student)
   end
 end

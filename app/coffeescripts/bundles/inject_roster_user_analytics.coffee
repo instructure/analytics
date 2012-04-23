@@ -7,8 +7,8 @@ require [
   'analytics/jst/student_analytics_button'
 ], ($, template) ->
 
-  {link, user_name} = ENV.ANALYTICS
+  {link, student_name} = ENV.ANALYTICS
 
   $('#right_nav').prepend template
     url: link
-    label: "Student Analytics for #{user_name}"
+    label: "Student Analytics for #{student_name}"

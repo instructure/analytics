@@ -19,9 +19,9 @@ describe "Analytics API", :type => :integration do
   def analytics_api_call(action, course, student, opts={})
     action, endpoint =
       case action
-      when :participation then ['user_in_course_participation', "/api/v1/analytics/participation/courses/#{course.id}/users/#{student.id}"]
-      when :assignments then ['user_in_course_assignments', "/api/v1/analytics/assignments/courses/#{course.id}/users/#{student.id}"]
-      when :messaging then ['user_in_course_messaging', "/api/v1/analytics/messaging/courses/#{course.id}/users/#{student.id}"]
+      when :participation then ['student_in_course_participation', "/api/v1/analytics/participation/courses/#{course.id}/users/#{student.id}"]
+      when :assignments then ['student_in_course_assignments', "/api/v1/analytics/assignments/courses/#{course.id}/users/#{student.id}"]
+      when :messaging then ['student_in_course_messaging', "/api/v1/analytics/messaging/courses/#{course.id}/users/#{student.id}"]
       end
 
     api_call(:get,
@@ -30,7 +30,7 @@ describe "Analytics API", :type => :integration do
             :action => action,
             :format => 'json',
             :course_id => course.id.to_s,
-            :user_id => student.id.to_s },
+            :student_id => student.id.to_s },
           {}, {}, opts)
   end
 
@@ -76,7 +76,7 @@ describe "Analytics API", :type => :integration do
       analytics_api_call(:messaging, @course, @student1, :expected_status => 401)
     end
 
-    it "should 404 with unreadable user" do
+    it "should 404 with unreadable student" do
       # section limited ta in section other than student1
       @ta = user(:active_all => true)
       @enrollment = @course.enroll_ta(@ta)
@@ -136,16 +136,16 @@ describe "Analytics API", :type => :integration do
     end
   end
 
-  context "course multiple assignements with a multiple users and scores" do
+  context "course multiple assignements with a multiple students and scores" do
     before do
-      num_users = 5
+      num_students = 5
       num_assignments = 5
 
       @students = []
       @assignments = []
       @outcomes = []
       
-      num_users.times {|u| @students << user(:active_all => true)}
+      num_students.times {|u| @students << user(:active_all => true)}
 
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
@@ -161,7 +161,7 @@ describe "Analytics API", :type => :integration do
           :points_possible => 10 * (i+1),
           :due_at => @due_time)}
 
-      for s_index in 0..(num_users - 1)
+      for s_index in 0..(num_students - 1)
         student = @students[s_index]
         for a_index in 0..(num_assignments - 1)
           assignment = @assignments[a_index]
@@ -217,12 +217,12 @@ describe "Analytics API", :type => :integration do
       response_assignment(json, @assignments[0])["third_quartile"].should == 9.5
     end
 
-    it "should have the user score" do
+    it "should have the student score" do
       json = analytics_api_call(:assignments, @course, @students[1])
       response_assignment(json, @assignments[2])["submission"]["score"].should == 27
     end
 
-    it "should have the user submit time" do
+    it "should have the student submit time" do
       json = analytics_api_call(:assignments, @course, @students[1])
       response_assignment(json, @assignments[4])["submission"]["submitted_at"].should == (@due_time - 2.hours).iso8601
     end

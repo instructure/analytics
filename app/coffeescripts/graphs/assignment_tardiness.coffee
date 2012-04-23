@@ -299,6 +299,6 @@ define [
         tooltip += "<br/>Submitted: #{assignment.submittedAt.toDateString()}"
       if assignment.muted
         tooltip += "<br/>Score: (muted)"
-      else if assignment.userScore?
-        tooltip += "<br/>Score: #{assignment.userScore}"
+      else if assignment.studentScore?
+        tooltip += "<br/>Score: #{assignment.studentScore}"
       tooltip

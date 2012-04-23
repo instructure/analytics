@@ -2,7 +2,7 @@ define [
   'jquery'
   'underscore'
   'Backbone'
-  'analytics/jst/user_in_course'
+  'analytics/jst/student_in_course'
   'analytics/compiled/graphs/page_views'
   'analytics/compiled/graphs/responsiveness'
   'analytics/compiled/graphs/assignment_tardiness'
@@ -14,7 +14,7 @@ define [
     initialize: ->
       # build view
       @$el = $ template
-        user: @model.get 'student'
+        student: @model.get 'student'
         course: @model.get 'course'
 
       # cache elements for updates

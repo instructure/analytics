@@ -1,22 +1,22 @@
 <%
   js_env :ANALYTICS => {
     :course => @course_json,
-    :user => @user_json,
+    :student => @student_json,
     :students => @students,
     :startDate => @start_date,
     :endDate => @end_date
   }
 
   add_crumb t(:analytics, "Analytics")
-  add_crumb t(:analytics_view, "User in Course")
+  add_crumb t(:analytics_view, "Student in Course")
 %>
 
 <% content_for :page_title do %>
-  <%= t(:page_title, "Analytics: User in Course") %>
+  <%= t(:page_title, "Analytics: Student in Course") %>
 <% end %>
 
 
 <div id="analytics_body"></div>
 
 <% jammit_css :analytics, :plugin => :analytics %>
-<% js_bundle :user_in_course, :plugin => :analytics %>
+<% js_bundle :student_in_course, :plugin => :analytics %>

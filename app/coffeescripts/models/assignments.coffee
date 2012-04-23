@@ -1,11 +1,11 @@
 define [ 'analytics/compiled/models/base' ], (Base) ->
 
   ##
-  # Loads the assignment data for the user and course. Exposes the data as the
-  # 'assignments' property once loaded.
+  # Loads the assignment data for the student and course. Exposes the data as
+  # the 'assignments' property once loaded.
   class Assignments extends Base
-    constructor: (@course, @user) ->
-      super '/api/v1/analytics/assignments/courses/' + @course.id + '/users/' + @user.id
+    constructor: (@course, @student) ->
+      super '/api/v1/analytics/assignments/courses/' + @course.id + '/users/' + @student.id
 
     populate: (data) ->
       @assignments = []
@@ -27,7 +27,7 @@ define [ 'analytics/compiled/models/base' ], (Base) ->
             assignment.submittedAt = Date.parse(original.submission.submitted_at)
             assignment.onTime = !assignment.dueAt? || assignment.submittedAt <= assignment.dueAt
           if original.submission.score?
-            assignment.userScore = original.submission.score
+            assignment.studentScore = original.submission.score
 
         if original.min_score?
           assignment.scoreDistribution =

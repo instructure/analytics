@@ -10,9 +10,9 @@ define [
   # displayed as a "bar and whiskers" plot where the top whisker reaches to the
   # max score, the bottom whisker to the min score, the box covers the first
   # through third quartiles, and the median is stroked through the box. The
-  # user's score is superimposed on this as a colored dot. The distribution and
-  # dot are replaced by a faint placeholder for muted assignments in student
-  # view.
+  # student's score is superimposed on this as a colored dot. The distribution
+  # and dot are replaced by a faint placeholder for muted assignments in
+  # student view.
 
   defaultOptions =
 
@@ -194,7 +194,7 @@ define [
         @drawWhisker x, assignment
         @drawBox x, assignment
         @drawMedian x, assignment
-        @drawUserScore x, assignment if assignment.userScore?
+        @drawStudentScore x, assignment if assignment.studentScore?
       else if assignment.muted
         @drawMutedAssignment x
       @cover x, assignment
@@ -235,9 +235,9 @@ define [
       median.attr stroke: @medianColor, fill: "none"
 
     ##
-    # Draw the dot for the user's score in an assignment
-    drawUserScore: (x, assignment) ->
-      scoreY = @scoreY assignment.userScore
+    # Draw the dot for the student's score in an assignment
+    drawStudentScore: (x, assignment) ->
+      scoreY = @scoreY assignment.studentScore
       colors = @valueColors assignment
       ring = @paper.circle x, scoreY, @barWidth / 4
       ring.attr stroke: colors.ring, fill: colors.ring
@@ -246,13 +246,13 @@ define [
 
     ##
     # Returns colors to use for the value dot of an assignment. If this is
-    # being called, it's implied there is a distribution and a user score for
-    # the assignment.
+    # being called, it's implied there is a distribution and a student score
+    # for the assignment.
     valueColors: (assignment) ->
-      if assignment.userScore >= assignment.scoreDistribution.thirdQuartile
+      if assignment.studentScore >= assignment.scoreDistribution.thirdQuartile
         ring: @goodRingColor
         center: @goodCenterColor
-      else if assignment.userScore >= assignment.scoreDistribution.firstQuartile
+      else if assignment.studentScore >= assignment.scoreDistribution.firstQuartile
         ring: @fairRingColor
         center: @fairCenterColor
       else
@@ -287,11 +287,11 @@ define [
         tooltip += "<br/>High: #{assignment.scoreDistribution.maxScore}"
         tooltip += "<br/>Median: #{assignment.scoreDistribution.median}"
         tooltip += "<br/>Low: #{assignment.scoreDistribution.minScore}"
-        if assignment.userScore? && assignment.pointsPossible?
-          score = "#{assignment.userScore} / #{assignment.pointsPossible}"
+        if assignment.studentScore? && assignment.pointsPossible?
+          score = "#{assignment.studentScore} / #{assignment.pointsPossible}"
           tooltip += "<br/>Score: #{score}"
-        else if assignment.userScore?
-          tooltip += "<br/>Score: #{assignment.userScore}"
+        else if assignment.studentScore?
+          tooltip += "<br/>Score: #{assignment.studentScore}"
         else if assignment.pointsPossible?
           tooltip += "<br/>Possible: #{assignment.pointsPossible}"
 

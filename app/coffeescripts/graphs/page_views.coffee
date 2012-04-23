@@ -10,8 +10,9 @@ define [
   ##
   # PageViews visualizes the student's activity within the course. Each bar
   # represents one day. The height of the bar is the number of course pages
-  # viewed that day. The bar is blue on days in which the user "participated"
-  # (took a quiz, posted a discussion reply, etc.) and gray on other days.
+  # viewed that day. The bar is blue on days in which the student
+  # "participated" (took a quiz, posted a discussion reply, etc.) and gray on
+  # other days.
 
   defaultOptions =
 
