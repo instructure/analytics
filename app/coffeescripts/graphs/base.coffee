@@ -101,14 +101,19 @@ define [
       @height = height if height?
       @middle = @topMargin + @height / 2
       @paper.setSize @leftMargin + @width + @rightMargin, @topMargin + @height + @bottomMargin
-      @paper.clear()
-      @drawFrame()
+      @reset()
 
     ##
     # Draw the graph's frame on the margins.
     drawFrame: ->
       border = @paper.rect @leftMargin, @topMargin, @width, @height
       border.attr stroke: @frameColor, fill: "none"
+
+    ##
+    # Resets the graph.
+    reset: ->
+      @paper.clear()
+      @drawFrame()
 
     ##
     # Draw the graph. Each graph should override this. Each override should
@@ -120,6 +125,7 @@ define [
     # indicate that the graph should not be drawn yet. Otherwise (the data is
     # fully ready), simply returns true to indicate the graph can be drawn.
     graph: (data) ->
+      @reset()
       if data.loading?
         @div.disableWhileLoading(data.loading)
         data.loading.done => @graph data

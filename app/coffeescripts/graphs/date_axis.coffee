@@ -61,8 +61,8 @@ define [ 'i18nObj', 'use!underscore' ], (I18n, _) ->
   # graph. The graph must have a dateX(date) method and startDate and endDate
   # attributes.
   (graph) ->
-    if !graph? || (typeof graph.dateX != "function") || !graph.startDate? || !graph.endDate?
-      throw new Error "argument doesn't quack right"
+    # no hard error because it might be a valid target but before start/end date have been set
+    return unless graph? && (typeof graph.dateX is "function") && graph.startDate? && graph.endDate?
 
     # draw grid lines
     firstMonday = mondayAfter graph.startDate

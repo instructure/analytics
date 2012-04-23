@@ -121,13 +121,18 @@ define [
         null
 
     ##
+    # Reset the graph chrome.
+    reset: ->
+      super
+      dateAxis this
+
+    ##
     # Graph the data.
     graph: (participation) ->
       return unless super
 
       histogram = @binData participation
       @scaleToData histogram
-      dateAxis this
       _.each histogram, @graphBin
 
     ##

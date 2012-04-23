@@ -145,6 +145,12 @@ define [
         null
 
     ##
+    # Reset the graph chrome.
+    reset: ->
+      super
+      dateAxis this
+
+    ##
     # Graph the assignments.
     graph: (assignments) =>
       return unless super
@@ -155,7 +161,6 @@ define [
         return
 
       @scaleToAssignments assignments
-      dateAxis this
       @drawGrid assignments if @gridColor
       _.each assignments, @graphAssignment
 
