@@ -21,8 +21,8 @@
   paths: {
     jquery: '../../../../../public/javascripts/vendor/jquery-1.6.4',
     jqueryui: '../../../../../public/javascripts/vendor/jqueryui',
-    underscore: '../../../../../public/javascripts/vendor/underscore',
-    backbone: '../../../../../public/javascripts/vendor/backbone',
+    underscore: '../../../../../public/javascripts/underscore',
+    Backbone: '../../../../../public/javascripts/Backbone',
     uploadify: '../../../../../public/flash/uploadify/jquery.uploadify.v2.1.4',
     use: '../../../../../public/javascripts/vendor/use',
     common: '../../../../../public/javascripts/compiled/bundles/common',
@@ -31,6 +31,7 @@
     // seeing what to exclude). awesome
     'INST': '../../../../../public/javascripts/INST',
     'ajax_errors': '../../../../../public/javascripts/ajax_errors',
+    'compiled/backbone-ext': '../../../../../public/javascripts/compiled/backbone-ext',
     'compiled/editor': '../../../../../public/javascripts/compiled/editor',
     'compiled/fn': '../../../../../public/javascripts/compiled/fn',
     'compiled/handlebars_helpers': '../../../../../public/javascripts/compiled/handlebars_helpers',
@@ -87,12 +88,11 @@
 
   // non-amd shims
   use: {
-    backbone: {
-      deps: ['use!underscore', 'jquery'],
-      attach: 'Backbone'
-    },
-    underscore: {
-      attach: '_'
+    'vendor/backbone': {
+      deps: ['underscore', 'jquery'],
+      attach: function(_, $){
+        return Backbone;
+      }
     }
   },
 

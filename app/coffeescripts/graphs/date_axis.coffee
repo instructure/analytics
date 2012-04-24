@@ -1,4 +1,4 @@
-define [ 'i18nObj', 'use!underscore' ], (I18n, _) ->
+define [ 'i18nObj', 'underscore' ], (I18n, _) ->
 
   ##
   # Return the date n days before or after (depending on sign of n) the date.
