@@ -4,8 +4,10 @@ define [ 'analytics/compiled/models/base' ], (Base) ->
   # Loads the assignment data for the student and course. Exposes the data as
   # the 'assignments' property once loaded.
   class Assignments extends Base
-    constructor: (@course, @student) ->
-      super '/api/v1/analytics/assignments/courses/' + @course.id + '/users/' + @student.id
+    constructor: (@course, @student=null) ->
+      url = '/api/v1/analytics/assignments/courses/' + @course.id
+      url += '/users/' + @student.id if @student?
+      super url
 
     populate: (data) ->
       @assignments = []
@@ -36,5 +38,11 @@ define [ 'analytics/compiled/models/base' ], (Base) ->
             median: original.median
             thirdQuartile: original.third_quartile
             maxScore: original.max_score
+
+        if original.tardiness_breakdown
+          assignment.tardinessBreakdown =
+            onTime: original.tardiness_breakdown.on_time
+            late: original.tardiness_breakdown.late
+            missing: original.tardiness_breakdown.missing
 
         @assignments.push assignment
