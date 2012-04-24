@@ -7,10 +7,6 @@ define ['jquery', 'analytics/compiled/graphs/assignment_tardiness'], ($, Assignm
   module 'Finishing Assignments graph',
     setup: ->
       @$el = $("<div id='tardiness-graph'/>")
-      $('body').append @$el
-
-    teardown: ->
-      @$el.remove()
 
   test 'colors', ->
     # set up date spectrum and freeze time
@@ -31,7 +27,7 @@ define ['jquery', 'analytics/compiled/graphs/assignment_tardiness'], ($, Assignm
       none:    "none"
 
     # create graph instance
-    graph = new AssignmentTardiness "tardiness-graph",
+    graph = new AssignmentTardiness @$el,
       width: 100
       height: 100
       startDate: dates.start

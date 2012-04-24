@@ -19,7 +19,7 @@
 
   // paths we have set up (matches require onfig in application.html.erb)
   paths: {
-    jquery: '../../../../../public/javascripts/vendor/jquery-1.6.4',
+    jquery: '../../../../../public/javascripts/jquery',
     jqueryui: '../../../../../public/javascripts/vendor/jqueryui',
     underscore: '../../../../../public/javascripts/underscore',
     Backbone: '../../../../../public/javascripts/Backbone',
