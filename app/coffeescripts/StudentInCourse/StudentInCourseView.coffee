@@ -7,8 +7,9 @@ define [
   'analytics/compiled/graphs/responsiveness'
   'analytics/compiled/graphs/assignment_tardiness'
   'analytics/compiled/graphs/grades'
+  'analytics/compiled/graphs/colors'
   'compiled/widget/ComboBox'
-], ($, _, Backbone, template, PageViews, Responsiveness, AssignmentTardiness, Grades, ComboBox) ->
+], ($, _, Backbone, template, PageViews, Responsiveness, AssignmentTardiness, Grades, colors, ComboBox) ->
 
   class StudentInCourseView extends Backbone.View
     initialize: ->
@@ -118,8 +119,8 @@ define [
       graphOpts =
         width: 800
         height: 100
-        frameColor: frame
-        gridColor: grid
+        frameColor: colors.frame
+        gridColor: colors.grid
         topMargin: 15
         verticalMargin: 15
         horizontalMargin: 25
@@ -132,8 +133,8 @@ define [
 
       @pageViews = new PageViews @$("#participating-graph"), $.extend {}, dateGraphOpts,
         verticalPadding: 9
-        barColor: lightgray
-        participationColor: blue
+        barColor: colors.lightgray
+        participationColor: colors.blue
 
       @responsiveness = new Responsiveness @$("#responsiveness-graph"), $.extend {}, dateGraphOpts,
         verticalPadding: 14
@@ -141,27 +142,27 @@ define [
         markerWidth: 31
         caratOffset: 7
         caratSize: 10
-        studentColor: blue
-        instructorColor: lightgray
+        studentColor: colors.blue
+        instructorColor: colors.lightgray
 
       @assignmentTardiness = new AssignmentTardiness @$("#assignment-finishing-graph"), $.extend {}, dateGraphOpts,
         verticalPadding: 10
-        barColorOnTime: lightgreen
-        diamondColorOnTime: darkgreen
-        barColorLate: lightyellow
-        diamondColorLate: darkyellow
-        diamondColorMissing: darkred
-        diamondColorUndated: gray
+        barColorOnTime: colors.lightgreen
+        diamondColorOnTime: colors.darkgreen
+        barColorLate: colors.lightyellow
+        diamondColorLate: colors.darkyellow
+        diamondColorMissing: colors.darkred
+        diamondColorUndated: colors.gray
 
       @grades = new Grades @$("#grades-graph"), $.extend {}, graphOpts,
         height: 200
         padding: 15
-        whiskerColor: darkgray
-        boxColor: lightgray
-        medianColor: darkgray
-        goodRingColor: lightgreen
-        goodCenterColor: darkgreen
-        fairRingColor: lightyellow
-        fairCenterColor: darkyellow
-        poorRingColor: lightred
-        poorCenterColor: darkred
+        whiskerColor: colors.darkgray
+        boxColor: colors.lightgray
+        medianColor: colors.darkgray
+        goodRingColor: colors.lightgreen
+        goodCenterColor: colors.darkgreen
+        fairRingColor: colors.lightyellow
+        fairCenterColor: colors.darkyellow
+        poorRingColor: colors.lightred
+        poorCenterColor: colors.darkred
