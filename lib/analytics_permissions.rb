@@ -20,8 +20,13 @@ module AnalyticsPermissions
       # do you have permission to use them?
       scope = Course.scoped(:conditions => {:workflow_state => ['available', 'completed']})
       @course = api_request? ? api_find(scope, params[:course_id]) : scope.find(params[:course_id])
-      authorized_action(@course, @current_user, :view_analytics) &&
-      authorized_action(@course, @current_user, :read)
+      return false unless authorized_action(@course, @current_user, :view_analytics) &&
+        authorized_action(@course, @current_user, :read)
+
+      @course_analytics = Analytics::Course.new(@current_user, session, @course)
+      raise ActiveRecord::RecordNotFound unless @course_analytics.available?
+
+      return true
     end
 
     def require_analytics_for_student_in_course
@@ -30,8 +35,9 @@ module AnalyticsPermissions
       # you can use analytics and see this course, but do you have access to this
       # student's enrollment in the course?
       @student = api_request? ? api_find(User, params[:student_id]) : User.find(params[:student_id])
-      @analytics = Analytics::StudentInCourse.new(@current_user, session, @course, @student)
-      raise ActiveRecord::RecordNotFound unless @analytics.available?
+
+      @student_analytics = Analytics::StudentInCourse.new(@current_user, session, @course, @student)
+      raise ActiveRecord::RecordNotFound unless @student_analytics.available?
 
       return true
     end

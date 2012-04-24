@@ -9,11 +9,11 @@ class AnalyticsController < ApplicationController
 
   def student_in_course
     @course_json = course_json(@course, @current_user, session, ['html_url'], false)
-    @student_json = student_json(@student, @analytics.enrollments.first)
-    @students = Analytics::StudentInCourse.available_enrollments(@current_user, @course).
+    @student_json = student_json(@student, @student_analytics.enrollment)
+    @students = @course_analytics.enrollments.
       map{ |enrollment| student_json(enrollment.user, enrollment) }
-    @start_date = @analytics.start_date
-    @end_date = @analytics.end_date
+    @start_date = @student_analytics.start_date
+    @end_date = @student_analytics.end_date
   end
 
   private
