@@ -1,0 +1,19 @@
+<%
+  js_env :ANALYTICS => {
+    :course => @course_json,
+    :startDate => @start_date,
+    :endDate => @end_date
+  }
+
+  add_crumb t(:analytics, "Analytics")
+  add_crumb t(:analytics_view, "Course")
+%>
+
+<% content_for :page_title do %>
+  <%= t(:page_title, "Analytics: Course") %>
+<% end %>
+
+<div id="analytics_body"></div>
+
+<% jammit_css :analytics, :plugin => :analytics %>
+<% js_bundle :course, :plugin => :analytics %>

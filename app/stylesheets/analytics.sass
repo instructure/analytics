@@ -30,7 +30,7 @@ div#analytics_body
       th
         padding-right: 10px
 
-  table.student_graphs
+  table.student_graphs, table.course_graphs
     width: 100%
     tr
       border-top: 1px solid #eaeaea
@@ -70,5 +70,86 @@ div#analytics_body
   .ui-menu-carat, .ui-menu-carat span
     border-color: black transparent
 
-#grades-graph, #assignment-finishing-graph, #responsiveness-graph, #participating-graph
+#grades-graph, #assignment-finishing-graph, #responsiveness-graph,
+#participating-graph, #finishing-assignments-graph
   position: relative
+
+#students
+  width: 100%
+
+  tr
+    border-top: 1px solid #eaeaea
+
+  th, td
+    padding: 0
+
+    > div
+      margin: 0
+      padding: 2px 10px
+      height: 30px
+      line-height: 30px
+
+  th
+    font-size: 17px
+
+  .student
+    text-align: left
+
+  .page_views, .participations, .assignments
+    text-align: center
+    position: relative
+
+    .paper
+      display: inline-block
+      position: relative
+      border-width: 1px
+      border-style: solid
+      height: 16px
+      width: 100px
+      margin: 7px 0
+
+      span
+        position: absolute
+        top: 0
+        bottom: 0
+        left: 0
+        right: 0
+
+  .page_views .paper
+    // colors.lightgray
+    border-color: #cccccc
+    span
+      background-color: #cccccc
+
+  .participations .paper
+    // colors.blue
+    border-color: #29abe1
+    span
+      background-color: #29abe1
+
+  .assignments .paper
+    // colors.lightgray
+    border-color: #cccccc
+    span.onTime
+      // colors.sharpgreen
+      background-color: #8cd20d
+    span.late
+      // colors.sharpyellow
+      background-color: #f6bd00
+    span.missing
+      // colors.sharpred
+      background-color: #d21d1a
+
+  .current_score
+    text-align: right
+
+  .student
+    padding-left: 50px
+    position: relative
+
+    .avatar_url
+      position: absolute
+      top: 2px
+      left: 10px
+      width: 30px
+      max-height: 30px
