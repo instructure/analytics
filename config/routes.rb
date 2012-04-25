@@ -1,4 +1,5 @@
 ActionController::Routing::Routes.draw do |map|
+  map.analytics_course 'analytics/courses/:course_id', :conditions => { :method => :get }, :controller => 'analytics', :action => 'course'
   map.analytics_student_in_course 'analytics/courses/:course_id/users/:student_id', :conditions => { :method => :get }, :controller => 'analytics', :action => 'student_in_course'
 
   map.connect 'api/v1/analytics/participation/courses/:course_id', :conditions => { :method => :get }, :controller => 'analytics_api', :action => 'course_participation', :format => 'json'

@@ -1,0 +1,20 @@
+<tr>
+  <td>
+    <div class='student'>
+      <img class="avatar_url" src="{{avatar_url}}">
+      <a href="{{analytics_url}}">{{name}}</a>
+    </div>
+  </td>
+  <td><div class='page_views' /></td>
+  <td><div class='participations' /></td>
+  <td><div class='assignments' /></td>
+  <td>
+    <div class='current_score'>
+      {{#if current_score}}
+        {{current_score}}%
+      {{else}}
+        --
+      {{/if}}
+    </div>
+  </td>
+</tr>

@@ -28,4 +28,7 @@ define [
               onTime: summary.tardiness_breakdown.on_time
               late: summary.tardiness_breakdown.late
               missing: summary.tardiness_breakdown.missing
-        student.trigger 'change'
+
+          setTimeout ->
+            student.trigger 'change'
+          , 15

@@ -1,0 +1,55 @@
+<div>
+  <h2><a class="course_link" href="{{course.html_url}}">{{course.name}}</a></h2>
+
+  <table class="course_graphs">
+    <tr>
+      <td>
+        <h4><span class="graph_name">Participation</span></h4>
+
+        <p class="description">
+          Each bar represents the number of page views on that day. A blue bar
+          indicates that some student took an action within the course on that
+          day.
+        </p>
+      </td>
+      <td><div class="graph" id="participating-graph"/></td>
+    </tr>
+    <tr>
+      <td>
+        <h4><span class="graph_name">Finishing Assignments</span></h4>
+
+        <p class="description">
+          Each bar is one assignment. The bottom green layer represents the
+          percentage of students that turned in the assignment on time. For
+          assignments that are past due, the middle yellow layer and top red
+          layer represent the percentage of students that turned in the
+          assignment late, or haven't turned in the assignment (respectively).
+        </p>
+      </td>
+      <td><div class="graph" id="finishing-assignments-graph"/></td>
+    </tr>
+    <tr>
+      <td>
+        <h4><span class="graph_name">Grades</span></h4>
+
+        <p class="description">
+          Each bar is one assignment. The thin whisker extends from the minimum
+          score for any student in the course to the maximum score. The wider bar
+          extends from the 25th percentile to the 75th, with the median marked.
+        </p>
+      </td>
+      <td><div class="graph" id="grades-graph"/></td>
+    </tr>
+  </table>
+
+  <table id='students' style='width:100%;'>
+    <tr>
+      <th class='student'>Student</th>
+      <th class='page_views'>Page Views</th>
+      <th class='participations'>Participations</th>
+      <th class='assignments'>Assignments</th>
+      <th class='current_score'>Current Score</th>
+    </tr>
+    <tbody />
+  </table>
+</div>
