@@ -22,10 +22,13 @@ describe "analytics" do
   end
 
   def add_students_to_course(number_to_add)
+    added_students = []
     number_to_add.times do |i|
       student = User.create!(:name => "analytics_student_#{i}")
       @course.enroll_student(student).accept!
+      added_students.push(student)
     end
+    added_students
   end
 
   def student_roster
@@ -169,11 +172,14 @@ describe "analytics" do
     end
 
     def randomly_grade_assignments(number_of_assignments)
+      graded_assignments = []
       number_of_assignments.times do |i|
         assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100, :due_at => Time.now.utc)
         assignment.submit_homework(@student)
         assignment.grade_student(@student, :grade => rand(100) + 1)
+        graded_assignments.push(assignment)
       end
+      graded_assignments
     end
 
     def validate_tooltip_text(css_selector, text)
@@ -181,6 +187,10 @@ describe "analytics" do
       tooltip = f('.analytics-tooltip')
       tooltip.should include_text(text)
       tooltip
+    end
+
+    def get_diamond(assignment_id)
+      driver.execute_script("return $('#assignment-finishing-graph .assignment_#{assignment_id}').prev()[0]")
     end
 
     before (:each) do
@@ -245,10 +255,6 @@ describe "analytics" do
     end
 
     it "should validate finishing assignments graph" do
-      def get_diamond(assignment_id)
-        driver.execute_script("return $('#assignment-finishing-graph .assignment_#{assignment_id}').prev()[0]")
-      end
-
       # setting up assignments
       missed_assignment = @course.assignments.create!(:title => "missed assignment", :due_at => 5.days.ago, :points_possible => 10)
       no_due_date_assignment = @course.assignments.create!(:title => 'no due date assignment', :due_at => nil, :points_possible => 20)
@@ -272,8 +278,8 @@ describe "analytics" do
 
     it "should validate grades graph" do
       randomly_grade_assignments(10)
-      first_assignment = Assignment.first
-      first_submission_score = Submission.first.score.to_s
+      first_assignment = @course.active_assignments.first
+      first_submission_score = first_assignment.submissions.first.score.to_s
       validation_text = ['Score: ' + first_submission_score + ' / 100', first_assignment.title]
       go_to_analytics
       validation_text.each { |text| validate_tooltip_text("#grades-graph .assignment_#{first_assignment.id}.cover", text) }
@@ -281,12 +287,79 @@ describe "analytics" do
 
     it "should validate a non-graded assignment on graph" do
       @course.assignments.create!(:title => 'new assignment', :points_possible => 10)
-      first_assignment = Assignment.first
+      first_assignment = @course.active_assignments.first
       go_to_analytics
 
       driver.execute_script("$('#grades-graph .assignment_#{first_assignment.id}.cover').mouseover()")
       tooltip = f(".analytics-tooltip")
       tooltip.text.should == first_assignment.title
+    end
+
+    describe "student combo box" do
+
+      def validate_combobox_presence(is_present = true)
+        if is_present
+          f('.ui-combobox').should be_displayed
+          f('.student_link').should be_nil
+        else
+          f('.ui-combobox').should be_nil
+          f('.student_link').should be_displayed
+        end
+      end
+
+      it "should validate student combo box shows up when >= 2 students are in the course" do
+        add_students_to_course(1)
+        go_to_analytics
+        validate_combobox_presence
+      end
+
+      it "should not show the combo box when course student count = 1" do
+        go_to_analytics
+        validate_combobox_presence(false)
+      end
+
+      it "should display the correct student info when selected in the combo box" do
+        def select_next_student(nav_button, expected_student)
+          nav_button.click
+          wait_for_ajaximations
+          driver.current_url.should include(expected_student.id.to_s)
+        end
+
+        def validate_combobox_name(student_name)
+          f('.ui-selectmenu-status').should include_text(student_name)
+        end
+
+        def validate_first_students_grade_graph
+          first_assignment = @course.active_assignments.first
+          first_submission_score = first_assignment.submissions.first.score.to_s
+          validation_text = ['Score: ' + first_submission_score + ' / 100', first_assignment.title]
+          validation_text.each { |text| validate_tooltip_text("#grades-graph .assignment_#{first_assignment.id}.cover", text) }
+        end
+
+        added_students = add_students_to_course(1)
+        graded_assignments = randomly_grade_assignments(5)
+        go_to_analytics
+        next_button = f('.ui-combobox-next')
+        prev_button = f('.ui-combobox-prev')
+
+        #check that first student in course is selected
+        driver.current_url.should include(@student.id.to_s)
+        validate_combobox_name(@student.name)
+
+        #validate grades graph for first graded student
+        validate_first_students_grade_graph
+
+        #change to the next student
+        select_next_student(next_button, added_students[0])
+        validate_combobox_name(added_students[0].name)
+        assignment_diamond = get_diamond(graded_assignments[0].id)
+        assignment_diamond.attribute('fill').should == "#da181d"
+
+        #change back to the first student
+        select_next_student(prev_button, @student)
+        validate_combobox_name(@student.name)
+        validate_first_students_grade_graph
+      end
     end
   end
 end
