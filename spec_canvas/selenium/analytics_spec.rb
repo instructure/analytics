@@ -1,35 +1,11 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/selenium/common')
+require File.expand_path(File.dirname(__FILE__) + '/analytics_common')
 
 describe "analytics" do
-  it_should_behave_like "in-process server selenium tests"
+  it_should_behave_like "analytics tests"
 
   ANALYTICS_BUTTON_CSS = '.analytics-grid-button'
   ANALYTICS_BUTTON_TEXT = 'Student Analytics for '
-
-  def enable_analytics
-    @account = Account.last
-    if @account.allowed_services.nil?;
-      @account.allowed_services = '+analytics'
-    else
-      @account.allowed_services += ',+analytics'
-    end
-    @account.save!
-    @account
-  end
-
-  def enable_teacher_permissions
-    RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => true)
-  end
-
-  def add_students_to_course(number_to_add)
-    added_students = []
-    number_to_add.times do |i|
-      student = User.create!(:name => "analytics_student_#{i}")
-      @course.enroll_student(student).accept!
-      added_students.push(student)
-    end
-    added_students
-  end
 
   def student_roster
     ff('.student_roster .user')
@@ -42,11 +18,7 @@ describe "analytics" do
   def validate_analytics_button_exists(exists = true)
     student = StudentEnrollment.last.user
     get "/courses/#{@course.id}/users/#{student.id}"
-    if !exists
-      right_nav_buttons.each { |right_nav_button| right_nav_button.should_not include_text(ANALYTICS_BUTTON_TEXT) }
-    else
-      right_nav_buttons[0].text.strip!.should == "Student Analytics for #{student.name}"
-    end
+    exists ? right_nav_buttons[0].text.strip!.should == "Student Analytics for #{student.name}" :  right_nav_buttons.each { |right_nav_button| right_nav_button.should_not include_text(ANALYTICS_BUTTON_TEXT) }
   end
 
   def validate_analytics_icons_exist(exist = true)
@@ -166,29 +138,6 @@ describe "analytics" do
 
   describe "analytics view" do
 
-    def go_to_analytics
-      get "/analytics/courses/#{@course.id}/users/#{@student.id}"
-      wait_for_ajaximations
-    end
-
-    def randomly_grade_assignments(number_of_assignments)
-      graded_assignments = []
-      number_of_assignments.times do |i|
-        assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100, :due_at => Time.now.utc)
-        assignment.submit_homework(@student)
-        assignment.grade_student(@student, :grade => rand(100) + 1)
-        graded_assignments.push(assignment)
-      end
-      graded_assignments
-    end
-
-    def validate_tooltip_text(css_selector, text)
-      driver.execute_script("$('#{css_selector}').mouseover()")
-      tooltip = f('.analytics-tooltip')
-      tooltip.should include_text(text)
-      tooltip
-    end
-
     def get_diamond(assignment_id)
       driver.execute_script("return $('#assignment-finishing-graph .assignment_#{assignment_id}').prev()[0]")
     end
@@ -213,13 +162,11 @@ describe "analytics" do
       randomly_grade_assignments(5)
       go_to_analytics
 
-      computed_student_score = StudentEnrollment.last.computed_current_score.to_s
-      f('.student_summary').should include_text(computed_student_score)
+      f('.student_summary').should include_text(current_student_score)
     end
 
-    it "should validate participating graph" do
-      pending("need to figure out how to seed page views")
-    end
+    #TODO: figure out how to seed page views
+    it "should validate participating graph"
 
     it "should validate responsiveness graph" do
       single_message = '1 message'
@@ -256,24 +203,19 @@ describe "analytics" do
 
     it "should validate finishing assignments graph" do
       # setting up assignments
-      missed_assignment = @course.assignments.create!(:title => "missed assignment", :due_at => 5.days.ago, :points_possible => 10)
-      no_due_date_assignment = @course.assignments.create!(:title => 'no due date assignment', :due_at => nil, :points_possible => 20)
-      late_assignment = @course.assignments.create!(:title => 'late assignment', :due_at => 1.day.ago, :points_possible => 20, :submission_types => 'online_url')
-      late_assignment.submit_homework(@student, :submission_type => 'online_url')
-      on_time_assignment = @course.assignments.create!(:title => 'on time submission', :due_at => 2.days.from_now, :points_possible => 10, :submission_types => 'online_url')
-      on_time_assignment.submit_homework(@student, :submission_type => 'online_url')
+      setup_variety_assignments
       go_to_analytics
 
-      missed_diamond = get_diamond(missed_assignment.id)
-      no_due_date_diamond = get_diamond(no_due_date_assignment.id)
-      late_submission_diamond = get_diamond(late_assignment.id)
-      on_time_diamond = get_diamond(on_time_assignment.id)
+      missed_diamond = get_diamond(@missed_assignment.id)
+      no_due_date_diamond = get_diamond(@no_due_date_assignment.id)
+      late_submission_diamond = get_diamond(@late_assignment.id)
+      on_time_diamond = get_diamond(@on_time_assignment.id)
 
-      missed_diamond.attribute('fill').should == "#da181d"
-      late_submission_diamond.attribute('fill').should == '#b3a700'
-      on_time_diamond.attribute('fill').should == '#2fa23e'
-      no_due_date_diamond.attribute('fill').should == "none"
-      no_due_date_diamond.attribute('stroke').should == "#a1a1a1"
+      validate_element_fill(missed_diamond, GraphColors::DARK_RED)
+      validate_element_fill(late_submission_diamond, GraphColors::DARK_YELLOW)
+      validate_element_fill(on_time_diamond, GraphColors::DARK_GREEN)
+      validate_element_fill(no_due_date_diamond, 'none')
+      validate_element_stroke(no_due_date_diamond, GraphColors::GRAY)
     end
 
     it "should validate grades graph" do
@@ -281,6 +223,7 @@ describe "analytics" do
       first_assignment = @course.active_assignments.first
       first_submission_score = first_assignment.submissions.first.score.to_s
       validation_text = ['Score: ' + first_submission_score + ' / 100', first_assignment.title]
+      setup_for_grades_graph
       go_to_analytics
       validation_text.each { |text| validate_tooltip_text("#grades-graph .assignment_#{first_assignment.id}.cover", text) }
     end
@@ -353,7 +296,7 @@ describe "analytics" do
         select_next_student(next_button, added_students[0])
         validate_combobox_name(added_students[0].name)
         assignment_diamond = get_diamond(graded_assignments[0].id)
-        assignment_diamond.attribute('fill').should == "#da181d"
+        validate_element_fill(assignment_diamond, GraphColors::DARK_RED)
 
         #change back to the first student
         select_next_student(prev_button, @student)
