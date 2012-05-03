@@ -1,11 +1,10 @@
 define [
-  'jquery'
   'underscore'
-  'analytics/compiled/graphs/base'
+  'analytics/compiled/graphs/DateAlignedGraph'
   'analytics/compiled/graphs/cover'
-  'analytics/compiled/graphs/date_axis'
   'analytics/compiled/helpers'
-], ($, _, Base, Cover, dateAxis, helpers) ->
+  'i18nObj'
+], (_, DateAlignedGraph, Cover, helpers, I18n) ->
 
   ##
   # AssignmentTardiness visualizes the student's ability to turn in assignments
@@ -15,50 +14,6 @@ define [
   # the time between the student's submission and the due date.
 
   defaultOptions =
-
-    ##
-    # The date for the left end of the graph. Required.
-    startDate: null
-
-    ##
-    # The date for the right end of the graph. Required.
-    endDate: null
-
-    ##
-    # Padding, in pixels, between the frame and the graph contents.
-    padding: 5
-
-    ##
-    # Padding, in pixels, between the top and bottom of the frame and the graph
-    # contents. Can be overridden for particular sides via the options below.
-    # Defaults to padding if unset.
-    verticalPadding: null
-
-    ##
-    # Padding, in pixels, between the top of the frame and the graph contents.
-    # Defaults to verticalPadding if unset.
-    topPadding: null
-
-    ##
-    # Padding, in pixels, between the bottom of the frame and the graph
-    # contents. Defaults to verticalPadding if unset.
-    bottomPadding: null
-
-    ##
-    # Padding, in pixels, between the left and right of the frame and the graph
-    # contents. Can be overridden for particular sides via the options below.
-    # Defaults to padding if unset.
-    horizontalPadding: null
-
-    ##
-    # Padding, in pixels, between the left of the frame and the graph contents.
-    # Defaults to horizontalPadding if unset.
-    leftPadding: null
-
-    ##
-    # Padding, in pixels, between the right of the frame and the graph
-    # contents. Defaults to horizontalPadding if unset.
-    rightPadding: null
 
     ##
     # The height of the submission bars, in pixels.
@@ -98,57 +53,24 @@ define [
     # Diamond color for undated assignments.
     diamondColorUndated: "darkgray"
 
-  class AssignmentTardiness extends Base
+  class AssignmentTardiness extends DateAlignedGraph
     ##
-    # Takes an element id and options, same as for Base. Recognizes the options
-    # described above in addition to the options for Base.
+    # Takes an element and options, same as for DateAlignedGraph. Recognizes
+    # the options described above in addition to the options for
+    # DateAlignedGraph.
     constructor: (div, options) ->
       super
-
-      # check for required options
-      throw new Error "startDate is required" unless options.startDate?
-      throw new Error "endDate is required" unless options.endDate?
 
       # copy in recognized options with defaults
       for key, defaultValue of defaultOptions
         @[key] = options[key] ? defaultValue
 
-      # these options have defaults based on other options
-      @verticalPadding ?= @padding
-      @topPadding ?= @verticalPadding
-      @bottomPadding ?= @verticalPadding
-      @horizontalPadding ?= @padding
-      @leftPadding ?= @horizontalPadding
-      @rightPadding ?= @horizontalPadding
       @diamondHeight ?= @barHeight + 2
-
-      # calculate remaining pieces
-      @startHour = @hour @startDate
-      @endHour = @hour @endDate
       @gutterHeight = @gutterPercent * @barHeight
       @barSpacing = @barHeight + @gutterHeight
 
-      # center of start diamond = @leftMargin + @leftPadding
-      # center of end diamond = @leftMargin + @width - @rightPadding
-      @x0 = @leftMargin + @leftPadding
-      @hourSpacing = (@width - @leftPadding - @rightPadding) / (@endHour - @startHour)
-
       # middle of first bar
       @y0 = @topMargin + @topPadding + @diamondHeight / 2
-
-    ##
-    # Convert a Date object to an hour index.
-    hour: (date) ->
-      if date?
-        helpers.dateToHours(date)
-      else
-        null
-
-    ##
-    # Reset the graph chrome.
-    reset: ->
-      super
-      dateAxis this
 
     ##
     # Graph the assignments.
@@ -228,23 +150,28 @@ define [
     # Convert an assignment's due date to an x-coordinate. If no due date, use
     # submitted at. If no due date and not submitted, use the end date.
     dueX: (assignment) ->
-      @hourX @hour(assignment.dueAt ? assignment.submittedAt) || @endHour
+      @dateX(assignment.dueAt ? assignment.submittedAt ? @endDate)
 
     ##
     # Convert an assignment's submitted at to an x-coordinate.
     submittedX: (assignment) ->
-      submittedHour = @hour assignment.submittedAt
-      if submittedHour? then @hourX submittedHour else null
-
-    ##
-    # Convert an hour index to an x-coordinate.
-    hourX: (hour) ->
-      @x0 + (hour - @startHour) * @hourSpacing
+      if assignment.submittedAt?
+        @dateX assignment.submittedAt
+      else
+        null
 
     ##
     # Convert a date to an x-coordinate.
-    dateX: (date) ->
-      @hourX @hour date
+    dateX: (datetime) ->
+      floorDate = helpers.midnight datetime, 'floor'
+      ceilDate = helpers.midnight datetime, 'ceil'
+      floorX = super floorDate
+      if ceilDate.equals floorDate
+        floorX
+      else
+        ceilX = super ceilDate
+        fraction = (datetime.getTime() - floorDate.getTime()) / (ceilDate.getTime() - floorDate.getTime())
+        floorX + fraction * (ceilX - floorX)
 
     ##
     # Convert an assignment index to a y-coordinate.
@@ -292,11 +219,17 @@ define [
     tooltip: (assignment) ->
       tooltip = assignment.title
       if assignment.dueAt?
-        tooltip += "<br/>Due: #{assignment.dueAt.toDateString()}"
+        dueAtString = I18n.t 'time.due_date',
+          date: I18n.l('date.formats.medium', assignment.dueAt)
+          time: I18n.l('time.formats.tiny', assignment.dueAt)
+        tooltip += "<br/>Due: #{dueAtString}"
       else
         tooltip += "<br/>(no due date)"
       if assignment.submittedAt?
-        tooltip += "<br/>Submitted: #{assignment.submittedAt.toDateString()}"
+        submittedAtString = I18n.t 'time.event',
+          date: I18n.l('date.formats.medium', assignment.submittedAt)
+          time: I18n.l('time.formats.tiny', assignment.submittedAt)
+        tooltip += "<br/>Submitted: #{submittedAtString}"
       if assignment.muted
         tooltip += "<br/>Score: (muted)"
       else if assignment.studentScore?

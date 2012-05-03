@@ -17,42 +17,6 @@ define [
   defaultOptions =
 
     ##
-    # Padding, in pixels, between the frame and the graph contents.
-    padding: 5
-
-    ##
-    # Padding, in pixels, between the top and bottom of the frame and the graph
-    # contents. Can be overridden for particular sides via the options below.
-    # Defaults to padding if unset.
-    verticalPadding: null
-
-    ##
-    # Padding, in pixels, between the top of the frame and the graph contents.
-    # Defaults to verticalPadding if unset.
-    topPadding: null
-
-    ##
-    # Padding, in pixels, between the bottom of the frame and the graph
-    # contents. Defaults to verticalPadding if unset.
-    bottomPadding: null
-
-    ##
-    # Padding, in pixels, between the left and right of the frame and the graph
-    # contents. Can be overridden for particular sides via the options below.
-    # Defaults to padding if unset.
-    horizontalPadding: null
-
-    ##
-    # Padding, in pixels, between the left of the frame and the graph contents.
-    # Defaults to horizontalPadding if unset.
-    leftPadding: null
-
-    ##
-    # Padding, in pixels, between the right of the frame and the graph
-    # contents. Defaults to horizontalPadding if unset.
-    rightPadding: null
-
-    ##
     # The size of the vertical gutter between elements as a percent of the
     # width of those elements.
     gutterPercent: 0.20
@@ -96,15 +60,6 @@ define [
       for key, defaultValue of defaultOptions
         @[key] = options[key] ? defaultValue
 
-      # these options have defaults based on other options
-      @verticalPadding ?= @padding
-      @topPadding ?= @verticalPadding
-      @bottomPadding ?= @verticalPadding
-      @horizontalPadding ?= @padding
-      @leftPadding ?= @horizontalPadding
-      @rightPadding ?= @horizontalPadding
-
-      # calculate remaining pieces
       @base = @topMargin + @height - @bottomPadding
 
     ##

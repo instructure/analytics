@@ -30,7 +30,7 @@ require [
   # wrap data in view
   view = new StudentInCourseView
     model: model
-    startDate: helpers.midnight Date.parse ENV.ANALYTICS.startDate
-    endDate: helpers.midnight Date.parse ENV.ANALYTICS.endDate
+    startDate: helpers.midnight(Date.parse(ENV.ANALYTICS.startDate), 'floor')
+    endDate: helpers.midnight(Date.parse(ENV.ANALYTICS.endDate), 'ceil')
 
   $('#analytics_body').append view.$el

@@ -1,11 +1,9 @@
 define [
   'underscore'
-  'analytics/compiled/graphs/base'
+  'analytics/compiled/graphs/DateAlignedGraph'
   'analytics/compiled/graphs/cover'
-  'analytics/compiled/graphs/date_axis'
-  'analytics/compiled/helpers'
   'i18nObj'
-], (_, Base, Cover, dateAxis, helpers, I18n) ->
+], (_, DateAlignedGraph, Cover, I18n) ->
 
   ##
   # Responsiveness visualizes the student's communication frequency with the
@@ -15,53 +13,6 @@ define [
   # from instructors are in the bottom track.
 
   defaultOptions =
-
-    ##
-    # The date for the left end of the graph. Required.
-    startDate: null
-
-    ##
-    # The date for the right end of the graph. Required.
-    endDate: null
-
-    ##
-    # Padding, in pixels, between the frame and the graph contents. Note: On
-    # the left and right, this is space from the frame to the carat of the
-    # message icon, not the outer edge. This is necessary to keep the date
-    # graphs aligned.
-    padding: 5
-
-    ##
-    # Padding, in pixels, between the top and bottom of the frame and the graph
-    # contents. Can be overridden for particular sides via the options below.
-    # Defaults to padding if unset.
-    verticalPadding: null
-
-    ##
-    # Padding, in pixels, between the top of the frame and the graph contents.
-    # Defaults to verticalPadding if unset.
-    topPadding: null
-
-    ##
-    # Padding, in pixels, between the bottom of the frame and the graph
-    # contents. Defaults to verticalPadding if unset.
-    bottomPadding: null
-
-    ##
-    # Padding, in pixels, between the left and right of the frame and the graph
-    # contents. Can be overridden for particular sides via the options below.
-    # Defaults to padding if unset.
-    horizontalPadding: null
-
-    ##
-    # Padding, in pixels, between the left of the frame and the graph contents.
-    # Defaults to horizontalPadding if unset.
-    leftPadding: null
-
-    ##
-    # Padding, in pixels, between the right of the frame and the graph
-    # contents. Defaults to horizontalPadding if unset.
-    rightPadding: null
 
     ##
     # The size of the vertical gutter between the two tracks, in pixels.
@@ -87,37 +38,17 @@ define [
     # The fill color of the icons in the instructor track.
     instructorColor: "lightgreen"
 
-  class Responsiveness extends Base
+  class Responsiveness extends DateAlignedGraph
     ##
-    # Takes an element id and options, same as for Base. Recognizes the options
-    # described above in addition to the options for Base.
+    # Takes an element and options, same as for DateAlignedGraph. Recognizes
+    # the options described above in addition to the options for
+    # DateAlignedGraph.
     constructor: (div, options) ->
       super
-
-      # check for required options
-      throw new Error "startDate is required" unless options.startDate?
-      throw new Error "endDate is required" unless options.endDate?
 
       # copy in recognized options with defaults
       for key, defaultValue of defaultOptions
         @[key] = options[key] ? defaultValue
-
-      # these options have defaults based on other options
-      @verticalPadding ?= @padding
-      @topPadding ?= @verticalPadding
-      @bottomPadding ?= @verticalPadding
-      @horizontalPadding ?= @padding
-      @leftPadding ?= @horizontalPadding
-      @rightPadding ?= @horizontalPadding
-
-      # calculate remaining pieces
-      @startDay = @day @startDate
-      @endDay = @day @endDate
-
-      # carat of start marker = @leftMargin + leftPadding
-      # carat of end marker = @leftMargin + @width - rightPadding
-      @x0 = @leftMargin + @leftPadding
-      @daySpacing = (@width - @leftPadding - @rightPadding) / (@endDay - @startDay)
 
       # placement of tracks of markers
       @markerHeight = (@height - @topPadding - @bottomPadding - @gutterHeight) / 2
@@ -126,80 +57,43 @@ define [
       @center = @instructorTrack - @gutterHeight / 2
 
     ##
-    # Convert a Date object to a day index.
-    day: (date) ->
-      if date?
-        helpers.dateToDays(date)
-      else
-        null
-
-    ##
-    # Reset the graph chrome.
-    reset: ->
-      super
-      dateAxis this
-
-    ##
     # Graph the data.
     graph: (messaging) ->
       return unless super
 
-      messages = @binMessages messaging.messages
-      _.each messages, @graphDay
+      bins = _.filter messaging.bins, (bin) =>
+        bin.date.between(@startDate, @endDate) &&
+        bin.messages > 0
+
+      _.each bins, @graphBin
 
     ##
-    # Graph a single day. Fat arrowed because it's called by _.each
-    graphDay: (counts, day) =>
-      if counts.student > 0
-        @drawStudentMarker day
-        @cover day, @studentTrack, counts.student
-      if counts.instructor > 0
-        @drawInstructorMarker day
-        @cover day, @instructorTrack, counts.instructor
-
-    ##
-    # Bin the messages by day and track.
-    binMessages: (messages) ->
-      binned = {}
-      for date, counts of messages
-        day = @day Date.parse date
-        if day >= @startDay && day <= @endDay
-          binned[day] ?= { student: 0, instructor: 0 }
-          if counts.studentMessages?
-            binned[day].student ?= 0
-            binned[day].student += counts.studentMessages
-          if counts.instructorMessages?
-            binned[day].instructor ?= 0
-            binned[day].instructor += counts.instructorMessages
-      binned
+    # Graph a single bin; i.e. a (day, track) pair. Fat arrowed because
+    # it's called by _.each
+    graphBin: (bin) =>
+      switch bin.track
+        when 'student' then @graphStudentBin bin
+        when 'instructor' then @graphInstructorBin bin
 
     ##
     # Place a student marker for the given day.
-    drawStudentMarker: (day) ->
-      icon = @paper.path @studentPath day
+    graphStudentBin: (bin) ->
+      icon = @paper.path @studentPath bin.date
       icon.attr stroke: "white", fill: @studentColor
+      @cover bin.date, @studentTrack, bin.messages
 
     ##
     # Place an instructor marker for the given day.
-    drawInstructorMarker: (day) ->
-      icon = @paper.path @instructorPath day
+    graphInstructorBin: (bin) ->
+      icon = @paper.path @instructorPath bin.date
       icon.attr stroke: "white", fill: @instructorColor
-
-    ##
-    # Convert a day index to an x-coordinate.
-    dayX: (day) ->
-      @x0 + (day - @startDay) * @daySpacing
-
-    ##
-    # Convert a date to an x-coordinate.
-    dateX: (date) ->
-      @dayX @day date
+      @cover bin.date, @instructorTrack, bin.messages
 
     ##
     # Calculate the marker's bounding box (excluding carat) for a given day and
     # track.
-    markerBox: (day, track) ->
-      x = @dayX day
+    markerBox: (date, track) ->
+      x = @dateX date
       carat: x
       right: x + @caratOffset
       left: x + @caratOffset - @markerWidth
@@ -225,8 +119,8 @@ define [
 
     ##
     # Build an SVG path for a student marker on the given day.
-    studentPath: (day) ->
-      box = @markerBox day, @studentTrack
+    studentPath: (date) ->
+      box = @markerBox date, @studentTrack
       corners = @markerCorners box
       carat = @markerCarat box, 'down'
 
@@ -250,8 +144,8 @@ define [
 
     ##
     # Build an SVG path for an instructor marker on the given day.
-    instructorPath: (day) ->
-      box = @markerBox day, @instructorTrack
+    instructorPath: (date) ->
+      box = @markerBox date, @instructorTrack
       corners = @markerCorners box
       carat = @markerCarat box, 'up'
 
@@ -275,22 +169,22 @@ define [
 
     ##
     # Create a tooltip for a day and track bin.
-    cover: (day, track, value) ->
-      box = @markerBox day
+    cover: (date, track, value) ->
+      box = @markerBox date
       [top, bottom, direction, klass] = switch track
         when @studentTrack then [@topMargin, @center, 'down', 'student']
         when @instructorTrack then [@center, @topMargin + @height, 'up', 'instructor']
       new Cover this,
         region: @paper.rect box.left, top, @markerWidth, bottom - top
-        classes: [klass, I18n.l('date.formats.default', helpers.dayToDate day)]
+        classes: [klass, I18n.l('date.formats.default', date)]
         tooltip:
-          contents: @tooltip(day, value)
+          contents: @tooltip(date, value)
           x: box.carat
           y: @center
           direction: direction
 
     ##
     # Build the text for a bin's tooltip.
-    tooltip: (day, value) ->
+    tooltip: (date, value) ->
       noun = if value is 1 then "message" else "messages"
-      "#{helpers.dayToDate(day).toDateString()}<br/>#{value} #{noun}"
+      "#{I18n.l 'date.formats.medium', date}<br/>#{value} #{noun}"

@@ -1,11 +1,9 @@
 define [
   'underscore'
-  'analytics/compiled/graphs/base'
+  'analytics/compiled/graphs/DateAlignedGraph'
   'analytics/compiled/graphs/cover'
-  'analytics/compiled/graphs/date_axis'
-  'analytics/compiled/helpers'
   'i18nObj'
-], (_, Base, Cover, dateAxis, helpers, I18n) ->
+], (_, DateAlignedGraph, Cover, I18n) ->
 
   ##
   # PageViews visualizes the student's activity within the course. Each bar
@@ -15,53 +13,6 @@ define [
   # other days.
 
   defaultOptions =
-
-    ##
-    # The date for the left end of the graph. Required.
-    startDate: null
-
-    ##
-    # The date for the right end of the graph. Required.
-    endDate: null
-
-    ##
-    # Padding, in pixels, between the frame and the graph contents. Note: On
-    # the left and right, this is space from the frame to the *center* of the
-    # bar on the startDate, not the outer edge. This is necessary to keep the
-    # date graphs aligned.
-    padding: 5
-
-    ##
-    # Padding, in pixels, between the top and bottom of the frame and the graph
-    # contents. Can be overridden for particular sides via the options below.
-    # Defaults to padding if unset.
-    verticalPadding: null
-
-    ##
-    # Padding, in pixels, between the top of the frame and the graph contents.
-    # Defaults to verticalPadding if unset.
-    topPadding: null
-
-    ##
-    # Padding, in pixels, between the bottom of the frame and the graph
-    # contents. Defaults to verticalPadding if unset.
-    bottomPadding: null
-
-    ##
-    # Padding, in pixels, between the left and right of the frame and the graph
-    # contents. Can be overridden for particular sides via the options below.
-    # Defaults to padding if unset.
-    horizontalPadding: null
-
-    ##
-    # Padding, in pixels, between the left of the frame and the graph contents.
-    # Defaults to horizontalPadding if unset.
-    leftPadding: null
-
-    ##
-    # Padding, in pixels, between the right of the frame and the graph
-    # contents. Defaults to horizontalPadding if unset.
-    rightPadding: null
 
     ##
     # The size of the vertical gutter between elements as a percent of the
@@ -76,113 +27,52 @@ define [
     # The fill color of the bars on days with participations.
     participationColor: "lightblue"
 
-  class PageViews extends Base
+  class PageViews extends DateAlignedGraph
     ##
-    # Takes an element id and options, same as for Base. Recognizes the options
-    # described above in addition to the options for Base.
+    # Takes an element and options, same as for DateAlignedGraph. Recognizes
+    # the options described above in addition to the options for
+    # DateAlignedGraph.
     constructor: (div, options) ->
       super
-
-      # check for required options
-      throw new Error "startDate is required" unless options.startDate?
-      throw new Error "endDate is required" unless options.endDate?
 
       # copy in recognized options with defaults
       for key, defaultValue of defaultOptions
         @[key] = options[key] ? defaultValue
 
-      # these options have defaults based on other options
-      @verticalPadding ?= @padding
-      @topPadding ?= @verticalPadding
-      @bottomPadding ?= @verticalPadding
-      @horizontalPadding ?= @padding
-      @leftPadding ?= @horizontalPadding
-      @rightPadding ?= @horizontalPadding
-
-      # calculate remaining pieces
-      @startDay = @day @startDate
-      @endDay = @day @endDate
-
-      # center of start bar = @leftMargin + leftPadding
-      # center of end bar = @leftMargin + @width - rightPadding
       # space between bars = gutterPercent of barWidth
-      @x0 = @leftMargin + @leftPadding
-      @daySpacing = (@width - @leftPadding - @rightPadding) / (@endDay - @startDay)
       @barWidth = @daySpacing / (1 + @gutterPercent)
 
       # base of bars = @topMargin + @height - @bottomPadding
       @base = @topMargin + @height - @bottomPadding
 
     ##
-    # Convert a Date object to a day index.
-    day: (date) ->
-      if date?
-        helpers.dateToDays(date)
-      else
-        null
-
-    ##
-    # Reset the graph chrome.
-    reset: ->
-      super
-      dateAxis this
-
-    ##
     # Graph the data.
     graph: (participation) ->
       return unless super
 
-      histogram = @binData participation
-      @scaleToData histogram
-      _.each histogram, @graphBin
+      bins = _.filter participation.bins, (bin) =>
+        bin.date.between @startDate, @endDate
 
-    ##
-    # Bin the page view and participation data by day.
-    binData: (participation) ->
-      histogram = {}
-      for date, counts of participation.pageViews
-        day = @day Date.parse date
-        if day >= @startDay && day <= @endDay
-          histogram[day] ?= total: 0
-          for action, count of counts
-            histogram[day].total += count
-            histogram[day].counts ?= {}
-            histogram[day].counts[action] ?= 0
-            histogram[day].counts[action] += count
-      for event in participation.participations
-        day = @day Date.parse event.created_at
-        histogram[day] ?= total: 0
-        histogram[day].participations ?= []
-        histogram[day].participations.push event
-      histogram
+      @scaleToData bins
+      _.each bins, @graphBin
 
     ##
     # Choose appropriate sizes for the graph elements based on maximum value
     # being graphed.
-    scaleToData: (histogram) ->
+    scaleToData: (bins) ->
       # top of max bar = @topMargin + @topPadding
-      totals = (bin.total for day, bin of histogram)
+      totals = (bin.total for bin in bins)
       max = Math.max(totals...)
       @countSpacing = (@height - @topPadding - @bottomPadding) / max
 
     ##
     # Graph a single bin. Fat arrowed because it's called by _.each
-    graphBin: (bin, day) =>
-      x = @dayX day
+    graphBin: (bin) =>
+      x = @dateX bin.date
       height = @binHeight bin
       bar = @paper.rect x - @barWidth / 2, @base - height, @barWidth, height
       bar.attr @binColors bin
-      @cover x, day, bin
-
-    ##
-    # Convert an day index to an x-coordinate.
-    dayX: (day) ->
-      @x0 + (day - @startDay) * @daySpacing
-
-    ##
-    # Convert a date to an x-coordinate.
-    dateX: (date) ->
-      @dayX @day date
+      @cover x, bin
 
     ##
     # Calculate the height of a bin, in pixels.
@@ -192,7 +82,7 @@ define [
     ##
     # Determine the colors to use for a bin.
     binColors: (bin) ->
-      if bin.participations?
+      if bin.participations.length > 0
         stroke: "white"
         fill: @participationColor
       else
@@ -201,21 +91,21 @@ define [
 
     ##
     # Create a tooltip for the bin.
-    cover: (x, day, bin) ->
+    cover: (x, bin) ->
       new Cover this,
         region: @paper.rect x - @daySpacing / 2, @topMargin, @daySpacing, @height
-        classes: I18n.l 'date.formats.default', helpers.dayToDate day
+        classes: I18n.l 'date.formats.default', bin.date
         tooltip:
-          contents: @tooltip day, bin
+          contents: @tooltip bin
           x: x
           y: @base
           direction: 'down'
 
     ##
     # Build the text for the bin's tooltip.
-    tooltip: (day, bin) ->
-      tooltip = helpers.dayToDate(day).toDateString()
-      if bin.participations?
+    tooltip: (bin) ->
+      tooltip = I18n.l 'date.formats.medium', bin.date
+      if bin.participations.length > 0
         count = bin.participations.length
         noun = if count is 1 then "participation" else "participations"
         tooltip += "<br/>#{count} #{noun}"
