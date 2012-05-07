@@ -5,4 +5,5 @@ Rails.configuration.to_prepare do
 
   require_dependency 'analytics_permissions'
   require_dependency 'context_controller_with_extensions'
+  require_dependency 'courses_controller_with_extensions'
 end

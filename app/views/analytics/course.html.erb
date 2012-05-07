@@ -5,12 +5,12 @@
     :endDate => @end_date
   }
 
-  add_crumb t(:analytics, "Analytics")
-  add_crumb t(:analytics_view, "Course")
+  add_crumb @course.short_name, url_for(@course)
+  add_crumb t(:analytics, "Analytics"), analytics_course_path(:course_id => @course.id)
 %>
 
 <% content_for :page_title do %>
-  <%= t(:page_title, "Analytics: Course") %>
+  <%= t :page_title, "Analytics: %{course}", :course => @course.short_name %>
 <% end %>
 
 <div id="analytics_body"></div>

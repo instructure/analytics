@@ -21,11 +21,13 @@ require [
   router.on 'route:studentInCourse', (courseId, studentId) =>
     model.loadById parseInt(courseId, 10), parseInt(studentId, 10)
 
-  model.on 'change:student', ->
-    router.navigate "courses/#{model.get('course').id}/users/#{model.get('student').id}"
-
-  model.on 'change:course', ->
-    router.navigate "courses/#{model.get('course').id}/users/#{model.get('student').id}"
+  model.on 'change:student change:course', ->
+    course = model.get('course')
+    student = model.get('student')
+    $('title').text "Analytics: #{course.short_name} -- #{student.short_name}"
+    $('#student_analytics_crumb span').text student.short_name
+    $('#student_analytics_crumb a').attr href: student.analytics_url
+    router.navigate "courses/#{course.id}/users/#{student.id}"
 
   # wrap data in view
   view = new StudentInCourseView
