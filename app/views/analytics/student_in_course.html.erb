@@ -7,12 +7,13 @@
     :endDate => @end_date
   }
 
-  add_crumb t(:analytics, "Analytics")
-  add_crumb t(:analytics_view, "Student in Course")
+  add_crumb @course.short_name, url_for(@course)
+  add_crumb t(:analytics, "Analytics"), analytics_course_path(:course_id => @course.id)
+  add_crumb @student.short_name, analytics_student_in_course_path(:course_id => @course.id, :student_id => @student.id), :id => "student_analytics_crumb"
 %>
 
 <% content_for :page_title do %>
-  <%= t(:page_title, "Analytics: Student in Course") %>
+  <%= t :page_title, "Analytics: %{course} -- %{student}", :course => @course.short_name, :student => context_user_name(@course, @student) %>
 <% end %>
 
 
