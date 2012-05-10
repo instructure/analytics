@@ -42,6 +42,7 @@
     'compiled/util': '../../../../../public/javascripts/compiled/util',
     'compiled/widget': '../../../../../public/javascripts/compiled/widget',
     'compiled/behaviors': '../../../../../public/javascripts/compiled/behaviors',
+    'compiled/userSettings': '../../../../../public/javascripts/compiled/userSettings',
     'i18n': '../../../../../public/javascripts/i18n',
     'i18nObj': '../../../../../public/javascripts/i18nObj',
     'instructure': '../../../../../public/javascripts/instructure',
