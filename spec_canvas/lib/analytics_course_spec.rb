@@ -216,11 +216,6 @@ describe Analytics::Course do
       page_view(:user => @student, :course => @other_course)
       @teacher_analytics.page_views.should be_empty
     end
-
-    it "should not include summarized page views" do
-      page_view(:user => @student, :course => @course, :summarized => true)
-      @teacher_analytics.page_views.should be_empty
-    end
   end
 
   describe "#assignments" do
@@ -541,7 +536,6 @@ Spec::Runner.configure do |config|
       :user => user,
       :controller => controller)
 
-    page_view.summarized = summarized
     page_view.request_id = ''
 
     if opts[:participated]
@@ -551,6 +545,11 @@ Spec::Runner.configure do |config|
     end
 
     page_view.save!
+
+    # has to happen after create
+    page_view.summarized = summarized
+    page_view.save!
+
     page_view
   end
 

@@ -9,11 +9,11 @@ module Analytics
           :select => "DATE(created_at) AS day, controller, COUNT(*) AS ct",
           :group => "DATE(created_at), controller").each do |row|
           day = row.day
-          action = controller_to_action(row.controller)
+          category = row.category
           count = row.ct.to_i
           page_views[day] ||= {}
-          page_views[day][action] ||= 0
-          page_views[day][action] += count
+          page_views[day][category] ||= 0
+          page_views[day][category] += count
         end
         page_views
       end
@@ -37,37 +37,6 @@ module Analytics
         end
         foo.map{ |_,bin| bin.map{ |_,hash| hash } }.flatten
       end
-    end
-
-  private
-
-    CONTROLLER_TO_ACTION = {
-      :assignments         => :assignments,
-      :courses             => :general,
-      :quizzes             => :quizzes,
-      :wiki_pages          => :pages,
-      :gradebooks          => :grades,
-      :submissions         => :assignments,
-      :discussion_topics   => :discussions,
-      :files               => :files,
-      :context_modules     => :modules,
-      :announcements       => :announcements,
-      :collaborations      => :collaborations,
-      :conferences         => :conferences,
-      :groups              => :groups,
-      :question_banks      => :quizzes,
-      :gradebook2          => :grades,
-      :wiki_page_revisions => :pages,
-      :folders             => :files,
-      :grading_standards   => :grades,
-      :discussion_entries  => :discussions,
-      :assignment_groups   => :assignments,
-      :quiz_questions      => :quizzes,
-      :gradebook_uploads   => :grades
-    }
-
-    def controller_to_action(controller)
-      return CONTROLLER_TO_ACTION[controller.downcase.to_sym] || :other
     end
   end
 end

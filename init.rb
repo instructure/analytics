@@ -7,6 +7,5 @@ Rails.configuration.to_prepare do
   ::ApplicationController.view_paths.delete view_path
   ::ApplicationController.view_paths.unshift view_path
 
-  require_dependency 'analytics_permissions'
-  require_dependency 'context_controller_with_extensions'
+  require_dependency 'analytics/extensions'
 end

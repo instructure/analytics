@@ -146,7 +146,6 @@ module Analytics
 
     def page_view_scope
       @page_view_scope ||= @course.page_views.
-        scoped(:conditions => "page_views.summarized IS NULL").
         scoped(:conditions => { :user_id => student_ids })
     end
 
