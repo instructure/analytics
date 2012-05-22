@@ -1,10 +1,10 @@
 define [
   'underscore'
   'Backbone'
-  'analytics/compiled/models/participation'
+  'analytics/compiled/models/CourseParticipation'
   'analytics/compiled/models/assignments'
   'analytics/compiled/Course/StudentSummaries'
-], (_, Backbone, Participation, Assignments, StudentSummaries) ->
+], (_, Backbone, CourseParticipation, Assignments, StudentSummaries) ->
 
   cache = {}
 
@@ -26,7 +26,7 @@ define [
 
     cachedDependents: (course) ->
       cache[course.id] ?=
-        participation:    new Participation    course
-        assignments:      new Assignments      course
-        studentSummaries: new StudentSummaries course
+        participation:    new CourseParticipation course
+        assignments:      new Assignments         course
+        studentSummaries: new StudentSummaries    course
       cache[course.id]

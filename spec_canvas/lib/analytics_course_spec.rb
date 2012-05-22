@@ -203,18 +203,18 @@ describe Analytics::Course do
 
     it "should include student's page views in the course" do
       page_view(:user => @student, :course => @course)
-      @teacher_analytics.page_views.should_not be_empty
+      @teacher_analytics.participation.should_not be_empty
     end
 
-    it "should not include non-student's page views in the course" do
+    it "should include teacher's page views in the course" do
       page_view(:user => @teacher, :course => @course)
-      @teacher_analytics.page_views.should be_empty
+      @teacher_analytics.participation.should_not be_empty
     end
 
     it "should not include student's page views from outside the course" do
       @other_course = course(:active_course => true)
       page_view(:user => @student, :course => @other_course)
-      @teacher_analytics.page_views.should be_empty
+      @teacher_analytics.participation.should be_empty
     end
   end
 

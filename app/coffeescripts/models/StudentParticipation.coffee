@@ -3,11 +3,9 @@ define [ 'analytics/compiled/models/base' ], (Base) ->
   ##
   # Loads the participation data for the student and course. Exposes the data
   # as the 'pageViews' and 'participations' properties once loaded.
-  class Participation extends Base
-    constructor: (@course, @student=null) ->
-      url = '/api/v1/analytics/participation/courses/' + @course.id
-      url += '/users/' + @student.id if @student?
-      super url
+  class StudentParticipation extends Base
+    constructor: (@course, @student) ->
+      super '/api/v1/analytics/participation/courses/' + @course.id + '/users/' + @student.id
 
     populate: (data) ->
       @bins = []
@@ -19,22 +17,19 @@ define [ 'analytics/compiled/models/base' ], (Base) ->
         if !binMap[date]?
           binMap[date] =
             date: date
-            total: 0
-            pageViews: {}
-            participations: []
+            views: 0
+            participations: 0
+            participation_events: []
           @bins.push binMap[date]
         binMap[date]
 
       # sort the page view data to the appropriate bins
-      for date, counts of data.page_views
-        # this date is the utc date for the bin, not local. but we'll
-        # treat it as local for the purposes of presentation.
-        date = Date.parse date
-        bin = binFor(date)
-        for action, count of counts
-          bin.total += count
-          bin.pageViews[action] ?= 0
-          bin.pageViews[action] += count
+      for date, bins of data.page_views
+        # this date is the utc date for the bin, not local. but we'll treat it
+        # as local for the purposes of presentation.
+        bin = binFor(Date.parse date)
+        for category, views of bins
+          bin.views += views
 
       # sort the participation date to the appropriate bins
       for event in data.participations
@@ -44,4 +39,5 @@ define [ 'analytics/compiled/models/base' ], (Base) ->
         offset = event.createdAt.getTimezoneOffset()
         date = event.createdAt.clone().addMinutes(offset).clearTime()
         bin = binFor(date)
-        bin.participations.push event
+        bin.participation_events.push event
+        bin.participations += 1

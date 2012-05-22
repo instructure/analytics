@@ -55,7 +55,14 @@ module Analytics
       @student_ids ||= students.map(&:id)
     end
 
-    include Analytics::Participation
+    def participation
+      @participation ||= slaved do
+        @course.page_views_rollups.
+          scoped(:select => "date, sum(views) as views, sum(participations) as participations", :group => "date").
+          map{ |rollup| rollup.as_json[:page_views_rollup] }
+      end
+    end
+
     include Analytics::Assignments
 
     def extended_assignment_data(assignment, submissions)

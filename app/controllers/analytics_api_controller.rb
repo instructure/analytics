@@ -41,10 +41,7 @@ class AnalyticsApiController < ApplicationController
   #   }
   def course_participation
     return unless require_analytics_for_course
-    render :json => {
-      :page_views => @course_analytics.page_views,
-      :participations => @course_analytics.participations
-    }
+    render :json => @course_analytics.participation
   end
 
   # @API Get course-level assignment data

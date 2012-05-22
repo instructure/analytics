@@ -78,8 +78,8 @@ define [
     # being graphed.
     scaleToData: (bins) ->
       # top of max bar = @topMargin + @topPadding
-      totals = (bin.total for bin in bins)
-      max = Math.max(totals...)
+      views = (bin.views for bin in bins)
+      max = Math.max(views...)
       @countSpacing = (@height - @topPadding - @bottomPadding) / max
 
     ##
@@ -94,12 +94,12 @@ define [
     ##
     # Calculate the height of a bin, in pixels.
     binHeight: (bin) ->
-      bin.total * @countSpacing
+      bin.views * @countSpacing
 
     ##
     # Determine the colors to use for a bin.
     binColors: (bin) ->
-      if bin.participations.length > 0
+      if bin.participations > 0
         stroke: "white"
         fill: @participationColor
       else
@@ -122,11 +122,11 @@ define [
     # Build the text for the bin's tooltip.
     tooltip: (bin) ->
       tooltip = I18n.l 'date.formats.medium', bin.date
-      if bin.participations.length > 0
-        count = bin.participations.length
+      if bin.participations > 0
+        count = bin.participations
         noun = if count is 1 then "participation" else "participations"
         tooltip += "<br/>#{count} #{noun}"
-      if bin.total > 0
-        count = bin.total
+      if bin.views > 0
+        count = bin.views
         noun = if count is 1 then "page view" else "page views"
         tooltip += "<br/>#{count} #{noun}"
