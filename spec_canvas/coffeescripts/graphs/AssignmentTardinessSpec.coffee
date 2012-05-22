@@ -99,6 +99,12 @@ define ['jquery', 'analytics/compiled/graphs/assignment_tardiness'], ($, Assignm
   test 'dateX: intra-day spacing on +DST', ->
     startDate = new Date(2012, 2, 11) # Mar 11, DST starts (23 hour day)
     endDate = new Date(2012, 2, 12)
+
+    # if the test is running in a TZ that doesn't have DST (e.g. UTC), the
+    # following specs will fail. we don't currently have a way to force DST
+    # on, so just skip it.
+    return if endDate - startDate is 24 * 60 * 1000
+
     examples = [
       { date: new Date(2012, 2, 11, 1, 0, 0), expected: 100 * 1 / 23 } # 1am = 1 hour in
       { date: new Date(2012, 2, 11, 2, 0, 0), expected: 100 * 1 / 23 } # 2am = 1 hour in (doesn't exist, treated as 1am)
@@ -121,6 +127,12 @@ define ['jquery', 'analytics/compiled/graphs/assignment_tardiness'], ($, Assignm
   test 'dateX: intra-day spacing on -DST', ->
     startDate = new Date(2012, 10, 4) # Nov 4, DST ends (25 hour day)
     endDate = new Date(2012, 10, 5)
+
+    # if the test is running in a TZ that doesn't have DST (e.g. UTC), the
+    # following specs will fail. we don't currently have a way to force DST
+    # on, so just skip it.
+    return if endDate - startDate is 24 * 60 * 1000
+
     examples = [
       { date: new Date(2012, 10, 4, 0, 0, 0).addMinutes(60), expected: 100 * 1 / 25 } # first 1am = 1 hour in
       { date: new Date(2012, 10, 4, 1, 0, 0), expected: 100 * 2 / 25 } # second 1am = 2 hours in
