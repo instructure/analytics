@@ -4,6 +4,12 @@ require File.expand_path(File.dirname(__FILE__) + '/analytics_common')
 describe "analytics course view" do
   it_should_behave_like "analytics tests"
 
+  module StudentBars
+    PAGE_VIEWS = '#students .page_views .paper span'
+    ASSIGNMENTS = '#students .assignments .paper span'
+    PARTICIPATION = '#students .participation .paper span'
+  end
+
   INITIAL_STUDENT_NAME = 'initial test student'
 
   def get_bar(graph_selector, assignment_id)
@@ -22,8 +28,10 @@ describe "analytics course view" do
 
   context "course graphs" do
 
-    #TODO: figure out how to seed page views
-    it "should validate participation graph"
+    context "participation graph" do
+      let(:go_to_course_view) { true }
+      it_should_behave_like "participation graph specs"
+    end
 
     it "should validate finishing assignments graph" do
       finishing_graph_css = '#finishing-assignments-graph'
@@ -56,9 +64,13 @@ describe "analytics course view" do
 
   context "students display" do
 
+    def student_bars(info_bar)
+      ff(info_bar)
+    end
+
     it "should validate correct number of students are showing up" do
       def student_rows
-        ff('#students div.student')
+        ffj('#students div.student') #avoid selenium caching
       end
 
       go_to_analytics(true)
@@ -70,17 +82,42 @@ describe "analytics course view" do
       student_rows.count.should == 3
     end
 
-    #TODO: figure out how to seed page views
-    it "should validate page views bar for students"
-
-    it "should validate participations bar for students"
-
-    it "should validate assignments bar for students"
-
     it "should validate current score display for students" do
       randomly_grade_assignments(5)
       go_to_analytics(true)
       f('div.current_score').should include_text(current_student_score)
+    end
+
+    context 'main bars' do
+
+      before (:each) do
+        @added_students = add_students_to_course(2)
+      end
+
+      it "should validate page views bar for students" do
+        page_view_styles = %w(0% 100% 50%)
+        2.times { page_view(:user => @student, :course => @course) }
+        4.times { page_view(:user => @added_students[0], :course => @course, :participated => true) }
+        go_to_analytics(true)
+        student_bars(StudentBars::PAGE_VIEWS).each_with_index { |page_view_bar, i| page_view_bar.should have_attribute(:style, "right: #{page_view_styles[i]}") }
+      end
+
+      it "should validate participation bar for students" do
+        page_view_styles = %w(50% 0% 75%)
+        page_view(:user => @student, :course => @course, :participated => true)
+        2.times { page_view(:user => @added_students[0], :course => @course, :participated => true) }
+        4.times { page_view(:user => @added_students[1], :course => @course, :participated => true) }
+        go_to_analytics(true)
+        student_bars(StudentBars::PARTICIPATION).each_with_index { |page_view_bar, i| page_view_bar.should have_attribute(:style, "right: #{page_view_styles[i]}") }
+      end
+    end
+
+    it "should validate assignments bar for a single student" do
+      expected_classes = %w(onTime late missing)
+      setup_variety_assignments(false)
+      go_to_analytics(true)
+      assignments_regions = student_bars(StudentBars::ASSIGNMENTS)
+      expected_classes.each_with_index { |expected_class, i| assignments_regions[i].should have_class(expected_class) }
     end
   end
 end

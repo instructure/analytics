@@ -15,6 +15,7 @@ shared_examples_for "analytics tests" do
     LIGHT_RED = "#dea8a9"
     DARK_RED = "#da181d"
     SHARP_RED = "#d21d1a"
+    NONE = "#cccccc"
   end
 
   def enable_analytics
@@ -26,6 +27,30 @@ shared_examples_for "analytics tests" do
     end
     @account.save!
     @account
+  end
+
+  def page_view(opts={})
+    course = opts[:course] || @course
+    user = opts[:user] || @student
+    controller = opts[:controller] || 'assignments'
+    summarized = opts[:summarized] || nil
+
+    page_view = course.page_views.build(
+        :user => user,
+        :controller => controller)
+
+    page_view.summarized = summarized
+    page_view.request_id = ActiveSupport::SecureRandom.hex(10)
+    page_view.created_at = opts[:created_at] || Time.now
+
+    if opts[:participated]
+      page_view.participated = true
+      access = page_view.build_asset_user_access
+      access.display_name = 'Some Asset'
+    end
+
+    page_view.save!
+    page_view
   end
 
   def enable_teacher_permissions
@@ -48,12 +73,12 @@ shared_examples_for "analytics tests" do
     wait_for_ajaximations
   end
 
-  def randomly_grade_assignments(number_of_assignments)
+  def randomly_grade_assignments(number_of_assignments, student = @student)
     graded_assignments = []
     number_of_assignments.times do |i|
       assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100, :due_at => Time.now.utc)
-      assignment.submit_homework(@student)
-      assignment.grade_student(@student, :grade => rand(100) + 1)
+      assignment.submit_homework(student)
+      assignment.grade_student(student, :grade => rand(100) + 1)
       graded_assignments.push(assignment)
     end
     graded_assignments
@@ -66,9 +91,9 @@ shared_examples_for "analytics tests" do
     tooltip
   end
 
-  def setup_variety_assignments
+  def setup_variety_assignments(add_no_due_date = true)
     @missed_assignment = @course.assignments.create!(:title => "missed assignment", :due_at => 5.days.ago, :points_possible => 10)
-    @no_due_date_assignment = @course.assignments.create!(:title => 'no due date assignment', :due_at => nil, :points_possible => 20)
+    @no_due_date_assignment = @course.assignments.create!(:title => 'no due date assignment', :due_at => nil, :points_possible => 20) if add_no_due_date
     @late_assignment = @course.assignments.create!(:title => 'late assignment', :due_at => 1.day.ago, :points_possible => 20, :submission_types => 'online_url')
     @late_assignment.submit_homework(@student, :submission_type => 'online_url')
     @on_time_assignment = @course.assignments.create!(:title => 'on time submission', :due_at => 2.days.from_now, :points_possible => 10, :submission_types => 'online_url')
@@ -91,5 +116,68 @@ shared_examples_for "analytics tests" do
 
   def validate_element_stroke(element, stroke_hex_color)
     element.attribute('stroke').should == "#{stroke_hex_color}"
+  end
+
+  def format_date(date)
+    date.strftime("%Y-%m-%d")
+  end
+
+  def date_selector(date)
+    "#participating-graph .#{format_date(date)}"
+  end
+
+  def get_rectangle(date)
+    driver.execute_script("return $('#{date_selector(date)}').prev()[0]")
+  end
+
+  def get_diamond(assignment_id)
+    driver.execute_script("return $('#assignment-finishing-graph .assignment_#{assignment_id}').prev()[0]")
+  end
+
+  shared_examples_for "participation graph specs" do
+    it "should validate participating graph with a single page view" do
+      page_view(:user => @student, :course => @course)
+      go_to_analytics(go_to_course_view)
+      validate_tooltip_text(date_selector(Time.now), '1 page view')
+    end
+
+    it "should validate participating graph with multiple page views" do
+      page_view_count = 10
+      page_view_count.times { page_view(:user => @student, :course => @course) }
+      go_to_analytics(go_to_course_view)
+      validate_tooltip_text(date_selector(Time.now), page_view_count.to_s + ' page views')
+    end
+
+    it "should validate participating graph with multiple page views on multiple days" do
+      old_page_views_date = Time.now - 2.days
+      dates = [old_page_views_date, Time.now]
+      number_of_page_views = 5
+      number_of_page_views.times { page_view(:user => @student, :course => @course) }
+      number_of_page_views.times { page_view(:user => @student, :course => @course, :created_at => old_page_views_date) }
+      go_to_analytics(go_to_course_view)
+      dates.each { |date| validate_tooltip_text(date_selector(date), number_of_page_views.to_s + ' page views') }
+    end
+
+    it "should validate the graph color when a student took action on that day" do
+      page_view(:user => @student, :course => @course, :participated => true)
+      go_to_analytics(go_to_course_view)
+      validate_element_fill(get_rectangle(Time.now), GraphColors::BLUE)
+      validate_tooltip_text(date_selector(Time.now), '1 participation')
+    end
+
+    it "should validate the participation and non participation display" do
+      old_page_view_date = Time.now - 3.days
+      rectangles = []
+      dates = [old_page_view_date, Time.now]
+      page_view(:user => @student, :course => @course)
+      page_view(:user => @student, :course => @course, :participated => true, :created_at => old_page_view_date)
+      go_to_analytics(go_to_course_view)
+      dates.each do |date|
+        rect = get_rectangle(date)
+        rectangles.push(rect)
+      end
+      validate_element_fill(rectangles[0], GraphColors::BLUE)
+      validate_element_fill(rectangles[1], GraphColors::NONE)
+    end
   end
 end

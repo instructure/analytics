@@ -18,7 +18,7 @@ describe "analytics" do
   def validate_analytics_button_exists(exists = true)
     student = StudentEnrollment.last.user
     get "/courses/#{@course.id}/users/#{student.id}"
-    exists ? right_nav_buttons[0].text.strip!.should == "Student Analytics for #{student.name}" :  right_nav_buttons.each { |right_nav_button| right_nav_button.should_not include_text(ANALYTICS_BUTTON_TEXT) }
+    exists ? right_nav_buttons[0].text.strip!.should == "Student Analytics for #{student.name}" : right_nav_buttons.each { |right_nav_button| right_nav_button.should_not include_text(ANALYTICS_BUTTON_TEXT) }
   end
 
   def validate_analytics_icons_exist(exist = true)
@@ -138,10 +138,6 @@ describe "analytics" do
 
   describe "analytics view" do
 
-    def get_diamond(assignment_id)
-      driver.execute_script("return $('#assignment-finishing-graph .assignment_#{assignment_id}').prev()[0]")
-    end
-
     before (:each) do
       enable_analytics
       enable_teacher_permissions
@@ -165,8 +161,10 @@ describe "analytics" do
       f('.student_summary').should include_text(current_student_score)
     end
 
-    #TODO: figure out how to seed page views
-    it "should validate participating graph"
+    context 'participation view' do
+      let(:go_to_course_view) { false }
+      it_should_behave_like "participation graph specs"
+    end
 
     it "should validate responsiveness graph" do
       single_message = '1 message'
