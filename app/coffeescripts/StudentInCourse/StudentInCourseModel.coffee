@@ -1,38 +1,10 @@
-define [
-  'underscore'
-  'Backbone'
-  'analytics/compiled/models/StudentParticipation'
-  'analytics/compiled/models/messaging'
-  'analytics/compiled/models/assignments'
-], (_, Backbone, StudentParticipation, Messaging, Assignments) ->
-
-  cache = {}
+define ['Backbone'], (Backbone) ->
 
   class StudentInCourseModel extends Backbone.Model
-    initialize: ->
-      @updateDependents()
-      @on 'change', @updateDependents
-
-    loadById: (courseId, studentId) ->
-      return if courseId is @get('course').id && studentId is @get('student').id
-      course = _.find @get('courses'), (course) -> course.id is courseId
-      student = _.find @get('students'), (student) -> student.id is studentId
-      @set course: course, student: student
-
-    updateDependents: =>
-      course = @get 'course'
-      student = @get 'student'
-      if course? && student?
-        @set @cachedDependents(course, student)
-      else
-        @unset 'participation'
-        @unset 'messaging'
-        @unset 'assignments'
-
-    cachedDependents: (course, student) ->
-      cache[course.id] ?= {}
-      cache[course.id][student.id] ?=
-        participation: new StudentParticipation course, student
-        messaging:     new Messaging            course, student
-        assignments:   new Assignments          course, student
-      cache[course.id][student.id]
+    ##
+    # Override set to catch when we're setting the student and make sure we
+    # start its data loading *before* it gets set (and the change:student event
+    # fires).
+    set: (assignments, rest...) ->
+      assignments.student.ensureData() if assignments.student?
+      super assignments, rest...

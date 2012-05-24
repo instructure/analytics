@@ -1,13 +1,11 @@
-define [ 'analytics/compiled/models/base' ], (Base) ->
+define [ 'analytics/compiled/BaseData' ], (BaseData) ->
 
   ##
-  # Loads the assignment data for the student and course. Exposes the data as
-  # the 'assignments' property once loaded.
-  class Assignments extends Base
-    constructor: (@course, @student=null) ->
-      url = '/api/v1/analytics/assignments/courses/' + @course.id
-      url += '/users/' + @student.id if @student?
-      super url
+  # Loads assignment data. Exposes the data as the 'assignments' property once
+  # loaded.
+  class BaseAssignmentData extends BaseData
+    constructor: (suffix) ->
+      super '/api/v1/analytics/assignments/' + suffix
 
     populate: (data) ->
       @assignments = []

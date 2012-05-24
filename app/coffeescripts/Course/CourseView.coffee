@@ -14,7 +14,7 @@ define [
     initialize: ->
       # build view
       @$el = $ template
-        course: @model.get 'course'
+        course: @model.toJSON()
 
       # cache elements for updates
       @$course_link = $('.course_link', @$el)
@@ -23,36 +23,24 @@ define [
       # initialize the graphs
       @setupGraphs()
 
-      # update relevant portions as data becomes available
-      @model.on 'change:course', @updateSummary
-      @model.on 'change:participation', @updateParticipation
-      @model.on 'change:assignments', @updateAssignments
-
-      # initial render
+      # render
       @render()
 
-    updateSummary: =>
-      course = @model.get 'course'
-      @$course_link.text course.name
+    render: =>
+      @$course_link.text @model.get('name')
 
-      # add all the students to the table
-      @$students.empty()
-      _.each course.students, (student) =>
-        view = new StudentSummaryView model: student
-        @$students.append view.$el
-
-    updateParticipation: =>
-      @pageViews.graph @model.get 'participation'
-
-    updateAssignments: =>
-      assignments = @model.get 'assignments'
+      # draw the graphs
+      participation = @model.get('participation')
+      assignments = @model.get('assignments')
+      @pageViews.graph participation
       @finishing.graph assignments
       @grades.graph assignments
 
-    render: ->
-      @updateSummary()
-      @updateParticipation()
-      @updateAssignments()
+      # add all the students to the table
+      @$students.empty()
+      @model.get('students').each (student) =>
+        view = new StudentSummaryView model: student
+        @$students.append view.$el
 
     setupGraphs: ->
       graphOpts =

@@ -1,11 +1,12 @@
-define [ 'analytics/compiled/models/base' ], (Base) ->
+define [ 'analytics/compiled/BaseData' ], (BaseData) ->
 
   ##
   # Loads the participation data for the student and course. Exposes the data
   # as the 'pageViews' and 'participations' properties once loaded.
-  class StudentParticipation extends Base
-    constructor: (@course, @student) ->
-      super '/api/v1/analytics/participation/courses/' + @course.id + '/users/' + @student.id
+  class ParticipationData extends BaseData
+    constructor: (student) ->
+      course = student.get('course')
+      super '/api/v1/analytics/participation/courses/' + course.get('id') + '/users/' + student.get('id')
 
     populate: (data) ->
       @bins = []

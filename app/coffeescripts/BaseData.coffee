@@ -4,7 +4,7 @@ define [ 'jquery', 'jquery.ajaxJSON' ], ($) ->
   # Base class for all the analytics data models. Performs an AJAX GET of a url
   # with parameters, then populates internal data structures from the response.
   # Allows you to wait on data population with the "ready" method.
-  class Base
+  class BaseData
     ##
     # Takes the url and the parameters to pass to the url.
     constructor: (url, parameters={}) ->

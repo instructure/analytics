@@ -13,27 +13,31 @@ define [
 
   class StudentInCourseView extends Backbone.View
     initialize: ->
+      course = @model.get('course')
+      student = @model.get('student')
+      students = course.get('students')
+
       # build view
       @$el = $ template
-        student: @model.get 'student'
-        course: @model.get 'course'
+        student: student.toJSON()
+        course: course.toJSON()
 
       # cache elements for updates
       @$avatar = @$('.avatar')
       @$course_link = @$('.course_link')
       @$current_score = @$('.current_score')
 
-      if @model.get('students').length > 1
+      if students.length > 1
         # build combobox of student names to replace name element
-        @comboBox = new ComboBox @model.get('students'),
-          value: (student) -> student.id
-          label: (student) -> student.name
-          selected: @model.get('student').id
+        @comboBox = new ComboBox students.models,
+          value: (student) -> student.get 'id'
+          label: (student) -> student.get 'name'
+          selected: student.get 'id'
         @$('.student_link').replaceWith @comboBox.$el
 
         # drive data from combobox (reverse connection in render)
         @comboBox.on 'change', (student) =>
-          @model.set 'student', student
+          @model.set student: student
 
       else
         # cache name element for updates
@@ -42,61 +46,34 @@ define [
       # setup the graph objects
       @setupGraphs()
 
-      # update pertinent portions any time the model changes
-      @model.on 'change:student', @updateStudent
-      @model.on 'change:course', @updateCourse
-      @model.on 'change:participation', @updateParticipation
-      @model.on 'change:messaging', @updateMessaging
-      @model.on 'change:assignments', @updateAssignments
-
-      # initial render
+      # render now and any time the model changes
       @render()
+      @model.on 'change:student', @render
 
     ##
-    # Update the student summary info.
     # TODO: I18n
-    updateStudent: =>
+    render: =>
       student = @model.get 'student'
-      @$avatar.attr src: student.avatar_url
-      @$current_score.text if student.current_score? then "#{student.current_score}%" else 'N/A'
+
+      @$avatar.attr src: student.get 'avatar_url'
+      if current_score = student.get 'current_score'
+        @$current_score.text "#{current_score}%"
+      else
+        @$current_score.text 'N/A'
       if @$student_link?
-        @$student_link.text student.name
-        @$student_link.attr src: student.html_url
+        @$student_link.text student.get 'name'
+        @$student_link.attr src: student.get 'html_url'
       if @comboBox?
-        @comboBox.select student.id
+        @comboBox.select student.get 'id'
 
-    ##
-    # Update the course summary info.
-    updateCourse: =>
-      course = @model.get 'course'
-      @$course_link.attr src: course.html_url
-      @$course_link.text course.name
+      participation = student.get('participation')
+      messaging = student.get('messaging')
+      assignments = student.get('assignments')
 
-    ##
-    # Update the participation graph.
-    updateParticipation: =>
-      @pageViews.graph @model.get 'participation'
-
-    ##
-    # Update the responiveness graph.
-    updateMessaging: =>
-      @responsiveness.graph @model.get 'messaging'
-
-    ##
-    # Update the assignments graphs.
-    updateAssignments: =>
-      assignments = @model.get 'assignments'
+      @pageViews.graph participation
+      @responsiveness.graph messaging
       @assignmentTardiness.graph assignments
       @grades.graph assignments
-
-    ##
-    # Update everything.
-    render: =>
-      @updateStudent()
-      @updateCourse()
-      @updateParticipation()
-      @updateMessaging()
-      @updateAssignments()
 
     ##
     # Instantiate the graphs.

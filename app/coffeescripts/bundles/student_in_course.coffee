@@ -4,30 +4,44 @@ require.config
 
 require [
   'jquery'
+  'Backbone'
   'analytics/compiled/helpers'
-  'analytics/compiled/router'
+  'analytics/compiled/StudentInCourse/CourseModel'
   'analytics/compiled/StudentInCourse/StudentInCourseModel'
   'analytics/compiled/StudentInCourse/StudentInCourseView'
-], ($, helpers, router, StudentInCourseModel, StudentInCourseView) ->
+], ($, Backbone, helpers, CourseModel, StudentInCourseModel, StudentInCourseView) ->
+
+  # setup router for ajax-switching between students
+  router = new Backbone.Router
+    routes:
+      ':student': 'studentInCourse'
+
+  Backbone.history.start
+    root: "/analytics/courses/#{ENV.ANALYTICS.course.id}/users/"
+    pushState: true
 
   # setup initial data from environment
-  model = new StudentInCourseModel
-    course: ENV.ANALYTICS.course
-    courses: [ENV.ANALYTICS.course]
-    student: ENV.ANALYTICS.student
-    students: ENV.ANALYTICS.students
+  course = new CourseModel ENV.ANALYTICS.course
+  students = course.get 'students'
+  student = students.get ENV.ANALYTICS.student_id
+  model = new StudentInCourseModel {course, student}
 
   # link data and router
-  router.on 'route:studentInCourse', (courseId, studentId) =>
-    model.loadById parseInt(courseId, 10), parseInt(studentId, 10)
+  router.on 'route:studentInCourse', (id) =>
+    if student = students.get id
+      # switch to that student
+      model.set student: student
+    else
+      # force the server to load the 404 (or 401, or whatever)
+      window.location.reload()
 
-  model.on 'change:student change:course', ->
+  model.on 'change:student', ->
     course = model.get('course')
     student = model.get('student')
-    $('title').text "Analytics: #{course.course_code} -- #{student.short_name}"
-    $('#student_analytics_crumb span').text student.short_name
-    $('#student_analytics_crumb a').attr href: student.analytics_url
-    router.navigate "courses/#{course.id}/users/#{student.id}"
+    $('title').text "Analytics: #{course.get 'course_code'} -- #{student.get 'short_name'}"
+    $('#student_analytics_crumb span').text student.get 'short_name'
+    $('#student_analytics_crumb a').attr href: student.get 'analytics_url'
+    router.navigate String student.get 'id'
 
   # wrap data in view
   view = new StudentInCourseView

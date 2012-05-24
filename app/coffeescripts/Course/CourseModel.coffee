@@ -1,32 +1,21 @@
 define [
-  'underscore'
   'Backbone'
-  'analytics/compiled/models/CourseParticipation'
-  'analytics/compiled/models/assignments'
+  'analytics/compiled/Course/StudentCollection'
+  'analytics/compiled/Course/ParticipationData'
+  'analytics/compiled/Course/AssignmentData'
   'analytics/compiled/Course/StudentSummaries'
-], (_, Backbone, CourseParticipation, Assignments, StudentSummaries) ->
-
-  cache = {}
+], (Backbone, StudentCollection, ParticipationData, AssignmentData, StudentSummaries) ->
 
   class CourseModel extends Backbone.Model
     initialize: ->
-      @updateDependents()
-      @on 'change:course', @updateDependents
+      # translate array of student objects to collection of StudentModels,
+      # tying each back to the course
+      students = new StudentCollection @get 'students'
+      students.each (student) => student.set course: this
+      @set
+        students: students
+        participation: new ParticipationData this
+        assignments: new AssignmentData this
 
-    loadById: (courseId) ->
-      return if courseId is @get('course').id
-      course = _.find @get('courses'), (course) -> course.id is courseId
-      @set course: course
-
-    updateDependents: ->
-      course = @get 'course'
-      _.each course.students, (student) =>
-        _.extend student, Backbone.Events
-      @set @cachedDependents course
-
-    cachedDependents: (course) ->
-      cache[course.id] ?=
-        participation:    new CourseParticipation course
-        assignments:      new Assignments         course
-        studentSummaries: new StudentSummaries    course
-      cache[course.id]
+      # also start loading student summaries
+      new StudentSummaries this

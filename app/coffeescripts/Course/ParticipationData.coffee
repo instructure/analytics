@@ -1,11 +1,11 @@
-define [ 'analytics/compiled/models/base' ], (Base) ->
+define [ 'analytics/compiled/BaseData' ], (BaseData) ->
 
   ##
   # Loads the participation data for the course. Exposes the data as the 'bins'
   # property once loaded.
-  class CourseParticipation extends Base
+  class ParticipationData extends BaseData
     constructor: (@course) ->
-      super '/api/v1/analytics/participation/courses/' + @course.id
+      super '/api/v1/analytics/participation/courses/' + @course.get('id')
 
     populate: (data) ->
       @bins = data

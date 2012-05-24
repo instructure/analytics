@@ -17,10 +17,10 @@ define [
     render: =>
       # replace $el with new rendering of template
       oldEl = @$el
-      @$el = $ template @model
+      @$el = $ template @model.toJSON()
       oldEl.replaceWith @$el
 
-      if (summary = @model.summary)?
+      if summary = @model.get 'summary'
         # update activity and assignments graphs from student summary
         @pageViews = new CountBar @$('.page_views'), 'page views'
         @participations = new CountBar @$('.participations'), 'participations'
