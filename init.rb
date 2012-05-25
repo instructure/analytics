@@ -1,3 +1,7 @@
+controller_path = File.dirname(__FILE__)+'/app/controllers'
+ActiveSupport::Dependencies.autoload_paths.delete controller_path
+ActiveSupport::Dependencies.autoload_paths.unshift controller_path
+
 Rails.configuration.to_prepare do
   view_path = File.dirname(__FILE__)+'/app/views'
   ::ApplicationController.view_paths.delete view_path
@@ -5,5 +9,4 @@ Rails.configuration.to_prepare do
 
   require_dependency 'analytics_permissions'
   require_dependency 'context_controller_with_extensions'
-  require_dependency 'courses_controller_with_extensions'
 end

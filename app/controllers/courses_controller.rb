@@ -1,4 +1,6 @@
-CoursesController.class_eval do
+require 'app/controllers/courses_controller'
+
+class CoursesController
   def show_with_analytics
     # this is a really gross coupling with the implementation of vanilla
     # Course#show, but it seems the best way for now to detect that it
