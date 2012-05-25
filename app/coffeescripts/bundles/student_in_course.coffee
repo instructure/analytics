@@ -24,7 +24,7 @@ require [
   model.on 'change:student change:course', ->
     course = model.get('course')
     student = model.get('student')
-    $('title').text "Analytics: #{course.short_name} -- #{student.short_name}"
+    $('title').text "Analytics: #{course.course_code} -- #{student.short_name}"
     $('#student_analytics_crumb span').text student.short_name
     $('#student_analytics_crumb a').attr href: student.analytics_url
     router.navigate "courses/#{course.id}/users/#{student.id}"
