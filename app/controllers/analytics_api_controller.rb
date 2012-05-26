@@ -6,6 +6,151 @@ class AnalyticsApiController < ApplicationController
 
   include AnalyticsPermissions
 
+  # @API Get department-level participation data
+  #
+  # Returns page view hits summed across all courses in the department. Two
+  # groupings of these counts are returned; one by day (+by_date+), the other
+  # by category (+by_category+). The possible categories are announcements,
+  # assignments, collaborations, conferences, discussions, files, general,
+  # grades, groups, modules, other, pages, and quizzes.
+  #
+  # This and the other department-level endpoints have three variations which
+  # all return the same style of data but for different subsets of courses. All
+  # share the prefix /api/v1/analytics/<action>/accounts/<account_id>. The
+  # possible suffixes are:
+  #
+  #  * /current: includes all available courses in the default term
+  #  * /completed: includes all concluded courses in the default term
+  #  * /terms/<term_id>: includes all available or concluded courses in the
+  #    given term.
+  #
+  # Courses not yet offered or which have been deleted are never included.
+  #
+  # /current and /completed are intended for use when the account has only one
+  # term. /terms/<term_id> is intended for use when the account has multiple
+  # terms.
+  #
+  # @example_request
+  #
+  #     curl https://<canvas>/api/v1/analytics/participation/accounts/<account_id>/current \ 
+  #         -H 'Authorization: Bearer <token>'
+  #
+  #     curl https://<canvas>/api/v1/analytics/participation/accounts/<account_id>/completed \ 
+  #         -H 'Authorization: Bearer <token>'
+  #
+  #     curl https://<canvas>/api/v1/analytics/participation/accounts/<account_id>/terms/<term_id> \ 
+  #         -H 'Authorization: Bearer <token>'
+  #
+  # @example_response
+  #   {
+  #     "by_date": {
+  #       "2012-01-24": 1240,
+  #       "2012-01-27": 912,
+  #     },
+  #     "by_category": {
+  #       "announcements": 54,
+  #       "assignments": 256,
+  #       "collaborations": 18,
+  #       "conferences": 26,
+  #       "discussions": 354,
+  #       "files": 132,
+  #       "general": 59,
+  #       "grades": 177,
+  #       "groups": 132,
+  #       "modules": 71,
+  #       "other": 412,
+  #       "pages": 105,
+  #       "quizzes": 356
+  #     },
+  #   }
+  def department_participation
+    return unless require_analytics_for_department
+    render :json => {
+      :by_date => @department_analytics.participation_by_date,
+      :by_category => @department_analytics.participation_by_category
+    }
+  end
+
+  # @API Get department-level grade data
+  #
+  # Returns the distribution of grades for students in courses in the
+  # department.  Each data point is one student's current grade in one course;
+  # if a student is in multiple courses, he contributes one value per course,
+  # but if he's enrolled multiple times in the same course (e.g. a lecture
+  # section and a lab section), he only constributes on value for that course.
+  #
+  # Grades are binned to the nearest integer score; anomalous grades outside
+  # the 0 to 100 range are ignored. The raw counts are returned, not yet
+  # normalized by the total count.
+  #
+  # Shares the same variations on endpoint as the participation data.
+  #
+  # @example_request
+  #
+  #     curl https://<canvas>/api/v1/analytics/grades/accounts/<account_id>/current \ 
+  #         -H 'Authorization: Bearer <token>'
+  #
+  #     curl https://<canvas>/api/v1/analytics/grades/accounts/<account_id>/completed \ 
+  #         -H 'Authorization: Bearer <token>'
+  #
+  #     curl https://<canvas>/api/v1/analytics/grades/accounts/<account_id>/terms/<term_id> \ 
+  #         -H 'Authorization: Bearer <token>'
+  #
+  # @example_response
+  #   {
+  #     "0": 95,
+  #     "1": 1,
+  #     "2": 0,
+  #     "3": 0,
+  #     ...
+  #     "93": 125,
+  #     "94": 110,
+  #     "95": 142,
+  #     "96": 157,
+  #     "97": 116,
+  #     "98": 85,
+  #     "99": 63,
+  #     "100": 190
+  #   }
+  def department_grades
+    return unless require_analytics_for_department
+    render :json => @department_analytics.grade_distribution
+  end
+
+  # @API Get department-level statistics
+  #
+  # Returns numeric statistics about the department and term (or filter).
+  #
+  # Shares the same variations on endpoint as the participation data.
+  #
+  # @example_request
+  #
+  #     curl https://<canvas>/api/v1/analytics/statistics/accounts/<account_id>/current \ 
+  #         -H 'Authorization: Bearer <token>'
+  #
+  #     curl https://<canvas>/api/v1/analytics/statistics/accounts/<account_id>/completed \ 
+  #         -H 'Authorization: Bearer <token>'
+  #
+  #     curl https://<canvas>/api/v1/analytics/statistics/accounts/<account_id>/terms/<term_id> \ 
+  #         -H 'Authorization: Bearer <token>'
+  #
+  # @example_response
+  #   {
+  #     "courses": 27,
+  #     "teachers": 36,
+  #     "students": 418,
+  #     "discussion_topics": 77,
+  #     "discussion_replies": 823,
+  #     "media_objects": 219,
+  #     "attachments": 1268,
+  #     "assignments": 290,
+  #     "submissions": 354
+  #   }
+  def department_statistics
+    return unless require_analytics_for_department
+    render :json => @department_analytics.statistics
+  end
+
   # @API Get course-level participation data
   #
   # Returns page view hits and participation numbers grouped by day through the

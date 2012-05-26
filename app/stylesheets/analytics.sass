@@ -13,6 +13,9 @@ div#analytics_body
     color: #d61e1c
     font-weight: bolder
 
+  h2
+    margin-bottom: 5px
+
   div.student_summary
     padding-bottom: 15px
     img
@@ -21,8 +24,6 @@ div#analytics_body
       padding-bottom: 15px
       width: 50px
       max-height: 50px
-    h2
-      margin-bottom: 5px
     table
       th, td
         margin-bottom: 3px
@@ -30,31 +31,69 @@ div#analytics_body
       th
         padding-right: 10px
 
-  table.student_graphs, table.course_graphs
-    width: 100%
-    tr
-      border-top: 1px solid #eaeaea
-    td
-      padding: 10px 0
-      vertical-align: top
-      h4
-        position: relative
-        font-size: 1.3em
-        margin-bottom: 0
-        padding-right: 150px
-        span.qualifier
-          padding-left: 1em
-          position: absolute
-          right: 0
-          top: 0
-          width: 150px
-      p.description
-        padding-top: 1em
-        font-style: italic
-        font-size: 90%
+  div.department_summary
+    .department_name
+      display: inline-block
+
+    #filter_box
+      display: inline-block
+      position: absolute
+      right: 0
+
+      // TODO: the -1000px in the canvas-lms combobox css isn't enough when the
+      // window is wide and the combobox is right-aligned
+      .ui-combobox .ui-combobox-prev, .ui-combobox .ui-combobox-next
+        text-indent: -9999px
+
+  .student_graphs, .course_graphs, .department_graphs
+    table
+      width: 100%
+      tr
+        border-top: 1px solid #eaeaea
+      td
+        padding: 10px 0
+        vertical-align: top
+        h4
+          position: relative
+          font-size: 1.3em
+          margin-bottom: 0
+          padding-right: 150px
+          span.qualifier
+            padding-left: 1em
+            position: absolute
+            right: 0
+            top: 0
+            width: 150px
+        p.description
+          padding-top: 1em
+          font-style: italic
+          font-size: 90%
+          color: #888
+      div.graph
+        width: 850px
+
+  .department_statistics
+    border-top: 1px solid #eaeaea
+    table
+      width: 100%
+      margin: 10px 0
+
+      th, td
+        width: 11%
+        padding: 0 10px
+        margin: 10px 0
+        vertical-align: top
+        border-left: 1px solid #eaeaea
+
+      th:first-child, td:first-child
+        border-left: none
+
+      th
         color: #888
-    div.graph
-      width: 850px
+
+      td
+        font-size: 1.5em
+        color: #444
 
 .analytics-tooltip
   position: absolute
