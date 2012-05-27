@@ -68,8 +68,8 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
     for i in [0...labels.length]
       deepEqual labelSpy.args[i], labels[i]
 
-    # should draw ticks on each day except mondays
-    ticks = [ 0, 20, 30, 40, 50, 60, 70, 90, 100 ]
+    # should draw ticks on each day
+    ticks = [ 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 ]
     equal tickSpy.callCount, ticks.length
     for i in [0...ticks.length]
       equal tickSpy.args[i], ticks[i]

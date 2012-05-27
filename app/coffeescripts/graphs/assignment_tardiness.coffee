@@ -163,10 +163,10 @@ define [
     ##
     # Convert a date to an x-coordinate.
     dateX: (datetime) ->
-      floorDate = helpers.midnight datetime, 'floor'
-      ceilDate = helpers.midnight datetime, 'ceil'
+      floorDate = @binner.reduce datetime
+      ceilDate = @binner.nextTick floorDate
       floorX = super floorDate
-      if ceilDate.equals floorDate
+      if floorDate.equals datetime
         floorX
       else
         ceilX = super ceilDate

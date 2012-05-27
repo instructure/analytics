@@ -7,10 +7,11 @@ define [
 
   ##
   # PageViews visualizes the student's activity within the course. Each bar
-  # represents one day. The height of the bar is the number of course pages
-  # viewed that day. The bar is blue on days in which the student
-  # "participated" (took a quiz, posted a discussion reply, etc.) and gray on
-  # other days.
+  # represents one time span (typically one day, but if there are a large
+  # amount of days, it may instead by one week per bin). The height of the bar
+  # is the number of course pages viewed in that time span. The bar is blue on
+  # if there were any participations in that time span (took a quiz, posted a
+  # discussion reply, etc.) and gray otherwise.
 
   defaultOptions =
 
@@ -20,11 +21,11 @@ define [
     gutterPercent: 0.20
 
     ##
-    # The fill color of the bars on days without participations.
+    # The fill color of the bars for bins without participations.
     barColor: "lightgray"
 
     ##
-    # The fill color of the bars on days with participations.
+    # The fill color of the bars for bins with participations.
     participationColor: "lightblue"
 
   class PageViews extends DateAlignedGraph
@@ -40,19 +41,35 @@ define [
         @[key] = options[key] ? defaultValue
 
       # space between bars = gutterPercent of barWidth
-      @barWidth = @daySpacing / (1 + @gutterPercent)
+      @barWidth = @binSpacing / (1 + @gutterPercent)
 
       # base of bars = @topMargin + @height - @bottomPadding
       @base = @topMargin + @height - @bottomPadding
+
+    ##
+    # Combine bins by an index reduction.
+    reduceBins: (sourceBins) ->
+      bins = []
+      binMap = {}
+      _.each sourceBins, (bin) =>
+        if bin.date.between @startDate, @endDate
+          index = @binner.reduce bin.date
+          if binMap[index]
+            binMap[index].views += bin.views
+            binMap[index].participations += bin.participations
+          else
+            binMap[index] = _.extend {}, bin
+            binMap[index].date = index
+            bins.push binMap[index]
+      bins
 
     ##
     # Graph the data.
     graph: (participation) ->
       return unless super
 
-      bins = _.filter participation.bins, (bin) =>
-        bin.date.between @startDate, @endDate
-
+      # reduce the bins to the appropriate time scale
+      bins = @reduceBins participation.bins
       @scaleToData bins
       _.each bins, @graphBin
 
@@ -93,7 +110,7 @@ define [
     # Create a tooltip for the bin.
     cover: (x, bin) ->
       new Cover this,
-        region: @paper.rect x - @daySpacing / 2, @topMargin, @daySpacing, @height
+        region: @paper.rect x - @binSpacing / 2, @topMargin, @binSpacing, @height
         classes: I18n.l 'date.formats.default', bin.date
         tooltip:
           contents: @tooltip bin

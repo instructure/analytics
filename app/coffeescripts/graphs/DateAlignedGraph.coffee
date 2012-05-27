@@ -1,8 +1,9 @@
 define [
   'analytics/compiled/graphs/base'
-  'analytics/compiled/helpers'
-  'i18nObj'
-], (Base, helpers, I18n) ->
+  'analytics/compiled/graphs/DayBinner'
+  'analytics/compiled/graphs/WeekBinner'
+  'analytics/compiled/graphs/MonthBinner'
+], (Base, DayBinner, WeekBinner, MonthBinner) ->
 
   ##
   # Parent class for all graphs that have a date-aligned x-axis. Note: Left
@@ -39,10 +40,17 @@ define [
       for key, defaultValue of defaultOptions
         @[key] = options[key] ? defaultValue
 
+      interior = @width - @leftPadding - @rightPadding
+
+      # mixin for the appropriate bin size
+      @binner = new DayBinner(@startDate, @endDate)
+      @binner = new WeekBinner(@startDate, @endDate) if @binner.count() * 5 > interior
+      @binner = new MonthBinner(@startDate, @endDate) if @binner.count() * 5 > interior
+
       # center of start diamond = @leftMargin + @leftPadding
       # center of end diamond = @leftMargin + @width - @rightPadding
       @x0 = @leftMargin + @leftPadding
-      @daySpacing = (@width - @leftPadding - @rightPadding) / helpers.daysBetween(@startDate, @endDate)
+      @binSpacing = interior / @binner.count()
 
     ##
     # Reset the graph chrome. Adds an x-axis with daily ticks and weekly (on
@@ -54,7 +62,7 @@ define [
     ##
     # Convert a date to an x-coordinate.
     dateX: (date) ->
-      @x0 + helpers.daysBetween(@startDate, date) * @daySpacing
+      @x0 + @binner.bin(date) * @binSpacing
 
     ##
     # Draw a guide along the x-axis. Each day gets a pair of ticks; one from
@@ -64,19 +72,12 @@ define [
       # skip if we haven't set start/end dates yet (@reset will be called by
       # Base's constructor before we set startDate or endDate)
       return unless @startDate? && @endDate?
-      date = @startDate.clone()
-      while date <= @endDate
-        x = @dateX date
-        if date.getDay() is 1
-          @drawWeekLine x
-          @dateLabel x, @topMargin + @height + 10, date.getDate()
-          unless month? && date.getMonth() is month.getMonth()
-            style = if month? && date.getYear() is month.getYear() then "short_month" else "medium_month"
-            @dateLabel x, @topMargin - 10, I18n.l("date.formats.#{style}", date)
-            month = date.clone()
-        else
-          @drawDayTick x
-        date.addDays 1
+      @binner.eachTick (tick, chrome) =>
+        x = @dateX tick
+        @drawDayTick x
+        @drawWeekLine x if chrome.grid
+        @dateLabel x, @topMargin + @height + 10, chrome.bottomLabel if chrome.bottomLabel
+        @dateLabel x, @topMargin - 10, chrome.topLabel if chrome.topLabel
 
     ##
     # Draw the tick marks for a day at x.
