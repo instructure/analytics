@@ -204,7 +204,7 @@ define [
     # being called, it's implied there is a distribution and a student score
     # for the assignment.
     valueColors: (assignment) ->
-      if assignment.studentScore >= assignment.scoreDistribution.thirdQuartile
+      if assignment.studentScore >= assignment.scoreDistribution.median
         ring: @goodRingColor
         center: @goodCenterColor
       else if assignment.studentScore >= assignment.scoreDistribution.firstQuartile
