@@ -20,16 +20,26 @@ define [ 'jquery' ], ($) ->
       switch @direction
         when 'up' then $tooltip.addClass('carat-bottom')
         when 'down' then $tooltip.addClass('carat-top')
+        when 'left' then $tooltip.addClass('carat-right')
+        when 'right' then $tooltip.addClass('carat-left')
       $tooltip.html @contents
       $tooltip.prepend $carat
 
     ##
     # Position the global tooltip elements for this Tooltip.
     position: ->
-      dx = $tooltip.outerWidth() / 2
+      dx = switch @direction
+        when 'up' then $tooltip.outerWidth() / 2
+        when 'down' then $tooltip.outerWidth() / 2
+        when 'left' then $tooltip.outerWidth() + 11
+        when 'right' then -11
+
       dy = switch @direction
         when 'up' then $tooltip.outerHeight() + 11
         when 'down' then -11
+        when 'left' then $tooltip.outerHeight() / 2
+        when 'right' then $tooltip.outerHeight() / 2
+
       position = @reference.offset()
       position.left += Math.round(@x - dx)
       position.top += Math.round(@y - dy)

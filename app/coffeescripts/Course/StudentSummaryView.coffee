@@ -22,8 +22,8 @@ define [
 
       if (summary = @model.summary)?
         # update activity and assignments graphs from student summary
-        @pageViews = new CountBar @$('.page_views')
-        @participations = new CountBar @$('.participations')
+        @pageViews = new CountBar @$('.page_views'), 'page views'
+        @participations = new CountBar @$('.participations'), 'participations'
         @tardiness = new TardinessBar @$('.assignments')
 
         @pageViews.show summary.pageViews

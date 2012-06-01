@@ -1,4 +1,4 @@
-define ->
+define ['analytics/compiled/graphs/tooltip'], (Tooltip) ->
 
   ##
   # Draws a horizontal bar with layers representing the tardiness breakdown
@@ -15,10 +15,19 @@ define ->
       @left = 0
       @right = 100
 
+      # attach tooltip that hangs below the bar when hovered
+      @tooltip = new Tooltip @paper,
+        x: 100
+        y: 8
+        direction: 'right'
+      @paper.mouseover @tooltip.show
+      @paper.mouseout @tooltip.hide
+
     ##
     # Calculate and add layers proportional to the count/total ratios in the
     # given data.
     show: (data) ->
+      @tooltip.contents = "#{data.onTime} on time, #{data.late} late, #{data.missing} missing"
       @layer 'onTime', 100 * (data.onTime / data.total)
       @layer 'late', 100 * (data.late / data.total)
       @layer 'missing', 100 * (data.missing / data.total)
