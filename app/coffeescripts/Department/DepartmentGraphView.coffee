@@ -28,7 +28,7 @@ define [
         gridColor: colors.grid
         topMargin: 15
         verticalMargin: 15
-        horizontalMargin: 25
+        horizontalMargin: 40
         padding: 10
 
       @pageViews = new PageViews @$("#participating-date-graph"), $.extend {}, @graphOpts,

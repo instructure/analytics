@@ -56,6 +56,30 @@ define [
       @instructorTrack = @studentTrack + @markerHeight + @gutterHeight
       @center = @instructorTrack - @gutterHeight / 2
 
+    reset: ->
+      super
+
+      # label the tracks
+      @paper.text(@leftMargin - 10, @topMargin, "student").attr
+        fill: @frameColor
+        transform: 'r-90'
+        'text-anchor': 'end'
+
+      @paper.text(@leftMargin + @width + 10, @topMargin, "student").attr
+        fill: @frameColor
+        transform: 'r90'
+        'text-anchor': 'start'
+
+      @paper.text(@leftMargin - 10, @topMargin + @height, "instructors").attr
+        fill: @frameColor
+        transform: 'r-90'
+        'text-anchor': 'start'
+
+      @paper.text(@leftMargin + @width + 10, @topMargin + @height, "instructors").attr
+        fill: @frameColor,
+        transform: 'r90',
+        'text-anchor': 'end'
+
     ##
     # Graph the data.
     graph: (messaging) ->

@@ -2,8 +2,9 @@ define [
   'underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
+  'analytics/compiled/graphs/YAxis'
   'i18nObj'
-], (_, Base, Cover, I18n) ->
+], (_, Base, Cover, YAxis, I18n) ->
 
   ##
   # CategorizedPageViews visualizes the student's activity within the course by
@@ -55,6 +56,7 @@ define [
       bins = participation.categoryBins
       @scaleToData bins
       @drawXAxis bins
+      @yAxis.draw()
       _.each bins, @graphBin
 
     ##
@@ -68,7 +70,9 @@ define [
       # top of max bar = @topMargin + @topPadding
       views = (bin.views for bin in bins)
       max = Math.max(views...)
+      max = 1 unless max? && max > 0
       @countSpacing = (@height - @topPadding - @bottomPadding) / max
+      @yAxis = new YAxis this, range: [0, max]
 
     ##
     # Draw a guide along the x-axis. Each category bin gets a pair of ticks;
@@ -101,15 +105,15 @@ define [
     # Graph a single bin. Fat arrowed because it's called by _.each
     graphBin: (bin, i) =>
       x = @x0 + (i + 0.5) * @barSpacing
-      height = @binHeight bin
-      bar = @paper.rect x - @barWidth / 2, @base - height, @barWidth, height
+      y = @valueY bin.views
+      bar = @paper.rect x - @barWidth / 2, y, @barWidth, @base - y
       bar.attr stroke: @strokeColor, fill: @barColor
       @cover x, bin
 
     ##
-    # Calculate the height of a bin, in pixels.
-    binHeight: (bin) ->
-      bin.views * @countSpacing
+    # Calculate the y-coordinate, in pixels, for a value.
+    valueY: (value) =>
+      @base - value * @countSpacing
 
     ##
     # Create a tooltip for the bin.

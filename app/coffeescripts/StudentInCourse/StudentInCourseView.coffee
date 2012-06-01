@@ -100,7 +100,7 @@ define [
         gridColor: colors.grid
         topMargin: 15
         verticalMargin: 15
-        horizontalMargin: 25
+        horizontalMargin: 40
 
       dateGraphOpts = $.extend {}, graphOpts,
         startDate: @options.startDate

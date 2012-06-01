@@ -2,8 +2,9 @@ define [
   'underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
+  'analytics/compiled/graphs/YAxis'
   'i18nObj'
-], (_, Base, Cover, I18n) ->
+], (_, Base, Cover, YAxis, I18n) ->
 
   ##
   # FinishingAssignmentCourse visualizes the proportion of students that are
@@ -52,6 +53,16 @@ define [
 
       @base = @topMargin + @height - @bottomPadding
 
+      # top of max bar = @topMargin + @topPadding
+      # base of bars = @topMargin + @height - @bottomPadding
+      # grid lines every 10%
+      @innerHeight = (@height - @topPadding - @bottomPadding)
+      @yAxis = new YAxis this, range: [0, 1], style: 'percent'
+
+    reset: ->
+      super
+      @yAxis?.draw()
+
     ##
     # Graph the assignments.
     graph: (assignments) ->
@@ -59,7 +70,6 @@ define [
 
       assignments = assignments.assignments
       @scaleToAssignments assignments
-      @drawGrid assignments if @gridColor
       _.each assignments, @graphAssignment
 
     ##
@@ -74,27 +84,6 @@ define [
       @barSpacing = (1 + @gutterPercent) * @barWidth
       @x0 = @leftMargin + @leftPadding + @barWidth / 2
       @barWidth = Math.min(@barWidth, 50)
-
-      # top of max bar = @topMargin + @topPadding
-      # base of bars = @topMargin + @height - @bottomPadding
-      # grid lines every 10%
-      @innerHeight = (@height - @topPadding - @bottomPadding)
-      @gridSpacing = @innerHeight / 10
-
-    ##
-    # Draws the grid lines.
-    drawGrid: ->
-      # draw a grid line at most every 10 pixels
-      y = @base
-      while y >= @topMargin + @topPadding
-        @drawGridLine y
-        y -= @gridSpacing
-
-    ##
-    # Draw a grid line at y.
-    drawGridLine: (y) ->
-      gridline = @paper.path ["M", @leftMargin, y, "l", @width, 0]
-      gridline.attr stroke: @gridColor
 
     ##
     # Graph a single assignment. Fat arrowed because it's called by _.each
@@ -114,8 +103,8 @@ define [
     drawLayer: (x, base, delta, color) ->
       if delta > 0
         summit = base + delta
-        bottom = @percentY base
-        top = @percentY summit
+        bottom = @valueY base
+        top = @valueY summit
         height = bottom - top
         box = @paper.rect x - @barWidth / 2, top, @barWidth, height
         box.attr stroke: "white", fill: color
@@ -130,7 +119,7 @@ define [
 
     ##
     # Convert a score to a y-coordinate.
-    percentY: (percent) ->
+    valueY: (percent) ->
       @base - percent * @innerHeight
 
     ##

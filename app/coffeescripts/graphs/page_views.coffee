@@ -2,8 +2,9 @@ define [
   'underscore'
   'analytics/compiled/graphs/DateAlignedGraph'
   'analytics/compiled/graphs/cover'
+  'analytics/compiled/graphs/YAxis'
   'i18nObj'
-], (_, DateAlignedGraph, Cover, I18n) ->
+], (_, DateAlignedGraph, Cover, YAxis, I18n) ->
 
   ##
   # PageViews visualizes the student's activity within the course. Each bar
@@ -71,6 +72,7 @@ define [
       # reduce the bins to the appropriate time scale
       bins = @reduceBins participation.bins
       @scaleToData bins
+      @yAxis.draw()
       _.each bins, @graphBin
 
     ##
@@ -80,21 +82,23 @@ define [
       # top of max bar = @topMargin + @topPadding
       views = (bin.views for bin in bins)
       max = Math.max(views...)
+      max = 1 unless max? && max > 0
       @countSpacing = (@height - @topPadding - @bottomPadding) / max
+      @yAxis = new YAxis this, range: [0, max]
 
     ##
     # Graph a single bin. Fat arrowed because it's called by _.each
     graphBin: (bin) =>
       x = @dateX bin.date
-      height = @binHeight bin
-      bar = @paper.rect x - @barWidth / 2, @base - height, @barWidth, height
+      y = @valueY bin.views
+      bar = @paper.rect x - @barWidth / 2, y, @barWidth, @base - y
       bar.attr @binColors bin
       @cover x, bin
 
     ##
     # Calculate the height of a bin, in pixels.
-    binHeight: (bin) ->
-      bin.views * @countSpacing
+    valueY: (j) ->
+      @base - j * @countSpacing
 
     ##
     # Determine the colors to use for a bin.

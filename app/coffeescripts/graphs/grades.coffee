@@ -2,7 +2,8 @@ define [
   'underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
-], (_, Base, Cover) ->
+  'analytics/compiled/graphs/YAxis'
+], (_, Base, Cover, YAxis) ->
 
   ##
   # Grades visualizes the student's scores on assignments compared to the
@@ -20,10 +21,6 @@ define [
     # The size of the vertical gutter between elements as a percent of the
     # width of those elements.
     gutterPercent: 0.20
-
-    ##
-    # The minimum spacing, in pixels, between grid lines.
-    minGridSpacing: 10
 
     ##
     # The color of the whiskers.
@@ -69,7 +66,7 @@ define [
 
       assignments = assignments.assignments
       @scaleToAssignments assignments
-      @drawGrid assignments if @gridColor
+      @yAxis.draw()
       _.each assignments, @graphAssignment
 
     ##
@@ -89,58 +86,10 @@ define [
       # base of bars = @topMargin + @height - @bottomPadding
       distributions = (assignment.scoreDistribution for assignment in assignments)
       maxScores = ((if distribution then distribution.maxScore else 0) for distribution in distributions)
-      max = Math.max(1, maxScores...)
+      max = Math.max(maxScores...)
+      max = 1 unless max? && max > 0
       @pointSpacing = (@height - @topPadding - @bottomPadding) / max
-      @gridPoints = @calculateGridPoints @minGridSpacing
-      @gridSpacing = @gridPoints * @pointSpacing
-
-    ##
-    # Calculates the number of points between grid lines such that grid lines
-    # are at least minSpacing pixels apart, and the points fall in the sequence
-    # [1, 5, 10, 25, 50, 100, 250, 500, 1000, ...]
-    calculateGridPoints: (minSpacing) ->
-      # a line every point is acceptable if the point spacing is large enough
-      if @pointSpacing >= minSpacing
-        return 1
-
-      # exponent and mantissa (base 10) of the minimum number of points to
-      # get above the minimum grid spacing. since minSpacing > @pointSpacing,
-      # minPoints > 1 and exponent >= 0
-      minPoints = minSpacing / @pointSpacing
-      exponent = Math.floor(Math.log(minPoints) * Math.LOG10E)
-      mantissa = minPoints / Math.pow(10, exponent)
-
-      # if the mantissa is 1, the minPoints are a power of 10 and we can just
-      # use them as is
-      if mantissa == 1
-        return minPoints
-
-      # bump the (1, 2.5] range up to a (10, 25] range, but only if minPoints
-      # is actually > 10
-      if mantissa <= 2.5 && exponent > 0
-        mantissa *= 10
-        exponent -= 1
-
-      # select the smallest of [5, 10, 25] (modulo exponent) that's greater
-      # than minPoints
-      return 5 * Math.pow(10, exponent) if mantissa <= 5
-      return 10 * Math.pow(10, exponent) if mantissa <= 10
-      return 25 * Math.pow(10, exponent)
-
-    ##
-    # Draws the grid lines.
-    drawGrid: ->
-      # draw a grid line at most every 10 pixels
-      y = @base
-      while y >= @topMargin + @topPadding
-        @drawGridLine y
-        y -= @gridSpacing
-
-    ##
-    # Draw a grid line at y.
-    drawGridLine: (y) ->
-      gridline = @paper.path ["M", @leftMargin, y, "l", @width, 0]
-      gridline.attr stroke: @gridColor
+      @yAxis = new YAxis this, range: [0, max]
 
     ##
     # Graph a single assignment. Fat arrowed because it's called by _.each
@@ -162,14 +111,14 @@ define [
 
     ##
     # Convert a score to a y-coordinate.
-    scoreY: (score) ->
+    valueY: (score) ->
       @base - score * @pointSpacing
 
     ##
     # Draw the whisker for an assignment's score distribution
     drawWhisker: (x, assignment) ->
-      whiskerTop = @scoreY assignment.scoreDistribution.maxScore
-      whiskerBottom = @scoreY assignment.scoreDistribution.minScore
+      whiskerTop = @valueY assignment.scoreDistribution.maxScore
+      whiskerBottom = @valueY assignment.scoreDistribution.minScore
       whiskerHeight = whiskerBottom - whiskerTop
       whisker = @paper.rect x, whiskerTop, 1, whiskerHeight
       whisker.attr stroke: @whiskerColor, fill: "none"
@@ -177,8 +126,8 @@ define [
     ##
     # Draw the box for an assignment's score distribution
     drawBox: (x, assignment) ->
-      boxTop = @scoreY assignment.scoreDistribution.thirdQuartile
-      boxBottom = @scoreY assignment.scoreDistribution.firstQuartile
+      boxTop = @valueY assignment.scoreDistribution.thirdQuartile
+      boxBottom = @valueY assignment.scoreDistribution.firstQuartile
       boxHeight = boxBottom - boxTop
       box = @paper.rect x - @barWidth / 2, boxTop, @barWidth, boxHeight
       box.attr stroke: @boxColor, fill: @boxColor
@@ -186,14 +135,14 @@ define [
     ##
     # Draw the median of an assignment's score distribution
     drawMedian: (x, assignment) ->
-      medianY = @scoreY assignment.scoreDistribution.median
+      medianY = @valueY assignment.scoreDistribution.median
       median = @paper.rect x - @barWidth / 2, medianY, @barWidth, 1
       median.attr stroke: @medianColor, fill: "none"
 
     ##
     # Draw the dot for the student's score in an assignment
     drawStudentScore: (x, assignment) ->
-      scoreY = @scoreY assignment.studentScore
+      scoreY = @valueY assignment.studentScore
       colors = @valueColors assignment
       ring = @paper.circle x, scoreY, @barWidth / 4
       ring.attr stroke: colors.ring, fill: colors.ring

@@ -2,8 +2,9 @@ define [
   'underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
+  'analytics/compiled/graphs/YAxis'
   'i18nObj'
-], (_, Base, Cover, I18n) ->
+], (_, Base, Cover, YAxis, I18n) ->
 
   ##
   # GradeDistribution visualizes the distribution of grades across all students
@@ -56,6 +57,7 @@ define [
 
       # scale the y-axis
       max = @scaleToData distribution.values
+      @yAxis.draw()
 
       # build path for distribution line
       path = _.map distribution.values, (value, score) =>
@@ -100,8 +102,9 @@ define [
     # point just at the top of the graph.
     scaleToData: (values) ->
       max = Math.max values.slice(1)...
-      max = 1 if max is 0
+      max = 0.001 unless max? && max > 0
       @countSpacing = (@height - @topPadding - @bottomPadding) / max
+      @yAxis = new YAxis this, range: [0, max], style: 'percent'
       max
 
     ##
