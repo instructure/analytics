@@ -22,7 +22,7 @@ module Analytics
       # TODO the javascript will break if this comes back nil, so we need a
       # sensible default. using "now" for the time being, but there's gotta be
       # something better
-      @start_date ||= slaved do
+      slaved(:cache_as => :start_date) do
         enrollment.effective_start_at || Time.zone.now
       end
     end
@@ -31,7 +31,7 @@ module Analytics
       # TODO ditto. "now" makes more sense this time, but it could also make
       # sense to go past "now" if the course has assignments due in the future,
       # for instance.
-      @end_date ||= slaved do
+      slaved(:cache_as => :end_date) do
         enrollment.effective_end_at || Time.zone.now
       end
     end
@@ -43,7 +43,7 @@ module Analytics
       # count up the messages from those conversations authored by the student
       # or by an instructor, binned by day and whether it was the student or an
       # instructor that sent it
-      @messages ||= slaved do
+      slaved(:cache_as => :messages) do
         messages = {}
         unless shared_conversation_ids.empty?
           # TODO sharding
@@ -79,6 +79,10 @@ module Analytics
     end
 
   private
+
+    def cache_prefix
+      [@course, @student]
+    end
 
     def enrollments_scope
       @enrollments_scope ||= @course.enrollments_visible_to(@current_user, true).

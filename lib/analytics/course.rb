@@ -10,11 +10,7 @@ module Analytics
     end
 
     def available?
-      @available ||= if @enrollments.nil?
-        slaved{ enrollment_scope.count > 0 }
-      else
-        enrollments.present?
-      end
+      slaved(:cache_as => :available) { enrollment_scope.count > 0 }
     end
 
     def enrollments
@@ -33,7 +29,7 @@ module Analytics
       # TODO the javascript will break if this comes back nil, so we need a
       # sensible default. using "now" for the time being, but there's gotta be
       # something better
-      @start_date ||= slaved do
+      slaved(:cache_as => :start_date) do
         enrollments.map{ |e| e.effective_start_at }.compact.min || Time.zone.now
       end
     end
@@ -42,7 +38,7 @@ module Analytics
       # TODO ditto. "now" makes more sense this time, but it could also make
       # sense to go past "now" if the course has assignments due in the future,
       # for instance.
-      @end_date ||= slaved do
+      slaved(:cache_as => :end_date) do
         enrollments.map{ |e| e.effective_end_at }.compact.max || Time.zone.now
       end
     end
@@ -56,7 +52,7 @@ module Analytics
     end
 
     def participation
-      @participation ||= slaved do
+      slaved(:cache_as => :participation) do
         @course.page_views_rollups.
           scoped(:select => "date, sum(views) as views, sum(participations) as participations", :group => "date").
           map{ |rollup| rollup.as_json[:page_views_rollup] }
@@ -68,7 +64,7 @@ module Analytics
     def extended_assignment_data(assignment, submissions)
       breakdown = { :on_time => 0, :late => 0, :missing => 0 }
       submitted_ats = submissions.map{ |s| submission_date(assignment, s) }.compact
-      total = students.size.to_f
+      total = student_ids.size.to_f
 
       if assignment.due_at && assignment.due_at <= Time.zone.now
         breakdown[:on_time] = submitted_ats.select{ |s| s <= assignment.due_at }.size / total
@@ -82,7 +78,7 @@ module Analytics
     end
 
     def student_summaries
-      @student_summaries ||= slaved do
+      slaved(:cache_as => :student_summaries) do
         summaries = {}
 
         # set up default summary per student
@@ -145,6 +141,10 @@ module Analytics
     end
 
   private
+
+    def cache_prefix
+      @course
+    end
 
     def enrollment_scope
       @enrollment_scope ||= @course.enrollments_visible_to(@current_user, true).

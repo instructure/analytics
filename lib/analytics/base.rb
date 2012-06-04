@@ -11,8 +11,14 @@ module Analytics
       ActiveRecord::Base::ConnectionSpecification.with_environment(:slave) { yield }
     end
 
-    def slaved
-      self.class.slaved{ yield }
+    def slaved(opts={})
+      if opts[:cache_as]
+        Rails.cache.fetch(['analytics', cache_prefix, opts[:cache_as]].cache_key, :expires_in => 12.hours) do
+          self.class.slaved{ yield }
+        end
+      else
+        self.class.slaved{ yield }
+      end
     end
   end
 end

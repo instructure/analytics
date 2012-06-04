@@ -7,21 +7,17 @@ module Analytics
       @filter = filter
     end
 
+    def dates
+      slaved(:cache_as => :dates) { @filter ? dates_for_filter(@filter) : dates_for_term(@term) }
+    end
+
     def start_date
-      unless @start_date
-        @start_date, @end_date = @filter ?
-          dates_for_filter(@filter) :
-          dates_for_term(@term)
-      end
+      @start_date, @end_date = dates unless @start_date
       @start_date
     end
 
     def end_date
-      unless @end_date
-        @start_date, @end_date = @filter ?
-          dates_for_filter(@filter) :
-          dates_for_term(@term)
-      end
+      @start_date, @end_date = dates unless @start_date
       @end_date
     end
 
@@ -40,7 +36,7 @@ module Analytics
     end
 
     def participation_by_date
-      @participation_by_date ||= slaved do
+      slaved(:cache_as => :participation_by_date) do
         page_views_rollups.
           scoped(:select => "date, sum(views) as views, sum(participations) as participations", :group => "date").
           map{ |rollup| rollup.as_json[:page_views_rollup] }
@@ -48,7 +44,7 @@ module Analytics
     end
 
     def participation_by_category
-      @participation_by_category ||= slaved do
+      slaved(:cache_as => :participation_by_category) do
         page_views_rollups.
           scoped(:select => "category, sum(views) as views", :group => "category").
           map{ |rollup| rollup.as_json[:page_views_rollup] }
@@ -56,7 +52,7 @@ module Analytics
     end
 
     def grade_distribution
-      @grade_distribution ||= slaved do
+      slaved(:cache_as => :grade_distribution) do
         result = {}
         distribution = cached_grade_distribution
         (0..100).each{ |i| result[i] = distribution.send("s#{i}".to_sym) }
@@ -65,7 +61,7 @@ module Analytics
     end
 
     def statistics
-      @statistics || slaved do
+      slaved(:cache_as => :statistics) do
         {
           :courses => courses.scoped(:select => "COUNT(DISTINCT courses.id) AS ct").first.ct.to_i,
           :teachers => count_users_for_enrollments(teacher_enrollments),
@@ -81,6 +77,10 @@ module Analytics
     end
 
   protected
+
+    def cache_prefix
+      [@account, @filter || @term]
+    end
 
     def default_term
       @account.root_account.default_enrollment_term

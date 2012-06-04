@@ -3,7 +3,7 @@ module Analytics
     # required of host: page_view_scope
 
     def page_views
-      @page_views ||= slaved do
+      slaved(:cache_as => :page_views) do
         page_views = {}
         page_view_scope.find(:all,
           :select => "DATE(created_at) AS day, controller, COUNT(*) AS ct",
@@ -20,7 +20,7 @@ module Analytics
     end
 
     def participations
-      @participations ||= slaved do
+      slaved(:cache_as => :participations) do
         foo = {}
         page_view_scope.find(:all,
           :select => "page_views.created_at, page_views.url, asset_user_accesses.asset_code, asset_user_accesses.asset_category",
