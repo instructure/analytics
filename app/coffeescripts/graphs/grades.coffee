@@ -80,7 +80,7 @@ define [
       @barWidth = (@width - @leftPadding - @rightPadding) / (n + (n - 1) * @gutterPercent)
       @barSpacing = (1 + @gutterPercent) * @barWidth
       @x0 = @leftMargin + @leftPadding + @barWidth / 2
-      @barWidth = Math.min(@barWidth, 50)
+      @barWidth = Math.min(@barWidth, 30)
 
       # top of max bar = @topMargin + @topPadding
       # base of bars = @topMargin + @height - @bottomPadding
