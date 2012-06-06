@@ -1,7 +1,3 @@
-Permissions.register :view_analytics,
-  :label => lambda { I18n.t('#role_override.permissions.view_analytics', "View analytics pages") },
-  :available_to => %w(TaEnrollment TeacherEnrollment AccountAdmin AccountMembership),
-  :true_for => %w(AccountAdmin)
 
 # intended for inclusion in analytics' various controllers for shared
 # functionality around permissions
