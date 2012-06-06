@@ -46,7 +46,7 @@ module Analytics
     def participation_by_category
       slaved(:cache_as => :participation_by_category) do
         page_views_rollups.
-          scoped(:select => "category, sum(views) as views", :group => "category").
+          scoped(:select => "category, sum(views) as views", :group => "category", :order => "category").
           map{ |rollup| rollup.as_json[:page_views_rollup] }
       end
     end

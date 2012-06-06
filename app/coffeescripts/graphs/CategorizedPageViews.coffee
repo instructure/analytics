@@ -29,6 +29,10 @@ define [
     ##
     # The size of the tick marks, in pixels.
     tickSize: 5
+    
+    ##
+    # What to sort by ("views", "category")
+    sortBy: "category"
 
   class CategorizedPageViews extends Base
     ##
@@ -54,6 +58,10 @@ define [
 
       # reduce the bins to the appropriate time scale
       bins = participation.categoryBins
+      if @sortBy == 'views'
+        maxViews = _.max(bins, (b) -> b.views).views
+        bins = _.sortBy(bins, (b) -> [maxViews - b.views, b.category])
+
       @scaleToData bins
       @drawXAxis bins
       @yAxis.draw()
@@ -65,7 +73,7 @@ define [
     scaleToData: (bins) ->
       # x-scaled by number of bins
       @barSpacing = (@width - @leftPadding - @rightPadding) / bins.length
-      @barWidth = @barSpacing / (1 + @gutterPercent)
+      @barWidth = Math.min(@barSpacing / (1 + @gutterPercent), 50)
 
       # top of max bar = @topMargin + @topPadding
       views = (bin.views for bin in bins)

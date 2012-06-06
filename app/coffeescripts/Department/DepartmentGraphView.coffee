@@ -44,6 +44,7 @@ define [
         bottomMargin: 25
         barColor: colors.blue
         strokeColor: colors.blue
+        sortBy: 'views'
       @categorizedPageViews.graph participations
 
       @gradeDistribution = new GradeDistribution @$("#grade-distribution-graph"), $.extend {}, @graphOpts,
