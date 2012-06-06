@@ -1,7 +1,8 @@
 define [
   'underscore'
   'analytics/compiled/BaseData'
-], (_, BaseData) ->
+  'compiled/str/TextHelper'
+], (_, BaseData, {delimit}) ->
 
   ##
   # Loads the statistics data for the current account/filter. Exposes
@@ -13,4 +14,6 @@ define [
       super '/api/v1/analytics/statistics/accounts/' + account.get('id') + '/' + fragment
 
     populate: (data) ->
+      for key, val of data
+        data[key] = delimit(val)
       _.extend this, data
