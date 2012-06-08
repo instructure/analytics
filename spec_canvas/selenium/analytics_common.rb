@@ -72,10 +72,8 @@ shared_examples_for "analytics tests" do
     added_students
   end
 
-  def go_to_analytics(course_view = false)
-    url = "/courses/#{@course.id}/analytics"
-    url += "/users/#{@student.id}" unless course_view
-    get url
+  def go_to_analytics(analytics_url)
+    get analytics_url
     wait_for_ajaximations
   end
 
@@ -128,29 +126,66 @@ shared_examples_for "analytics tests" do
     date.strftime("%Y-%m-%d")
   end
 
-  def date_selector(date)
-    "#participating-graph .#{format_date(date)}"
+  def date_selector(date, graph_selector = '#participating-graph')
+    "#{graph_selector} .#{format_date(date)}"
   end
 
-  def get_rectangle(date)
-    driver.execute_script("return $('#{date_selector(date)}').prev()[0]")
+  def get_rectangle(date, graph_selector = '#participating-graph')
+    driver.execute_script("return $('#{date_selector(date, graph_selector)}').prev()[0]")
   end
 
   def get_diamond(assignment_id)
     driver.execute_script("return $('#assignment-finishing-graph .assignment_#{assignment_id}').prev()[0]")
   end
 
+  def student_roster
+    ff('.student_roster .user')
+  end
+
+  def right_nav_buttons
+    ff('#right_nav .button')
+  end
+
+  def validate_analytics_button_exists(exists = true)
+    student = StudentEnrollment.last.user
+    get "/courses/#{@course.id}/users/#{student.id}"
+    exists ? right_nav_buttons[0].text.strip!.should == "Student Analytics for #{student.name}" : right_nav_buttons.each { |right_nav_button| right_nav_button.should_not include_text(ANALYTICS_BUTTON_TEXT) }
+  end
+
+  def validate_analytics_icons_exist(exist = true)
+    get "/courses/#{@course.id}/users"
+    if !exist
+      ff(ANALYTICS_BUTTON_CSS).should be_empty
+    else
+      ff(ANALYTICS_BUTTON_CSS).count.should == student_roster.count
+    end
+  end
+
+  def validate_student_display(student_name)
+    f('.student_summary').should include_text(student_name)
+  end
+
+  shared_examples_for "analytics permissions specs" do
+    it "should validate analytics icons display" do
+      validate_analytics_icons_exist(validate)
+    end
+
+    it "should validate analytics button display" do
+      validate_analytics_button_exists(validate)
+    end
+  end
+
   shared_examples_for "participation graph specs" do
     it "should validate participating graph with a single page view" do
       page_view(:user => @student, :course => @course)
-      go_to_analytics(go_to_course_view)
+      go_to_analytics(analytics_url)
       validate_tooltip_text(date_selector(Time.now), '1 page view')
     end
 
     it "should validate participating graph with multiple page views" do
       page_view_count = 10
       page_view_count.times { page_view(:user => @student, :course => @course) }
-      go_to_analytics(go_to_course_view)
+      go_to_analytics(analytics_url)
       validate_tooltip_text(date_selector(Time.now), page_view_count.to_s + ' page views')
     end
 
@@ -160,13 +195,13 @@ shared_examples_for "analytics tests" do
       number_of_page_views = 5
       number_of_page_views.times { page_view(:user => @student, :course => @course) }
       number_of_page_views.times { page_view(:user => @student, :course => @course, :created_at => old_page_views_date) }
-      go_to_analytics(go_to_course_view)
+      go_to_analytics(analytics_url)
       dates.each { |date| validate_tooltip_text(date_selector(date), number_of_page_views.to_s + ' page views') }
     end
 
     it "should validate the graph color when a student took action on that day" do
       page_view(:user => @student, :course => @course, :participated => true)
-      go_to_analytics(go_to_course_view)
+      go_to_analytics(analytics_url)
       validate_element_fill(get_rectangle(Time.now), GraphColors::ORANGE)
       validate_tooltip_text(date_selector(Time.now), '1 participation')
     end
@@ -177,7 +212,7 @@ shared_examples_for "analytics tests" do
       dates = [old_page_view_date, Time.now]
       page_view(:user => @student, :course => @course)
       page_view(:user => @student, :course => @course, :participated => true, :created_at => old_page_view_date)
-      go_to_analytics(go_to_course_view)
+      go_to_analytics(analytics_url)
       dates.each do |date|
         rect = get_rectangle(date)
         rectangles.push(rect)

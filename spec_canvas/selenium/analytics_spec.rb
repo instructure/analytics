@@ -7,33 +7,6 @@ describe "analytics" do
   ANALYTICS_BUTTON_CSS = '.analytics-grid-button'
   ANALYTICS_BUTTON_TEXT = 'Student Analytics for '
 
-  def student_roster
-    ff('.student_roster .user')
-  end
-
-  def right_nav_buttons
-    ff('#right_nav .button')
-  end
-
-  def validate_analytics_button_exists(exists = true)
-    student = StudentEnrollment.last.user
-    get "/courses/#{@course.id}/users/#{student.id}"
-    exists ? right_nav_buttons[0].text.strip!.should == "Student Analytics for #{student.name}" : right_nav_buttons.each { |right_nav_button| right_nav_button.should_not include_text(ANALYTICS_BUTTON_TEXT) }
-  end
-
-  def validate_analytics_icons_exist(exist = true)
-    get "/courses/#{@course.id}/users"
-    if !exist
-      ff(ANALYTICS_BUTTON_CSS).should be_empty
-    else
-      ff(ANALYTICS_BUTTON_CSS).count.should == student_roster.count
-    end
-  end
-
-  def validate_student_display(student_name)
-    f('.student_summary').should include_text(student_name)
-  end
-
   describe "course view" do
 
     describe "links" do
@@ -63,60 +36,42 @@ describe "analytics" do
     context "as an admin" do
 
       describe "with analytics turned on" do
-
+        let(:validate) { true }
         before (:each) do
           course_with_admin_logged_in
           enable_analytics
           add_students_to_course(5)
         end
 
-        it "should show analytics icons" do
-          validate_analytics_icons_exist
-        end
-
-        it "should validate analytics button is showing up on user page" do
-          validate_analytics_button_exists
-        end
+        it_should_behave_like "analytics permissions specs"
       end
 
       describe "with analytics turned off" do
-
+        let(:validate) { false }
         before (:each) do
           course_with_admin_logged_in
           add_students_to_course(5)
         end
 
-        it "should not show analytics icons" do
-          validate_analytics_icons_exist(false)
-        end
-
-        it "should validate analytics button is not showing up on user page" do
-          validate_analytics_button_exists(false)
-        end
+        it_should_behave_like "analytics permissions specs"
       end
     end
 
     context "as a teacher" do
 
       describe "with analytics permissions on" do
-
+        let(:validate) { true }
         before (:each) do
           enable_analytics
           course_with_teacher_logged_in
           add_students_to_course(5)
         end
 
-        it "should validate analytics icons are showing up on users page" do
-          validate_analytics_icons_exist
-        end
-
-        it "should validate analytics button is showing up on user page" do
-          validate_analytics_button_exists
-        end
+        it_should_behave_like "analytics permissions specs"
       end
 
       describe "with analytics permissions off" do
-
+        let(:validate) { false }
         before (:each) do
           enable_analytics
           disable_teacher_permissions
@@ -124,13 +79,7 @@ describe "analytics" do
           add_students_to_course(5)
         end
 
-        it "should not show analytics icons on users page if analytics is not enabled" do
-          validate_analytics_icons_exist(false)
-        end
-
-        it "should not show analytics button on user page if analytics is not enabled" do
-          validate_analytics_button_exists(false)
-        end
+        it_should_behave_like "analytics permissions specs"
       end
     end
   end
@@ -147,20 +96,20 @@ describe "analytics" do
     end
 
     it "should validate correct user is showing up on analytics page" do
-      go_to_analytics
+      go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
       validate_student_display(@student.name)
     end
 
     it "should validate current total display" do
       randomly_grade_assignments(5)
-      go_to_analytics
+      go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
       f('.student_summary').should include_text(current_student_score)
     end
 
     context 'participation view' do
-      let(:go_to_course_view) { false }
+      let(:analytics_url) { "/courses/#{@course.id}/analytics/users/#{@student.id}" }
       it_should_behave_like "participation graph specs"
     end
 
@@ -185,7 +134,7 @@ describe "analytics" do
       @student_conversation = @student.initiate_conversation(@teachers_id)
       add_message(@teacher_conversation, 1)
       add_message(@student_conversation, 1)
-      go_to_analytics
+      go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
       users_css.each { |user_css| validate_tooltip_text(user_css, single_message) }
 
@@ -200,7 +149,7 @@ describe "analytics" do
     it "should validate finishing assignments graph" do
       # setting up assignments
       setup_variety_assignments
-      go_to_analytics
+      go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
       missed_diamond = get_diamond(@missed_assignment.id)
       no_due_date_diamond = get_diamond(@no_due_date_assignment.id)
@@ -220,14 +169,14 @@ describe "analytics" do
       first_submission_score = first_assignment.submissions.first.score.to_s
       validation_text = ['Score: ' + first_submission_score + ' / 100', first_assignment.title]
       setup_for_grades_graph
-      go_to_analytics
+      go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
       validation_text.each { |text| validate_tooltip_text("#grades-graph .assignment_#{first_assignment.id}.cover", text) }
     end
 
     it "should validate a non-graded assignment on graph" do
       @course.assignments.create!(:title => 'new assignment', :points_possible => 10)
       first_assignment = @course.active_assignments.first
-      go_to_analytics
+      go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
       driver.execute_script("$('#grades-graph .assignment_#{first_assignment.id}.cover').mouseover()")
       tooltip = f(".analytics-tooltip")
@@ -246,12 +195,12 @@ describe "analytics" do
 
       it "should validate student combo box shows up when >= 2 students are in the course" do
         add_students_to_course(1)
-        go_to_analytics
+        go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
         validate_combobox_presence
       end
 
       it "should not show the combo box when course student count = 1" do
-        go_to_analytics
+        go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
         validate_combobox_presence(false)
       end
 
@@ -275,7 +224,7 @@ describe "analytics" do
 
         added_students = add_students_to_course(1)
         graded_assignments = randomly_grade_assignments(5)
-        go_to_analytics
+        go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
         next_button = f('.ui-combobox-next')
         prev_button = f('.ui-combobox-prev')
 

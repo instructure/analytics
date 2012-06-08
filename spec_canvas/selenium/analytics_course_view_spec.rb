@@ -29,14 +29,14 @@ describe "analytics course view" do
   context "course graphs" do
 
     context "participation graph" do
-      let(:go_to_course_view) { true }
+      let(:analytics_url) { "/courses/#{@course.id}/analytics" }
       it_should_behave_like "participation graph specs"
     end
 
     it "should validate finishing assignments graph" do
       finishing_graph_css = '#finishing-assignments-graph'
       setup_variety_assignments
-      go_to_analytics(true)
+      go_to_analytics("/courses/#{@course.id}/analytics")
 
       #get assignment bars
       missed_bar = get_bar(finishing_graph_css, @missed_assignment.id)
@@ -56,7 +56,7 @@ describe "analytics course view" do
     it "should validate grades graph" do
       setup_for_grades_graph
       validation_text = ['High: ' + @first_submission_score, @first_assignment.title]
-      go_to_analytics(true)
+      go_to_analytics("/courses/#{@course.id}/analytics")
 
       validation_text.each { |text| validate_tooltip_text("#grades-graph .assignment_#{@first_assignment.id}.cover", text) }
     end
@@ -71,7 +71,7 @@ describe "analytics course view" do
     it "should be absent unless the user has permission to see grades" do
       RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'manage_grades', :override => false)
       RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_all_grades', :override => false)
-      go_to_analytics(true)
+      go_to_analytics("/courses/#{@course.id}/analytics")
       f('#students').should be_nil
     end
 
@@ -80,7 +80,7 @@ describe "analytics course view" do
         ffj('#students div.student') #avoid selenium caching
       end
 
-      go_to_analytics(true)
+      go_to_analytics("/courses/#{@course.id}/analytics")
 
       student_rows.count.should == 1
       student_rows.first.text.should == INITIAL_STUDENT_NAME
@@ -92,7 +92,7 @@ describe "analytics course view" do
 
     it "should validate current score display for students" do
       randomly_grade_assignments(5)
-      go_to_analytics(true)
+      go_to_analytics("/courses/#{@course.id}/analytics")
       f('div.current_score').should include_text(current_student_score)
     end
 
@@ -106,7 +106,7 @@ describe "analytics course view" do
         page_view_styles = %w(0% 100% 50%)
         2.times { page_view(:user => @student, :course => @course) }
         4.times { page_view(:user => @added_students[0], :course => @course, :participated => true) }
-        go_to_analytics(true)
+        go_to_analytics("/courses/#{@course.id}/analytics")
         student_bars(StudentBars::PAGE_VIEWS).each_with_index { |page_view_bar, i| page_view_bar.should have_attribute(:style, "right: #{page_view_styles[i]}") }
       end
 
@@ -115,7 +115,7 @@ describe "analytics course view" do
         page_view(:user => @student, :course => @course, :participated => true)
         2.times { page_view(:user => @added_students[0], :course => @course, :participated => true) }
         4.times { page_view(:user => @added_students[1], :course => @course, :participated => true) }
-        go_to_analytics(true)
+        go_to_analytics("/courses/#{@course.id}/analytics")
         student_bars(StudentBars::PARTICIPATION).each_with_index { |page_view_bar, i| page_view_bar.should have_attribute(:style, "right: #{page_view_styles[i]}") }
       end
     end
@@ -123,7 +123,7 @@ describe "analytics course view" do
     it "should validate assignments bar for a single student" do
       expected_classes = %w(onTime late missing)
       setup_variety_assignments(false)
-      go_to_analytics(true)
+      go_to_analytics("/courses/#{@course.id}/analytics")
       assignments_regions = student_bars(StudentBars::ASSIGNMENTS)
       expected_classes.each_with_index { |expected_class, i| assignments_regions[i].should have_class(expected_class) }
     end
