@@ -1,9 +1,10 @@
 module PageViewRoller
-  # We ignore page views not related to a course or that we've already
-  # summarized
+  # We ignore page views not related to a course. include "summarized IS NULL"
+  # to ignore page views inserted since the rollup tables were introduced, also
+  # to speed up query (index includes summarized)
   PAGE_VIEWS = PageView.scoped(:conditions => "context_id IS NOT NULL AND context_type='Course' AND summarized IS NULL")
 
-  # Rollup all the remaining unsummarized page views.
+  # Generate the remaining rollups.
   #
   # Available options:
   #   - start_day [date]: override automatic start day detection, and use the
@@ -25,8 +26,8 @@ module PageViewRoller
     opts[:end_day] ||= self.end_day(opts)
     logger.info "Rolling up page views between #{opts[:start_day]} and #{opts[:end_day]}, inclusive."
 
-    # process each day in between as its own transaction, from most recent to
-    # least recent
+    # process each day in between as its own chunk, from most recent to least
+    # recent
     day = opts[:end_day]
     while day >= opts[:start_day]
       rollup_one(day, opts)
@@ -36,7 +37,7 @@ module PageViewRoller
     logger.info "Roll up completed."
   end
 
-  # Rollup the remaining unsummarized page views for a given day.
+  # Generate the remaining rollups for a given day.
   #
   # Available options:
   #   - dry_run [boolean]: don't actually insert/update any rows
@@ -44,24 +45,29 @@ module PageViewRoller
   #   - verbose [boolean or string]: print additional log lines (excessive
   #     amounts if set to 'flood')
   def self.rollup_one(day, opts={})
-    PageView.transaction do
-      # scope the page views down to just that day
-      page_views = PAGE_VIEWS.scoped(:conditions => ["created_at >= ? AND created_at < ?", day, day + 1.day])
+    # scope the page views down to just that day
+    page_views = PAGE_VIEWS.scoped(:conditions => ["created_at >= ? AND created_at < ?", day, day + 1.day])
 
-      # bin them by course id and category, and update the appropriate rollup row
-      # for each result
-      binned(page_views) do |course_id, category, views, participations|
-        PageViewsRollup.augment!(course_id, day, category, views, participations) unless opts[:dry_run]
-        logger.info "Rolled up page views for #{course_id}/#{day}/#{category}." if opts[:verbose] == 'flood'
+    # bin them by course id and category, and insert a rollup row for each
+    # result. if a row for the bin already exists, assume all views for that
+    # bin have already been rolled up. this assumption should only be false on
+    # days since the PageViewsRoller was deployed, which can be addressed
+    # later.
+    binned(page_views) do |course_id, category, views, participations|
+      unless opts[:dry_run]
+        PageView.transaction do
+          bin = PageViewsRollup.bin_for(course_id, day, category)
+          next unless bin.new_record?
+          bin.augment(views, participations)
+          bin.save!
+        end
       end
-
-      # mark all the processed page views as summarized
-      page_views.update_all(:summarized => true) unless opts[:dry_run]
-      logger.info "Rolled up page views for #{day}." if opts[:verbose]
+      logger.info "Rolled up page views for #{course_id}/#{day}/#{category}." if opts[:verbose] == 'flood'
     end
+    logger.info "Rolled up page views for #{day}." if opts[:verbose]
   end
 
-  # Determine the oldest date with unsummarized page views.
+  # Determine the oldest date with page views.
   #
   # Available options:
   #   - verbose [boolean or string]: print additional log lines if set to
@@ -74,10 +80,10 @@ module PageViewRoller
     day = Date.new(2010, 11)
     today = Date.today
     loop do
-      logger.info "Looking for oldest unsummarized page view before #{day}." if opts[:verbose] == 'flood'
+      logger.info "Looking for oldest page view before #{day}." if opts[:verbose] == 'flood'
       row = PAGE_VIEWS.scoped(:select => 'MIN(created_at) AS result', :conditions => ["created_at <= ?", day]).first
       return row.result.to_date if row.result
-      logger.info "No unsummarized page views before #{day}." if opts[:verbose] == 'flood'
+      logger.info "No page views before #{day}." if opts[:verbose] == 'flood'
 
       # break here rather than at the start of loop so we still attempt the
       # first time day >= today
@@ -90,7 +96,7 @@ module PageViewRoller
     return nil
   end
 
-  # Determine the newest date with unsummarized page views.
+  # Determine the newest date that might still need rolling up.
   #
   # Available options:
   #   - start_day [date]: override automatic start day detection, and use the
@@ -99,28 +105,16 @@ module PageViewRoller
   #   - verbose [boolean or string]: print additional log lines if set to
   #     'flood'
   def self.end_day(opts={})
-    # similar to start_day, but starting at today and going back, taking the
-    # latest page view's created_at. stop if we reach the start_day (not that
-    # we should -- if there's a start day, there's a )
+    # find the oldest roll up on or after start_day. assume any days after that
+    # have been completely rolled up. if none found, go through today (or
+    # start_day if somehow after today)
     opts[:start_day] ||= start_day(opts)
     return nil unless opts[:start_day]
-    day = [Date.today, opts[:start_day]].max
-    loop do
-      logger.info "Looking for newest unsummarized page view after #{day}." if opts[:verbose] == 'flood'
-      row = PAGE_VIEWS.scoped(:select => 'MAX(created_at) AS result', :conditions => ["created_at >= ?", day]).first
-      return row.result.to_date if row.result
-      logger.info "No unsummarized page views after #{day}." if opts[:verbose] == 'flood'
-
-      # break here rather than at the start of loop so we still attempt the
-      # first time day <= start_day
-      break if day <= opts[:start_day]
-      day = [day - 1.month, opts[:start_day]].max
-    end
-
-    # if there are any page_views in the table (on this shard), they're before
-    # start_day (which is only possible if start_day was provided). we'll just
-    # ignore them and return (the supplied) start_day.
-    return opts[:start_day]
+    logger.info "Looking for oldest roll up on or after #{opts[:start_day]}." if opts[:verbose] == 'flood'
+    row = PageViewsRollup.scoped(
+      :select => 'MIN(date) AS date',
+      :conditions => ['date >= ?', opts[:start_day]]).first
+    row.date || Date.today
   end
 
   # Bins the scope by course id and category, then yields the counts to the
