@@ -66,38 +66,46 @@ describe PageViewRoller do
       PageViewRoller.end_day.should be_nil
     end
 
-    it "should not include page_views without a non-course context" do
-      build_page_view(:context => Account.default)
-      PageViewRoller.end_day.should be_nil
-    end
-
-    it "should not include summarized page_views" do
-      build_page_view
-      PageViewRoller.end_day.should be_nil
-    end
-
-    it "should return the latest page_view's created_at"  do
+    it "should return the earliest existing rollup's date"  do
       date1 = Date.today - 1.day
       date2 = Date.today - 2.days
-      [date1, date2].each{ |date| build_page_view(:created_at => date) }
-      PageViewRoller.end_day.should == date1
+      build_page_view(:created_at => date2)
+      [date1, date2].each{ |date| PageViewsRollup.bin_for(@course, date, 'other').save }
+      PageViewRoller.end_day.should == date2
     end
 
-    it "should ignore page_views before overridden start_day"  do
-      today = Date.today
-      date = today - 1.day
-      build_page_view(:created_at => date)
-      PageViewRoller.end_day(:start_day => today - 2.days).should == date
-      PageViewRoller.end_day(:start_day => today).should == today
+    it "should return today if no existing rollup's but existing page views"  do
+      build_page_view(:created_at => Date.today - 2.days)
+      PageViewRoller.end_day.should == Date.today
+    end
+
+    it "should ignore rollups before overridden start_day"  do
+      date1 = Date.today - 1.day
+      date2 = Date.today - 2.days
+      build_page_view(:created_at => date2)
+      [date1, date2].each{ |date| PageViewsRollup.bin_for(@course, date, 'other').save }
+      PageViewRoller.end_day(:start_day => date1).should == date1
     end
   end
 
   describe "#rollup_one" do
+    def mockbin(course, date, category, new_record=true)
+      mockbin = mock('fake bin')
+      PageViewsRollup.expects(:bin_for).with(course, date, category).once.returns(mockbin)
+      mockbin.stubs(:new_record?).returns(new_record)
+      mockbin.stubs(:save!)
+      yield mockbin if block_given?
+      mockbin
+    end
+
     it "should bin page views on that day" do
       date = Date.today
       build_page_view(:created_at => date)
       build_page_view(:created_at => date)
-      PageViewsRollup.expects(:augment!).with(@course.id, date, 'other', 2, 0).once
+      mockbin(@course.id, date, 'other') do |bin|
+        bin.expects(:augment).with(2, 0).once
+        bin.expects(:save!).once
+      end
       PageViewRoller.rollup_one(date)
     end
 
@@ -115,8 +123,8 @@ describe PageViewRoller do
       build_page_view(:context => first_course, :created_at => date)
       build_page_view(:context => first_course, :created_at => date)
       build_page_view(:context => second_course, :created_at => date)
-      PageViewsRollup.expects(:augment!).with(first_course.id, date, 'other', 2, 0).once
-      PageViewsRollup.expects(:augment!).with(second_course.id, date, 'other', 1, 0).once
+      mockbin(first_course.id, date, 'other').expects(:augment).with(2, 0).once
+      mockbin(second_course.id, date, 'other').expects(:augment).with(1, 0).once
       PageViewRoller.rollup_one(date)
     end
 
@@ -125,25 +133,26 @@ describe PageViewRoller do
       build_page_view(:controller => 'gradebooks', :created_at => date)
       build_page_view(:controller => 'discussion_topics', :created_at => date)
       build_page_view(:controller => 'discussion_topics', :created_at => date)
-      PageViewsRollup.expects(:augment!).with(@course.id, date, 'grades', 1, 0).once
-      PageViewsRollup.expects(:augment!).with(@course.id, date, 'discussions', 2, 0).once
+      mockbin(@course.id, date, 'grades').expects(:augment).with(1, 0).once
+      mockbin(@course.id, date, 'discussions').expects(:augment).with(2, 0).once
+      PageViewRoller.rollup_one(date)
+    end
+
+    it "should skip existing bins" do
+      date = Date.today
+      build_page_view(:created_at => date)
+      mockbin(@course.id, date, 'other', false) do |bin|
+        bin.expects(:augment).never
+        bin.expects(:save!).never
+      end
       PageViewRoller.rollup_one(date)
     end
 
     it "should recognize participations" do
       date = Date.today
       build_page_view(:participated => true, :created_at => date)
-      PageViewsRollup.expects(:augment!).with(@course.id, date, 'other', 1, 1).once
+      mockbin(@course.id, date, 'other').expects(:augment).with(1, 1).once
       PageViewRoller.rollup_one(date)
-    end
-
-    it "should mark the rolled up views as summarized" do
-      date = Date.today
-      page_view1 = build_page_view(:created_at => date)
-      page_view2 = build_page_view(:created_at => date)
-      PageViewRoller.rollup_one(date)
-      page_view1.reload.should be_summarized
-      page_view2.reload.should be_summarized
     end
   end
 
