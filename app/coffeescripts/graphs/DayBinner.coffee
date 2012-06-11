@@ -21,18 +21,34 @@ define [
     # a top label only for chromed ticks that have a different month than
     # the last.
     tickChrome: (tick, last) ->
-      return {} unless tick.getDay() is 1
+      # if there are fewer than 14 days, just label every day
+      if @binsBetween(@startDate, @endDate) < 14
+        unless last? && tick.getMonth() is last.getMonth()
+          topLabel = 
+            if last? && tick.getFullYear() is last.getFullYear()
+              I18n.l "date.formats.short_month", tick
+            else
+              I18n.l "date.formats.medium_month", tick
 
-      unless last? && tick.getMonth() is last.getMonth()
-        topLabel = 
-          if last? && tick.getFullYear() is last.getFullYear()
-            I18n.l "date.formats.short_month", tick
-          else
-            I18n.l "date.formats.medium_month", tick
+        grid: true
+        bottomLabel: tick.getDate()
+        topLabel: topLabel
 
-      grid: true
-      bottomLabel: tick.getDate()
-      topLabel: topLabel
+      # otherwise, at least two monday's, just label every monday
+      else if tick.getDay() is 1
+        unless last? && tick.getMonth() is last.getMonth()
+          topLabel = 
+            if last? && tick.getFullYear() is last.getFullYear()
+              I18n.l "date.formats.short_month", tick
+            else
+              I18n.l "date.formats.medium_month", tick
+
+        grid: true
+        bottomLabel: tick.getDate()
+        topLabel: topLabel
+
+      else
+        {}
 
     ##
     # Advance by one day.
