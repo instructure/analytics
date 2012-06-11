@@ -73,27 +73,29 @@ module PageViewRoller
   #   - verbose [boolean or string]: print additional log lines if set to
   #     'flood'
   def self.start_day(opts={})
-    # Nov 2010 is just after the first page views in production cloud canvas.
-    # if we go much later as the upper bound (in production canvas) the MIN
-    # aggregate gets slow. if that's too early for other installs/shards
-    # running this migration, advance a month at a time until we find some.
-    day = Date.new(2010, 11)
-    today = Date.today
-    loop do
-      logger.info "Looking for oldest page view before #{day}." if opts[:verbose] == 'flood'
-      row = PAGE_VIEWS.scoped(:select => 'MIN(created_at) AS result', :conditions => ["created_at <= ?", day]).first
-      return row.result.to_date if row.result
-      logger.info "No page views before #{day}." if opts[:verbose] == 'flood'
+    slaved do
+      # Nov 2010 is just after the first page views in production cloud canvas.
+      # if we go much later as the upper bound (in production canvas) the MIN
+      # aggregate gets slow. if that's too early for other installs/shards
+      # running this migration, advance a month at a time until we find some.
+      day = Date.new(2010, 11)
+      today = Date.today
+      loop do
+        logger.info "Looking for oldest page view before #{day}." if opts[:verbose] == 'flood'
+        row = PAGE_VIEWS.scoped(:select => 'MIN(created_at) AS result', :conditions => ["created_at <= ?", day]).first
+        return row.result.to_date if row.result
+        logger.info "No page views before #{day}." if opts[:verbose] == 'flood'
 
-      # break here rather than at the start of loop so we still attempt the
-      # first time day >= today
-      break if  day >= today
-      day = [day + 1.month, today].min
+        # break here rather than at the start of loop so we still attempt the
+        # first time day >= today
+        break if  day >= today
+        day = [day + 1.month, today].min
+      end
+
+      # if there are any page_views in the table (on this shard), they're in the
+      # future. we'll just ignore them.
+      return nil
     end
-
-    # if there are any page_views in the table (on this shard), they're in the
-    # future. we'll just ignore them.
-    return nil
   end
 
   # Determine the newest date that might still need rolling up.
@@ -105,16 +107,18 @@ module PageViewRoller
   #   - verbose [boolean or string]: print additional log lines if set to
   #     'flood'
   def self.end_day(opts={})
-    # find the oldest roll up on or after start_day. assume any days after that
-    # have been completely rolled up. if none found, go through today (or
-    # start_day if somehow after today)
-    opts[:start_day] ||= start_day(opts)
-    return nil unless opts[:start_day]
-    logger.info "Looking for oldest roll up on or after #{opts[:start_day]}." if opts[:verbose] == 'flood'
-    row = PageViewsRollup.scoped(
-      :select => 'MIN(date) AS date',
-      :conditions => ['date >= ?', opts[:start_day]]).first
-    row.date || Date.today
+    slaved do
+      # find the oldest roll up on or after start_day. assume any days after that
+      # have been completely rolled up. if none found, go through today (or
+      # start_day if somehow after today)
+      opts[:start_day] ||= start_day(opts)
+      return nil unless opts[:start_day]
+      logger.info "Looking for oldest roll up on or after #{opts[:start_day]}." if opts[:verbose] == 'flood'
+      row = PageViewsRollup.scoped(
+        :select => 'MIN(date) AS date',
+        :conditions => ['date >= ?', opts[:start_day]]).first
+      row.date || Date.today
+    end
   end
 
   # Bins the scope by course id and category, then yields the counts to the
@@ -152,7 +156,8 @@ module PageViewRoller
       SUM(CAST(participated AND asset_user_access_id IS NOT NULL AS INTEGER)) AS participations
     SELECT
 
-    scope.each do |row|
+    rows = slaved { scope.all }
+    rows.each do |row|
       # unpack the selected values
       course_id = row.context_id
       category = row.category
@@ -166,5 +171,9 @@ module PageViewRoller
 
   def self.logger
     ActiveRecord::Base.logger
+  end
+
+  def self.slaved
+    ActiveRecord::Base::ConnectionSpecification.with_environment(:slave) { yield }
   end
 end
