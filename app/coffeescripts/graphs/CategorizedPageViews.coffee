@@ -2,9 +2,10 @@ define [
   'underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
+  'analytics/compiled/graphs/ScaleByBins'
   'analytics/compiled/graphs/YAxis'
   'i18nObj'
-], (_, Base, Cover, YAxis, I18n) ->
+], (_, Base, Cover, ScaleByBins, YAxis, I18n) ->
 
   ##
   # CategorizedPageViews visualizes the student's activity within the course by
@@ -12,11 +13,6 @@ define [
   # height of the bar is the number of course pages viewed in that time span.
 
   defaultOptions =
-
-    ##
-    # The size of the vertical gutter between elements as a percent of the
-    # width of those elements.
-    gutterPercent: 0.20
 
     ##
     # The fill color of the bars.
@@ -41,12 +37,12 @@ define [
     constructor: (div, options) ->
       super
 
+      # mixin ScaleByBins functionality
+      _.extend this, ScaleByBins
+
       # copy in recognized options with defaults
       for key, defaultValue of defaultOptions
         @[key] = options[key] ? defaultValue
-
-      # left edge of leftmost bar diamond = @leftMargin + @leftPadding
-      @x0 = @leftMargin + @leftPadding
 
       # base of bars = @topmargin + @height - @bottompadding
       @base = @topMargin + @height - @bottomPadding
@@ -71,9 +67,8 @@ define [
     # Choose appropriate sizes for the graph elements based on maximum value
     # being graphed.
     scaleToData: (bins) ->
-      # x-scaled by number of bins
-      @barSpacing = (@width - @leftPadding - @rightPadding) / bins.length
-      @barWidth = Math.min(@barSpacing / (1 + @gutterPercent), 50)
+      # scale the x-axis for the number of bins
+      @scaleByBins bins.length
 
       # top of max bar = @topMargin + @topPadding
       views = (bin.views for bin in bins)
@@ -88,7 +83,7 @@ define [
     # labeled with the bin category.
     drawXAxis: (bins) ->
       for i, bin of bins
-        x = @x0 + @barSpacing / 2 + i * @barSpacing
+        x = @binX i
         y = @topMargin + @height + 10 + (i % 2) * 10
         @drawTicks x
         @labelBin x, y, bin.category
@@ -112,7 +107,7 @@ define [
     ##
     # Graph a single bin. Fat arrowed because it's called by _.each
     graphBin: (bin, i) =>
-      x = @x0 + (i + 0.5) * @barSpacing
+      x = @binX i
       y = @valueY bin.views
       bar = @paper.rect x - @barWidth / 2, y, @barWidth, @base - y
       bar.attr stroke: @strokeColor, fill: @barColor
@@ -127,7 +122,7 @@ define [
     # Create a tooltip for the bin.
     cover: (x, bin) ->
       new Cover this,
-        region: @paper.rect x - @barSpacing / 2, @topMargin, @barSpacing, @height
+        region: @paper.rect x - @coverWidth / 2, @topMargin, @coverWidth, @height
         classes: bin.category
         tooltip:
           contents: @tooltip bin

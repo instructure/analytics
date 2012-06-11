@@ -117,7 +117,7 @@ define [
     # Calculate the marker's bounding box (excluding carat) for a given day and
     # track.
     markerBox: (date, track) ->
-      x = @dateX date
+      x = @binnedDateX date
       carat: x
       right: x + @caratOffset
       left: x + @caratOffset - @markerWidth

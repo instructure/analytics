@@ -1,9 +1,11 @@
 define [
+  'underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/DayBinner'
   'analytics/compiled/graphs/WeekBinner'
   'analytics/compiled/graphs/MonthBinner'
-], (Base, DayBinner, WeekBinner, MonthBinner) ->
+  'analytics/compiled/graphs/ScaleByBins'
+], (_, Base, DayBinner, WeekBinner, MonthBinner, ScaleByBins) ->
 
   ##
   # Parent class for all graphs that have a date-aligned x-axis. Note: Left
@@ -32,6 +34,9 @@ define [
     constructor: (div, options) ->
       super
 
+      # mixin ScaleByBins functionality
+      _.extend this, ScaleByBins
+
       # check for required options
       throw new Error "startDate is required" unless options.startDate?
       throw new Error "endDate is required" unless options.endDate?
@@ -47,10 +52,8 @@ define [
       @binner = new WeekBinner(@startDate, @endDate) if @binner.count() * 5 > interior
       @binner = new MonthBinner(@startDate, @endDate) if @binner.count() * 5 > interior
 
-      # center of start diamond = @leftMargin + @leftPadding
-      # center of end diamond = @leftMargin + @width - @rightPadding
-      @x0 = @leftMargin + @leftPadding
-      @binSpacing = interior / @binner.count()
+      # scale the x-axis for the number of bins
+      @scaleByBins @binner.count()
 
     ##
     # Reset the graph chrome. Adds an x-axis with daily ticks and weekly (on
@@ -60,9 +63,27 @@ define [
       @drawDateAxis()
 
     ##
-    # Convert a date to an x-coordinate.
-    dateX: (date) ->
-      @x0 + @binner.bin(date) * @binSpacing
+    # Convert a date to a bin index.
+    dateBin: (date) ->
+      @binner.bin date
+
+    ##
+    # Convert a date to its bin's x-coordinate.
+    binnedDateX: (date) ->
+      @binX @dateBin date
+
+    ##
+    # Convert a date to an intra-bin x-coordinate.
+    dateX: (datetime) ->
+      floorDate = @binner.reduce datetime
+      ceilDate = @binner.nextTick floorDate
+      floorX = @binnedDateX floorDate
+      if floorDate.equals datetime
+        floorX
+      else
+        ceilX = @binnedDateX ceilDate
+        fraction = (datetime.getTime() - floorDate.getTime()) / (ceilDate.getTime() - floorDate.getTime())
+        floorX + fraction * (ceilX - floorX)
 
     ##
     # Draw a guide along the x-axis. Each day gets a pair of ticks; one from
@@ -73,7 +94,7 @@ define [
       # Base's constructor before we set startDate or endDate)
       return unless @startDate? && @endDate?
       @binner.eachTick (tick, chrome) =>
-        x = @dateX tick
+        x = @binnedDateX tick
         @drawDayTick x
         @drawWeekLine x if chrome.grid
         @dateLabel x, @topMargin + @height + 10, chrome.bottomLabel if chrome.bottomLabel

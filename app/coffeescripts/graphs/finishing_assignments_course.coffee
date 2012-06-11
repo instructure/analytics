@@ -2,9 +2,10 @@ define [
   'underscore'
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
+  'analytics/compiled/graphs/ScaleByBins'
   'analytics/compiled/graphs/YAxis'
   'i18nObj'
-], (_, Base, Cover, YAxis, I18n) ->
+], (_, Base, Cover, ScaleByBins, YAxis, I18n) ->
 
   ##
   # FinishingAssignmentCourse visualizes the proportion of students that are
@@ -24,11 +25,6 @@ define [
   defaultOptions =
 
     ##
-    # The size of the vertical gutter between elements as a percent of the
-    # width of those elements.
-    gutterPercent: 0.20
-
-    ##
     # The color of the bottom layer (on time).
     onTimeColor: "darkgreen"
 
@@ -46,6 +42,9 @@ define [
     # described above in addition to the options for Base.
     constructor: (div, options) ->
       super
+
+      # mixin ScaleByBins functionality
+      _.extend this, ScaleByBins
 
       # copy in recognized options with defaults
       for key, defaultValue of defaultOptions
@@ -69,26 +68,13 @@ define [
       return unless super
 
       assignments = assignments.assignments
-      @scaleToAssignments assignments
+      @scaleByBins assignments.length
       _.each assignments, @graphAssignment
 
     ##
-    # Choose appropriate sizes for the graph elements based on number of
-    # assignments and maximum score being graphed.
-    scaleToAssignments: (assignments) ->
-      # left-edge of start bar = @leftMargin + @leftPadding
-      # right-edge of end bar = @leftMargin + @width - @rightPadding
-      # space between bars = @gutterPercent of @barWidth
-      n = assignments.length
-      @barWidth = (@width - @leftPadding - @rightPadding) / (n + (n - 1) * @gutterPercent)
-      @barSpacing = (1 + @gutterPercent) * @barWidth
-      @x0 = @leftMargin + @leftPadding + @barWidth / 2
-      @barWidth = Math.min(@barWidth, 50)
-
-    ##
     # Graph a single assignment. Fat arrowed because it's called by _.each
-    graphAssignment: (assignment, index) =>
-      x = @indexX index
+    graphAssignment: (assignment, i) =>
+      x = @binX i
       if (breakdown = assignment.tardinessBreakdown)?
         base = 0
         base = @drawLayer x, base, breakdown.onTime, @onTimeColor
@@ -113,11 +99,6 @@ define [
         base
 
     ##
-    # Convert an assignment index to an x-coordinate.
-    indexX: (index) ->
-      @x0 + index * @barSpacing
-
-    ##
     # Convert a score to a y-coordinate.
     valueY: (percent) ->
       @base - percent * @innerHeight
@@ -126,7 +107,7 @@ define [
     # Create a tooltip for the assignment.
     cover: (x, assignment) ->
       new Cover this,
-        region: @paper.rect x - @barSpacing / 2, @topMargin, @barSpacing, @height
+        region: @paper.rect x - @coverWidth / 2, @topMargin, @coverWidth, @height
         classes: "assignment_#{assignment.id}"
         tooltip:
           contents: @tooltip assignment

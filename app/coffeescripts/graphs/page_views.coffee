@@ -17,11 +17,6 @@ define [
   defaultOptions =
 
     ##
-    # The size of the vertical gutter between elements as a percent of the
-    # width of those elements.
-    gutterPercent: 0.20
-
-    ##
     # The fill color of the bars for bins without participations.
     barColor: "lightgray"
 
@@ -40,9 +35,6 @@ define [
       # copy in recognized options with defaults
       for key, defaultValue of defaultOptions
         @[key] = options[key] ? defaultValue
-
-      # space between bars = gutterPercent of barWidth
-      @barWidth = @binSpacing / (1 + @gutterPercent)
 
       # base of bars = @topMargin + @height - @bottomPadding
       @base = @topMargin + @height - @bottomPadding
@@ -89,7 +81,7 @@ define [
     ##
     # Graph a single bin. Fat arrowed because it's called by _.each
     graphBin: (bin) =>
-      x = @dateX bin.date
+      x = @binnedDateX bin.date
       y = @valueY bin.views
       bar = @paper.rect x - @barWidth / 2, y, @barWidth, @base - y
       bar.attr @binColors bin
@@ -114,7 +106,7 @@ define [
     # Create a tooltip for the bin.
     cover: (x, bin) ->
       new Cover this,
-        region: @paper.rect x - @binSpacing / 2, @topMargin, @binSpacing, @height
+        region: @paper.rect x - @coverWidth / 2, @topMargin, @coverWidth, @height
         classes: I18n.l 'date.formats.default', bin.date
         tooltip:
           contents: @tooltip bin

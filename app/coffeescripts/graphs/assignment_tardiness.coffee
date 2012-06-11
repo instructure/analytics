@@ -161,19 +161,6 @@ define [
         null
 
     ##
-    # Convert a date to an x-coordinate.
-    dateX: (datetime) ->
-      floorDate = @binner.reduce datetime
-      ceilDate = @binner.nextTick floorDate
-      floorX = super floorDate
-      if floorDate.equals datetime
-        floorX
-      else
-        ceilX = super ceilDate
-        fraction = (datetime.getTime() - floorDate.getTime()) / (ceilDate.getTime() - floorDate.getTime())
-        floorX + fraction * (ceilX - floorX)
-
-    ##
     # Convert an assignment index to a y-coordinate.
     indexY: (index) ->
       @y0 + index * @barSpacing

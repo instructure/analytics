@@ -13,7 +13,7 @@ define ->
     ##
     # Determine the number of bins between startDate and endDate (inclusive).
     count: ->
-      @bin(@endDate)
+      @bin(@endDate) + 1
 
     ##
     # Yields to the callback once per tick between startDate and endDate, with
