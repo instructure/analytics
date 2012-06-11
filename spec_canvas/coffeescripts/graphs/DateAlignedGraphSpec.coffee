@@ -36,11 +36,11 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
 
   test 'drawDateAxis', ->
     startDate = new Date(2012, 0, 1) # Sunday
-    endDate = startDate.clone().addDays(10) # Wednesday
+    endDate = startDate.clone().addDays(15) # Monday
     graph = new DateAlignedGraph @$el,
       margin: 0
       padding: 0
-      width: 100
+      width: 150
       height: 100
       startDate: startDate
       endDate: endDate
@@ -52,7 +52,7 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
     graph.drawDateAxis()
 
     # should draw week lines at each monday
-    mondays = [ 10, 80 ]
+    mondays = [ 10, 80, 150 ]
     equal weekSpy.callCount, mondays.length
     for i in [0...mondays.length]
       equal weekSpy.args[i], mondays[i]
@@ -63,24 +63,25 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
       [ 10, 110, 2 ]
       [ 10, -10, 'Jan 2012' ]
       [ 80, 110, 9 ]
+      [ 150, 110, 16 ]
     ]
     equal labelSpy.callCount, labels.length
     for i in [0...labels.length]
       deepEqual labelSpy.args[i], labels[i]
 
     # should draw ticks on each day
-    ticks = [ 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 ]
+    ticks = $.map [0..15], (i) -> i * 10
     equal tickSpy.callCount, ticks.length
     for i in [0...ticks.length]
       equal tickSpy.args[i], ticks[i]
 
   test 'drawDateAxis: spanning months', ->
     startDate = new Date(2012, 0, 29) # Sunday
-    endDate = startDate.clone().addDays(10) # Wednesday
+    endDate = startDate.clone().addDays(15) # Monday
     graph = new DateAlignedGraph @$el,
       margin: 0
       padding: 0
-      width: 100
+      width: 150
       height: 100
       startDate: startDate
       endDate: endDate
@@ -96,6 +97,7 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
       [ 10, -10, 'Jan 2012' ]
       [ 80, 110, 6 ]
       [ 80, -10, 'Feb' ]
+      [ 150, 110, 13 ]
     ]
     equal labelSpy.callCount, labels.length
     for i in [0...labels.length]
@@ -103,11 +105,11 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
 
   test 'drawDateAxis: spanning years', ->
     startDate = new Date(2011, 11, 25) # Sunday
-    endDate = startDate.clone().addDays(10) # Wednesday
+    endDate = startDate.clone().addDays(15) # Monday
     graph = new DateAlignedGraph @$el,
       margin: 0
       padding: 0
-      width: 100
+      width: 150
       height: 100
       startDate: startDate
       endDate: endDate
@@ -122,6 +124,7 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
       [ 10, -10, 'Dec 2011' ]
       [ 80, 110, 2 ]
       [ 80, -10, 'Jan 2012' ]
+      [ 150, 110, 9 ]
     ]
     equal labelSpy.callCount, labels.length
     for i in [0...labels.length]
