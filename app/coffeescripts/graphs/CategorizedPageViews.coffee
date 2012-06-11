@@ -58,7 +58,7 @@ define [
 
       # reduce the bins to the appropriate time scale
       bins = participation.categoryBins
-      if @sortBy == 'views'
+      if @sortBy == 'views' && bins.length > 0
         maxViews = _.max(bins, (b) -> b.views).views
         bins = _.sortBy(bins, (b) -> [maxViews - b.views, b.category])
 
