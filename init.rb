@@ -8,4 +8,8 @@ Rails.configuration.to_prepare do
   ::ApplicationController.view_paths.unshift view_path
 
   require_dependency 'analytics/extensions'
+
+  # This is in a separate file so the Delayed::Periodic job is only created
+  # one time.
+  require 'analytics/periodic_jobs'
 end
