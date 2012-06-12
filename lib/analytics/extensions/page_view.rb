@@ -19,6 +19,7 @@ PageView.class_eval do
   def increment_rollup
     return true unless context_id && context_type == 'Course'
     PageViewsRollup.increment!(context_id, created_at, category, participated && asset_user_access_id)
+    true
   end
 
   CONTROLLER_TO_ACTION = {

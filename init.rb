@@ -15,4 +15,8 @@ Rails.configuration.to_prepare do
     :true_for => %w(AccountAdmin)
 
   require_dependency 'analytics/extensions'
+
+  # This is in a separate file so the Delayed::Periodic job is only created
+  # one time.
+  require 'analytics/periodic_jobs'
 end
