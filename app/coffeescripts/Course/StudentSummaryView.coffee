@@ -4,8 +4,7 @@ define [
   'analytics/jst/course_student_summary'
   'analytics/compiled/Course/CountBar'
   'analytics/compiled/Course/TardinessBar'
-  'analytics/compiled/graphs/colors'
-], ($, Backbone, template, CountBar, TardinessBar, colors) ->
+], ($, Backbone, template, CountBar, TardinessBar) ->
 
   class StudentSummaryView extends Backbone.View
     tagName: 'tr'

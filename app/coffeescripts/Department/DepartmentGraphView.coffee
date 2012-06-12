@@ -36,8 +36,8 @@ define [
         endDate: filter.get 'endDate'
         verticalPadding: 9
         horizontalPadding: 15
-        barColor: colors.lightgray
-        participationColor: colors.blue
+        barColor: colors.blue
+        participationColor: colors.orange
       @pageViews.graph participations
 
       @categorizedPageViews = new CategorizedPageViews @$("#participating-category-graph"), $.extend {}, @graphOpts,
@@ -48,6 +48,6 @@ define [
       @categorizedPageViews.graph participations
 
       @gradeDistribution = new GradeDistribution @$("#grade-distribution-graph"), $.extend {}, @graphOpts,
-        areaColor: colors.lightgray
-        strokeColor: colors.gray
+        areaColor: colors.blue
+        strokeColor: colors.grid
       @gradeDistribution.graph filter.get 'gradeDistribution'

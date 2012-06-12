@@ -59,8 +59,8 @@ define [
 
       @pageViews = new PageViews $("#participating-graph", @$el), $.extend {}, dateGraphOpts,
         verticalPadding: 9
-        barColor: colors.lightgray
-        participationColor: colors.blue
+        barColor: colors.blue
+        participationColor: colors.orange
 
       @finishing = new FinishingAssignmentsCourse $("#finishing-assignments-graph", @$el), $.extend {}, graphOpts,
         padding: 15
@@ -69,13 +69,8 @@ define [
         missingColor: colors.sharpred
 
       @grades = new Grades $("#grades-graph", @$el), $.extend {}, graphOpts,
+        height: 200
         padding: 15
-        whiskerColor: colors.darkgray
-        boxColor: colors.lightgray
-        medianColor: colors.darkgray
-        goodRingColor: colors.lightgreen
-        goodCenterColor: colors.darkgreen
-        fairRingColor: colors.lightyellow
-        fairCenterColor: colors.darkyellow
-        poorRingColor: colors.lightred
-        poorCenterColor: colors.darkred
+        whiskerColor: colors.lightblue
+        boxColor: colors.blue
+        medianColor: colors.orange

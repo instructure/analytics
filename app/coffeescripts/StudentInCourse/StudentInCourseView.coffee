@@ -78,20 +78,6 @@ define [
     ##
     # Instantiate the graphs.
     setupGraphs: ->
-      # colors for the graphs
-      frame = "#d7d7d7"
-      grid = "#f4f4f4"
-      blue = "#29abe1"
-      darkgray = "#898989"
-      gray = "#a1a1a1"
-      lightgray = "#cccccc"
-      lightgreen = "#95ee86"
-      darkgreen = "#2fa23e"
-      lightyellow = "#efe33e"
-      darkyellow = "#b3a700"
-      lightred = "#dea8a9"
-      darkred = "#da181d"
-
       # setup the graphs
       graphOpts =
         width: 800
@@ -110,8 +96,8 @@ define [
 
       @pageViews = new PageViews @$("#participating-graph"), $.extend {}, dateGraphOpts,
         verticalPadding: 9
-        barColor: colors.lightgray
-        participationColor: colors.blue
+        barColor: colors.blue
+        participationColor: colors.orange
 
       @responsiveness = new Responsiveness @$("#responsiveness-graph"), $.extend {}, dateGraphOpts,
         verticalPadding: 14
@@ -120,7 +106,7 @@ define [
         caratOffset: 7
         caratSize: 10
         studentColor: colors.blue
-        instructorColor: colors.lightgray
+        instructorColor: colors.orange
 
       @assignmentTardiness = new AssignmentTardiness @$("#assignment-finishing-graph"), $.extend {}, dateGraphOpts,
         verticalPadding: 10
@@ -129,14 +115,14 @@ define [
         barColorLate: colors.lightyellow
         diamondColorLate: colors.darkyellow
         diamondColorMissing: colors.darkred
-        diamondColorUndated: colors.gray
+        diamondColorUndated: colors.frame
 
       @grades = new Grades @$("#grades-graph"), $.extend {}, graphOpts,
         height: 200
         padding: 15
-        whiskerColor: colors.darkgray
-        boxColor: colors.lightgray
-        medianColor: colors.darkgray
+        whiskerColor: colors.frame
+        boxColor: colors.grid
+        medianColor: colors.frame
         goodRingColor: colors.lightgreen
         goodCenterColor: colors.darkgreen
         fairRingColor: colors.lightyellow
