@@ -2,10 +2,11 @@ shared_examples_for "analytics tests" do
   it_should_behave_like "in-process server selenium tests"
 
   module GraphColors
-    BLUE = "#29abe1"
-    DARK_GRAY = "#898989"
-    GRAY = "#a1a1a1"
-    LIGHT_GRAY = "#cccccc"
+    FRAME = "#959595"
+    GRID = "#cccccc"
+    BLUE = "#33acdf"
+    ORANGE = "#f59331"
+    LIGHT_BLUE = "#c1e6f5"
     LIGHT_GREEN = "#95ee86"
     DARK_GREEN = "#2fa23e"
     SHARP_GREEN = "#8cd20d"
@@ -161,7 +162,7 @@ shared_examples_for "analytics tests" do
     it "should validate the graph color when a student took action on that day" do
       page_view(:user => @student, :course => @course, :participated => true)
       go_to_analytics(go_to_course_view)
-      validate_element_fill(get_rectangle(Time.now), GraphColors::BLUE)
+      validate_element_fill(get_rectangle(Time.now), GraphColors::ORANGE)
       validate_tooltip_text(date_selector(Time.now), '1 participation')
     end
 
@@ -176,8 +177,8 @@ shared_examples_for "analytics tests" do
         rect = get_rectangle(date)
         rectangles.push(rect)
       end
-      validate_element_fill(rectangles[0], GraphColors::BLUE)
-      validate_element_fill(rectangles[1], GraphColors::NONE)
+      validate_element_fill(rectangles[0], GraphColors::ORANGE)
+      validate_element_fill(rectangles[1], GraphColors::BLUE)
     end
   end
 end

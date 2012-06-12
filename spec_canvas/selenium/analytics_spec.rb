@@ -213,7 +213,7 @@ describe "analytics" do
       validate_element_fill(late_submission_diamond, GraphColors::DARK_YELLOW)
       validate_element_fill(on_time_diamond, GraphColors::DARK_GREEN)
       validate_element_fill(no_due_date_diamond, 'none')
-      validate_element_stroke(no_due_date_diamond, GraphColors::GRAY)
+      validate_element_stroke(no_due_date_diamond, GraphColors::FRAME)
     end
 
     it "should validate grades graph" do

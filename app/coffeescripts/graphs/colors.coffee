@@ -1,11 +1,10 @@
 define ->
   # colors for the graphs
-  frame: "#d7d7d7"
-  grid: "#f4f4f4"
-  blue: "#29abe1"
-  darkgray: "#898989"
-  gray: "#a1a1a1"
-  lightgray: "#cccccc"
+  frame: "#959595"
+  grid: "#cccccc"
+  blue: "#33acdf"
+  orange: "#f59331"
+  lightblue: "#c1e6f5"
   lightgreen: "#95ee86"
   darkgreen: "#2fa23e"
   sharpgreen: "#8cd20d"

@@ -51,7 +51,8 @@ div#analytics_body
     table
       width: 100%
       tr
-        border-top: 1px solid #eaeaea
+        // colors.grid
+        border-top: 1px solid #cccccc
       td
         padding: 10px 0
         vertical-align: top
@@ -70,13 +71,34 @@ div#analytics_body
           padding-top: 1em
           font-style: italic
           font-size: 90%
-          color: #888
+          // colors.frame
+          color: #959595
+          .whisker
+            // colors.lightblue
+            color: #c1e6f5
+          .pageview, .thickbar, .student
+            // colors.blue
+            color: #33acdf
+          .participation, .median, .instructor
+            // colors.orange
+            color: #f59331
+          .onTime
+            // colors.sharpgreen
+            color: #8cd20d
+          .late
+            // colors.sharpyellow
+            color: #f6bd00
+          .missing
+            // colors.sharpred
+            color: #d21d1a
+
       div.graph
         width: 880px
         margin-left: 20px
 
   .department_statistics
-    border-top: 1px solid #eaeaea
+    // colors.grid
+    border-top: 1px solid #cccccc
     table
       width: 100%
       margin: 10px 0
@@ -86,17 +108,20 @@ div#analytics_body
         padding: 0 10px
         margin: 10px 0
         vertical-align: top
-        border-left: 1px solid #eaeaea
+        // colors.grid
+        border-left: 1px solid #cccccc
 
       th:first-child, td:first-child
         border-left: none
 
       th
-        color: #888
+        // colors.frame
+        color: #959595
 
       td
         font-size: 1.5em
-        color: #444
+        // colors.blue
+        color: #33acdf
 
 .analytics-tooltip
   position: absolute
@@ -153,7 +178,8 @@ div#analytics_body
   width: 100%
 
   tr
-    border-top: 1px solid #eaeaea
+    // colors.grid
+    border-top: 1px solid #cccccc
     &:nth-child(odd)
       td
         background: #f9f9f9
@@ -197,20 +223,20 @@ div#analytics_body
         right: 0
 
   .page_views .paper
-    // colors.lightgray
-    border-color: #cccccc
+    // colors.blue
+    border-color: #33acdf
     span
-      background-color: #cccccc
+      background-color: #33acdf
 
   .participations .paper
-    // colors.blue
-    border-color: #29abe1
+    // colors.orange
+    border-color: #f59331
     span
-      background-color: #29abe1
+      background-color: #f59331
 
   .assignments .paper
-    // colors.lightgray
-    border-color: #cccccc
+    // colors.frame
+    border-color: #959595
     span.onTime
       // colors.sharpgreen
       background-color: #8cd20d
