@@ -167,14 +167,14 @@ describe PageViewsRollup do
     end
   end
 
-  describe ".increment!" do
+  describe ".increment_db!" do
     it "should augment the appropriate bin by 1" do
       @course = course_model
       @today = Date.today
       @category = 'other'
 
       PageViewsRollup.expects(:augment!).with(@course, @today, @category, 1, 1).once
-      PageViewsRollup.increment!(@course, @today, @category, true)
+      PageViewsRollup.increment_db!(@course, @today, @category, true)
     end
 
     it "should augment the bin's participations only if participated" do
@@ -183,7 +183,48 @@ describe PageViewsRollup do
       @category = 'other'
 
       PageViewsRollup.expects(:augment!).with(@course, @today, @category, 1, 0).once
-      PageViewsRollup.increment!(@course, @today, @category, false)
+      PageViewsRollup.increment_db!(@course, @today, @category, false)
+    end
+  end
+
+  if Canvas.redis_enabled?
+    context "with redis" do
+      before(:each) do
+        Setting.set("page_view_rollups_method", "redis")
+        Canvas.redis.flushdb
+      end
+
+      describe ".increment_cached!" do
+        it "should increment via redis and a batch job" do
+          @course = course_model
+          @today = Date.today
+          @category = 'other'
+
+          PageViewsRollup.increment!(@course, @today, @category, false)
+          PageViewsRollup.count.should == 0
+
+          PageViewsRollup.process_cached_rollups
+          PageViewsRollup.count.should == 1
+
+          pvr = PageViewsRollup.last
+          pvr.course_id.should == @course.id
+          pvr.date.should == @today
+          pvr.category.should == @category
+          pvr.views.should == 1
+          pvr.participations.should == 0
+
+          # you should be able to supply Course or course_id
+          PageViewsRollup.increment!(@course.id, @today, @category, true)
+          PageViewsRollup.count.should == 1
+
+          PageViewsRollup.process_cached_rollups
+          PageViewsRollup.count.should == 1
+
+          pvr = PageViewsRollup.last
+          pvr.views.should == 2
+          pvr.participations.should == 1
+        end
+      end
     end
   end
 end
