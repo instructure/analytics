@@ -41,7 +41,6 @@ describe "analytics" do
       before (:each) do
         course_with_teacher_logged_in
         enable_analytics
-        enable_teacher_permissions
         add_students_to_course(1)
         @student = StudentEnrollment.last.user
       end
@@ -103,7 +102,6 @@ describe "analytics" do
 
         before (:each) do
           enable_analytics
-          enable_teacher_permissions
           course_with_teacher_logged_in
           add_students_to_course(5)
         end
@@ -121,6 +119,7 @@ describe "analytics" do
 
         before (:each) do
           enable_analytics
+          disable_teacher_permissions
           course_with_teacher_logged_in
           add_students_to_course(5)
         end
@@ -140,7 +139,6 @@ describe "analytics" do
 
     before (:each) do
       enable_analytics
-      enable_teacher_permissions
       @teacher = course_with_teacher_logged_in.user
       @course.update_attributes(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
       @course.save!
