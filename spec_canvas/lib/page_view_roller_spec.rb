@@ -76,6 +76,7 @@ describe PageViewRoller do
 
     it "should return today if no existing rollup's but existing page views"  do
       build_page_view(:created_at => Date.today - 2.days)
+      PageViewsRollup.delete_all
       PageViewRoller.end_day.should == Date.today
     end
 
