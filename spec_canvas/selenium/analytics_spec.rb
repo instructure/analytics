@@ -241,10 +241,8 @@ describe "analytics" do
       def validate_combobox_presence(is_present = true)
         if is_present
           f('.ui-combobox').should be_displayed
-          f('.student_link').should be_nil
         else
           f('.ui-combobox').should be_nil
-          f('.student_link').should be_displayed
         end
       end
 
