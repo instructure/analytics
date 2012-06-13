@@ -67,11 +67,9 @@ module Analytics
           :teachers => count_users_for_enrollments(teacher_enrollments),
           :students => count_users_for_enrollments(student_enrollments),
           :discussion_topics => discussion_topics.count,
-          :discussion_replies => discussion_replies.count,
           :media_objects => media_objects.count,
           :attachments => attachments.count,
           :assignments => assignments.count,
-          :submissions => submissions.count,
         }
       end
     end
