@@ -1,24 +1,28 @@
 <div class="student_summary">
   <img class="avatar" src="{{student.avatar_url}}" />
-  <h2>
-    <span class="student_link"><a href="{{student.html_url}}">{{student.name}}</a>, </span>
-    <a class="course_link" href="{{course.analytics_url}}">{{course.name}}</a>
-  </h2>
-  <table>
-    <tr>
-      <th>Current Total:</th>
-      <td class="current_score">{{student.current_score}}%</td>
-      <td class="message_student">
-        <a href="{{student.message_student_url}}" class="message_student_link" title="Message this student"><img src='/images/email.png' alt=''/></a>
-      </td>
-      
-    </tr>
-    <!--<tr>
-      <th>Status:</th>
-      <td class="status_green">Low Risk</td>
-      <td>&nbsp;</td>
-    </tr>-->
-  </table>
+
+  <div id="course_info">
+    <h3><a class="course_link" href="{{course.analytics_url}}">{{course.name}}</a></h3>
+    <div class='students_box' />
+  </div>
+
+  <div>
+    <h2><a class="student_link" href="{{student.html_url}}">{{student.name}}</a></h2>
+    <table>
+      <tr>
+        <th>Current Total:</th>
+        <td class="current_score">{{student.current_score}}%</td>
+        <td class="message_student">
+          <a href="{{student.message_student_url}}" class="message_student_link" title="Message this student"><img src='/images/email.png' alt=''/></a>
+        </td>
+      </tr>
+      <!--<tr>
+        <th>Status:</th>
+        <td class="status_green">Low Risk</td>
+        <td>&nbsp;</td>
+      </tr>-->
+    </table>
+  </div>
 </div>
 
 <div class="student_graphs">
