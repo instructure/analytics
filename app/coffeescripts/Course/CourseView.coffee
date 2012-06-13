@@ -71,6 +71,6 @@ define [
       @grades = new Grades $("#grades-graph", @$el), $.extend {}, graphOpts,
         height: 200
         padding: 15
-        whiskerColor: colors.lightblue
+        whiskerColor: colors.blue
         boxColor: colors.blue
-        medianColor: colors.orange
+        medianColor: colors.darkblue
