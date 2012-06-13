@@ -33,6 +33,18 @@ div#analytics_body
       th
         padding-right: 10px
 
+    #course_info
+      display: inline-block
+      position: absolute
+      right: 0
+      margin-right: 2em
+      h3
+        margin-bottom: 0.5em
+        text-align: right
+      .ui-combobox
+        margin-right: 0
+        float: right
+
   div.department_summary
     .department_name
       display: inline-block
@@ -42,10 +54,10 @@ div#analytics_body
       position: absolute
       right: 0
 
-      // TODO: the -1000px in the canvas-lms combobox css isn't enough when the
-      // window is wide and the combobox is right-aligned
-      .ui-combobox .ui-combobox-prev, .ui-combobox .ui-combobox-next
-        text-indent: -9999px
+  // TODO: the -1000px in the canvas-lms combobox css isn't enough when the
+  // window is wide and the combobox is right-aligned
+  .ui-combobox .ui-combobox-prev, .ui-combobox .ui-combobox-next
+    text-indent: -9999px
 
 
   .student_graphs, .course_graphs, .department_graphs

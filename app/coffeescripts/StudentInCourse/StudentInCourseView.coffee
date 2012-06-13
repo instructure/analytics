@@ -24,7 +24,7 @@ define [
 
       # cache elements for updates
       @$avatar = @$('.avatar')
-      @$course_link = @$('.course_link')
+      @$student_link = @$('.student_link')
       @$current_score = @$('.current_score')
 
       if students.length > 1
@@ -33,15 +33,11 @@ define [
           value: (student) -> student.get 'id'
           label: (student) -> student.get 'name'
           selected: student.get 'id'
-        @$('.student_link').replaceWith @comboBox.$el
+        @$('.students_box').html @comboBox.$el
 
         # drive data from combobox (reverse connection in render)
         @comboBox.on 'change', (student) =>
           @model.set student: student
-
-      else
-        # cache name element for updates
-        @$student_link = @$('.student_link a')
 
       # setup the graph objects
       @setupGraphs()
@@ -56,13 +52,14 @@ define [
       student = @model.get 'student'
 
       @$avatar.attr src: student.get 'avatar_url'
+      @$student_link.text student.get 'name'
+      @$student_link.attr src: student.get 'html_url'
+
       if current_score = student.get 'current_score'
         @$current_score.text "#{current_score}%"
       else
         @$current_score.text 'N/A'
-      if @$student_link?
-        @$student_link.text student.get 'name'
-        @$student_link.attr src: student.get 'html_url'
+
       if @comboBox?
         @comboBox.select student.get 'id'
 
