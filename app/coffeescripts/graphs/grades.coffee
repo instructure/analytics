@@ -129,7 +129,7 @@ define [
       boxTop = @valueY assignment.scoreDistribution.thirdQuartile
       boxBottom = @valueY assignment.scoreDistribution.firstQuartile
       boxHeight = boxBottom - boxTop
-      box = @paper.rect x - @barWidth / 2, boxTop, @barWidth, boxHeight
+      box = @paper.rect x - @barWidth * 0.3, boxTop, @barWidth * 0.6, boxHeight
       box.attr stroke: @boxColor, fill: @boxColor
 
     ##
@@ -137,7 +137,7 @@ define [
     drawMedian: (x, assignment) ->
       medianY = @valueY assignment.scoreDistribution.median
       median = @paper.rect x - @barWidth / 2, medianY, @barWidth, 1
-      median.attr stroke: @medianColor, fill: "none"
+      median.attr stroke: "none", fill: @medianColor
 
     ##
     # Draw the dot for the student's score in an assignment
