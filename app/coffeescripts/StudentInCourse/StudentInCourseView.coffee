@@ -105,8 +105,8 @@ define [
         markerWidth: 31
         caratOffset: 7
         caratSize: 10
-        studentColor: colors.blue
-        instructorColor: colors.orange
+        studentColor: colors.orange
+        instructorColor: colors.blue
 
       @assignmentTardiness = new AssignmentTardiness @$("#assignment-finishing-graph"), $.extend {}, dateGraphOpts,
         verticalPadding: 10
