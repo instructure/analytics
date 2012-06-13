@@ -58,6 +58,10 @@ shared_examples_for "analytics tests" do
     RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => true)
   end
 
+  def disable_teacher_permissions
+    RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => false)
+  end
+
   def add_students_to_course(number_to_add)
     added_students = []
     number_to_add.times do |i|
