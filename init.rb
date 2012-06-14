@@ -14,6 +14,12 @@ Rails.configuration.to_prepare do
     :available_to => %w(TaEnrollment TeacherEnrollment AccountAdmin AccountMembership),
     :true_for => %w(AccountAdmin TaEnrollment TeacherEnrollment)
 
+  Account.register_service :analytics,
+    :name => "Analytics",
+    :description => "",
+    :expose_to_ui => :setting,
+    :default => false
+
   require_dependency 'analytics/extensions'
 
   # This is in a separate file so the Delayed::Periodic job is only created
