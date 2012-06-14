@@ -15,12 +15,8 @@ module Analytics
 
     def enrollments
       @enrollments ||= slaved do
-        rows = enrollment_scope.find(:all, :order => User.sortable_name_order_by_clause('users'))
-        Enrollment.send(:preload_associations, rows, [
-          {:user => {:pseudonyms => :account}},
-          :course_section,
-          {:course => :enrollment_term}
-        ])
+        rows = enrollment_scope.all
+        Enrollment.send(:preload_associations, rows, [ :course_section, {:course => :enrollment_term} ])
         rows
       end
     end
@@ -44,11 +40,20 @@ module Analytics
     end
 
     def students
-      @students ||= enrollments.map{ |e| e.user }.uniq
+      @students ||= slaved do
+        # any user with an enrollment, ordered by name
+        subselect = enrollment_scope.scoped(:select => 'DISTINCT user_id, computed_current_score').construct_finder_sql({})
+        User.scoped(
+          :select => "users.*, enrollments.computed_current_score",
+          :joins => "INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id=users.id").order_by_sortable_name
+      end
     end
 
     def student_ids
-      @student_ids ||= students.map(&:id)
+      @student_ids ||= slaved do
+        # id of any user with an enrollment, order unimportant
+        enrollment_scope.scoped(:select => 'DISTINCT user_id').map{ |e| e.user_id }
+      end
     end
 
     def participation
@@ -79,11 +84,13 @@ module Analytics
 
     def student_summaries
       slaved(:cache_as => :student_summaries) do
+        students = self.students.paginate(:page => 1, :per_page => 50)
         summaries = {}
 
         # set up default summary per student
-        student_ids.each do |student_id|
-          summaries[student_id] = {
+        students.each do |student|
+          summaries[student.id] = {
+            :id => student.id,
             :page_views => 0,
             :participations => 0,
             :tardiness_breakdown => {
@@ -94,13 +101,14 @@ module Analytics
             }
           }
         end
+        student_ids = students.map(&:id)
 
         # count page views and participations by student
-        page_view_scope.find(:all, :select => "user_id, COUNT(*) AS ct", :group => "user_id").each do |row|
+        page_view_scope(student_ids).find(:all, :select => "user_id, COUNT(*) AS ct", :group => "user_id").each do |row|
           summaries[row.user_id.to_i][:page_views] = row.ct.to_i
         end
 
-        page_view_scope.find(:all, :select => "user_id, COUNT(DISTINCT(asset_user_access_id, url)) AS ct",
+        page_view_scope(student_ids).find(:all, :select => "user_id, COUNT(DISTINCT(asset_user_access_id, url)) AS ct",
           :conditions => "participated AND asset_user_access_id IS NOT NULL", :group => "user_id").map do |row|
           summaries[row.user_id.to_i][:participations] = row.ct.to_i
         end
@@ -120,7 +128,7 @@ module Analytics
         end
 
         # for each submission...
-        submission_scope(assignments).each do |submission|
+        submission_scope(assignments, student_ids).each do |submission|
           assignment = assignments_by_id[submission.assignment_id]
           if submitted_at = submission_date(assignment, submission)
             breakdown = summaries[submission.user_id][:tardiness_breakdown]
@@ -136,7 +144,8 @@ module Analytics
           end
         end
 
-        summaries
+        # unpack hash in the order given by students
+        students.map{ |student| summaries[student.id] }
       end
     end
 
@@ -151,12 +160,12 @@ module Analytics
         scoped(:conditions => { 'enrollments.workflow_state' => ['active', 'completed'] })
     end
 
-    def page_view_scope
+    def page_view_scope(student_ids=self.student_ids)
       @page_view_scope ||= @course.page_views.
         scoped(:conditions => { :user_id => student_ids })
     end
 
-    def submission_scope(assignments)
+    def submission_scope(assignments, student_ids=self.student_ids)
       @submission_scope ||= @course.shard.activate do
         Submission.
           scoped(:select => "assignment_id, score, user_id, submission_type, submitted_at, graded_at, updated_at, workflow_state").

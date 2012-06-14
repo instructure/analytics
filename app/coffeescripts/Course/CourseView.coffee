@@ -17,13 +17,16 @@ define [
         course: @model.toJSON()
 
       # cache elements for updates
-      @$course_link = $('.course_link', @$el)
-      @$students = $('#students tbody:last', @$el)
+      @$course_link = @$('.course_link')
+      @$students = @$('#students tbody.rows')
+      @$loading = @$('#students .loading')
+      @$truncated = @$('#students .truncated')
 
       # initialize the graphs
       @setupGraphs()
 
-      # render
+      # render now and when summaries finish loading
+      @model.get('studentSummaries').on 'reset', @renderSummaries
       @render()
 
     render: =>
@@ -35,12 +38,18 @@ define [
       @pageViews.graph participation
       @finishing.graph assignments
       @grades.graph assignments
+      @renderSummaries()
 
-      # add all the students to the table
+    renderSummaries: =>
+      # add all the summarized students to the table
       @$students.empty()
-      @model.get('students').each (student) =>
-        view = new StudentSummaryView model: student
+      @model.get('studentSummaries').each (summary) =>
+        view = new StudentSummaryView model: summary
         @$students.append view.$el
+
+      # show loading or truncation messages as appropriate
+      @$loading.showIf @model.get('studentSummaries').loading
+      @$truncated.showIf @model.get('studentSummaries').truncated
 
     setupGraphs: ->
       graphOpts =

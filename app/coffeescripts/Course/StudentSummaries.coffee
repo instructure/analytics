@@ -7,24 +7,30 @@ define [
   # Loads the student summary data for the course. Augments the course's
   # student objects with the data once loaded.
   class StudentSummaries extends BaseData
-    constructor: (course) ->
-      @students = course.get 'students'
-      super '/api/v1/analytics/student_summaries/courses/' + course.get('id')
+    constructor: (@course) ->
+      @course.get('studentSummaries').loading = true
+      @course.get('studentSummaries').truncated = false
+      super '/api/v1/analytics/student_summaries/courses/' + @course.get('id')
 
     populate: (data) ->
-      maxPageViews = _.max(data, (summary) -> summary.page_views).page_views
-      maxParticipations = _.max(data, (summary) -> summary.participations).participations
-      for studentId, summary of data
-        @students.get(studentId)?.set
-          summary:
-            pageViews:
-              count: summary.page_views
-              max: maxPageViews
-            participations:
-              count: summary.participations
-              max: maxParticipations
-            tardinessBreakdown:
-              total: summary.tardiness_breakdown.total
-              onTime: summary.tardiness_breakdown.on_time
-              late: summary.tardiness_breakdown.late
-              missing: summary.tardiness_breakdown.missing
+      students = @course.get 'students'
+      summaries = @course.get 'studentSummaries'
+
+      maxPageViews = _.max _.map data, (summary) -> summary.page_views
+      maxParticipations = _.max _.map data, (summary) -> summary.participations
+
+      summaries.loading = false
+      summaries.truncated = data.length < students.size()
+      summaries.reset _.map data, (summary) ->
+        student: students.get summary.id
+        pageViews:
+          count: summary.page_views
+          max: maxPageViews
+        participations:
+          count: summary.participations
+          max: maxParticipations
+        tardinessBreakdown:
+          total: summary.tardiness_breakdown.total
+          onTime: summary.tardiness_breakdown.on_time
+          late: summary.tardiness_breakdown.late
+          missing: summary.tardiness_breakdown.missing

@@ -249,7 +249,12 @@ class AnalyticsApiController < ApplicationController
   # Returns a summary of per-user access information for all students in
   # a course. This includes total page views, total participations, and a
   # breakdown of on-time/late status for all homework submissions in the course.
-  # The data is returned as a hash where the keys are student ids.
+  # The data is returned as a list in lexical order on the student name.
+  #
+  # NOTE: If there are more than 50 students in the course, this will only
+  # return summaries for the first 50 students. This is for performance
+  # reasons. In the near future, it will be paginated to allow you to request
+  # additional pages of users.
   #
   # @example_request
   #
@@ -257,8 +262,9 @@ class AnalyticsApiController < ApplicationController
   #         -H 'Authorization: Bearer <token>'
   #
   # @example_response
-  #   {
-  #     "2345": {
+  #   [
+  #     {
+  #       "id": 2346,
   #       "page_views": 351,
   #       "participations": 1,
   #       "tardiness_breakdown": {
@@ -268,7 +274,8 @@ class AnalyticsApiController < ApplicationController
   #         "missing": 2
   #       }
   #     },
-  #     "2346": {
+  #     {
+  #       "id": 2345,
   #       "page_views": 124,
   #       "participations": 15,
   #       "tardiness_breakdown": {
@@ -278,7 +285,7 @@ class AnalyticsApiController < ApplicationController
   #         "missing": 3
   #       }
   #     }
-  #   }
+  #   ]
   def course_student_summaries
     return unless require_analytics_for_course
     render :json => @course_analytics.student_summaries
