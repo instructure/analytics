@@ -10,23 +10,21 @@ define [
     tagName: 'tr'
 
     initialize: ->
-      @model.on 'change', @render
       @render()
 
     render: =>
       # replace $el with new rendering of template
       oldEl = @$el
-      @$el = $ template @model.toJSON()
+      @$el = $ template @model.get('student').toJSON()
       oldEl.replaceWith @$el
 
-      if summary = @model.get 'summary'
-        # update activity and assignments graphs from student summary
-        @pageViews = new CountBar @$('.page_views'), 'page views'
-        @participations = new CountBar @$('.participations'), 'participations'
-        @tardiness = new TardinessBar @$('.assignments')
+      # update activity and assignments graphs from student summary
+      @pageViews = new CountBar @$('.page_views'), 'page views'
+      @participations = new CountBar @$('.participations'), 'participations'
+      @tardiness = new TardinessBar @$('.assignments')
 
-        @pageViews.show summary.pageViews
-        @participations.show summary.participations
-        @tardiness.show summary.tardinessBreakdown
+      @pageViews.show @model.get 'pageViews'
+      @participations.show @model.get 'participations'
+      @tardiness.show @model.get 'tardinessBreakdown'
 
       this

@@ -47,16 +47,29 @@
   </table>
   </div>
 
-  <table id='students' style='width:100%;'>
-    <thead>
-    <tr>
-      <th class='student'>Student</th>
-      <th class='page_views'>Page Views</th>
-      <th class='participations'>Participations</th>
-      <th class='assignments'>Assignments</th>
-      <th class='current_score'>Current Score</th>
-    </tr>
-    </thead>
-    <tbody />
-  </table>
+  <div id='students'>
+    <table>
+      <thead>
+        <tr>
+          <th class='student'>Student</th>
+          <th class='page_views'>Page Views</th>
+          <th class='participations'>Participations</th>
+          <th class='assignments'>Assignments</th>
+          <th class='current_score'>Current Score</th>
+        </tr>
+      </thead>
+
+      <tbody class='rows' />
+    </table>
+
+    <div class='loading'>
+      <img src="/images/load.gif" alt="loading students" />
+    </div>
+
+    <p class='truncated ui-state-highlight'>
+      There are too many students to show. Clicking on a student's name above
+      will take you to that student's analytics page for this course, and from
+      there you can navigate to other students in the course.
+    </div>
+  </div>
 </div>

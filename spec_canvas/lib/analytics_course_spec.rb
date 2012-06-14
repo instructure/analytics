@@ -369,18 +369,18 @@ describe Analytics::Course do
 
       it "should count page_views for that student" do
         page_view(:user => @student, :course => @course)
-        @teacher_analytics.student_summaries[@student.id][:page_views].should == 1
+        @teacher_analytics.student_summaries.first[:page_views].should == 1
       end
 
       it "should count participations for that student" do
         view = page_view(:user => @student, :course => @course, :participated => true)
-        @teacher_analytics.student_summaries[@student.id][:participations].should == 1
+        @teacher_analytics.student_summaries.first[:participations].should == 1
       end
 
       describe ":tardiness_breakdown" do
         it "should include the number of assignments" do
           5.times{ @course.assignments.active.create! }
-          @teacher_analytics.student_summaries[@student.id][:tardiness_breakdown][:total].should == 5
+          @teacher_analytics.student_summaries.first[:tardiness_breakdown][:total].should == 5
         end
 
         context "an assignment that has a due date" do
@@ -579,6 +579,6 @@ Spec::Runner.configure do |config|
   def expect_summary_breakdown(bin)
     expected = expected_breakdown(bin)
     expected[:total] = 1
-    @teacher_analytics.student_summaries[@student.id][:tardiness_breakdown].should == expected
+    @teacher_analytics.student_summaries.first[:tardiness_breakdown].should == expected
   end
 end
