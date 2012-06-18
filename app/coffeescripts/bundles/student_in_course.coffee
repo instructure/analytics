@@ -41,7 +41,7 @@ require [
     $('title').text "Analytics: #{course.get 'course_code'} -- #{student.get 'short_name'}"
     $('#student_analytics_crumb span').text student.get 'short_name'
     $('#student_analytics_crumb a').attr href: student.get 'analytics_url'
-    router.navigate String student.get 'id'
+    router.navigate "#{student.get 'id'}#{window.location.search}"
 
   # wrap data in view
   view = new StudentInCourseView

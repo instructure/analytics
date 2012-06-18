@@ -23,20 +23,24 @@ define ['Backbone'], (Backbone) ->
     # either correct the data or get the appropriate 404/401/etc. from the
     # server.
     push: (filterId) =>
+      filterId = filterId.replace window.location.search, ''
       unless @model.selectFilter filterId
         window.location.reload()
+
+    currentFragment: ->
+      @model.currentFragment() + window.location.search
 
     ##
     # Pull the current filter from the model and navigate to its fragment.
     pull: =>
-      @navigate @model.currentFragment()
+      @navigate @currentFragment()
 
     ##
     # Start the History object.
     run: ->
       # start up the history
-      location = document.location.pathname
-      fragment = new RegExp @model.currentFragment() + '$'
+      location = window.location.pathname
+      fragment = new RegExp @currentFragment() + '$'
       if location.match fragment
         location = location.replace fragment, ''
       else if not location.match /\/$/
