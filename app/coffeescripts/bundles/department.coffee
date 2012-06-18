@@ -1,7 +1,3 @@
-require.config
-  paths:
-    analytics: "/plugins/analytics/javascripts"
-
 require [
   'analytics/compiled/Department/DepartmentModel'
   'analytics/compiled/Department/DepartmentView'

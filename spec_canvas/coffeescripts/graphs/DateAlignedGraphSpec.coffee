@@ -1,8 +1,3 @@
-# baseUrl in this context is public/javascripts
-require.config
-  paths:
-    analytics: "../plugins/analytics/javascripts"
-
 define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_core_en'], ($, DateAlignedGraph) ->
   module 'DateAlignedGraph',
     setup: ->

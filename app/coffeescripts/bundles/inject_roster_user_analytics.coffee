@@ -1,7 +1,3 @@
-require.config
-  paths:
-    analytics: "/plugins/analytics/javascripts"
-
 require [
   'jquery'
   'analytics/jst/student_analytics_button'

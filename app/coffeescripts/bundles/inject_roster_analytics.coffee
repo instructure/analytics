@@ -3,10 +3,6 @@
 # profile pic, rather than making a new td. we'll also need to condition on
 # profile pic column being present (the service may be disabled for that
 # account))
-require.config
-  paths:
-    analytics: "/plugins/analytics/javascripts"
-
 require [
   'jquery'
   'analytics/jst/student_analytics_grid_button'

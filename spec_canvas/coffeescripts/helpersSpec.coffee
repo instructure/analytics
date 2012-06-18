@@ -1,8 +1,3 @@
-# baseUrl in this context is public/javascripts
-require.config
-  paths:
-    analytics: "../plugins/analytics/javascripts"
-
 define ['analytics/compiled/helpers'], (helpers) ->
   module 'helpers'
 

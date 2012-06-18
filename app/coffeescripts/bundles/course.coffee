@@ -1,7 +1,3 @@
-require.config
-  paths:
-    analytics: "/plugins/analytics/javascripts"
-
 require [
   'jquery'
   'analytics/compiled/helpers'
