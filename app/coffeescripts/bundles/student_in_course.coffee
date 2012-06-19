@@ -13,7 +13,7 @@ require [
       ':student': 'studentInCourse'
 
   Backbone.history.start
-    root: "/analytics/courses/#{ENV.ANALYTICS.course.id}/users/"
+    root: "/courses/#{ENV.ANALYTICS.course.id}/analytics/users/"
     pushState: true
 
   # setup initial data from environment

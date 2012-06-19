@@ -25,7 +25,7 @@ describe CoursesController, :type => :controller do
     def expect_injection(opts={})
       course = opts[:course] || @course
       CoursesController.any_instance.expects(:js_env).once.
-        with(:ANALYTICS => { :link => "/analytics/courses/#{course.id}" })
+        with(:ANALYTICS => { :link => "/courses/#{course.id}/analytics" })
       get 'show', :id => course.id
     end
 

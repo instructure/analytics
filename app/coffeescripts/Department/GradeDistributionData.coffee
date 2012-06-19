@@ -10,7 +10,7 @@ define [
     constructor: (filter) ->
       account = filter.get 'account'
       fragment = filter.get 'fragment'
-      super '/api/v1/analytics/grades/accounts/' + account.get('id') + '/' + fragment
+      super "/api/v1/accounts/#{account.get 'id'}/analytics/#{fragment}/grades"
 
     populate: (data) ->
       cumulative = 0

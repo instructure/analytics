@@ -29,7 +29,7 @@ describe ContextController, :type => :controller do
     def expect_roster_injection(course, students)
       expected_links = {}
       students.each do |student|
-        expected_links[student.id] = "/analytics/courses/#{course.id}/users/#{student.id}"
+        expected_links[student.id] = "/courses/#{course.id}/analytics/users/#{student.id}"
       end
       ContextController.any_instance.expects(:js_env).once.
         with(:ANALYTICS => { :student_links => expected_links})
@@ -42,7 +42,7 @@ describe ContextController, :type => :controller do
     end
 
     def expect_roster_user_injection(course, student)
-      expected_link = "/analytics/courses/#{course.id}/users/#{student.id}"
+      expected_link = "/courses/#{course.id}/analytics/users/#{student.id}"
       ContextController.any_instance.expects(:js_env).once.
         with(:ANALYTICS => { :link => expected_link, :student_name => student.short_name })
       get 'roster_user', :course_id => course.id, :id => student.id

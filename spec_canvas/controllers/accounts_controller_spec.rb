@@ -23,7 +23,7 @@ describe AccountsController, :type => :controller do
   context "permissions" do
     def expect_injection
       AccountsController.any_instance.expects(:js_env).once.
-        with(:ANALYTICS => { :link => "/analytics/accounts/#{@account.id}" })
+        with(:ANALYTICS => { :link => "/accounts/#{@account.id}/analytics" })
       get 'show', :id => @account.id, :format => 'html'
     end
 

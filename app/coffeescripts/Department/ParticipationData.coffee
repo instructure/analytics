@@ -7,7 +7,7 @@ define [ 'analytics/compiled/BaseData' ], (BaseData) ->
     constructor: (filter) ->
       account = filter.get 'account'
       fragment = filter.get 'fragment'
-      super '/api/v1/analytics/participation/accounts/' + account.get('id') + '/' + fragment
+      super "/api/v1/accounts/#{account.get 'id'}/analytics/#{fragment}/activity"
 
     populate: (data) ->
       @bins = data.by_date

@@ -6,7 +6,7 @@ define [ 'analytics/compiled/BaseData' ], (BaseData) ->
   class ParticipationData extends BaseData
     constructor: (student) ->
       course = student.get('course')
-      super '/api/v1/analytics/participation/courses/' + course.get('id') + '/users/' + student.get('id')
+      super "/api/v1/courses/#{course.get 'id'}/analytics/users/#{student.get 'id'}/activity"
 
     populate: (data) ->
       @bins = []

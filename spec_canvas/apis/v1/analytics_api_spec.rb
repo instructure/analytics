@@ -17,15 +17,15 @@ describe "Analytics API", :type => :integration do
   end
 
   def analytics_api_call(action, course, student, opts={})
-    action, endpoint =
+    action, suffix =
       case action
-      when :participation then ['student_in_course_participation', "/api/v1/analytics/participation/courses/#{course.id}/users/#{student.id}"]
-      when :assignments then ['student_in_course_assignments', "/api/v1/analytics/assignments/courses/#{course.id}/users/#{student.id}"]
-      when :messaging then ['student_in_course_messaging', "/api/v1/analytics/messaging/courses/#{course.id}/users/#{student.id}"]
+      when :participation then ['student_in_course_participation', "/activity"]
+      when :assignments then ['student_in_course_assignments', "/assignments"]
+      when :messaging then ['student_in_course_messaging', "/communication"]
       end
 
     api_call(:get,
-          endpoint,
+          "/api/v1/courses/#{course.id}/analytics/users/#{student.id}" + suffix,
           { :controller => 'analytics_api',
             :action => action,
             :format => 'json',
@@ -245,7 +245,7 @@ describe "Analytics API", :type => :integration do
       RoleOverride.manage_role_override(Account.default, 'TeacherEnrollment', 'view_all_grades', :override => false)
 
       # should fail
-      raw_api_call(:get, "/api/v1/analytics/student_summaries/courses/#{@course.id}",
+      raw_api_call(:get, "/api/v1/courses/#{@course.id}/analytics/student_summaries",
         :controller => 'analytics_api', :action => 'course_student_summaries', :format => 'json',
         :course_id => @course.id.to_s)
       response.status.to_i.should == 401 # Unauthorized

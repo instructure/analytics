@@ -5,7 +5,7 @@ define [ 'analytics/compiled/BaseData' ], (BaseData) ->
   # property once loaded.
   class ParticipationData extends BaseData
     constructor: (@course) ->
-      super '/api/v1/analytics/participation/courses/' + @course.get('id')
+      super "/api/v1/courses/#{@course.get 'id'}/analytics/activity"
 
     populate: (data) ->
       @bins = data

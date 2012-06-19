@@ -11,7 +11,7 @@ define [
     constructor: (filter) ->
       account = filter.get 'account'
       fragment = filter.get 'fragment'
-      super '/api/v1/analytics/statistics/accounts/' + account.get('id') + '/' + fragment
+      super "/api/v1/accounts/#{account.get 'id'}/analytics/#{fragment}/statistics"
 
     populate: (data) ->
       for key, val of data

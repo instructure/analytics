@@ -10,7 +10,7 @@ define [
     constructor: (@course) ->
       @course.get('studentSummaries').loading = true
       @course.get('studentSummaries').truncated = false
-      super '/api/v1/analytics/student_summaries/courses/' + @course.get('id')
+      super "/api/v1/courses/#{@course.get 'id'}/analytics/student_summaries"
 
     populate: (data) ->
       students = @course.get 'students'

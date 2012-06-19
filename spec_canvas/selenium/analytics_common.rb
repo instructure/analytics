@@ -73,7 +73,8 @@ shared_examples_for "analytics tests" do
   end
 
   def go_to_analytics(course_view = false)
-    url = course_view ? "/analytics/courses/#{@course.id}" : "/analytics/courses/#{@course.id}/users/#{@student.id}"
+    url = "/courses/#{@course.id}/analytics"
+    url += "/users/#{@student.id}" unless course_view
     get url
     wait_for_ajaximations
   end
