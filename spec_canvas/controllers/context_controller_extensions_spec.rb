@@ -21,7 +21,8 @@ describe ContextController, :type => :controller do
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
       @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
-      @course.enroll_user(@student1, 'StudentEnrollment', :section => @section).accept!
+      @enrollment = @course.enroll_user(@student1, 'StudentEnrollment', :section => @section)
+      @enrollment.accept!
       user_session(@teacher)
     end
 
@@ -53,12 +54,17 @@ describe ContextController, :type => :controller do
     end
 
     context "nominal conditions" do
+      before :each do
+        @student2 = student_in_course(:active_all => true).user
+      end
+
       it "should inject analytics buttons on the roster page" do
-        expect_roster_injection(@course, [@student1])
+        expect_roster_injection(@course, [@student1, @student2])
       end
 
       it "should inject an analytics button on the roster_user page" do
         expect_roster_user_injection(@course, @student1)
+        expect_roster_user_injection(@course, @student2)
       end
     end
 
@@ -77,19 +83,35 @@ describe ContextController, :type => :controller do
       end
     end
 
-    context "unreadable course" do
+    context "unpublished course" do
       before :each do
-        @course1 = @course
-        course_with_teacher(:active_all => true)
-        user_session(@teacher)
+        @course.workflow_state = 'created'
+        @course.save!
       end
 
       it "should not inject analytics buttons on the roster page" do
-        forbid_roster_injection(@course1)
+        forbid_roster_injection(@course)
       end
 
       it "should not inject an analytics button on the roster_user page" do
-        forbid_roster_user_injection(@course1, @student1)
+        forbid_roster_user_injection(@course, @student1)
+      end
+    end
+
+    context "concluded course" do
+      before :each do
+        # teachers viewing analytics for a concluded course is currently
+        # broken. so let an admin try it.
+        user_session(account_admin_user)
+        @course.complete!
+      end
+
+      it "should still inject analytics buttons on the roster page" do
+        expect_roster_injection(@course, [@student1])
+      end
+
+      it "should still inject an analytics button on the roster_user page" do
+        expect_roster_user_injection(@course, @student1)
       end
     end
 
@@ -103,6 +125,42 @@ describe ContextController, :type => :controller do
       end
 
       it "should not inject an analytics button on the roster_user page" do
+        forbid_roster_user_injection(@course, @student1)
+      end
+    end
+
+    context "no manage_grades or view_all_grades permission" do
+      before :each do
+        RoleOverride.manage_role_override(@account, 'StudentEnrollment', 'view_analytics', :override => true)
+        @student2 = student_in_course(:active_all => true).user
+      end
+
+      it "should only inject one analytics button on the roster page" do
+        user_session(@student1)
+        expect_roster_injection(@course, [@student1])
+
+        user_session(@student2)
+        expect_roster_injection(@course, [@student2])
+      end
+
+      it "should only inject an analytics button on the student's roster_user page" do
+        user_session(@student1)
+        expect_roster_user_injection(@course, @student1)
+        forbid_roster_user_injection(@course, @student2)
+      end
+    end
+
+    context "invited-only enrollments" do
+      before :each do
+        @enrollment.workflow_state = 'invited'
+        @enrollment.save!
+      end
+
+      it "should not inject an analytics button on the roster page" do
+        forbid_roster_injection(@course)
+      end
+
+      it "should not inject an analytics button on the roster user page" do
         forbid_roster_user_injection(@course, @student1)
       end
     end

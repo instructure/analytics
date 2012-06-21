@@ -9,14 +9,17 @@ define [
 
   class CourseModel extends Backbone.Model
     initialize: ->
-      # translate array of student objects to collection of StudentModels,
-      # tying each back to the course
-      students = new StudentCollection @get 'students'
-      students.each (student) => student.set course: this
       @set
-        students: students
-        studentSummaries: new StudentSummaryCollection
         participation: new ParticipationData this
         assignments: new AssignmentData this
 
-      new StudentSummaries this
+      # if there's student info (only iff they user viewing the page has
+      # permission to view their details), package it up in a collection and
+      # start loading the summaries
+      if students = @get 'students'
+        students = new StudentCollection students
+        students.each (student) => student.set course: this
+        @set
+          students: students
+          studentSummaries: new StudentSummaryCollection
+        new StudentSummaries this

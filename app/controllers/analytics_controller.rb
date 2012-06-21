@@ -68,7 +68,7 @@ class AnalyticsController < ApplicationController
   def course
     return unless require_analytics_for_course
     @course_json = course_json(@course, @current_user, session, ['html_url'], false)
-    @course_json[:students] = students_json(@course_analytics)
+    @course_json[:students] = students_json(@course_analytics) if @course_analytics.allow_student_details?
     @start_date = @course_analytics.start_date
     @end_date = @course_analytics.end_date
   end
@@ -77,7 +77,12 @@ class AnalyticsController < ApplicationController
     return unless require_analytics_for_student_in_course
     @course_json = course_json(@course, @current_user, session, ['html_url'], false)
     @course_json[:analytics_url] = analytics_course_path(:course_id => @course.id)
-    @course_json[:students] = students_json(@course_analytics)
+    @course_json[:students] = 
+      if @course_analytics.allow_student_details?
+        students_json(@course_analytics)
+      else
+        [student_json(@student_analytics.student)]
+      end
     @start_date = @student_analytics.start_date
     @end_date = @student_analytics.end_date
   end

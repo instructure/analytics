@@ -288,6 +288,7 @@ class AnalyticsApiController < ApplicationController
   #   ]
   def course_student_summaries
     return unless require_analytics_for_course
+    return unless authorized_action(@course, @current_user, :manage_grades, :view_all_grades)
     render :json => @course_analytics.student_summaries
   end
 

@@ -18,15 +18,25 @@ define [
 
       # cache elements for updates
       @$course_link = @$('.course_link')
-      @$students = @$('#students tbody.rows')
-      @$loading = @$('#students .loading')
-      @$truncated = @$('#students .truncated')
 
       # initialize the graphs
       @setupGraphs()
 
-      # render now and when summaries finish loading
-      @model.get('studentSummaries').on 'reset', @renderSummaries
+      # this will be defined iff the user viewing the page has permission to
+      # view student details
+      @summaries = @model.get('studentSummaries')
+
+      if @summaries?
+        # re-render summaries when they finish loading
+        @$students = @$('#students tbody.rows')
+        @$loading = @$('#students .loading')
+        @$truncated = @$('#students .truncated')
+        @summaries.on 'reset', @renderSummaries
+      else
+        # remove student summary framework
+        @$('#students').remove()
+
+      # initial render
       @render()
 
     render: =>
@@ -41,15 +51,17 @@ define [
       @renderSummaries()
 
     renderSummaries: =>
+      return unless @summaries
+
       # add all the summarized students to the table
       @$students.empty()
-      @model.get('studentSummaries').each (summary) =>
+      @summaries.each (summary) =>
         view = new StudentSummaryView model: summary
         @$students.append view.$el
 
       # show loading or truncation messages as appropriate
-      @$loading.showIf @model.get('studentSummaries').loading
-      @$truncated.showIf @model.get('studentSummaries').truncated
+      @$loading.showIf @summaries.loading
+      @$truncated.showIf @summaries.truncated
 
     setupGraphs: ->
       graphOpts =

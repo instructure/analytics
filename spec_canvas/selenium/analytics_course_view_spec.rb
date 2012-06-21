@@ -68,6 +68,13 @@ describe "analytics course view" do
       ff(info_bar)
     end
 
+    it "should be absent unless the user has permission to see grades" do
+      RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'manage_grades', :override => false)
+      RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_all_grades', :override => false)
+      go_to_analytics(true)
+      f('#students').should be_nil
+    end
+
     it "should validate correct number of students are showing up" do
       def student_rows
         ffj('#students div.student') #avoid selenium caching
@@ -79,6 +86,7 @@ describe "analytics course view" do
       student_rows.first.text.should == INITIAL_STUDENT_NAME
       add_students_to_course(2)
       refresh_page #in order to make new students show up
+      wait_for_ajaximations # student rows are loaded asynchronously
       student_rows.count.should == 3
     end
 
