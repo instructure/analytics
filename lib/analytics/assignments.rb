@@ -65,12 +65,8 @@ module Analytics
       return submission.graded_at
     end
 
-    def student_view
-      @student_view ||= !@course.grants_rights?(@current_user, @session, :manage_grades, :view_all_grades).values.any?
-    end
-
     def muted(assignment)
-      student_view && assignment.muted?
+      !allow_student_details? && assignment.muted?
     end
   end
 end

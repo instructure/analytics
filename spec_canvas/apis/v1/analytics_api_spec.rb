@@ -233,4 +233,22 @@ describe "Analytics API", :type => :integration do
     end
   end
 
+  context "course_student_summaries" do
+    it "should fetch data for a student in the course" do
+      # course with teacher and some students
+      course_with_teacher(:active_all => true)
+      3.times{ |u| student_in_course(:active_all => true) }
+      @user = @teacher
+
+      # don't let the teacher see grades
+      RoleOverride.manage_role_override(Account.default, 'TeacherEnrollment', 'manage_grades', :override => false)
+      RoleOverride.manage_role_override(Account.default, 'TeacherEnrollment', 'view_all_grades', :override => false)
+
+      # should fail
+      raw_api_call(:get, "/api/v1/analytics/student_summaries/courses/#{@course.id}",
+        :controller => 'analytics_api', :action => 'course_student_summaries', :format => 'json',
+        :course_id => @course.id.to_s)
+      response.status.to_i.should == 401 # Unauthorized
+    end
+  end
 end

@@ -11,11 +11,20 @@ module Analytics
     end
 
     def available?
-      @available ||= @enrollment.present? || slaved{ enrollments_scope.count > 0 }
+      @available ||= @enrollment.present? || slaved{ enrollment_scope.count > 0 }
     end
 
     def enrollment
-      @enrollment ||= slaved{ enrollments_scope.first }
+      @enrollment ||= slaved{ enrollment_scope.first }
+    end
+
+    # just parrots back @student, but sets the computed_current_score from the
+    # enrollment on the student, for parity with Analytics::Course.students
+    def student
+      unless @student.read_attribute(:computed_current_score)
+        @student.write_attribute(:computed_current_score, enrollment.computed_current_score)
+      end
+      @student
     end
 
     def start_date
@@ -78,14 +87,18 @@ module Analytics
       end
     end
 
+    def allow_student_details?
+      @course.grants_rights?(@current_user, @session, :manage_grades, :view_all_grades).values.any?
+    end
+
   private
 
     def cache_prefix
       [@course, @student]
     end
 
-    def enrollments_scope
-      @enrollments_scope ||= @course.enrollments_visible_to(@current_user, true).
+    def enrollment_scope
+      @enrollment_scope ||= @course.enrollments_visible_to(@current_user, true).
         scoped(:conditions => {
           :workflow_state => ['active', 'completed'],
           :user_id => @student.id

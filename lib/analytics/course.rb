@@ -149,6 +149,10 @@ module Analytics
       end
     end
 
+    def allow_student_details?
+      @course.grants_rights?(@current_user, @session, :manage_grades, :view_all_grades).values.any?
+    end
+
   private
 
     def cache_prefix

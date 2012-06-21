@@ -5,11 +5,19 @@ ContextController.class_eval do
     if analytics_enabled_course?
       # capture link to analytics pages for students in this course
       @student_analytics_links = {}
-      @students.each do |student|
-        if analytics_enabled_student?(student)
+
+      # which students can the current user see analytics pages for?
+      analytics = Analytics::Course.new(@current_user, session, @context)
+      if analytics.allow_student_details?
+        # all students that have analytics (via active/completed enrollments)
+        analytics.students.each do |student|
           @student_analytics_links[student.id] =
             analytics_student_in_course_path :course_id => @context.id, :student_id => student.id
         end
+      elsif analytics_enabled_student?(@current_user)
+        # just him/herself, given they're a student
+        @student_analytics_links[@current_user.id] =
+          analytics_student_in_course_path :course_id => @context.id, :student_id => @current_user.id
       end
 
       # if there were any links, inject them into the page
@@ -50,11 +58,14 @@ ContextController.class_eval do
     @context.is_a?(Course) &&
     ['available', 'completed'].include?(@context.workflow_state) &&
     service_enabled?(:analytics) &&
-    @context.grants_right?(@current_user, session, :view_analytics)
+    @context.grants_right?(@current_user, session, :view_analytics) &&
+    Analytics::Course.available_for?(@current_user, session, @context)
   end
 
   # can the user view analytics for this student in the course?
   def analytics_enabled_student?(student)
-    Analytics::StudentInCourse.available_for?(@current_user, session, @context, student)
+    analytics = Analytics::StudentInCourse.new(@current_user, session, @context, student)
+    analytics.available? &&
+    analytics.enrollment.grants_right?(@current_user, session, :read_grades)
   end
 end
