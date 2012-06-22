@@ -53,7 +53,14 @@ define [
 
       @$avatar.attr src: student.get 'avatar_url'
       @$student_link.text student.get 'name'
-      @$student_link.attr src: student.get 'html_url'
+      @$student_link.attr href: student.get 'html_url'
+
+      # hide message link unless url is present
+      if message_url = student.get('message_student_url')
+        @$('.message_student_link').show()
+        @$('.message_student_link').attr href: message_url
+      else
+        @$('.message_student_link').hide()
 
       if current_score = student.get 'current_score'
         @$current_score.text "#{current_score}%"

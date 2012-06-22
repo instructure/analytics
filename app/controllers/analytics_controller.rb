@@ -76,7 +76,9 @@ class AnalyticsController < ApplicationController
   def student_in_course
     return unless require_analytics_for_student_in_course
     @course_json = course_json(@course, @current_user, session, ['html_url'], false)
-    @course_json[:analytics_url] = analytics_course_path(:course_id => @course.id)
+    if @course.grants_right?(@current_user, session, :read_as_admin)
+      @course_json[:analytics_url] = analytics_course_path(:course_id => @course.id)
+    end
     @course_json[:students] = 
       if @course_analytics.allow_student_details?
         students_json(@course_analytics)
@@ -100,7 +102,7 @@ class AnalyticsController < ApplicationController
     json[:current_score] = student.computed_current_score
     json[:html_url] = polymorphic_url [@course, student]
     json[:analytics_url] = analytics_student_in_course_path(:course_id => @course.id, :student_id => student.id)
-    json[:message_student_url] = conversations_path(:user_id => student.id)
+    json[:message_student_url] = conversations_path(:user_id => student.id) unless student == @current_user
     json
   end
 end

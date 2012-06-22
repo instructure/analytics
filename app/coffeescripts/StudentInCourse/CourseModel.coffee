@@ -10,3 +10,8 @@ define [
       students = new StudentCollection @get 'students'
       students.each (student) => student.set course: this
       @set students: students
+
+    toJSON: ->
+      json = super
+      json.url = json.analytics_url ? json.html_url
+      json

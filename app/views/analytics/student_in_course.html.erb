@@ -7,7 +7,7 @@
   }
 
   add_crumb @course.short_name, url_for(@course)
-  add_crumb t(:analytics, "Analytics"), analytics_course_path(:course_id => @course.id)
+  add_crumb t(:analytics, "Analytics"), @course_json[:analytics_url]
   add_crumb @student.short_name, analytics_student_in_course_path(:course_id => @course.id, :student_id => @student.id), :id => "student_analytics_crumb"
 %>
 
