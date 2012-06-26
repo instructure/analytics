@@ -69,6 +69,7 @@ define [
 
       assignments = assignments.assignments
       @scaleByBins assignments.length
+      @drawXLabel "Assignments"
       _.each assignments, @graphAssignment
 
     ##

@@ -75,7 +75,7 @@ define [
       max = Math.max(views...)
       max = 1 unless max? && max > 0
       @countSpacing = (@height - @topPadding - @bottomPadding) / max
-      @yAxis = new YAxis this, range: [0, max]
+      @yAxis = new YAxis this, range: [0, max], title: "Page Views"
 
     ##
     # Draw a guide along the x-axis. Each category bin gets a pair of ticks;

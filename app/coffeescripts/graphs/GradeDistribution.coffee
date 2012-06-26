@@ -59,6 +59,9 @@ define [
       max = @scaleToData distribution.values
       @yAxis.draw()
 
+      # x label
+      @drawXLabel "Grades", offset: @labelHeight
+
       # build path for distribution line
       path = _.map distribution.values, (value, score) =>
         value = Math.min value, max if score is 0
@@ -133,6 +136,7 @@ define [
       y = @topMargin + @height + 10
       label = @paper.text x, y, text
       label.attr fill: @frameColor
+      @labelHeight = label.getBBox().height
 
     ##
     # Create a tooltip for a score.

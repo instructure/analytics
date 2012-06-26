@@ -28,7 +28,7 @@ define [
         gridColor: colors.grid
         topMargin: 15
         verticalMargin: 15
-        horizontalMargin: 40
+        horizontalMargin: 50
         padding: 10
 
       @pageViews = new PageViews @$("#participating-date-graph"), $.extend {}, @graphOpts,
@@ -50,4 +50,5 @@ define [
       @gradeDistribution = new GradeDistribution @$("#grade-distribution-graph"), $.extend {}, @graphOpts,
         areaColor: colors.blue
         strokeColor: colors.grid
+        bottomMargin: 35
       @gradeDistribution.graph filter.get 'gradeDistribution'

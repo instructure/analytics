@@ -70,6 +70,7 @@ define [
       assignments = assignments.assignments
       @scaleToAssignments assignments
       @yAxis.draw()
+      @drawXLabel "Assignments"
       _.each assignments, @graphAssignment
 
     ##
@@ -86,7 +87,7 @@ define [
       max = Math.max(maxScores...)
       max = 1 unless max? && max > 0
       @pointSpacing = (@height - @topPadding - @bottomPadding) / max
-      @yAxis = new YAxis this, range: [0, max]
+      @yAxis = new YAxis this, range: [0, max], title: "Points"
 
     ##
     # Graph a single assignment. Fat arrowed because it's called by _.each

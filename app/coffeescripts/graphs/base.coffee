@@ -152,6 +152,26 @@ define [
       border.attr stroke: @frameColor, fill: "none"
 
     ##
+    # Draw a label describing the x-axis. Centered left-to-right. opts.offset
+    # informs it of the height of the x value labels, if any, so it can be
+    # placed below of those.
+    drawXLabel: (label, opts={}) ->
+      y = @topMargin + @height + 10
+      y += opts.offset + 5 if opts.offset && opts.offset > 0
+      @paper.text(@leftMargin + @width / 2, y, label).attr fill: @frameColor
+
+    ##
+    # Draw a label describing the y-axis. Centered top-to-bottom and written
+    # sideways. opts.offset informs it of the width of the y value labels, if
+    # any, so it can be placed left of those.
+    drawYLabel: (label, opts={}) ->
+      x = @leftMargin - 10
+      x -= opts.offset + 5 if opts.offset && opts.offset > 0
+      @paper.text(x, @topMargin + @height / 2, label).attr
+        fill: @frameColor
+        transform: 'r-90'
+
+    ##
     # Resets the graph.
     reset: ->
       @paper.clear()

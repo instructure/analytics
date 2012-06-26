@@ -84,6 +84,7 @@ define [
 
       @scaleToAssignments assignments
       @drawGrid assignments if @gridColor
+      @drawYLabel "Assignments"
       _.each assignments, @graphAssignment
 
     ##

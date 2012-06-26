@@ -5,6 +5,7 @@ define ->
     constructor: (@host, opts={}) ->
       [@min, @max] = opts.range
       @style = opts.style ? 'default'
+      @title = opts.title
 
       # scales for most graphs are multiples of 1 item. for percentage graphs
       # we start at 0.1%.
@@ -42,6 +43,8 @@ define ->
     # Place a tick every @tickStep between @min and @max, inclusive. Augment
     # every @labelFrequency-th tick with a label and grid line.
     draw: ->
+      @width = 0
+
       j = Math.ceil @min / @tickStep
       while (value = @tickValue j) <= @max
         y = @host.valueY value
@@ -50,6 +53,9 @@ define ->
           @label y, @labelText value
         @tick y
         j += 1
+
+      if @title
+        @host.drawYLabel @title, offset: @width
 
     ##
     # Draw tick marks at y on the host, just inside the left and right margins.
@@ -98,9 +104,11 @@ define ->
     # Draw a y-axis label at y on the host, just outside the left and right
     # margins.
     label: (y, text) ->
-      @host.paper.text(@host.leftMargin - 5, y, text).attr
+      label = @host.paper.text(@host.leftMargin - 5, y, text)
+      label.attr
         fill: @host.frameColor
         'text-anchor': 'end'
+      @width = Math.max(@width, label.getBBox().width)
 
       @host.paper.text(@host.leftMargin + @host.width + 5, y, text).attr
         fill: @host.frameColor
