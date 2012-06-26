@@ -3,8 +3,9 @@ define [
   'analytics/compiled/graphs/DateAlignedGraph'
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/YAxis'
+  'compiled/str/TextHelper'
   'i18nObj'
-], (_, DateAlignedGraph, Cover, YAxis, I18n) ->
+], (_, DateAlignedGraph, Cover, YAxis, {delimit}, I18n) ->
 
   ##
   # PageViews visualizes the student's activity within the course. Each bar
@@ -121,8 +122,8 @@ define [
       if bin.participations > 0
         count = bin.participations
         noun = if count is 1 then "participation" else "participations"
-        tooltip += "<br/>#{count} #{noun}"
+        tooltip += "<br/>#{delimit count} #{noun}"
       if bin.views > 0
         count = bin.views
         noun = if count is 1 then "page view" else "page views"
-        tooltip += "<br/>#{count} #{noun}"
+        tooltip += "<br/>#{delimit count} #{noun}"

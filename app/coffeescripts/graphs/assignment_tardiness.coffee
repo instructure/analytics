@@ -3,8 +3,9 @@ define [
   'analytics/compiled/graphs/DateAlignedGraph'
   'analytics/compiled/graphs/cover'
   'analytics/compiled/helpers'
+  'compiled/str/TextHelper'
   'i18nObj'
-], (_, DateAlignedGraph, Cover, helpers, I18n) ->
+], (_, DateAlignedGraph, Cover, helpers, {delimit}, I18n) ->
 
   ##
   # AssignmentTardiness visualizes the student's ability to turn in assignments
@@ -221,5 +222,5 @@ define [
       if assignment.muted
         tooltip += "<br/>Score: (muted)"
       else if assignment.studentScore?
-        tooltip += "<br/>Score: #{assignment.studentScore}"
+        tooltip += "<br/>Score: #{delimit assignment.studentScore}"
       tooltip

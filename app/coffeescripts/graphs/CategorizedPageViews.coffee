@@ -4,8 +4,9 @@ define [
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/ScaleByBins'
   'analytics/compiled/graphs/YAxis'
+  'compiled/str/TextHelper'
   'i18nObj'
-], (_, Base, Cover, ScaleByBins, YAxis, I18n) ->
+], (_, Base, Cover, ScaleByBins, YAxis, {delimit}, I18n) ->
 
   ##
   # CategorizedPageViews visualizes the student's activity within the course by
@@ -135,4 +136,4 @@ define [
     tooltip: (bin) ->
       count = bin.views
       noun = if count is 1 then "page view" else "page views"
-      "#{bin.category}<br/>#{count} #{noun}"
+      "#{bin.category}<br/>#{delimit count} #{noun}"

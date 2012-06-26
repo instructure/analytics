@@ -4,7 +4,8 @@ define [
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/ScaleByBins'
   'analytics/compiled/graphs/YAxis'
-], (_, Base, Cover, ScaleByBins, YAxis) ->
+  'compiled/str/TextHelper'
+], (_, Base, Cover, ScaleByBins, YAxis, {delimit}) ->
 
   ##
   # Grades visualizes the student's scores on assignments compared to the
@@ -182,16 +183,16 @@ define [
     tooltip: (assignment) ->
       tooltip = assignment.title
       if assignment.scoreDistribution?
-        tooltip += "<br/>High: #{assignment.scoreDistribution.maxScore}"
-        tooltip += "<br/>Median: #{assignment.scoreDistribution.median}"
-        tooltip += "<br/>Low: #{assignment.scoreDistribution.minScore}"
+        tooltip += "<br/>High: #{delimit assignment.scoreDistribution.maxScore}"
+        tooltip += "<br/>Median: #{delimit assignment.scoreDistribution.median}"
+        tooltip += "<br/>Low: #{delimit assignment.scoreDistribution.minScore}"
         if assignment.studentScore? && assignment.pointsPossible?
-          score = "#{assignment.studentScore} / #{assignment.pointsPossible}"
+          score = "#{delimit assignment.studentScore} / #{delimit assignment.pointsPossible}"
           tooltip += "<br/>Score: #{score}"
         else if assignment.studentScore?
-          tooltip += "<br/>Score: #{assignment.studentScore}"
+          tooltip += "<br/>Score: #{delimit assignment.studentScore}"
         else if assignment.pointsPossible?
-          tooltip += "<br/>Possible: #{assignment.pointsPossible}"
+          tooltip += "<br/>Possible: #{delimit assignment.pointsPossible}"
 
       else if assignment.muted
         tooltip += "<br/>(muted)"

@@ -2,8 +2,9 @@ define [
   'underscore'
   'analytics/compiled/graphs/DateAlignedGraph'
   'analytics/compiled/graphs/cover'
+  'compiled/str/TextHelper'
   'i18nObj'
-], (_, DateAlignedGraph, Cover, I18n) ->
+], (_, DateAlignedGraph, Cover, {delimit}, I18n) ->
 
   ##
   # Responsiveness visualizes the student's communication frequency with the
@@ -211,4 +212,4 @@ define [
     # Build the text for a bin's tooltip.
     tooltip: (date, value) ->
       noun = if value is 1 then "message" else "messages"
-      "#{I18n.l 'date.formats.medium', date}<br/>#{value} #{noun}"
+      "#{I18n.l 'date.formats.medium', date}<br/>#{delimit value} #{noun}"
