@@ -131,7 +131,8 @@ class PageViewsRollup < ActiveRecord::Base
 
         course = course_id_from_page_views_rollup_key(key)
 
-        data = Hash[*res[0]]
+        # redis 3.x gem returns a hash, redis 2.x gem returns an array of keys/values
+        data = res[0].is_a?(Hash) ? res[0] : Hash[*res[0]]
         data.keys.each do |dk|
           date, category = date_and_category_from_data_key(dk)
           # A nil date means this is a participation, which we'll handle
