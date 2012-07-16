@@ -1,4 +1,3 @@
-require 'analytics/extensions/context_controller'
 require 'analytics/extensions/course'
 require 'analytics/extensions/enrollment'
 require 'analytics/extensions/grade_calculator'

@@ -1,4 +1,6 @@
-ContextController.class_eval do
+require 'app/controllers/context_controller'
+
+class ContextController
   def roster_with_analytics
     return unless roster_without_analytics
 
