@@ -2,20 +2,15 @@ define [
   'jquery'
   'Backbone'
   'analytics/jst/department'
-  'analytics/compiled/Department/DepartmentRouter'
   'analytics/compiled/Department/DepartmentFilterBox'
   'analytics/compiled/Department/DepartmentGraphView'
   'analytics/compiled/Department/StatisticsView'
-], ($, Backbone, template, DepartmentRouter, DepartmentFilterBox, DepartmentGraphView, StatisticsView) ->
+], ($, Backbone, template, DepartmentFilterBox, DepartmentGraphView, StatisticsView) ->
 
   ##
   # Aggregate view for the Department Analytics page.
   class DepartmentView extends Backbone.View
     initialize: ->
-      # add a router tied to the model
-      @router = new DepartmentRouter @model
-      @router.run()
-
       # render template into anchor $el
       @$el.html template account: @model.get('account').toJSON()
 
@@ -34,7 +29,6 @@ define [
         el: @$('.department_statistics')
 
       # cache page elements for updates
-      @$title = $('title')
       @$crumb_span = $('#filter_crumb span')
       @$crumb_link = $('#filter_crumb a')
 
@@ -48,6 +42,6 @@ define [
       account = @model.get 'account'
       filter = @model.get 'filter'
 
-      @$title.text "Analytics: #{account.get 'name'} -- #{filter.get 'label'}"
+      document.title = "Analytics: #{account.get 'name'} -- #{filter.get 'label'}"
       @$crumb_span.text filter.get 'label'
       @$crumb_link.attr href: filter.get 'url'
