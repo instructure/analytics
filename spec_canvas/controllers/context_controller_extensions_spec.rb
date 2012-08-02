@@ -27,29 +27,39 @@ describe ContextController, :type => :controller do
     end
 
     def expect_roster_injection(course, students)
-      expected_links = {}
+      expected_links  = {}
+      call_parameters = []
       students.each do |student|
         expected_links[student.id] = "/courses/#{course.id}/analytics/users/#{student.id}"
       end
       ContextController.any_instance.expects(:js_env).at_least_once.
-        with(:ANALYTICS => { :student_links => expected_links})
+        with(anything) { |*parameters| call_parameters << parameters }
       get 'roster', :course_id => course.id
+      call_parameters.should include([{:ANALYTICS => { :student_links => expected_links }}])
     end
 
-    def forbid_roster_injection(course)
-      ContextController.any_instance.expects(:js_env).never
+    def forbid_roster_injection(course, students)
+      expected_links = {}
+      students.each do |student|
+        expected_links[student.id] = "/courses/#{course.id}/analytics/users/#{student.id}"
+      end
+      ContextController.any_instance.expects(:js_env).at_least(0).
+        with(Not(includes(:ANALYTICS => { :student_links => expected_links})))
       get 'roster', :course_id => course.id
     end
 
     def expect_roster_user_injection(course, student)
       expected_link = "/courses/#{course.id}/analytics/users/#{student.id}"
+      call_parameters   = []
       ContextController.any_instance.expects(:js_env).at_least_once.
-        with(:ANALYTICS => { :link => expected_link, :student_name => student.short_name })
+        with(anything) { |*parameters| call_parameters << parameters }
       get 'roster_user', :course_id => course.id, :id => student.id
+      call_parameters.should include([:ANALYTICS => { :link => expected_link, :student_name => student.short_name}])
     end
 
     def forbid_roster_user_injection(course, student)
-      ContextController.any_instance.expects(:js_env).never
+      expected_link = "/courses/#{course.id}/analytics/users/#{student.id}"
+      ContextController.any_instance.expects(:js_env).at_least(0).with(Not(expected_link))
       get 'roster_user', :course_id => course.id, :id => student.id
     end
 
@@ -75,7 +85,7 @@ describe ContextController, :type => :controller do
       end
 
       it "should not inject analytics buttons on the roster page" do
-        forbid_roster_injection(@course)
+        forbid_roster_injection(@course, [@student1])
       end
 
       it "should not inject an analytics button on the roster_user page" do
@@ -90,7 +100,7 @@ describe ContextController, :type => :controller do
       end
 
       it "should not inject analytics buttons on the roster page" do
-        forbid_roster_injection(@course)
+        forbid_roster_injection(@course, [@student1])
       end
 
       it "should not inject an analytics button on the roster_user page" do
@@ -121,7 +131,7 @@ describe ContextController, :type => :controller do
       end
 
       it "should not inject analytics buttons on the roster page" do
-        forbid_roster_injection(@course)
+        forbid_roster_injection(@course, [@student1])
       end
 
       it "should not inject an analytics button on the roster_user page" do
@@ -157,7 +167,7 @@ describe ContextController, :type => :controller do
       end
 
       it "should not inject an analytics button on the roster page" do
-        forbid_roster_injection(@course)
+        forbid_roster_injection(@course, [@student1])
       end
 
       it "should not inject an analytics button on the roster user page" do
@@ -181,7 +191,7 @@ describe ContextController, :type => :controller do
       end
 
       it "should not inject analytics buttons on the roster page" do
-        forbid_roster_injection(@course)
+        forbid_roster_injection(@course, [@student1])
       end
 
       it "should not inject an analytics button on the roster_user page" do

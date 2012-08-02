@@ -9,7 +9,7 @@ require [
 ], ($, template) ->
 
   analytics = ENV.ANALYTICS
-  $('.student_roster tr.user').each ->
+  $('.student_roster').find('tr.user, li.user').each ->
     $row = $(this)
     userId = parseInt($row.attr('id').slice(5)) # strip off 'user_' and parse
     link = analytics.student_links[userId]
