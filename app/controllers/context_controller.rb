@@ -3,34 +3,10 @@ require 'app/controllers/context_controller'
 class ContextController
   def roster_with_analytics
     return unless roster_without_analytics
-
     if analytics_enabled_course?
-      # capture link to analytics pages for students in this course
-      @student_analytics_links = {}
-
-      # which students can the current user see analytics pages for?
-      analytics = Analytics::Course.new(@current_user, session, @context)
-      if analytics.allow_student_details?
-        # all students that have analytics (via active/completed enrollments)
-        analytics.students.each do |student|
-          @student_analytics_links[student.id] =
-            analytics_student_in_course_path :course_id => @context.id, :student_id => student.id
-        end
-      elsif analytics_enabled_student?(@current_user)
-        # just him/herself, given they're a student
-        @student_analytics_links[@current_user.id] =
-          analytics_student_in_course_path :course_id => @context.id, :student_id => @current_user.id
-      end
-
-      # if there were any links, inject them into the page
-      unless @student_analytics_links.empty?
-        js_env :ANALYTICS => { :student_links => @student_analytics_links }
-        js_bundle :inject_roster_analytics, :plugin => :analytics
-        jammit_css :analytics_buttons, :plugin => :analytics
-      end
+      js_bundle :inject_roster_analytics, :plugin => :analytics
+      jammit_css :analytics_buttons, :plugin => :analytics
     end
-
-    # continue rendering the page
     render :action => 'roster'
   end
   alias_method_chain :roster, :analytics

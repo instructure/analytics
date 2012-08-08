@@ -5,12 +5,16 @@
 # account))
 require [
   'jquery'
+  'compiled/views/courses/RosterView'
+  'compiled/fn/punch'
   'analytics/jst/student_analytics_grid_button'
-], ($, template) ->
+], ($, RosterView, punch, template) ->
 
-  analytics = ENV.ANALYTICS
-  $('.student_roster').find('tr.user, li.user').each ->
-    $row = $(this)
-    userId = parseInt($row.attr('id').slice(5)) # strip off 'user_' and parse
-    link = analytics.student_links[userId]
-    $row.prepend if link? then template(url: link) else '<td/>'
+  addAnalyticsButton = ($userFragment, user) ->
+    if user.get('analytics_url')
+      $userFragment.prepend $ template url: user.get('analytics_url')
+
+  punch RosterView.prototype, 'renderUser', (old, user) ->
+    $userFragment = $ old user
+    addAnalyticsButton $userFragment, user
+    $userFragment.clone().wrap('<div/>').parent().html()
