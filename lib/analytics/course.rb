@@ -10,7 +10,9 @@ module Analytics
     end
 
     def available?
-      slaved(:cache_as => :available) { enrollment_scope.count > 0 }
+      # not slaved because it's pretty lightweight and we don't want it to
+      # depend on the slave being present
+      cache(:available) { enrollment_scope.first.present? }
     end
 
     def enrollments
@@ -40,17 +42,11 @@ module Analytics
     end
 
     def students
-      @students ||= slaved do
-        # any user with an enrollment, ordered by name
-        subselect = enrollment_scope.scoped(:select => 'DISTINCT user_id, computed_current_score').construct_finder_sql({})
-        User.scoped(
-          :select => "users.*, enrollments.computed_current_score",
-          :joins => "INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id=users.id").order_by_sortable_name
-      end
+      slaved(:cache_as => :students) { student_scope.all }
     end
 
     def student_ids
-      @student_ids ||= slaved do
+      slaved(:cache_as => :student_ids) do
         # id of any user with an enrollment, order unimportant
         enrollment_scope.scoped(:select => 'DISTINCT user_id').map{ |e| e.user_id }
       end
@@ -84,7 +80,7 @@ module Analytics
 
     def student_summaries
       slaved(:cache_as => :student_summaries) do
-        students = self.students.paginate(:page => 1, :per_page => 50)
+        students = student_scope.paginate(:page => 1, :per_page => 50)
         summaries = {}
 
         # set up default summary per student
@@ -175,6 +171,16 @@ module Analytics
           scoped(:select => "assignment_id, score, user_id, submission_type, submitted_at, graded_at, updated_at, workflow_state").
           scoped(:conditions => { :assignment_id => assignments.map(&:id) }).
           scoped(:conditions => { :user_id => student_ids })
+      end
+    end
+
+    def student_scope
+      @student_scope ||= begin
+        # any user with an enrollment, ordered by name
+        subselect = enrollment_scope.scoped(:select => 'DISTINCT user_id, computed_current_score').construct_finder_sql({})
+        User.scoped(
+          :select => "users.*, enrollments.computed_current_score",
+          :joins => "INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id=users.id").order_by_sortable_name
       end
     end
   end

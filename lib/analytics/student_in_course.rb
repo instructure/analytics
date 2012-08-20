@@ -11,11 +11,15 @@ module Analytics
     end
 
     def available?
-      @available ||= @enrollment.present? || slaved{ enrollment_scope.count > 0 }
+      enrollment.present?
     end
 
     def enrollment
-      @enrollment ||= slaved{ enrollment_scope.first }
+      cache(:enrollment) do
+        # not slaved because it's pretty lightweight and we don't want it to
+        # depend on the slave being present
+        enrollment_scope.first
+      end
     end
 
     # just parrots back @student, but sets the computed_current_score from the
