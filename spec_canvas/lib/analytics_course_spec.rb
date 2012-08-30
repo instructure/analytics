@@ -6,6 +6,7 @@ describe Analytics::Course do
     course(:active_course => true)
     @teacher_enrollment = course_with_teacher(:course => @course, :name => 'Teacher', :active_all => true)
     @teacher_analytics = Analytics::Course.new(@teacher, nil, @course)
+    Setting.set('enable_page_views', 'db')
   end
 
   describe "#enrollments" do
@@ -544,12 +545,7 @@ Spec::Runner.configure do |config|
       access.display_name = 'Some Asset'
     end
 
-    page_view.save!
-
-    # has to happen after create
-    page_view.summarized = summarized
-    page_view.save!
-
+    page_view.store
     page_view
   end
 

@@ -1,7 +1,4 @@
 PageView.class_eval do
-  before_create :flag_as_summarized
-  after_create :increment_rollup
-
   def category
     category = read_attribute(:category)
     if !category && read_attribute(:controller)
@@ -10,17 +7,15 @@ PageView.class_eval do
     category || :other
   end
 
-  private
-
-  def flag_as_summarized
+  def store_with_rollup
     self.summarized = true
+    result = store_without_rollup
+    if context_id && context_type == 'Course'
+      PageViewsRollup.increment!(context_id, created_at, category, participated && asset_user_access_id)
+    end
+    result
   end
-
-  def increment_rollup
-    return true unless context_id && context_type == 'Course'
-    PageViewsRollup.increment!(context_id, created_at, category, participated && asset_user_access_id)
-    true
-  end
+  alias_method_chain :store, :rollup
 
   CONTROLLER_TO_ACTION = {
     :assignments         => :assignments,

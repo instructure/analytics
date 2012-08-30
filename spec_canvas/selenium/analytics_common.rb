@@ -31,6 +31,7 @@ shared_examples_for "analytics tests" do
   end
 
   def page_view(opts={})
+    Setting.set('enable_page_views', 'db')
     course = opts[:course] || @course
     user = opts[:user] || @student
     controller = opts[:controller] || 'assignments'
@@ -50,7 +51,7 @@ shared_examples_for "analytics tests" do
       access.display_name = 'Some Asset'
     end
 
-    page_view.save!
+    page_view.store
     page_view
   end
 

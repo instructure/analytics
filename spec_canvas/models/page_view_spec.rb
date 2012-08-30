@@ -1,6 +1,10 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/spec_helper')
 
 describe PageView do
+  before :each do
+    Setting.set('enable_page_views', 'db')
+  end
+
   describe "#category" do
     before :each do
       @view = page_view_model
@@ -26,14 +30,20 @@ describe PageView do
     end
   end
 
+  def page_view(opts = {})
+    view = page_view_model(opts)
+    view.store
+    view
+  end
+
   it "should always flag new page views as summarized" do
-    view = page_view_model
+    view = page_view
     view.should be_summarized
   end
 
   it "should not automatically summarize existing non-summarized page views on save" do
     # set up unsummarized page view
-    view = page_view_model
+    view = page_view
     view.summarized = false
     view.save
     view.reload
@@ -48,7 +58,7 @@ describe PageView do
     course = course_model
     PageViewsRollup.bin_for(course, date, 'other').views.should == 0
 
-    view = page_view_model(:context => course, :created_at => date)
+    view = page_view(:context => course, :created_at => date)
     PageViewsRollup.bin_for(course, date, 'other').views.should == 1
   end
 
@@ -56,7 +66,7 @@ describe PageView do
     # 2012-06-01 20:00:00 AKDT / 2012-06-02 04:00:00 UTC
     time = Time.zone.parse('2012-06-01 20:00:00-08:00').in_time_zone('Alaska')
     course = course_model
-    view = page_view_model(:context => course, :created_at => time)
+    view = page_view(:context => course, :created_at => time)
     PageViewsRollup.bin_for(course, time.to_date, 'other').views.should == 0
     PageViewsRollup.bin_for(course, time.utc.to_date, 'other').views.should == 1
   end
