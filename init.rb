@@ -9,11 +9,6 @@ Rails.configuration.to_prepare do
   ::ApplicationController.view_paths.delete view_path
   ::ApplicationController.view_paths.unshift view_path
 
-  Permissions.register :view_analytics,
-    :label => lambda { I18n.t('#role_override.permissions.view_analytics', "View analytics pages") },
-    :available_to => %w(AccountAdmin TaEnrollment TeacherEnrollment StudentEnrollment AccountMembership),
-    :true_for => %w(AccountAdmin TaEnrollment TeacherEnrollment)
-
   Account.register_service :analytics,
     :name => "Analytics",
     :description => "",
@@ -26,3 +21,8 @@ Rails.configuration.to_prepare do
   # one time.
   require 'analytics/periodic_jobs'
 end
+
+Permissions.register :view_analytics,
+  :label => lambda { I18n.t('#role_override.permissions.view_analytics', "View analytics pages") },
+  :available_to => %w(AccountAdmin TaEnrollment TeacherEnrollment StudentEnrollment AccountMembership),
+  :true_for => %w(AccountAdmin TaEnrollment TeacherEnrollment)

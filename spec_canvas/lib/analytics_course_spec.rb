@@ -542,7 +542,11 @@ Spec::Runner.configure do |config|
     if opts[:participated]
       page_view.participated = true
       access = page_view.build_asset_user_access
+      access.context = page_view.context
       access.display_name = 'Some Asset'
+      access.action_level = 'participate'
+      access.participate_score = 1
+      access.user = page_view.user
     end
 
     page_view.store

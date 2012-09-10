@@ -104,8 +104,10 @@ module Analytics
           summaries[row.user_id.to_i][:page_views] = row.ct.to_i
         end
 
-        page_view_scope(student_ids).find(:all, :select => "user_id, COUNT(DISTINCT(asset_user_access_id, url)) AS ct",
-          :conditions => "participated AND asset_user_access_id IS NOT NULL", :group => "user_id").map do |row|
+        asset_user_access_scope(student_ids).find(:all,
+                             :select => "user_id, COUNT(*) AS ct",
+                             :conditions => { :action_level => 'participate' },
+                             :group => "user_id").map do |row|
           summaries[row.user_id.to_i][:participations] = row.ct.to_i
         end
 
@@ -162,6 +164,11 @@ module Analytics
 
     def page_view_scope(student_ids=self.student_ids)
       @page_view_scope ||= @course.page_views.
+        scoped(:conditions => { :user_id => student_ids })
+    end
+
+    def asset_user_access_scope(student_ids=self.student_ids)
+      @asset_user_access_scope ||= @course.asset_user_accesses.
         scoped(:conditions => { :user_id => student_ids })
     end
 
