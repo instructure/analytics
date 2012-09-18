@@ -20,12 +20,15 @@ shared_examples_for "analytics tests" do
   end
 
   def enable_analytics
-    @account = Account.last
-    if @account.allowed_services.nil?;
-      @account.allowed_services = '+analytics'
-    else
-      @account.allowed_services += ',+analytics'
-    end
+    @account = Account.default
+    @account.enable_service(:analytics)
+    @account.save!
+    @account
+  end
+
+  def disable_analytics
+    @account = Account.default
+    @account.disable_service(:analytics)
     @account.save!
     @account
   end
@@ -57,10 +60,12 @@ shared_examples_for "analytics tests" do
 
   def enable_teacher_permissions
     RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => true)
+    Rails.cache.delete(['context_permissions', @course, @teacher].cache_key)
   end
 
   def disable_teacher_permissions
     RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => false)
+    Rails.cache.delete(['context_permissions', @course, @teacher].cache_key)
   end
 
   def add_students_to_course(number_to_add)

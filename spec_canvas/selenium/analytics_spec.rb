@@ -50,6 +50,7 @@ describe "analytics" do
         let(:validate) { false }
         before (:each) do
           course_with_admin_logged_in
+          disable_analytics
           add_students_to_course(5)
         end
 
@@ -63,6 +64,7 @@ describe "analytics" do
         let(:validate) { true }
         before (:each) do
           enable_analytics
+          enable_teacher_permissions
           course_with_teacher_logged_in
           add_students_to_course(5)
         end
