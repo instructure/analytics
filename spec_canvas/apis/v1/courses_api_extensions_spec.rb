@@ -5,7 +5,7 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../../../../../../spec/apis/api_spec_helper')
 
-describe "Enrollments API Extensions", :type => :integration do
+describe "Courses API Extensions", :type => :integration do
   before :each do
     @account = Account.default
     @account.allowed_services = '+analytics'
@@ -27,16 +27,17 @@ describe "Enrollments API Extensions", :type => :integration do
     end
 
     def expect_injection(course, students)
-      json = api_call(:get, "/api/v1/courses/#{course.id}/enrollments",
-                      :controller => "enrollments_api",
-                      :action => "index",
+      json = api_call(:get, "/api/v1/courses/#{course.id}/users?include[]=enrollments",
+                      :controller => "courses",
+                      :action => "users",
                       :course_id => course.id.to_s,
+                      :include => ['enrollments'],
                       :format => "json")
 
       # each student's json should have the expected analytics url or lack thereof
       seen_students = []
       json.each do |student_json|
-        student = students.detect{ |s| s.id == student_json['user']['id'] }
+        student = students.detect{ |s| s.id == student_json['id'] }
         if student
           student_json['analytics_url'].should == "/courses/#{course.id}/analytics/users/#{student.id}"
           seen_students << student
@@ -50,10 +51,11 @@ describe "Enrollments API Extensions", :type => :integration do
     end
 
     def forbid_injection(course, students)
-      json = api_call(:get, "/api/v1/courses/#{course.id}/enrollments",
-                      :controller => "enrollments_api",
-                      :action => "index",
+      json = api_call(:get, "/api/v1/courses/#{course.id}/users?include[]=enrollments",
+                      :controller => "courses",
+                      :action => "users",
                       :course_id => course.id.to_param,
+                      :include => ['enrollments'],
                       :format => "json")
 
       # for the students we're interested in, make sure they don't have an url
