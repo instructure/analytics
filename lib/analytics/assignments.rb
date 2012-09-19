@@ -3,7 +3,7 @@ module Analytics
     # required of host: submission_scope(assignments)
 
     def assignments
-      slaved(:cache_as => :assignments) do
+      slaved(:cache_as => [:assignments, allow_student_details?]) do
         assignments = assignment_scope.all
         submissions = submission_scope(assignments).group_by{ |s| s.assignment_id }
         assignments.map{ |assignment| assignment_data(assignment, submissions[assignment.id]) }

@@ -15,11 +15,10 @@ module Analytics
     end
 
     def enrollment
-      cache(:enrollment) do
-        # not slaved because it's pretty lightweight and we don't want it to
-        # depend on the slave being present
-        enrollment_scope.first
-      end
+      # not slaved or cached because it's pretty lightweight, we don't want
+      # it to depend on the slave being present, and the result depends on
+      # @current_user
+      enrollment_scope.first
     end
 
     # just parrots back @student, but sets the computed_current_score from the
