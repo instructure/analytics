@@ -154,7 +154,7 @@ module Analytics
   private
 
     def cache_prefix
-      @course
+      [@course, Digest::MD5.hexdigest(enrollment_scope.construct_finder_sql({}))]
     end
 
     def enrollment_scope

@@ -9,6 +9,57 @@ describe Analytics::Course do
     Setting.set('enable_page_views', 'db')
   end
 
+  describe "caching" do
+    before :each do
+      active_student
+
+      add_section("Section")
+      @ta_enrollment = course_with_ta(:course => @course, :name => 'TA', :active_all => true)
+      @ta_enrollment.course_section = @course_section
+      @ta_enrollment.save!
+
+      @ta_analytics = Analytics::Course.new(@ta, nil, @course)
+    end
+
+    it "should use the same cache for users with the same visibility" do
+      enable_cache do
+        @ta_analytics.students.object_id.should == @teacher_analytics.students.object_id
+      end
+    end
+
+    it "should not use the same cache for users with the same visibility but different details" do
+      enable_cache do
+        # while the permissions are ok, they should match
+        teacher_expected = @teacher_analytics.assignments.object_id
+        @ta_analytics.assignments.object_id.should == teacher_expected
+
+        # when permissions differ, the ta should get a different value
+        @course.stubs(:grants_rights?).returns({})
+        @ta_analytics.assignments.object_id.should_not == teacher_expected
+        ta_expected = @ta_analytics.assignments.object_id
+
+        # when permissions are the same again, they should still be the same
+        # original cache
+        @course.unstub(:grants_rights?)
+        @ta_analytics.assignments.object_id.should == teacher_expected
+
+        # when permissions differ again, the previous different value should
+        # have been cached and now reused
+        @course.stubs(:grants_rights?).returns({})
+        @ta_analytics.assignments.object_id.should == ta_expected
+      end
+    end
+
+    it "should not use the same cache for users with different visibility" do
+      @ta_enrollment.limit_privileges_to_course_section = true
+      @ta_enrollment.save!
+
+      enable_cache do
+        @ta_analytics.students.object_id.should_not == @teacher_analytics.students.object_id
+      end
+    end
+  end
+
   describe "#enrollments" do
     it "should not include non-student enrollments from the course" do
       @teacher_analytics.enrollments.should_not include(@teacher_enrollment)
