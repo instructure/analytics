@@ -90,7 +90,7 @@ class PageViewsRollup < ActiveRecord::Base
 
   def self.process_cached_rollups
     redis = Canvas.redis
-    lock_key = "page_view_rollup_processing:#{Shard.current.description.tr(':', '_')}"
+    lock_key = "page_view_rollup_processing:#{Shard.current.id}"
     lock_time = Setting.get("page_view_rollup_lock_time", 15.minutes.to_s).to_i
 
     # Lock out other processors, letting the lock drop if we take too long to
@@ -156,12 +156,12 @@ class PageViewsRollup < ActiveRecord::Base
   private
 
   def self.page_views_rollup_keys_set_key
-    "page_views_rollup_keys:#{Shard.current.description.tr(':', '_')}"
+    "page_views_rollup_keys:#{Shard.current.id}"
   end
 
   def self.page_views_rollup_key_from_course_id(course)
     [ "page_views_rollup",
-      Shard.current.description.tr(':', '_'),
+      Shard.current.id,
       course.to_s
     ].join ":"
   end
