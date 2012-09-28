@@ -28,17 +28,14 @@ describe ContextController, :type => :controller do
 
     def expect_injection(course, student)
       expected_link = "/courses/#{course.id}/analytics/users/#{student.id}"
-      call_parameters   = []
-      ContextController.any_instance.expects(:js_env).at_least_once.
-        with(anything) { |*parameters| call_parameters << parameters }
       get 'roster_user', :course_id => course.id, :id => student.id
-      call_parameters.should include([:ANALYTICS => { :link => expected_link, :student_name => student.short_name}])
+      assigns(:js_env).has_key?(:ANALYTICS).should be_true
+      assigns(:js_env)[:ANALYTICS].should == { :link => expected_link, :student_name => student.short_name }
     end
 
     def forbid_injection(course, student)
-      expected_link = "/courses/#{course.id}/analytics/users/#{student.id}"
-      ContextController.any_instance.expects(:js_env).at_least(0).with(Not(expected_link))
       get 'roster_user', :course_id => course.id, :id => student.id
+      assigns(:js_env).try(:has_key?, :ANALYTICS).should be_false
     end
 
     context "nominal conditions" do
@@ -46,8 +43,11 @@ describe ContextController, :type => :controller do
         @student2 = student_in_course(:active_all => true).user
       end
 
-      it "should inject an analytics button on the roster_user page" do
+      it "should inject an analytics button on the roster_user page 1" do
         expect_injection(@course, @student1)
+      end
+
+      it "should inject an analytics button on the roster_user page 2" do
         expect_injection(@course, @student2)
       end
     end
@@ -103,9 +103,13 @@ describe ContextController, :type => :controller do
         @student2 = student_in_course(:active_all => true).user
       end
 
-      it "should only inject an analytics button on the student's roster_user page" do
+      it "should inject an analytics button on the student's own roster_user page" do
         user_session(@student1)
         expect_injection(@course, @student1)
+      end
+
+      it "should not inject an analytics button on another student's roster_user page" do
+        user_session(@student1)
         forbid_injection(@course, @student2)
       end
     end

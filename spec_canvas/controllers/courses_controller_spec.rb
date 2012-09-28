@@ -24,15 +24,15 @@ describe CoursesController, :type => :controller do
 
     def expect_injection(opts={})
       course = opts[:course] || @course
-      CoursesController.any_instance.expects(:js_env).once.
-        with(:ANALYTICS => { :link => "/courses/#{course.id}/analytics" })
       get 'show', :id => course.id
+      assigns(:js_env).has_key?(:ANALYTICS).should be_true
+      assigns(:js_env)[:ANALYTICS].should == { :link => "/courses/#{course.id}/analytics" }
     end
 
     def forbid_injection(opts={})
       course = opts[:course] || @course
-      CoursesController.any_instance.expects(:js_env).never
       get 'show', :id => course.id
+      assigns(:js_env).try(:has_key?, :ANALYTICS).should be_false
     end
 
     it "should inject an analytics button under nominal conditions" do
