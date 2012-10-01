@@ -25,12 +25,11 @@ define [ 'analytics/compiled/BaseData' ], (BaseData) ->
         binMap[date]
 
       # sort the page view data to the appropriate bins
-      for date, bins of data.page_views
+      for date, views of data.page_views
         # this date is the utc date for the bin, not local. but we'll treat it
         # as local for the purposes of presentation.
         bin = binFor(Date.parse date)
-        for category, views of bins
-          bin.views += views
+        bin.views += views
 
       # sort the participation date to the appropriate bins
       for event in data.participations

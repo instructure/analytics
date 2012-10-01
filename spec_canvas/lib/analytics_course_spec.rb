@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../cassandra_spec_helper')
 
 describe Analytics::Course do
   before :each do
@@ -413,7 +414,7 @@ describe Analytics::Course do
     end
   end
 
-  describe "#student_summaries" do
+  shared_examples_for "#student_summaries" do
     describe "a student's summary" do
       before :each do
         active_student
@@ -538,6 +539,15 @@ describe Analytics::Course do
       end
     end
   end
+
+  describe "#student_summaries db" do
+    it_should_behave_like "#student_summaries"
+  end
+
+  describe "#student_summaries cassandra" do
+    it_should_behave_like "analytics cassandra page views"
+    it_should_behave_like "#student_summaries"
+  end
 end
 
 Spec::Runner.configure do |config|
@@ -584,23 +594,27 @@ Spec::Runner.configure do |config|
     controller = opts[:assignments] || 'assignments'
     summarized = opts[:summarized] || nil
 
-    page_view = course.page_views.build(
+    page_view = PageView.new(
+      :context => course,
       :user => user,
       :controller => controller)
 
-    page_view.request_id = ''
+    page_view.request_id = UUIDSingleton.instance.generate
 
     if opts[:participated]
       page_view.participated = true
-      access = page_view.build_asset_user_access
+      access = AssetUserAccess.new
       access.context = page_view.context
       access.display_name = 'Some Asset'
       access.action_level = 'participate'
       access.participate_score = 1
       access.user = page_view.user
+      access.save!
+      page_view.asset_user_access = access
     end
 
     page_view.store
+    PageView.process_cache_queue if PageView.redis_queue?
     page_view
   end
 

@@ -97,11 +97,10 @@ module Analytics
             }
           }
         end
-        student_ids = students.map(&:id)
 
         # count page views and participations by student
-        page_view_scope(student_ids).find(:all, :select => "user_id, COUNT(*) AS ct", :group => "user_id").each do |row|
-          summaries[row.user_id.to_i][:page_views] = row.ct.to_i
+        PageView.counters_by_context_for_users(@course, students).each do |user, count|
+          summaries[user.id][:page_views] = count
         end
 
         asset_user_access_scope(student_ids).find(:all,
@@ -160,11 +159,6 @@ module Analytics
     def enrollment_scope
       @enrollment_scope ||= @course.enrollments_visible_to(@current_user, :include_priors => true).
         scoped(:conditions => { 'enrollments.workflow_state' => ['active', 'completed'] })
-    end
-
-    def page_view_scope(student_ids=self.student_ids)
-      @page_view_scope ||= @course.page_views.
-        scoped(:conditions => { :user_id => student_ids })
     end
 
     def asset_user_access_scope(student_ids=self.student_ids)

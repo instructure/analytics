@@ -309,21 +309,19 @@ class AnalyticsApiController < ApplicationController
   # @example_response
   #   {
   #     "page_views": {
-  #       "2012-01-24": {
-  #         "general": 5,
-  #         "grades": 2,
-  #         "files": 5,
-  #         "other": 7
-  #       },
-  #       "2012-01-27": {
-  #         "general": 15,
-  #         "assignments": 11,
-  #         "pages": 6
-  #       }
+  #       "2012-01-24": 19,
+  #       "2012-01-27": 23,
   #     },
   #     "participations": [
-  #       "2012-01-21",
-  #       "2012-01-27"
+  #       {
+  #         "created_at": "2012-01-21T22:00:00-06:00",
+  #         "url": "/path/to/canvas",
+  #       },
+  #       {
+  #         "created_at": "2012-01-27T22:00:00-06:00",
+  #         "url": "/path/to/canvas",
+  #
+  #       }
   #     ]
   #   }
   def student_in_course_participation

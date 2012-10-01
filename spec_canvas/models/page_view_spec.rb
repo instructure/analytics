@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../cassandra_spec_helper')
 
 describe PageView do
   before :each do
@@ -32,6 +33,20 @@ describe PageView do
 
   def page_view(opts = {})
     view = page_view_model(opts)
+
+    if opts[:participated]
+      view.participated = true
+      access = AssetUserAccess.new
+      access.context = view.context
+      access.display_name = 'Some Asset'
+      access.action_level = 'participate'
+      access.participate_score = 1
+      access.user = view.user
+      access.save!
+      view.asset_user_access = access
+      view.save!
+    end
+
     view.store
     view
   end
@@ -69,5 +84,65 @@ describe PageView do
     view = page_view(:context => course, :created_at => time)
     PageViewsRollup.bin_for(course, time.to_date, 'other').views.should == 0
     PageViewsRollup.bin_for(course, time.utc.to_date, 'other').views.should == 1
+  end
+
+  shared_examples_for ".participations_for_context" do
+    before do
+      student_in_course(:active_all => true)
+    end
+
+    it "should return a object for each participation" do
+      page_view(:user => @user, :context => @course, :participated => true)
+      page_view(:user => @user, :context => @course, :participated => true)
+      page_view(:user => @user, :context => @course)
+      parts = PageView.participations_for_context(@course, @user)
+      parts.size.should == 2
+      parts.each { |p| p.key?(:created_at).should be_true }
+    end
+  end
+
+  describe ".participations_for_context db" do
+    it_should_behave_like ".participations_for_context"
+  end
+
+  describe ".participations_for_context cassandra" do
+    it_should_behave_like "analytics cassandra page views"
+    it_should_behave_like ".participations_for_context"
+  end
+
+  describe ".counters_by_context_and_hour db" do
+    before do
+      student_in_course(:active_all => true)
+    end
+
+    it "should return user page view counts in the course by hour" do
+      page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
+      page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
+      page_view(:user => @user, :context => @course, :created_at => 3.hours.ago)
+      page_view(:user => @user, :context => @course, :created_at => 1.hour.ago)
+      page_view(:user => @user, :context => @course, :created_at => 1.hour.ago)
+      counts = PageView.counters_by_context_and_hour(@course, @user)
+      counts.size.should == 2
+      counts.values.sum.should == 5
+    end
+  end
+
+  describe ".counters_by_context_and_hour cassandra" do
+    it_should_behave_like "analytics cassandra page views"
+
+    before do
+      student_in_course(:active_all => true)
+    end
+
+    it "should return user page view counts in the course by hour" do
+      page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
+      page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
+      page_view(:user => @user, :context => @course, :created_at => 3.hours.ago)
+      page_view(:user => @user, :context => @course, :created_at => 1.hour.ago)
+      page_view(:user => @user, :context => @course, :created_at => 1.hour.ago)
+      counts = PageView.counters_by_context_and_hour(@course, @user)
+      counts.size.should == 3
+      counts.values.sum.should == 5
+    end
   end
 end

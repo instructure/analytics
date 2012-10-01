@@ -40,7 +40,8 @@ shared_examples_for "analytics tests" do
     controller = opts[:controller] || 'assignments'
     summarized = opts[:summarized] || nil
 
-    page_view = course.page_views.build(
+    page_view = PageView.new(
+        :context => course,
         :user => user,
         :controller => controller)
 

@@ -48,8 +48,19 @@ module Analytics
       end
     end
 
-    include Analytics::Participation
     include Analytics::Assignments
+
+    def page_views
+      slaved(:cache_as => :page_views) do
+        PageView.counters_by_context_and_hour(@course, @student)
+      end
+    end
+
+    def participations
+      slaved(:cache_as => :participations) do
+        PageView.participations_for_context(@course, @student)
+      end
+    end
 
     def messages
       # count up the messages from those conversations authored by the student
@@ -106,11 +117,6 @@ module Analytics
           :workflow_state => ['active', 'completed'],
           :user_id => @student.id
         })
-    end
-
-    def page_view_scope
-      @page_view_scope ||= @course.page_views.
-        scoped(:conditions => { :user_id => @student.id })
     end
 
     def submission_scope(assignments)
