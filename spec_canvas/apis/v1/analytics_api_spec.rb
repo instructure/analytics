@@ -165,7 +165,7 @@ describe "Analytics API", :type => :integration do
         student = @students[s_index]
         for a_index in 0..(num_assignments - 1)
           assignment = @assignments[a_index]
-          @outcomes[a_index] = @course.learning_outcomes.create!
+          @outcomes[a_index] = @course.learning_outcomes.create!(:short_description => 'outcome')
           @tag = @outcomes[a_index].align(assignment, @course, :mastery_type => "points")
           assignment.reload
           grade = (10 * (a_index + 1)) - s_index * (a_index+1)
