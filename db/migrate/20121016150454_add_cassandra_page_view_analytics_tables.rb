@@ -1,3 +1,5 @@
+require 'canvas/cassandra'
+
 class AddCassandraPageViewAnalyticsTables < ActiveRecord::Migration
   tag :predeploy
 
