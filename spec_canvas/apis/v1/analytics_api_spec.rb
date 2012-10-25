@@ -23,15 +23,21 @@ describe "Analytics API", :type => :integration do
       when :assignments then ['student_in_course_assignments', "/assignments"]
       when :messaging then ['student_in_course_messaging', "/communication"]
       end
+    user = opts.delete(:user)
+    args = [:get,
+      "/api/v1/courses/#{course.id}/analytics/users/#{student.id}" + suffix,
+      { :controller => 'analytics_api',
+        :action => action,
+        :format => 'json',
+        :course_id => course.id.to_s,
+        :student_id => student.id.to_s },
+      {}, {}, opts]
 
-    api_call(:get,
-          "/api/v1/courses/#{course.id}/analytics/users/#{student.id}" + suffix,
-          { :controller => 'analytics_api',
-            :action => action,
-            :format => 'json',
-            :course_id => course.id.to_s,
-            :student_id => student.id.to_s },
-          {}, {}, opts)
+    if user then
+      api_call_as_user(user, *args)
+    else
+      api_call(*args)
+    end
   end
 
   context "permissions" do
@@ -136,7 +142,7 @@ describe "Analytics API", :type => :integration do
     end
   end
 
-  context "course multiple assignements with a multiple students and scores" do
+  context "course with multiple assignments and multiple students with scores" do
     before do
       num_students = 5
       num_assignments = 5
@@ -187,6 +193,20 @@ describe "Analytics API", :type => :integration do
       json_assignment.should_not be_nil
       json_assignment
     end
+
+    it "should not have statistics available for assignments with only a few submissions" do
+      # Remove one of the 5 submissions, so we can test that min, max, quartile stats
+      # are not present (fewer than 5 submissions will suppress stats data, see
+      # suppressed_due_to_few_submissions)
+      @assignments[2].submissions[0].destroy
+      # Allow user to see analytics page
+      RoleOverride.manage_role_override(@account, 'StudentEnrollment', 'view_analytics', :override => true)
+      # Log in as the user for this API call
+      json = analytics_api_call(:assignments, @course, @students[1], :user => @students[1])
+      response_assignment(json, @assignments[2])["submission"]["score"].should == 27
+      response_assignment(json, @assignments[2])["max_score"].should be_nil
+    end
+
 
     it "should fetch data for a student in the course" do
       json = analytics_api_call(:assignments, @course, @students[1])
