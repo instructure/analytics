@@ -83,8 +83,8 @@ define [
 
       # top of max bar = @topMargin + @topPadding
       # base of bars = @topMargin + @height - @bottomPadding
-      distributions = (assignment.scoreDistribution for assignment in assignments)
-      maxScores = ((if distribution then distribution.maxScore else 0) for distribution in distributions)
+      maxScores = (a.pointsPossible ? a.scoreDistribution?.maxScore for a in assignments)
+      
       max = Math.max(maxScores...)
       max = 1 unless max? && max > 0
       @pointSpacing = (@height - @topPadding - @bottomPadding) / max
@@ -94,13 +94,18 @@ define [
     # Graph a single assignment. Fat arrowed because it's called by _.each
     graphAssignment: (assignment, i) =>
       x = @binX i
-      if assignment.scoreDistribution?
-        @drawWhisker x, assignment
-        @drawBox x, assignment
-        @drawMedian x, assignment
-        @drawStudentScore x, assignment if assignment.studentScore?
-      else if assignment.muted
+
+      if assignment.muted
         @drawMutedAssignment x
+      else
+        if assignment.scoreDistribution?
+          @drawWhisker x, assignment
+          @drawBox x, assignment
+          @drawMedian x, assignment
+
+        if assignment.studentScore?
+          @drawStudentScore x, assignment
+
       @cover x, assignment
 
     ##
@@ -145,18 +150,21 @@ define [
 
     ##
     # Returns colors to use for the value dot of an assignment. If this is
-    # being called, it's implied there is a distribution and a student score
-    # for the assignment.
+    # being called, it's implied there is a student score for the assignment.
     valueColors: (assignment) ->
-      if assignment.studentScore >= assignment.scoreDistribution.median
+      if assignment.scoreDistribution?
+        if assignment.studentScore >= assignment.scoreDistribution.median
+          ring: @goodRingColor
+          center: @goodCenterColor
+        else if assignment.studentScore >= assignment.scoreDistribution.firstQuartile
+          ring: @fairRingColor
+          center: @fairCenterColor
+        else
+          ring: @poorRingColor
+          center: @poorCenterColor
+      else
         ring: @goodRingColor
         center: @goodCenterColor
-      else if assignment.studentScore >= assignment.scoreDistribution.firstQuartile
-        ring: @fairRingColor
-        center: @fairCenterColor
-      else
-        ring: @poorRingColor
-        center: @poorCenterColor
 
     ##
     # Draw a muted assignment indicator
@@ -193,8 +201,10 @@ define [
           tooltip += "<br/>Score: #{delimit assignment.studentScore}"
         else if assignment.pointsPossible?
           tooltip += "<br/>Possible: #{delimit assignment.pointsPossible}"
-
       else if assignment.muted
         tooltip += "<br/>(muted)"
+      else if assignment.studentScore? && assignment.pointsPossible?
+        score = "#{delimit assignment.studentScore} / #{delimit assignment.pointsPossible}"
+        tooltip += "<br/>Score: #{score}"
 
       tooltip

@@ -36,7 +36,7 @@ module Analytics
         :muted => muted(assignment)
       }
 
-      unless muted(assignment)
+      unless muted(assignment) || suppressed_due_to_few_submissions(submissions)
         scores = Stats::Counter.new
         (submissions || []).each do |submission|
           scores << submission.score if submission.score
@@ -55,7 +55,7 @@ module Analytics
       if self.respond_to?(:extended_assignment_data)
         hash.merge!(extended_assignment_data(assignment, submissions))
       end
-
+      
       hash
     end
 
@@ -67,6 +67,10 @@ module Analytics
 
     def muted(assignment)
       !allow_student_details? && assignment.muted?
+    end
+
+    def suppressed_due_to_few_submissions(submissions)
+      !allow_student_details? && submissions.size < 5
     end
   end
 end
