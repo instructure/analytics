@@ -27,6 +27,11 @@ define [
     # The size of the date tick marks, in pixels.
     tickSize: 5
 
+    ##
+    # If any date is outside the bounds of the graph, we have a clipped date
+    clippedDate: false
+
+
   class DateAlignedGraph extends Base
     ##
     # Takes an element and options, same as for Base. Recognizes the options
@@ -73,16 +78,37 @@ define [
       @binX @dateBin date
 
     ##
+    # Given a datetime, return the floor and ceil as calculated by the binner
+    dateExtent: (datetime) ->
+      floor = @binner.reduce datetime
+      [floor, @binner.nextTick floor]
+
+    ##
+    # Given a datetime and a datetime range, return a number from 0.0 to 1.0
+    dateFraction: (datetime, floorDate, ceilDate) ->
+      deltaSeconds = datetime.getTime() - floorDate.getTime()
+      totalSeconds = ceilDate.getTime() - floorDate.getTime()
+      deltaSeconds / totalSeconds
+
+    ##
     # Convert a date to an intra-bin x-coordinate.
     dateX: (datetime) ->
-      floorDate = @binner.reduce datetime
-      ceilDate = @binner.nextTick floorDate
+      minX = @leftMargin
+      maxX = @leftMargin + @width
+
+      [floorDate, ceilDate] = @dateExtent(datetime) 
       floorX = @binnedDateX floorDate
-      if floorDate.equals datetime
-        floorX
-      else
-        ceilX = @binnedDateX ceilDate
-        fraction = (datetime.getTime() - floorDate.getTime()) / (ceilDate.getTime() - floorDate.getTime())
+      ceilX = @binnedDateX ceilDate
+
+      fraction = @dateFraction(datetime, floorDate, ceilDate)
+
+      if datetime.getTime() < @startDate.getTime() # out of range, left
+        @clippedDate = true
+        minX
+      else if datetime.getTime() > @endDate.getTime() # out of range, right
+        @clippedDate = true
+        maxX
+      else # in range
         floorX + fraction * (ceilX - floorX)
 
     ##

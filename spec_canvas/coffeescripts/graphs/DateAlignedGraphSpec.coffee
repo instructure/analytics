@@ -35,6 +35,26 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
     for example in examples
       tolerantEqual graph.dateX(example.date), example.expected
 
+  test 'dateX: values out of range', ->
+    startDate = new Date(2012, 0, 1) # Sunday
+    endDate = startDate.clone().addDays(5) # Monday
+    graph = new DateAlignedGraph @$el,
+      margin: 10
+      padding: 5
+      width: width
+      height: 100
+      startDate: startDate
+      endDate: endDate
+
+    leftOutOfBoundsDate = startDate.clone().addDays(-1)
+    rightOutOfBoundsDate = endDate.clone().addDays(1)
+    equal 10, graph.dateX(leftOutOfBoundsDate)
+    equal true, graph.clippedDate
+    graph.clippedDate = false
+
+    equal 110, graph.dateX(rightOutOfBoundsDate)
+    equal true, graph.clippedDate
+
   test 'drawDateAxis', ->
     startDate = new Date(2012, 0, 1) # Sunday
     endDate = startDate.clone().addDays(15) # Monday

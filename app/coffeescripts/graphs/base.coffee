@@ -102,6 +102,10 @@ define [
     # The color of the grid, if any. Not drawn if unset.
     gridColor: null
 
+    ##
+    # The color of the warning message, if any.
+    warningColor: 'red'
+
   class Base
     ##
     # Takes an element id on which to draw the graph and the options described
@@ -170,6 +174,11 @@ define [
       @paper.text(x, @topMargin + @height / 2, label).attr
         fill: @frameColor
         transform: 'r-90'
+
+    drawWarning: (label) ->
+      x = @leftMargin + @width / 2
+      @paper.text(x, @topPadding/2, label).attr
+        fill: @warningColor
 
     ##
     # Resets the graph.

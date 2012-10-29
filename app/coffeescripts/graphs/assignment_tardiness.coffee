@@ -54,6 +54,10 @@ define [
     # Diamond color for undated assignments.
     diamondColorUndated: "darkgray"
 
+    ##
+    # Message when dates fall outside bounds of graph
+    clippedWarningLabel: "Note: some items fall outside the start and/or end dates of the course"
+
   class AssignmentTardiness extends DateAlignedGraph
     ##
     # Takes an element and options, same as for DateAlignedGraph. Recognizes
@@ -87,6 +91,10 @@ define [
       @drawGrid assignments if @gridColor
       @drawYLabel "Assignments"
       _.each assignments, @graphAssignment
+
+      if @clippedDate
+        label = @clippedWarningLabel
+        @drawWarning label
 
     ##
     # Resize the graph vertically to accomodate the number of assigments.
