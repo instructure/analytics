@@ -9,26 +9,32 @@ class CachedGradeDistribution < ActiveRecord::Base
 
   def recalculate!
     Enrollment.send :with_exclusive_scope do
-      # only look at active or completed enrollments for real students
-      valid_student_enrollments = course.all_student_enrollments.
-        scoped(:conditions => { :type => 'StudentEnrollment', :workflow_state => ['active', 'completed'] })
-
-      # count up how many students got each integer score from 0 to 100
-      (0..100).each{ |score| update_score(score, 0) }
-      valid_student_enrollments.find(:all,
-        :select => 'COUNT(DISTINCT user_id) AS ct, ROUND(computed_current_score) AS score',
-        :group => 'ROUND(computed_current_score)').each do |row|
-        update_score(row.score.to_i, row.ct.to_i)
+      reset_score_counts 
+      grade_distribution_rows.each do |row|
+        update_score( row['score'].to_i, row['user_count'].to_i )
       end
     end
-
     save
   end
 
   private
+
+  def reset_score_counts
+    (0..100).each{ |score| update_score(score, 0) }
+  end
+
   def update_score(score, value)
     # ignore anomalous scores, we don't have columns for it
     return unless 0 <= score && score <= 100
     send("s#{score}=", value)
+  end
+
+  def grade_distribution_rows
+    grade_distribution_sql = course.all_student_enrollments.scoped({
+      :select => 'COUNT(DISTINCT user_id) AS user_count, ROUND(computed_current_score) AS score',
+      :conditions => { :type => 'StudentEnrollment', :workflow_state => ['active', 'completed'] },
+      :group => 'ROUND(computed_current_score)' }).construct_finder_sql({})
+      
+    self.class.connection.execute(grade_distribution_sql)
   end
 end
