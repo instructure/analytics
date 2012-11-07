@@ -83,12 +83,15 @@ module Analytics
         students = student_scope.paginate(:page => 1, :per_page => 50)
         summaries = {}
 
+        # count page views and participations by student
+        page_view_counts = PageView.counters_by_context_for_users(@course, students)
+
         # set up default summary per student
         students.each do |student|
           summaries[student.id] = {
             :id => student.id,
-            :page_views => 0,
-            :participations => 0,
+            :page_views => page_view_counts[student][:page_views],
+            :participations => page_view_counts[student][:participations],
             :tardiness_breakdown => {
               :total => 0,
               :on_time => 0,
@@ -96,18 +99,6 @@ module Analytics
               :missing => 0
             }
           }
-        end
-
-        # count page views and participations by student
-        PageView.counters_by_context_for_users(@course, students).each do |user, count|
-          summaries[user.id][:page_views] = count
-        end
-
-        asset_user_access_scope(student_ids).find(:all,
-                             :select => "user_id, COUNT(*) AS ct",
-                             :conditions => { :action_level => 'participate' },
-                             :group => "user_id").map do |row|
-          summaries[row.user_id.to_i][:participations] = row.ct.to_i
         end
 
         # reverse index to get already-queried-assignment given id
@@ -159,11 +150,6 @@ module Analytics
     def enrollment_scope
       @enrollment_scope ||= @course.enrollments_visible_to(@current_user, :include_priors => true).
         scoped(:conditions => { 'enrollments.workflow_state' => ['active', 'completed'] })
-    end
-
-    def asset_user_access_scope(student_ids=self.student_ids)
-      @asset_user_access_scope ||= @course.asset_user_accesses.
-        scoped(:conditions => { :user_id => student_ids })
     end
 
     def submission_scope(assignments, student_ids=self.student_ids)

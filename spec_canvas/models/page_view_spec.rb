@@ -127,6 +127,10 @@ describe PageView do
     end
   end
 
+  # these tests are not shared with the db tests above, because cassandra
+  # actually changes the behavior here -- it puts the counts in one-hour
+  # buckets instead of 24-hour buckets, to solve the problem of people viewing
+  # analytics from different timezones.
   describe ".counters_by_context_and_hour cassandra" do
     it_should_behave_like "analytics cassandra page views"
 
@@ -144,5 +148,42 @@ describe PageView do
       counts.size.should == 3
       counts.values.sum.should == 5
     end
+  end
+
+  shared_examples_for ".counters_by_context_for_users" do
+    before do
+      @user1 = student_in_course(:active_all => true).user
+      @user2 = student_in_course(:active_all => true).user
+    end
+
+    it "should return user total page views and participants counts" do
+      page_view(:user => @user1, :context => @course, :participated => true,  :created_at => 2.days.ago)
+      page_view(:user => @user1, :context => @course, :participated => false, :created_at => 15.months.ago)
+      page_view(:user => @user1, :context => @course, :participated => true,  :created_at => 1.hour.ago)
+      page_view(:user => @user1, :context => @course, :participated => true,  :created_at => 1.hour.ago)
+
+      page_view(:user => @user2, :context => @course, :participated => true,  :created_at => 1.day.ago)
+      page_view(:user => @user2, :context => @course, :participated => false, :created_at => 1.hour.ago)
+      page_view(:user => @user2, :context => @course, :participated => false, :created_at => 1.hour.ago)
+      page_view(:user => @user2, :context => @course, :participated => false, :created_at => 1.hour.ago)
+      page_view(:user => @user2, :context => @course, :participated => false, :created_at => 1.hour.ago)
+
+      counts = PageView.counters_by_context_for_users(@course, [@user1, @user2])
+      counts.should == { @user1 => { :page_views => 4, :participations => 3 },
+                         @user2 => { :page_views => 5, :participations => 1 },
+      }
+
+      # partial retrieval
+      PageView.counters_by_context_for_users(@course, [@user2]).should == { @user2 => counts[@user2] }
+    end
+  end
+
+  describe ".counters_by_context_for_users db" do
+    it_should_behave_like ".counters_by_context_for_users"
+  end
+
+  describe ".counters_by_context_for_users cassandra" do
+    it_should_behave_like ".counters_by_context_for_users"
+    it_should_behave_like "analytics cassandra page views"
   end
 end
