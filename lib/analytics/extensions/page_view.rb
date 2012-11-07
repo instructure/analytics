@@ -21,12 +21,16 @@ PageView.class_eval do
   def create_analytics_cassandra
     if PageView.cassandra?
       hour_bucket = PageView.hour_bucket_for_time(created_at)
+      counts_update = "page_view_count = page_view_count + 1"
+      if self.participated
+        counts_update += ", participation_count = participation_count + 1"
+      end
       if user
-        cassandra.execute("UPDATE page_views_counters_by_context_and_hour SET page_view_count = page_view_count + 1 WHERE context = ? AND hour_bucket = ?", user.global_asset_string, hour_bucket)
+        cassandra.execute("UPDATE page_views_counters_by_context_and_hour SET #{counts_update} WHERE context = ? AND hour_bucket = ?", user.global_asset_string, hour_bucket)
       end
       if context_type == 'Course' && context_id
-        cassandra.execute("UPDATE page_views_counters_by_context_and_hour SET page_view_count = page_view_count + 1 WHERE context = ? AND hour_bucket = ?", "#{context.global_asset_string}/#{user.global_asset_string}", hour_bucket)
-        cassandra.execute("UPDATE page_views_counters_by_context_and_user SET page_view_count = page_view_count + 1 WHERE context = ? AND user_id = ?", context.global_asset_string, user.global_id)
+        cassandra.execute("UPDATE page_views_counters_by_context_and_hour SET #{counts_update} WHERE context = ? AND hour_bucket = ?", "#{context.global_asset_string}/#{user.global_asset_string}", hour_bucket)
+        cassandra.execute("UPDATE page_views_counters_by_context_and_user SET #{counts_update} WHERE context = ? AND user_id = ?", context.global_asset_string, user.global_id)
       end
     end
     true
@@ -91,24 +95,43 @@ PageView.class_eval do
   end
 
   # Takes a context (right now, only a Course is valid), and a list of Users.
-  # Returns a hash of { user => page_view_count }
+  # Returns a hash of { user => { :page_views => count, :participations => count } }
   def self.counters_by_context_for_users(context, users)
     counters = {}
+    users.each do |user|
+      counters[user] = {
+        :page_views => 0,
+        :participations => 0
+      }
+    end
+
     if cassandra?
       id_map = users.inject({}) { |h,u| h[u.global_id.to_s] = u; h }
-      cassandra.execute("SELECT user_id, page_view_count FROM page_views_counters_by_context_and_user WHERE context = ?", context.global_asset_string).fetch do |row|
+      cassandra.execute("SELECT user_id, page_view_count, participation_count FROM page_views_counters_by_context_and_user WHERE context = ?", context.global_asset_string).fetch do |row|
         if user = id_map[row['user_id']]
-          counters[user] = row['page_view_count'].to_i
+          counters[user][:page_views] = row['page_view_count'].to_i
+          counters[user][:participations] = row['participation_count'].to_i
         end
       end
     else
       id_map = users.inject({}) { |h,u| h[u.id] = u; h }
-      self.for_context(context).for_users(users).all(:select => "user_id, COUNT(*) AS ct", :group => "user_id").each do |row|
-        if user = id_map[row.user_id]
-          counters[user] = row.ct.to_i
+
+      self.for_context(context).for_users(users).count(:group => :user_id).each do |user_id,count|
+        if user = id_map[user_id]
+          counters[user][:page_views] = count
+        end
+      end
+
+      context.asset_user_accesses.count(
+        :conditions => { :action_level => 'participate', :user_id => users },
+        :group => "user_id"
+      ).each do |user_id, count|
+        if user = id_map[user_id]
+          counters[user][:participations] = count
         end
       end
     end
+
     counters
   end
 
