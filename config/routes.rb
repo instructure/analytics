@@ -39,7 +39,7 @@ ActionController::Routing::Routes.draw do |map|
         analytics.course course_path + '', :action => 'course'
         api.get course_path + '/activity', :action => :course_participation
         api.get course_path + '/assignments', :action => :course_assignments
-        api.get course_path + '/student_summaries', :action => :course_student_summaries
+        api.get course_path + '/student_summaries', :action => :course_student_summaries, :path_name => 'course_student_summaries'
 
         # student in course
         analytics.student_in_course student_in_course_path, :action => 'student_in_course'

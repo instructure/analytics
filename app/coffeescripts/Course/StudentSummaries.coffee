@@ -10,14 +10,11 @@ define [
     constructor: (@course) ->
       @course.get('studentSummaries').loading = true
       @course.get('studentSummaries').truncated = false
-      super "/api/v1/courses/#{@course.get 'id'}/analytics/student_summaries"
+      super "/api/v1/courses/#{@course.get 'id'}/analytics/student_summaries?per_page=50"
 
     populate: (data) ->
       students = @course.get 'students'
       summaries = @course.get 'studentSummaries'
-
-      maxPageViews = _.max _.map data, (summary) -> summary.page_views
-      maxParticipations = _.max _.map data, (summary) -> summary.participations
 
       summaries.loading = false
       summaries.truncated = data.length < students.size()
@@ -25,10 +22,10 @@ define [
         student: students.get summary.id
         pageViews:
           count: summary.page_views
-          max: maxPageViews
+          max: summary.max_page_views
         participations:
           count: summary.participations
-          max: maxParticipations
+          max: summary.max_participations
         tardinessBreakdown:
           total: summary.tardiness_breakdown.total
           onTime: summary.tardiness_breakdown.on_time

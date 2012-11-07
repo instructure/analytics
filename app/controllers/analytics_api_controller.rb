@@ -253,6 +253,11 @@ class AnalyticsApiController < ApplicationController
   # breakdown of on-time/late status for all homework submissions in the course.
   # The data is returned as a list in lexical order on the student name.
   #
+  # Each student's summary also includes the maximum number of page views and
+  # participations by any student in the course, which may be useful for some
+  # visualizations (since determining maximums client side can be tricky with
+  # pagination).
+  #
   # NOTE: If there are more than 50 students in the course, this will only
   # return summaries for the first 50 students. This is for performance
   # reasons. In the near future, it will be paginated to allow you to request
@@ -291,7 +296,8 @@ class AnalyticsApiController < ApplicationController
   def course_student_summaries
     return unless require_analytics_for_course
     return unless authorized_action(@course, @current_user, [:manage_grades, :view_all_grades])
-    render :json => @course_analytics.student_summaries
+    @summaries = Api.paginate(@course_analytics.student_summaries, self, api_v1_course_student_summaries_url(@course))
+    render :json => @summaries
   end
 
   # @API Get user-in-a-course-level participation data

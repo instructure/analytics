@@ -2,11 +2,15 @@ require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/spec_hel
 
 describe AnalyticsApiController do
 
+  let(:params) { Hash.new }
   let(:controller) { AnalyticsApiController.new }
+
   before do
     controller.stubs(:api_request? => true,
                      :require_analytics_for_course => true,
-                     :render => "RENDERED!" )
+                     :render => "RENDERED!",
+                     :params => params,
+                     :api_v1_course_student_summaries_url => '/')
   end
 
   describe '#course_student_summaries' do
@@ -19,6 +23,7 @@ describe AnalyticsApiController do
       controller.instance_variable_set(:@current_user, user)
       controller.instance_variable_set(:@course_analytics, analytics)
       controller.instance_variable_set(:@course, course)
+      Api.stubs(:paginate)
     end
 
     describe 'when the user can manage_grades' do
@@ -42,7 +47,7 @@ describe AnalyticsApiController do
 
       it 'does not render the json' do
         controller.expects(:render_unauthorized_action).with(course)
-        controller.course_student_summaries.should_not == "RENDERED!" 
+        controller.course_student_summaries.should_not == "RENDERED!"
       end
     end
 

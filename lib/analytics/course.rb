@@ -79,61 +79,43 @@ module Analytics
     end
 
     def student_summaries
-      slaved(:cache_as => :student_summaries) do
-        students = student_scope.paginate(:page => 1, :per_page => 50)
-        summaries = {}
+      # course global counts (by student) and maxima
+      # we have to select the entire course here, because we need to calculate
+      # the max over the whole course not just the students the pagination is
+      # returning.
+      page_view_counts = self.page_views_by_student
+      # Normally I'd just use .values.max_by here, but there can be enough
+      # values in this hash that I hate constructing those new arrays.
+      # once we drop 1.8 support, we could use lazy enumerators.
+      max_page_views = max_participations = 0
+      page_view_counts.each do |user, counts|
+        page_views = counts[:page_views]
+        participations = counts[:participations]
+        max_page_views = page_views if max_page_views < page_views
+        max_participations = participations if max_participations < participations
+      end
 
-        # count page views and participations by student
-        page_view_counts = PageView.counters_by_context_for_users(@course, students)
+      return PaginatedCollection.build do |pager|
+        # select the students we're going to display
+        students = slaved { student_scope.paginate(:page => pager.current_page, :per_page => pager.per_page) }
 
-        # set up default summary per student
-        students.each do |student|
-          summaries[student.id] = {
+        # and summarize each of them
+        students.map! do |student|
+          {
             :id => student.id,
             :page_views => page_view_counts[student][:page_views],
+            :max_page_views => max_page_views,
             :participations => page_view_counts[student][:participations],
-            :tardiness_breakdown => {
-              :total => 0,
-              :on_time => 0,
-              :late => 0,
-              :missing => 0
-            }
+            :max_participations => max_participations,
+            :tardiness_breakdown => tardiness_breakdown(student)
           }
         end
+      end
+    end
 
-        # reverse index to get already-queried-assignment given id
-        assignments = assignment_scope.all
-        assignments_by_id = {}
-        assignments.each do |assignment|
-          assignments_by_id[assignment.id] = assignment
-        end
-
-        # assume each due assignment is missing as the baseline 
-        due_assignment_count = assignments.select{ |a| a.due_at && a.due_at <= Time.zone.now }.size
-        student_ids.each do |student_id|
-          summaries[student_id][:tardiness_breakdown][:total] = assignments.size
-          summaries[student_id][:tardiness_breakdown][:missing] = due_assignment_count
-        end
-
-        # for each submission...
-        submission_scope(assignments, student_ids).each do |submission|
-          assignment = assignments_by_id[submission.assignment_id]
-          if submitted_at = submission_date(assignment, submission)
-            breakdown = summaries[submission.user_id][:tardiness_breakdown]
-            due_at = assignment.due_at
-            if due_at && due_at <= Time.zone.now
-              # shift "missing" to either "late" or "on time"
-              breakdown[:missing] -= 1
-              breakdown[submitted_at <= due_at ? :on_time : :late] += 1
-            else
-              # add new "on time" (that was never considered "missing")
-              breakdown[:on_time] += 1
-            end
-          end
-        end
-
-        # unpack hash in the order given by students
-        students.map{ |student| summaries[student.id] }
+    def page_views_by_student
+      slaved(:cache_as => :page_views_by_student) do
+        PageView.counters_by_context_for_users(@course, students)
       end
     end
 
@@ -168,6 +150,47 @@ module Analytics
         User.scoped(
           :select => "users.*, enrollments.computed_current_score",
           :joins => "INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id=users.id").order_by_sortable_name
+      end
+    end
+
+    def raw_assignments
+      slaved(:cache_as => :raw_assignments) do
+        assignment_scope.all
+      end
+    end
+
+    def tardiness_breakdown(student)
+      slaved(:cache_as => [:tardiness_breakdown, student]) do
+        # reverse index to get already-queried-assignment given id
+        assignments = raw_assignments
+        assignments_by_id = {}
+        assignments.each{ |assignment| assignments_by_id[assignment.id] = assignment }
+
+        # assume each due assignment is missing as the baseline
+        breakdown = {
+          :total => assignments.size,
+          :missing => assignments.select(&:overdue?).size,
+          :on_time => 0,
+          :late => 0
+        }
+
+        # for each submission...
+        submission_scope(assignments, [student.id]).each do |submission|
+          assignment = assignments_by_id[submission.assignment_id]
+          if submitted_at = submission_date(assignment, submission)
+            if assignment.overdue?
+              # shift "missing" to either "late" or "on time"
+              breakdown[:missing] -= 1
+              breakdown[submitted_at > assignment.due_at ? :late : :on_time] += 1
+            else
+              # add new "on time" (that was never considered "missing")
+              breakdown[:on_time] += 1
+            end
+          end
+        end
+
+        # done
+        breakdown
       end
     end
   end
