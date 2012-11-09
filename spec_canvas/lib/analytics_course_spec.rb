@@ -548,9 +548,36 @@ describe Analytics::Course do
     it_should_behave_like "analytics cassandra page views"
     it_should_behave_like "#student_summaries"
   end
-end
 
-Spec::Runner.configure do |config|
+  describe '#page_views_by_student' do
+    it 'delegates to the PageView' do
+      PageView.stubs(:counters_by_context_for_users => { 1 => 2 } )
+      @teacher_analytics.page_views_by_student.should == { 1 => 2 }
+    end
+
+    it 'passes the course and students array to the page view' do
+      PageView.expects(:counters_by_context_for_users).with(@course, @teacher_analytics.students).returns {}
+      @teacher_analytics.page_views_by_student
+    end
+  end
+
+  describe '#order_and_paginate_by_score' do
+    before do
+      User.delete_all
+      @enrollments = Array.new(3) { active_student }
+      @assigned_scores = [40, 20, 60]
+      @assigned_scores.zip( @enrollments ).each { |score, enrollment| enrollment.update_attribute(:computed_current_score, score) }
+    end
+
+    let(:pager) { stub(:current_page => 1, :per_page => 10) }
+
+    it 'orders the students by enrollment score' do
+      students = @teacher_analytics.order_and_paginate_by_score( User.scoped(:include => :enrollments), pager)
+      scores = students.map { |s| s.enrollments.first.computed_current_score }
+      scores.should == @assigned_scores.sort
+    end
+  end
+
   def student(opts={})
     course = opts[:course] || @course
 
@@ -650,4 +677,5 @@ Spec::Runner.configure do |config|
     expected[:total] = 1
     student_summary[:tardiness_breakdown].should == expected
   end
+
 end

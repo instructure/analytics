@@ -42,7 +42,7 @@ module Analytics
     end
 
     def students
-      slaved(:cache_as => :students) { student_scope.all }
+      slaved(:cache_as => :students) { student_scope.order_by_sortable_name.all }
     end
 
     def student_ids
@@ -78,35 +78,67 @@ module Analytics
       { :tardiness_breakdown => breakdown }
     end
 
-    def student_summaries
+    def order_and_paginate_by_name(scope, pager)
+      scope.order_by_sortable_name.
+        paginate(:page => pager.current_page, :per_page => pager.per_page)
+    end
+
+    def order_and_paginate_by_score(scope, pager)
+      scope.scoped(:order => "enrollments.computed_current_score").
+        paginate(:page => pager.current_page, :per_page => pager.per_page)
+    end
+
+    def order_and_paginate_by_participations(scope, pager)
+      #TODO
+      scope.
+        paginate(:page => pager.current_page, :per_page => pager.per_page)
+    end
+
+    def order_and_paginate_by_page_views(scope, pager)
+      #TODO
+      scope.
+        paginate(:page => pager.current_page, :per_page => pager.per_page)
+    end
+
+    KNOWN_SORT_COLUMNS = [:name, :score, :participations, :page_views]
+    DEFAULT_SORT_COLUMN = :name
+
+    def student_summaries(sort_column=nil)
+      # normalize sort column
+      sort_column = nil unless KNOWN_SORT_COLUMNS.include?(sort_column)
+      sort_column ||= DEFAULT_SORT_COLUMN
+
       # course global counts (by student) and maxima
       # we have to select the entire course here, because we need to calculate
       # the max over the whole course not just the students the pagination is
       # returning.
       page_view_counts = self.page_views_by_student
-      # Normally I'd just use .values.max_by here, but there can be enough
-      # values in this hash that I hate constructing those new arrays.
-      # once we drop 1.8 support, we could use lazy enumerators.
-      max_page_views = max_participations = 0
-      page_view_counts.each do |user, counts|
-        page_views = counts[:page_views]
-        participations = counts[:participations]
-        max_page_views = page_views if max_page_views < page_views
-        max_participations = participations if max_participations < participations
-      end
+      analysis = PageViewAnalysis.new( page_view_counts )
 
       return PaginatedCollection.build do |pager|
         # select the students we're going to display
-        students = slaved { student_scope.paginate(:page => pager.current_page, :per_page => pager.per_page) }
+        scope = student_scope
+        students = slaved do
+          case sort_column
+          when :name
+            order_and_paginate_by_name(scope, pager)
+          when :score
+            order_and_paginate_by_score(scope, pager)
+          when :participations
+            order_and_paginate_by_participations(scope, pager)
+          when :page_views
+            order_and_paginate_by_page_views(scope, pager)
+          end
+        end
 
         # and summarize each of them
         students.map! do |student|
           {
             :id => student.id,
             :page_views => page_view_counts[student][:page_views],
-            :max_page_views => max_page_views,
+            :max_page_views => analysis.max_page_views,
             :participations => page_view_counts[student][:participations],
-            :max_participations => max_participations,
+            :max_participations => analysis.max_participations,
             :tardiness_breakdown => tardiness_breakdown(student)
           }
         end
@@ -149,7 +181,7 @@ module Analytics
         subselect = enrollment_scope.scoped(:select => 'DISTINCT user_id, computed_current_score').construct_finder_sql({})
         User.scoped(
           :select => "users.*, enrollments.computed_current_score",
-          :joins => "INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id=users.id").order_by_sortable_name
+          :joins => "INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id=users.id")
       end
     end
 

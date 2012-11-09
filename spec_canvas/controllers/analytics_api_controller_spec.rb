@@ -17,7 +17,7 @@ describe AnalyticsApiController do
 
     let(:course) { FakeCourse.new( permission ) }
     let(:user) { stub_everything() }
-    let(:analytics) { stub_everything() }
+    let(:analytics) { stub_everything(:student_summaries => ['summary1']) }
 
     before do
       controller.instance_variable_set(:@current_user, user)
@@ -31,6 +31,17 @@ describe AnalyticsApiController do
 
       it 'renders the json' do
         controller.course_student_summaries.should == "RENDERED!"
+      end
+
+      it 'passes a sort_column down to the analytics engine if one is present' do
+        params[:sort_column] = 'score'
+        analytics.expects(:student_summaries).with('score')
+        controller.course_student_summaries
+      end
+
+      it 'paginates the summaries' do
+        Api.expects(:paginate).with(['summary1'], controller, '/')
+        controller.course_student_summaries
       end
     end
 
