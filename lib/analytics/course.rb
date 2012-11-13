@@ -135,9 +135,9 @@ module Analytics
         students.map! do |student|
           {
             :id => student.id,
-            :page_views => page_view_counts[student][:page_views],
+            :page_views => page_view_counts[student.id][:page_views],
             :max_page_views => analysis.max_page_views,
-            :participations => page_view_counts[student][:participations],
+            :participations => page_view_counts[student.id][:participations],
             :max_participations => analysis.max_participations,
             :tardiness_breakdown => tardiness_breakdown(student)
           }
@@ -147,7 +147,7 @@ module Analytics
 
     def page_views_by_student
       slaved(:cache_as => :page_views_by_student) do
-        PageView.counters_by_context_for_users(@course, students)
+        PageView.counters_by_context_for_users(@course, student_ids)
       end
     end
 

@@ -94,40 +94,43 @@ PageView.class_eval do
     counts
   end
 
-  # Takes a context (right now, only a Course is valid), and a list of Users.
-  # Returns a hash of { user => { :page_views => count, :participations => count } }
-  def self.counters_by_context_for_users(context, users)
+  # Takes a context (right now, only a Course is valid), and a list of User
+  # ids. Returns a hash of { user_id => { :page_views => count, :participations => count } }
+  def self.counters_by_context_for_users(context, user_ids)
     counters = {}
-    users.each do |user|
-      counters[user] = {
+    user_ids.each do |id|
+      counters[id] = {
         :page_views => 0,
         :participations => 0
       }
     end
 
     if cassandra?
-      id_map = users.inject({}) { |h,u| h[u.global_id.to_s] = u; h }
+      id_map = user_ids.inject({}) { |h,id| h[Shard.global_id_for(id).to_s] = id; h }
       cassandra.execute("SELECT user_id, page_view_count, participation_count FROM page_views_counters_by_context_and_user WHERE context = ?", context.global_asset_string).fetch do |row|
-        if user = id_map[row['user_id']]
-          counters[user][:page_views] = row['page_view_count'].to_i
-          counters[user][:participations] = row['participation_count'].to_i
+        if id = id_map[row['user_id']]
+          counters[id][:page_views] = row['page_view_count'].to_i
+          counters[id][:participations] = row['participation_count'].to_i
         end
       end
     else
-      id_map = users.inject({}) { |h,u| h[u.id] = u; h }
+      # map ids relative to current shard (user_ids) to ids relative to the
+      # context's shard (id_map.keys). do the lookups on the context's shard,
+      # and map the ids back to those relative to the current shard when
+      # populating counters
+      id_map = user_ids.inject({}) { |h,id| h[Shard.relative_id_for(id, context.shard)] = id; h }
 
-      self.for_context(context).for_users(users).count(:group => :user_id).each do |user_id,count|
-        if user = id_map[user_id]
-          counters[user][:page_views] = count
+      context.shard.activate do
+        self.for_context(context).for_users(id_map.keys).count(:group => :user_id).each do |relative_user_id,count|
+          if id = id_map[relative_user_id]
+            counters[id][:page_views] = count
+          end
         end
-      end
 
-      context.asset_user_accesses.count(
-        :conditions => { :action_level => 'participate', :user_id => users },
-        :group => "user_id"
-      ).each do |user_id, count|
-        if user = id_map[user_id]
-          counters[user][:participations] = count
+        context.asset_user_accesses.participations.for_user(id_map.keys).count(:group => :user_id).each do |relative_user_id, count|
+          if id = id_map[relative_user_id]
+            counters[id][:participations] = count
+          end
         end
       end
     end

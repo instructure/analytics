@@ -168,13 +168,13 @@ describe PageView do
       page_view(:user => @user2, :context => @course, :participated => false, :created_at => 1.hour.ago)
       page_view(:user => @user2, :context => @course, :participated => false, :created_at => 1.hour.ago)
 
-      counts = PageView.counters_by_context_for_users(@course, [@user1, @user2])
-      counts.should == { @user1 => { :page_views => 4, :participations => 3 },
-                         @user2 => { :page_views => 5, :participations => 1 },
+      counts = PageView.counters_by_context_for_users(@course, [@user1.id, @user2.id])
+      counts.should == { @user1.id => { :page_views => 4, :participations => 3 },
+                         @user2.id => { :page_views => 5, :participations => 1 },
       }
 
       # partial retrieval
-      PageView.counters_by_context_for_users(@course, [@user2]).should == { @user2 => counts[@user2] }
+      PageView.counters_by_context_for_users(@course, [@user2.id]).should == { @user2.id => counts[@user2.id] }
     end
   end
 

@@ -15,7 +15,7 @@ module Analytics
     end
 
     def hash
-      @hash ||= page_view_counts.inject({ :max_page_views => 0, :max_participations => 0 }) do |hsh, (user, counts)|
+      @hash ||= page_view_counts.inject({ :max_page_views => 0, :max_participations => 0 }) do |hsh, (id, counts)|
         page_views = counts[:page_views]
         participations = counts[:participations]
         hsh[:max_page_views] = page_views if hsh[:max_page_views] < page_views
