@@ -538,6 +538,56 @@ describe Analytics::Course do
         end
       end
     end
+
+    describe "sorting and pagination" do
+      before :each do
+        @enrollments = Array.new(3) { active_student }
+
+        @names = ['Student 1', 'Student 3', 'Student 2']
+        @scores = [60, 20, 40]
+        @page_view_counts = {
+          @enrollments[0].user_id => { :participations => 40, :page_views => 120 },
+          @enrollments[1].user_id => { :participations => 20, :page_views => 140 },
+          @enrollments[2].user_id => { :participations => 60, :page_views => 160 },
+        }
+
+        3.times{ |i| @enrollments[i].user.update_attribute(:sortable_name, @names[i]) }
+        3.times{ |i| @enrollments[i].update_attribute(:computed_current_score, @scores[i]) }
+        PageView.stubs(:counters_by_context_for_users).returns(@page_view_counts)
+      end
+
+      it 'should return a paginatable collection' do
+        @teacher_analytics.student_summaries.should respond_to(:paginate)
+      end
+
+      it 'should sort by name by default' do
+        summaries = @teacher_analytics.student_summaries.paginate(:page => 1, :per_page => 3)
+        summaries.map{ |s| s[:id] }.should == @enrollments.map(&:user).sort_by(&:sortable_name).map(&:id)
+      end
+
+      it 'should sort by name for unrecognized sorts' do
+        summaries = @teacher_analytics.student_summaries(nil).paginate(:page => 1, :per_page => 3)
+        summaries.map{ |s| s[:id] }.should == @enrollments.map(&:user).sort_by(&:sortable_name).map(&:id)
+
+        summaries = @teacher_analytics.student_summaries(:bogus).paginate(:page => 1, :per_page => 3)
+        summaries.map{ |s| s[:id] }.should == @enrollments.map(&:user).sort_by(&:sortable_name).map(&:id)
+      end
+
+      it 'should sort by score for :score parameter' do
+        summaries = @teacher_analytics.student_summaries(:score).paginate(:page => 1, :per_page => 3)
+        summaries.map{ |s| s[:id] }.should == @enrollments.sort_by(&:computed_current_score).map(&:user_id)
+      end
+
+      it 'should sort by page views for :page_views parameter' do
+        summaries = @teacher_analytics.student_summaries(:page_views).paginate(:page => 1, :per_page => 3)
+        summaries.map{ |s| s[:id] }.should == @page_view_counts.keys.sort_by{ |id| @page_view_counts[id][:page_views] }
+      end
+
+      it 'should sort by participations for :participations parameter' do
+        summaries = @teacher_analytics.student_summaries(:participations).paginate(:page => 1, :per_page => 3)
+        summaries.map{ |s| s[:id] }.should == @page_view_counts.keys.sort_by{ |id| @page_view_counts[id][:participations] }
+      end
+    end
   end
 
   describe "#student_summaries db" do
@@ -575,6 +625,90 @@ describe Analytics::Course do
       students = @teacher_analytics.order_and_paginate_by_score( User.scoped(:include => :enrollments), pager)
       scores = students.map { |s| s.enrollments.first.computed_current_score }
       scores.should == @assigned_scores.sort
+    end
+  end
+
+  describe '#order_and_paginate_by_participations' do
+    before do
+      User.delete_all
+      @enrollments = Array.new(3) { active_student }
+      @page_view_counts = {
+        @enrollments[0].user_id => { :participations => 40, :page_views => 100 },
+        @enrollments[1].user_id => { :participations => 20, :page_views => 100 },
+        @enrollments[2].user_id => { :participations => 60, :page_views => 100 },
+      }
+      @expected_sort = [1, 0, 2].map{ |i| @enrollments[i].user }
+      @pager = PaginatedCollection::Collection.new
+      @pager.current_page = 1
+      @pager.per_page = 10
+    end
+
+    it 'should order the students by participations' do
+      students = @teacher_analytics.order_and_paginate_by_participations(User, @pager, @page_view_counts)
+      students.should == @expected_sort
+    end
+
+    it 'should respect pagination' do
+      @pager.per_page = 1
+      3.times do |i|
+        @pager.current_page = i + 1
+        students = @teacher_analytics.order_and_paginate_by_participations(User, @pager, @page_view_counts)
+        students.should == @expected_sort[i, 1]
+      end
+    end
+
+    it 'should handle accidental pagination past the end' do
+      @pager.current_page = 4
+      @pager.per_page = 1
+      students = @teacher_analytics.order_and_paginate_by_participations(User, @pager, @page_view_counts)
+      students.should == []
+    end
+
+    it 'should return a WillPaginate-style object' do
+      students = @teacher_analytics.order_and_paginate_by_participations(User, @pager, @page_view_counts)
+      students.should respond_to(:current_page)
+    end
+  end
+
+  describe '#order_and_paginate_by_page_views' do
+    before do
+      User.delete_all
+      @enrollments = Array.new(3) { active_student }
+      @page_view_counts = {
+        @enrollments[0].user_id => { :page_views => 40, :participations => 10 },
+        @enrollments[1].user_id => { :page_views => 20, :participations => 10 },
+        @enrollments[2].user_id => { :page_views => 60, :participations => 10 },
+      }
+      @expected_sort = [1, 0, 2].map{ |i| @enrollments[i].user }
+      @pager = PaginatedCollection::Collection.new
+      @pager.current_page = 1
+      @pager.per_page = 10
+    end
+
+    it 'should order the students by page views' do
+      students = @teacher_analytics.order_and_paginate_by_page_views(User, @pager, @page_view_counts)
+      students.should == @expected_sort
+    end
+
+    it 'should respect pagination' do
+      @pager.per_page = 1
+      3.times do |i|
+        @pager.current_page = i + 1
+        students = @teacher_analytics.order_and_paginate_by_page_views(User, @pager, @page_view_counts)
+        students.should == @expected_sort[i, 1]
+      end
+    end
+
+    it 'should handle accidental pagination past the end' do
+      @pager.current_page = 4
+      @pager.per_page = 1
+      students = @teacher_analytics.order_and_paginate_by_page_views(User, @pager, @page_view_counts)
+      students.should == []
+    end
+
+    it 'should return a WillPaginate-style object' do
+      students = @teacher_analytics.order_and_paginate_by_page_views(User, @pager, @page_view_counts)
+      students.should respond_to(:current_page)
     end
   end
 

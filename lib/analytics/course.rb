@@ -88,16 +88,20 @@ module Analytics
         paginate(:page => pager.current_page, :per_page => pager.per_page)
     end
 
-    def order_and_paginate_by_participations(scope, pager)
-      #TODO
-      scope.
-        paginate(:page => pager.current_page, :per_page => pager.per_page)
+    def order_and_paginate_by_participations(scope, pager, counts)
+      order_and_paginate_by_filter(scope, pager) { |id| counts[id][:participations] }
     end
 
-    def order_and_paginate_by_page_views(scope, pager)
-      #TODO
-      scope.
-        paginate(:page => pager.current_page, :per_page => pager.per_page)
+    def order_and_paginate_by_page_views(scope, pager, counts)
+      order_and_paginate_by_filter(scope, pager) { |id| counts[id][:page_views] }
+    end
+
+    def order_and_paginate_by_filter(scope, pager)
+      sorted_ids = student_ids.sort_by{ |id| [(yield id), id] }
+      paged_ids = sorted_ids[(pager.current_page - 1) * pager.per_page, pager.per_page] || []
+      paged_students = scope.scoped(:conditions => {:id => paged_ids})
+      student_map = paged_students.inject({}) { |h,student| h[student.id] = student; h }
+      pager.replace paged_ids.map{ |id| student_map[id] }
     end
 
     KNOWN_SORT_COLUMNS = [:name, :score, :participations, :page_views]
@@ -125,9 +129,9 @@ module Analytics
           when :score
             order_and_paginate_by_score(scope, pager)
           when :participations
-            order_and_paginate_by_participations(scope, pager)
+            order_and_paginate_by_participations(scope, pager, page_view_counts)
           when :page_views
-            order_and_paginate_by_page_views(scope, pager)
+            order_and_paginate_by_page_views(scope, pager, page_view_counts)
           end
         end
 
