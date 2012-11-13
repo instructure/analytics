@@ -10,8 +10,6 @@ module Analytics
       end
     end
 
-  private
-
     def assignment_scope
       # would be nicer if this could be
       # @course.assignments.active.scoped(:order => ...), but the
@@ -27,14 +25,7 @@ module Analytics
     def assignment_data(assignment, submissions)
       submissions ||= []
 
-      hash = {
-        :assignment_id => assignment.id,
-        :title => assignment.title,
-        :unlock_at => assignment.unlock_at,
-        :due_at => assignment.due_at,
-        :points_possible => assignment.points_possible,
-        :muted => muted(assignment)
-      }
+      hash = basic_assignment_hash(assignment).merge(:muted => muted(assignment) )
 
       unless muted(assignment) || suppressed_due_to_few_submissions(submissions)
         scores = Stats::Counter.new
@@ -55,8 +46,16 @@ module Analytics
       if self.respond_to?(:extended_assignment_data)
         hash.merge!(extended_assignment_data(assignment, submissions))
       end
-      
+
       hash
+    end
+
+    def basic_assignment_hash(assignment)
+      { :assignment_id => assignment.id,
+        :title => assignment.title,
+        :unlock_at => assignment.unlock_at,
+        :due_at => assignment.due_at,
+        :points_possible => assignment.points_possible }
     end
 
     def submission_date(assignment, submission)

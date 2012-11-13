@@ -105,6 +105,11 @@ module Analytics
       @course.grants_rights?(@current_user, @session, :manage_grades, :view_all_grades).values.any?
     end
 
+    #overriding this from Assignments to account for Variable Due Dates
+    def basic_assignment_hash(assignment)
+      super.merge( :due_at => VariedDueDate.due_at_for?( assignment, @student ) )
+    end
+
   private
 
     def cache_prefix
