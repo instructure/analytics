@@ -78,40 +78,7 @@ module Analytics
       { :tardiness_breakdown => breakdown }
     end
 
-    def order_and_paginate_by_name(scope, pager)
-      scope.order_by_sortable_name.
-        paginate(:page => pager.current_page, :per_page => pager.per_page)
-    end
-
-    def order_and_paginate_by_score(scope, pager)
-      scope.scoped(:order => "enrollments.computed_current_score").
-        paginate(:page => pager.current_page, :per_page => pager.per_page)
-    end
-
-    def order_and_paginate_by_participations(scope, pager, counts)
-      order_and_paginate_by_filter(scope, pager) { |id| counts[id][:participations] }
-    end
-
-    def order_and_paginate_by_page_views(scope, pager, counts)
-      order_and_paginate_by_filter(scope, pager) { |id| counts[id][:page_views] }
-    end
-
-    def order_and_paginate_by_filter(scope, pager)
-      sorted_ids = student_ids.sort_by{ |id| [(yield id), id] }
-      paged_ids = sorted_ids[(pager.current_page - 1) * pager.per_page, pager.per_page] || []
-      paged_students = scope.scoped(:conditions => {:id => paged_ids})
-      student_map = paged_students.inject({}) { |h,student| h[student.id] = student; h }
-      pager.replace paged_ids.map{ |id| student_map[id] }
-    end
-
-    KNOWN_SORT_COLUMNS = [:name, :score, :participations, :page_views]
-    DEFAULT_SORT_COLUMN = :name
-
     def student_summaries(sort_column=nil)
-      # normalize sort column
-      sort_column = nil unless KNOWN_SORT_COLUMNS.include?(sort_column)
-      sort_column ||= DEFAULT_SORT_COLUMN
-
       # course global counts (by student) and maxima
       # we have to select the entire course here, because we need to calculate
       # the max over the whole course not just the students the pagination is
@@ -119,34 +86,22 @@ module Analytics
       page_view_counts = self.page_views_by_student
       analysis = PageViewAnalysis.new( page_view_counts )
 
-      return PaginatedCollection.build do |pager|
-        # select the students we're going to display
-        scope = student_scope
-        students = slaved do
-          case sort_column
-          when :name
-            order_and_paginate_by_name(scope, pager)
-          when :score
-            order_and_paginate_by_score(scope, pager)
-          when :participations
-            order_and_paginate_by_participations(scope, pager, page_view_counts)
-          when :page_views
-            order_and_paginate_by_page_views(scope, pager, page_view_counts)
-          end
-        end
-
-        # and summarize each of them
-        students.map! do |student|
-          {
-            :id => student.id,
-            :page_views => page_view_counts[student.id][:page_views],
-            :max_page_views => analysis.max_page_views,
-            :participations => page_view_counts[student.id][:participations],
-            :max_participations => analysis.max_participations,
-            :tardiness_breakdown => tardiness_breakdown(student)
-          }
-        end
+      # wrap up the students for pagination, and then tell it how to sort them
+      # and format them
+      collection = Analytics::StudentCollection.new(student_scope)
+      collection.sort_by(sort_column, :page_view_counts => page_view_counts)
+      collection.format do |student|
+        {
+          :id => student.id,
+          :page_views => page_view_counts[student.id][:page_views],
+          :max_page_views => analysis.max_page_views,
+          :participations => page_view_counts[student.id][:participations],
+          :max_participations => analysis.max_participations,
+          :tardiness_breakdown => tardiness_breakdown(student)
+        }
       end
+
+      collection
     end
 
     def page_views_by_student
