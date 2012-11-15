@@ -75,6 +75,16 @@ define [
       _.each assignments, @graphAssignment
 
     ##
+    # given an assignment, what's the max score possible/achieved so far?
+    maxAssignmentScore: (assignment) ->
+      if assignment.pointsPossible?
+        assignment.pointsPossible
+      else if assignment.scoreDistribution?
+        assignment.scoreDistribution.maxScore
+      else
+        0
+
+    ##
     # Choose appropriate sizes for the graph elements based on number of
     # assignments and maximum score being graphed.
     scaleToAssignments: (assignments) ->
@@ -83,8 +93,8 @@ define [
 
       # top of max bar = @topMargin + @topPadding
       # base of bars = @topMargin + @height - @bottomPadding
-      maxScores = (a.pointsPossible ? a.scoreDistribution?.maxScore for a in assignments)
-      
+      maxScores = (@maxAssignmentScore(a) for a in assignments)
+
       max = Math.max(maxScores...)
       max = 1 unless max? && max > 0
       @pointSpacing = (@height - @topPadding - @bottomPadding) / max
