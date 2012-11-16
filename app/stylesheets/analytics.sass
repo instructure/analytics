@@ -1,4 +1,5 @@
 @import environment.sass
+@import "bootstrap/tables"
 
 div#analytics_body
   .status_green
@@ -194,30 +195,20 @@ div#analytics_body
   position: relative
 
 #students
-  table
-    width: 100%
+  th
+    font-weight: normal
+    font-size: 17px
 
-  tr
-    // colors.grid
-    border-top: 1px solid #cccccc
-    &:nth-child(odd)
-      td
-        background: #f9f9f9
-    &:hover
-      td
-        background: #eee
+    // 5px from table-condensed padding, 50px from the rule below
+    &.student
+      padding-left: 55px
 
-  th, td
-    padding: 3px 0
-
+  td
     > div
       margin: 0
       padding: 2px 10px
       height: 30px
       line-height: 30px
-
-  th
-    font-size: 17px
 
   .student
     text-align: left
