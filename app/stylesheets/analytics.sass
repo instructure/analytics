@@ -210,6 +210,32 @@ div#analytics_body
       height: 30px
       line-height: 30px
 
+  th > span.sortable
+    padding-right: 20px
+    cursor: pointer
+    background: url(/images/tablesorter/bg.png) no-repeat right center
+
+    &:hover
+      background-image: url(/images/tablesorter/bg_hover.png)
+
+    &.headerSortDown
+      background-image: url(/images/tablesorter/asc.gif)
+
+    &.headerSortUp
+      background-image: url(/images/tablesorter/desc.gif)
+
+  th.page_views, th.participations
+    > span.sortable
+      padding-left: 20px
+
+  // it would be nice to have these determined by the presence of the
+  // sortable class on the related span, but I don't know how to do that
+  th.current_score
+    padding-right: 0
+
+  td .current_score
+    padding-right: 20px
+
   .student
     text-align: left
 

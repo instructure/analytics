@@ -1,14 +1,19 @@
 module Analytics
-  class StudentCollection < PaginatedCollection::Proxy
+  class StudentCollection
     attr_reader :sort_strategy, :formatter
 
     def initialize(scope)
       @sort_strategy = SortStrategy::Default.new
-      super proc{ |pager|
+      @formatter = nil
+      @collection = PaginatedCollection.build do |pager|
         pager = Analytics::Slave.slaved{ @sort_strategy.paginate(scope, pager) }
         pager.map!{ |student| @formatter.call(student) } if @formatter
         pager
-      }
+      end
+    end
+
+    def paginate(options = {})
+      @collection.paginate(options)
     end
 
     def sort_by(sort_column, options={})
@@ -60,10 +65,18 @@ module Analytics
         end
 
         def paginate(scope, pager)
+          set_pages(pager)
           paged_ids = @sorted_ids[(pager.current_page - 1) * pager.per_page, pager.per_page]
           paged_students = scope.scoped(:conditions => {:id => paged_ids})
           student_map = paged_students.inject({}) { |h,student| h[student.id] = student; h }
           pager.replace paged_ids.map{ |id| student_map[id] }
+        end
+
+        def set_pages(pager)
+          pager.current_page = (pager.current_page || 1).to_i
+          pager.previous_page = pager.current_page > 1 ? pager.current_page - 1 : nil
+          pager.next_page = pager.current_page * pager.per_page < @sorted_ids.size ? pager.current_page + 1 : nil
+          pager.total_entries = (@sorted_ids.size / pager.per_page.to_f).ceil
         end
       end
 

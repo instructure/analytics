@@ -11,6 +11,7 @@ define [
       super
       @course = @options.course
       @contextAssetString = @course.asset_string()
+      @options.params ?= {}
 
     parse: (response) ->
       super
@@ -28,3 +29,7 @@ define [
           onTime: summary.tardiness_breakdown.on_time
           late: summary.tardiness_breakdown.late
           missing: summary.tardiness_breakdown.missing
+
+    setSortKey: (sortKey) =>
+      @options.params.sort_column = sortKey
+      @fetch()
