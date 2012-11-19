@@ -4,8 +4,7 @@ define [
   'analytics/compiled/Course/StudentSummaryCollection'
   'analytics/compiled/Course/ParticipationData'
   'analytics/compiled/Course/AssignmentData'
-  'analytics/compiled/Course/StudentSummaries'
-], (Backbone, StudentCollection, StudentSummaryCollection, ParticipationData, AssignmentData, StudentSummaries) ->
+], (Backbone, StudentCollection, StudentSummaryCollection, ParticipationData, AssignmentData) ->
 
   class CourseModel extends Backbone.Model
     initialize: ->
@@ -13,7 +12,7 @@ define [
         participation: new ParticipationData this
         assignments: new AssignmentData this
 
-      # if there's student info (only iff they user viewing the page has
+      # if there's student info (only iff the user viewing the page has
       # permission to view their details), package it up in a collection and
       # start loading the summaries
       if students = @get 'students'
@@ -21,5 +20,8 @@ define [
         students.each (student) => student.set course: this
         @set
           students: students
-          studentSummaries: new StudentSummaryCollection
-        new StudentSummaries this
+          studentSummaries: new StudentSummaryCollection([], course: this)
+        @get('studentSummaries').fetch()
+
+    asset_string: ->
+      "course_#{@get 'id'}"

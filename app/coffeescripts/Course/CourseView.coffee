@@ -3,12 +3,12 @@ define [
   'underscore'
   'Backbone'
   'analytics/jst/course'
-  'analytics/compiled/Course/StudentSummaryView'
+  'analytics/compiled/Course/StudentSummariesView'
   'analytics/compiled/graphs/page_views'
   'analytics/compiled/graphs/grades'
   'analytics/compiled/graphs/finishing_assignments_course'
   'analytics/compiled/graphs/colors'
-], ($, _, Backbone, template, StudentSummaryView, PageViews, Grades, FinishingAssignmentsCourse, colors) ->
+], ($, _, Backbone, template, StudentSummariesView, PageViews, Grades, FinishingAssignmentsCourse, colors) ->
 
   class CourseView extends Backbone.View
     initialize: ->
@@ -24,14 +24,11 @@ define [
 
       # this will be defined iff the user viewing the page has permission to
       # view student details
-      @summaries = @model.get('studentSummaries')
-
-      if @summaries?
-        # re-render summaries when they finish loading
-        @$students = @$('#students tbody.rows')
-        @$loading = @$('#students .loading')
-        @$truncated = @$('#students .truncated')
-        @summaries.on 'reset', @renderSummaries
+      summaries = @model.get('studentSummaries')
+      if summaries?
+        @studentSummaries = new StudentSummariesView
+          el: @$('#students')[0]
+          collection: summaries
       else
         # remove student summary framework
         @$('#students').remove()
@@ -48,20 +45,9 @@ define [
       @pageViews.graph participation
       @finishing.graph assignments
       @grades.graph assignments
-      @renderSummaries()
 
-    renderSummaries: =>
-      return unless @summaries
-
-      # add all the summarized students to the table
-      @$students.empty()
-      @summaries.each (summary) =>
-        view = new StudentSummaryView model: summary
-        @$students.append view.$el
-
-      # show loading or truncation messages as appropriate
-      @$loading.showIf @summaries.loading
-      @$truncated.showIf @summaries.truncated
+      # render the student summaries
+      @studentSummaries?.render()
 
     setupGraphs: ->
       graphOpts =
