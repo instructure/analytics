@@ -215,7 +215,9 @@ define [
     # Build the text for the assignment's tooltip.
     tooltip: (assignment) ->
       tooltip = assignment.title
-      if assignment.dueAt?
+      if assignment.multipleDueDates
+        tooltip += "<br/>Due: Multiple Due Dates"
+      else if assignment.dueAt?
         dueAtString = I18n.t 'time.due_date',
           date: I18n.l('date.formats.medium', assignment.dueAt)
           time: I18n.l('time.formats.tiny', assignment.dueAt)

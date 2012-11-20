@@ -90,24 +90,31 @@ module Analytics
       end
     end
 
+    def my_submission(submissions)
+      submissions.detect{ |s| s.user_id == @student.id }
+    end
+
+    # Overriding this from Assignments to account for Variable Due Dates
+    def basic_assignment_data(assignment)
+      super.merge( :due_at => varied_due_date( assignment, @student ).due_at )
+    end
+
     def extended_assignment_data(assignment, submissions)
-      if submission = submissions.detect{ |s| s.user_id == @student.id }
-        return :submission => {
-          :score => muted(assignment) ? nil : submission.score,
-          :submitted_at => submission_date(assignment, submission)
+      if s = my_submission(submissions)
+        asd = assignment_submission_date(assignment, @student, s)
+        return {
+          :submission => {
+            :score => muted(assignment) ? nil : s.score,
+            :submitted_at => asd.submission_date
+          }
         }
       else
-        {}
+        return {}
       end
     end
 
     def allow_student_details?
       @course.grants_rights?(@current_user, @session, :manage_grades, :view_all_grades).values.any?
-    end
-
-    #overriding this from Assignments to account for Variable Due Dates
-    def basic_assignment_hash(assignment)
-      super.merge( :due_at => VariedDueDate.due_at_for?( assignment, @student ) )
     end
 
   private

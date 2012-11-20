@@ -161,6 +161,7 @@ shared_examples_for "analytics tests" do
 
   def validate_analytics_icons_exist(exist = true)
     get "/courses/#{@course.id}/users"
+    wait_for_ajaximations
     if !exist
       ff(ANALYTICS_BUTTON_CSS).should be_empty
     else

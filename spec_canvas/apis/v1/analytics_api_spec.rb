@@ -134,6 +134,7 @@ describe "Analytics API", :type => :integration do
         "due_at" => nil,
         "points_possible" => 0,
         "muted" => false,
+        "multiple_due_dates" => false,
         "submission" => {
           "submitted_at" => @submitted_at.iso8601,
           "score" => 9

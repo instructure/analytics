@@ -6,7 +6,9 @@ module Analytics
       slaved(:cache_as => [:assignments, allow_student_details?]) do
         assignments = assignment_scope.all
         submissions = submissions(assignments).group_by{ |s| s.assignment_id }
-        assignments.map{ |assignment| assignment_data(assignment, submissions[assignment.id]) }
+        assignments.map do |assignment|
+          assignment_data(assignment, submissions[assignment.id])
+        end
       end
     end
 
@@ -25,7 +27,8 @@ module Analytics
     def assignment_data(assignment, submissions)
       submissions ||= []
 
-      hash = basic_assignment_hash(assignment).merge(:muted => muted(assignment) )
+      hash = basic_assignment_data(assignment).
+        merge(:muted => muted(assignment))
 
       unless muted(assignment) || suppressed_due_to_few_submissions(submissions) || suppressed_due_to_course_setting
         scores = Stats::Counter.new
@@ -50,18 +53,24 @@ module Analytics
       hash
     end
 
-    def basic_assignment_hash(assignment)
-      { :assignment_id => assignment.id,
+    def basic_assignment_data(assignment)
+      { 
+        :assignment_id => assignment.id,
         :title => assignment.title,
         :unlock_at => assignment.unlock_at,
-        :due_at => assignment.due_at,
-        :points_possible => assignment.points_possible }
+        :points_possible => assignment.points_possible,
+        :multiple_due_dates => false # can be overridden in submodules
+      }
     end
 
-    def submission_date(assignment, submission)
-      return submission.submitted_at if submission.submitted_at.present?
-      return assignment.due_at if assignment.due_at.present? && !assignment.submittable_type? && submission.graded?
-      return submission.graded_at
+    # Mostly for test stubs
+    def varied_due_date(assignment, user)
+      VariedDueDate.new(assignment, user)
+    end
+
+    # Mostly for test stubs
+    def assignment_submission_date(assignment, user, submission)
+      AssignmentSubmissionDate.new(assignment, user, submission)
     end
 
     def muted(assignment)

@@ -16,6 +16,9 @@ define [ 'analytics/compiled/BaseData' ], (BaseData) ->
           muted: original.muted
           original: original
 
+        if original.multiple_due_dates?
+          assignment.multipleDueDates = original.multiple_due_dates
+
         if original.due_at?
           assignment.dueAt = Date.parse(original.due_at)
 

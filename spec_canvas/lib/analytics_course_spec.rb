@@ -10,6 +10,47 @@ describe Analytics::Course do
     Setting.set('enable_page_views', 'db')
   end
 
+  describe "extended_assignment_data" do
+    let(:aug1) { Time.local(2012, 8, 1) }
+    let(:sep1) { Time.local(2012, 9, 1) }
+    let(:oct1) { Time.local(2012, 10, 1) }
+
+    describe "with assignment having multiple due dates" do
+      let(:assignment) do
+        enrollment = active_student # sets @student
+        add_section("Section") # sets @course_section
+        enrollment.course_section = @course_section
+        enrollment.save!
+        @course.assignments.active.create! do |assignment|
+          assignment.due_at = sep1
+
+          override = AssignmentOverride.new
+          override.assignment = assignment
+          override.set = @course_section
+          override.due_at = oct1
+          override.due_at_overridden = true
+          override.save!
+        end
+      end
+      describe "when viewed by a teacher" do
+        it "multiple_due_dates flag is true" do
+          VariedDueDate.new(assignment, @teacher).multiple?.should be_true
+          analytics = Analytics::Course.new(@teacher, nil, @course)
+          data = analytics.basic_assignment_data(assignment)
+          data[:multiple_due_dates].should be_true
+        end
+      end
+      describe "when viewed by a student" do
+        it "multiple_due_dates flag is false" do
+          VariedDueDate.new(assignment, @student).multiple?.should be_false
+          analytics = Analytics::Course.new(@student, nil, @course)
+          data = analytics.basic_assignment_data(assignment)
+          data[:multiple_due_dates].should be_false
+        end
+      end
+    end
+  end
+
   describe "caching" do
     before :each do
       active_student
@@ -61,6 +102,42 @@ describe Analytics::Course do
     end
   end
 
+  describe "page views" do
+    describe "#page_views" do
+      before :each do
+        active_student
+      end
+
+      it "should include student's page views in the course" do
+        page_view(:user => @student, :course => @course)
+        @teacher_analytics.participation.should_not be_empty
+      end
+
+      it "should include teacher's page views in the course" do
+        page_view(:user => @teacher, :course => @course)
+        @teacher_analytics.participation.should_not be_empty
+      end
+
+      it "should not include student's page views from outside the course" do
+        @other_course = course(:active_course => true)
+        page_view(:user => @student, :course => @other_course)
+        @teacher_analytics.participation.should be_empty
+      end
+    end
+
+    describe '#page_views_by_student' do
+      it 'delegates to the PageView' do
+        PageView.stubs(:counters_by_context_for_users => { 1 => 2 } )
+        @teacher_analytics.page_views_by_student.should == { 1 => 2 }
+      end
+
+      it 'passes the course and students array to the page view' do
+        PageView.expects(:counters_by_context_for_users).with(@course, @teacher_analytics.students).returns {}
+        @teacher_analytics.page_views_by_student
+      end
+    end
+  end
+
   describe "#enrollments" do
     it "should not include non-student enrollments from the course" do
       @teacher_analytics.enrollments.should_not include(@teacher_enrollment)
@@ -105,7 +182,7 @@ describe Analytics::Course do
     end
   end
 
-  describe ".available_for?(user, session, course)" do
+  describe "#available_for?(user, session, course)" do
     it "should be true with an active enrollment in the course" do
       active_student
       Analytics::Course.available_for?(@teacher, nil, @course).should be_true
@@ -249,28 +326,6 @@ describe Analytics::Course do
     end
   end
 
-  describe "#page_views" do
-    before :each do
-      active_student
-    end
-
-    it "should include student's page views in the course" do
-      page_view(:user => @student, :course => @course)
-      @teacher_analytics.participation.should_not be_empty
-    end
-
-    it "should include teacher's page views in the course" do
-      page_view(:user => @teacher, :course => @course)
-      @teacher_analytics.participation.should_not be_empty
-    end
-
-    it "should not include student's page views from outside the course" do
-      @other_course = course(:active_course => true)
-      page_view(:user => @student, :course => @other_course)
-      @teacher_analytics.participation.should be_empty
-    end
-  end
-
   describe "#assignments" do
     before :each do
       @assignment = @course.assignments.active.create!
@@ -386,7 +441,7 @@ describe Analytics::Course do
             @assignment.due_at = 1.day.from_now
             @assignment.save!
 
-            expect_assignment_breakdown(:none)
+            expect_assignment_breakdown(:none, :total => 1)
           end
         end
       end
@@ -408,223 +463,163 @@ describe Analytics::Course do
         end
 
         it "should not count a student that hasn't submitted anything nor been graded" do
-          expect_assignment_breakdown(:none)
+          expect_assignment_breakdown(:none, :total => 1)
         end
       end
     end
   end
 
-  shared_examples_for "#student_summaries" do
-    describe "a student's summary" do
-      before :each do
-        active_student
-      end
-
-      it "should count page_views for that student" do
-        page_view(:user => @student, :course => @course)
-        student_summary[:page_views].should == 1
-      end
-
-      it "should count participations for that student" do
-        view = page_view(:user => @student, :course => @course, :participated => true)
-        student_summary[:participations].should == 1
-      end
-
-      describe ":tardiness_breakdown" do
-        it "should include the number of assignments" do
-          5.times{ @course.assignments.active.create! }
-          student_summary[:tardiness_breakdown][:total].should == 5
-        end
-
-        it "should have appropriate data per student" do
-          @student1 = @student
+  describe "student summaries" do
+    shared_examples_for "#student_summaries" do
+      describe "a student's summary" do
+        before :each do
           active_student
-          @student2 = @student
-
-          @assignment = @course.assignments.active.create!(:due_at => 1.day.ago)
-          @submission1 = @assignment.submissions.create!(:user => @student1)
-          @submission2 = @assignment.submissions.create!(:user => @student2)
-
-          submit_submission(:submission => @submission1, :submitted_at => @assignment.due_at - 1.day)
-          submit_submission(:submission => @submission2, :submitted_at => @assignment.due_at + 1.day)
-
-          @summaries = @teacher_analytics.student_summaries.paginate(:page => 1, :per_page => 2)
-          @summaries[0][:tardiness_breakdown].should == expected_breakdown(:on_time).merge(:total => 1)
-          @summaries[1][:tardiness_breakdown].should == expected_breakdown(:late).merge(:total => 1)
         end
 
-        context "an assignment that has a due date" do
-          before :each do
-            @assignment = @course.assignments.active.create!
-            @submission = @assignment.submissions.create!(:user => @student)
+        it "should count page_views for that student" do
+          page_view(:user => @student, :course => @course)
+          student_summary[:page_views].should == 1
+        end
 
-            @assignment.due_at = 1.day.ago
-            @assignment.save!
+        it "should count participations for that student" do
+          view = page_view(:user => @student, :course => @course, :participated => true)
+          student_summary[:participations].should == 1
+        end
+
+        describe ":tardiness_breakdown" do
+          it "should include the number of assignments" do
+            5.times{ @course.assignments.active.create! }
+            student_summary[:tardiness_breakdown][:total].should == 5
           end
 
-          context "when the student submitted something" do
-            before :each do
-              submit_submission
-            end
+          it "should have appropriate data per student" do
+            @student1 = @student
+            active_student
+            @student2 = @student
 
-            it "should count as on time if submitted on or before the due date" do
-              @submission.submitted_at = @assignment.due_at - 1.day
-              @submission.save!
+            @assignment = @course.assignments.active.create!(:due_at => 1.day.ago)
+            @submission1 = @assignment.submissions.create!(:user => @student1)
+            @submission2 = @assignment.submissions.create!(:user => @student2)
 
-              expect_summary_breakdown(:on_time)
-            end
+            submit_submission(:submission => @submission1, :submitted_at => @assignment.due_at - 1.day)
+            submit_submission(:submission => @submission2, :submitted_at => @assignment.due_at + 1.day)
 
-            it "should count as late if submitted after the due date" do
-              @submission.submitted_at = @assignment.due_at + 1.day
-              @submission.save!
-
-              expect_summary_breakdown(:late)
-            end
+            # require 'debug'
+            @summaries = @teacher_analytics.student_summaries.paginate(:page => 1, :per_page => 2)
+            @summaries[0][:tardiness_breakdown].should == expected_breakdown(:on_time).merge(:total => 1)
+            @summaries[1][:tardiness_breakdown].should == expected_breakdown(:late).merge(:total => 1)
           end
 
-          context "when the student hasn't submitted anything but was graded" do
+          context "an assignment that has a due date" do
             before :each do
-              grade_submission
-            end
+              @assignment = @course.assignments.active.create!
+              @submission = @assignment.submissions.create!(:user => @student)
 
-            it "should count as on time when the assignment does not expect a submission" do
-              @assignment.submission_types = 'none'
+              @assignment.due_at = 1.day.ago
               @assignment.save!
-
-              expect_summary_breakdown(:on_time)
             end
 
-            context "when the assignment expects a submission" do
+            context "when the student submitted something" do
               before :each do
-                @assignment.submission_types = 'online_text_entry'
-                @assignment.save!
+                submit_submission
               end
 
-              it "should count as on time if graded on or before due_at" do
-                @submission.graded_at = @assignment.due_at - 1.day
+              it "should count as on time if submitted on or before the due date" do
+                @submission.submitted_at = @assignment.due_at - 1.day
                 @submission.save!
 
                 expect_summary_breakdown(:on_time)
               end
 
-              it "should count as late if graded after due_at" do
-                @submission.graded_at = @assignment.due_at + 1.day
+              it "should count as late if submitted after the due date" do
+                @submission.submitted_at = @assignment.due_at + 1.day
                 @submission.save!
 
                 expect_summary_breakdown(:late)
               end
             end
-          end
 
-          context "when the student hasn't submitted anything nor been graded" do
-            it "should count as missing if the due date is in the past" do
-              @assignment.due_at = 1.day.ago
-              @assignment.save!
+            context "when the student hasn't submitted anything but was graded" do
+              before :each do
+                grade_submission
+              end
 
-              expect_summary_breakdown(:missing)
+              it "should count as on time when the assignment does not expect a submission" do
+                @assignment.submission_types = 'none'
+                @assignment.save!
+
+                expect_summary_breakdown(:on_time)
+              end
+
+              context "when the assignment expects a submission" do
+                before :each do
+                  @assignment.submission_types = 'online_text_entry'
+                  @assignment.save!
+                end
+
+                it "should count as on time if graded on or before due_at" do
+                  @submission.graded_at = @assignment.due_at - 1.day
+                  @submission.save!
+
+                  expect_summary_breakdown(:on_time)
+                end
+
+                it "should count as late if graded after due_at" do
+                  @submission.graded_at = @assignment.due_at + 1.day
+                  @submission.save!
+
+                  expect_summary_breakdown(:late)
+                end
+              end
             end
 
-            it "should not count if the due date is in the future" do
-              @assignment.due_at = 1.day.from_now
-              @assignment.save!
+            context "when the student hasn't submitted anything nor been graded" do
+              it "should count as missing if the due date is in the past" do
+                @assignment.due_at = 1.day.ago
+                @assignment.save!
 
+                expect_summary_breakdown(:missing)
+              end
+
+              it "should not count if the due date is in the future" do
+                @assignment.due_at = 1.day.from_now
+                @assignment.save!
+
+                expect_summary_breakdown(:none)
+              end
+            end
+          end
+
+          context "an assignment that has no due date" do
+            before :each do
+              @assignment = @course.assignments.active.create!
+              @submission = @assignment.submissions.create!(:user => @student)
+            end
+
+            it "should count as on time when the student submitted something" do
+              submit_submission(:submitted_at => 1.day.ago)
+              expect_summary_breakdown(:on_time)
+            end
+
+            it "should count as on time when the student hasn't submitted anything but was graded" do
+              grade_submission
+              expect_summary_breakdown(:on_time)
+            end
+
+            it "should not count when the student that hasn't submitted anything nor been graded" do
               expect_summary_breakdown(:none)
             end
           end
         end
-
-        context "an assignment that has no due date" do
-          before :each do
-            @assignment = @course.assignments.active.create!
-            @submission = @assignment.submissions.create!(:user => @student)
-          end
-
-          it "should count as on time when the student submitted something" do
-            submit_submission(:submitted_at => 1.day.ago)
-            expect_summary_breakdown(:on_time)
-          end
-
-          it "should count as on time when the student hasn't submitted anything but was graded" do
-            grade_submission
-            expect_summary_breakdown(:on_time)
-          end
-
-          it "should not count when the student that hasn't submitted anything nor been graded" do
-            expect_summary_breakdown(:none)
-          end
-        end
       end
     end
-
-    describe "sorting and pagination" do
-      before :each do
-        @enrollments = Array.new(3) { active_student }
-
-        @names = ['Student 1', 'Student 3', 'Student 2']
-        @scores = [60, 20, 40]
-        @page_view_counts = {
-          @enrollments[0].user_id => { :participations => 40, :page_views => 120 },
-          @enrollments[1].user_id => { :participations => 20, :page_views => 140 },
-          @enrollments[2].user_id => { :participations => 60, :page_views => 160 },
-        }
-
-        3.times{ |i| @enrollments[i].user.update_attribute(:sortable_name, @names[i]) }
-        3.times{ |i| @enrollments[i].update_attribute(:computed_current_score, @scores[i]) }
-        PageView.stubs(:counters_by_context_for_users).returns(@page_view_counts)
-      end
-
-      it 'should return a paginatable collection' do
-        @teacher_analytics.student_summaries.should respond_to(:paginate)
-      end
-
-      it 'should sort by name by default' do
-        summaries = @teacher_analytics.student_summaries.paginate(:page => 1, :per_page => 3)
-        summaries.map{ |s| s[:id] }.should == @enrollments.map(&:user).sort_by(&:sortable_name).map(&:id)
-      end
-
-      it 'should sort by name for unrecognized sorts' do
-        summaries = @teacher_analytics.student_summaries(nil).paginate(:page => 1, :per_page => 3)
-        summaries.map{ |s| s[:id] }.should == @enrollments.map(&:user).sort_by(&:sortable_name).map(&:id)
-
-        summaries = @teacher_analytics.student_summaries(:bogus).paginate(:page => 1, :per_page => 3)
-        summaries.map{ |s| s[:id] }.should == @enrollments.map(&:user).sort_by(&:sortable_name).map(&:id)
-      end
-
-      it 'should sort by score for :score parameter' do
-        summaries = @teacher_analytics.student_summaries(:score).paginate(:page => 1, :per_page => 3)
-        summaries.map{ |s| s[:id] }.should == @enrollments.sort_by(&:computed_current_score).map(&:user_id)
-      end
-
-      it 'should sort by page views for :page_views parameter' do
-        summaries = @teacher_analytics.student_summaries(:page_views).paginate(:page => 1, :per_page => 3)
-        summaries.map{ |s| s[:id] }.should == @page_view_counts.keys.sort_by{ |id| @page_view_counts[id][:page_views] }
-      end
-
-      it 'should sort by participations for :participations parameter' do
-        summaries = @teacher_analytics.student_summaries(:participations).paginate(:page => 1, :per_page => 3)
-        summaries.map{ |s| s[:id] }.should == @page_view_counts.keys.sort_by{ |id| @page_view_counts[id][:participations] }
-      end
-    end
-  end
-
-  describe "#student_summaries db" do
-    it_should_behave_like "#student_summaries"
-  end
-
-  describe "#student_summaries cassandra" do
-    it_should_behave_like "analytics cassandra page views"
-    it_should_behave_like "#student_summaries"
-  end
-
-  describe '#page_views_by_student' do
-    it 'delegates to the PageView' do
-      PageView.stubs(:counters_by_context_for_users => { 1 => 2 } )
-      @teacher_analytics.page_views_by_student.should == { 1 => 2 }
+    describe "#student_summaries db" do
+      it_should_behave_like "#student_summaries"
     end
 
-    it 'passes the course and students array to the page view' do
-      PageView.expects(:counters_by_context_for_users).with(@course, @teacher_analytics.students).returns {}
-      @teacher_analytics.page_views_by_student
+    describe "#student_summaries cassandra" do
+      it_should_behave_like "analytics cassandra page views"
+      it_should_behave_like "#student_summaries"
     end
   end
 
@@ -714,13 +709,24 @@ describe Analytics::Course do
   end
 
   def expected_breakdown(bin)
-    expected = { :on_time => 0, :late => 0, :missing => 0 }
-    expected[bin] = 1 unless bin == :none
+    expected = { :on_time => 0, :late => 0, :missing => 0, :total => 0 }
+    if bin != :none
+      expected[bin] = 1
+      expected[:total] = 1
+    end
     expected
   end
 
-  def expect_assignment_breakdown(bin)
-    @teacher_analytics.assignments.first[:tardiness_breakdown].should == expected_breakdown(bin)
+  def expect_assignment_breakdown(bin, opts={})
+    breakdown = @teacher_analytics.assignments.first[:tardiness_breakdown]
+    expected = expected_breakdown(bin)
+
+    if opts.has_key? :total
+      expected[:total] = opts[:total]
+    end
+
+    breakdown.should == expected
+    breakdown
   end
 
   def expect_summary_breakdown(bin)

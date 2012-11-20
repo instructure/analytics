@@ -62,20 +62,27 @@ module Analytics
 
     include Analytics::Assignments
 
+    def varied_due_date(assignment, user)
+      VariedDueDate.new(assignment, user)
+    end
+
+    def tardiness_breakdown(assignment_id, total)
+      tardiness_grid.tally(:assignment, assignment_id).
+          as_hash_scaled(total).merge(:total => total)
+    end
+
+    # Overriding this from Assignments to account for Variable Due Dates
+    def basic_assignment_data(assignment)
+      vdd = varied_due_date( assignment, @current_user )
+      super.merge(
+        :due_at => vdd.due_at,
+        :multiple_due_dates => vdd.multiple?
+      )
+    end
+
     def extended_assignment_data(assignment, submissions)
-      breakdown = { :on_time => 0, :late => 0, :missing => 0 }
-      submitted_ats = submissions.map{ |s| submission_date(assignment, s) }.compact
-      total = student_ids.size.to_f
-
-      if assignment.due_at && assignment.due_at <= Time.zone.now
-        breakdown[:on_time] = submitted_ats.select{ |s| s <= assignment.due_at }.size / total
-        breakdown[:late] = submitted_ats.select{ |s| s > assignment.due_at }.size / total
-        breakdown[:missing] = 1 - breakdown[:on_time] - breakdown[:late]
-      else
-        breakdown[:on_time] = submitted_ats.size / total
-      end
-
-      { :tardiness_breakdown => breakdown }
+      return :tardiness_breakdown =>
+        tardiness_breakdown(assignment.id, student_ids.size)
     end
 
     def student_summaries(sort_column=nil)
@@ -97,7 +104,10 @@ module Analytics
           :max_page_views => analysis.max_page_views,
           :participations => page_view_counts[student.id][:participations],
           :max_participations => analysis.max_participations,
-          :tardiness_breakdown => tardiness_breakdown(student)
+          :tardiness_breakdown => tardiness_grid.
+            tally(:student, student.id).
+            as_hash.
+            merge(:total => tardiness_grid.assignments.size)
         }
       end
 
@@ -128,7 +138,9 @@ module Analytics
     def submissions(assignments, student_ids=self.student_ids)
       @course.shard.activate do
         Submission.
-          scoped(:select => "assignment_id, score, user_id, submission_type, submitted_at, graded_at, updated_at, workflow_state").
+          scoped(:select =>
+            "id, assignment_id, score, user_id, submission_type, " +
+            "submitted_at, graded_at, updated_at, workflow_state").
           scoped(:conditions => { :assignment_id => assignments.map(&:id) }).
           scoped(:conditions => { :user_id => student_ids }).
           all
@@ -151,39 +163,16 @@ module Analytics
       end
     end
 
-    def tardiness_breakdown(student)
-      slaved(:cache_as => [:tardiness_breakdown, student]) do
-        # reverse index to get already-queried-assignment given id
-        assignments = raw_assignments
-        assignments_by_id = {}
-        assignments.each{ |assignment| assignments_by_id[assignment.id] = assignment }
-
-        # assume each due assignment is missing as the baseline
-        breakdown = {
-          :total => assignments.size,
-          :missing => assignments.select(&:overdue?).size,
-          :on_time => 0,
-          :late => 0
-        }
-
-        # for each submission...
-        submissions(assignments, [student.id]).each do |submission|
-          assignment = assignments_by_id[submission.assignment_id]
-          if submitted_at = submission_date(assignment, submission)
-            if assignment.overdue?
-              # shift "missing" to either "late" or "on time"
-              breakdown[:missing] -= 1
-              breakdown[submitted_at > assignment.due_at ? :late : :on_time] += 1
-            else
-              # add new "on time" (that was never considered "missing")
-              breakdown[:on_time] += 1
-            end
-          end
+    # Create a cached, memoized TardinessGrid object that will allow us to
+    # tally tardiness scores by student or by assignment
+    def tardiness_grid
+      @tardiness_grid ||=
+        slaved(:cache_as => :tardiness_breakdown) do
+          assignments = raw_assignments
+          students = student_scope.all
+          # We call prebuild, which memoizes the grid and returns self
+          TardinessGrid.new(assignments, students, submissions(assignments)).prebuild
         end
-
-        # done
-        breakdown
-      end
     end
   end
 end
