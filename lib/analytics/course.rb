@@ -110,13 +110,13 @@ module Analytics
 
         # assume each due assignment is missing as the baseline 
         due_assignment_count = assignments.select{ |a| a.due_at && a.due_at <= Time.zone.now }.size
-        student_ids.each do |student_id|
-          summaries[student_id][:tardiness_breakdown][:total] = assignments.size
-          summaries[student_id][:tardiness_breakdown][:missing] = due_assignment_count
+        students.each do |student|
+          summaries[student.id][:tardiness_breakdown][:total] = assignments.size
+          summaries[student.id][:tardiness_breakdown][:missing] = due_assignment_count
         end
 
         # for each submission...
-        submission_scope(assignments, student_ids).each do |submission|
+        submission_scope(assignments, students.map(&:id)).each do |submission|
           assignment = assignments_by_id[submission.assignment_id]
           if submitted_at = submission_date(assignment, submission)
             breakdown = summaries[submission.user_id][:tardiness_breakdown]
