@@ -7,11 +7,6 @@ class PageViewsRollup < ActiveRecord::Base
 
   belongs_to :course
 
-  named_scope :for_course, lambda{ |course|
-    course_id = course.instance_of?(Course) ? course.id : course
-    { :conditions => { :course_id => course_id } }
-  }
-
   named_scope :for_dates, lambda{ |date_range|
     { :conditions => { :date => date_range } }
   }
@@ -26,18 +21,29 @@ class PageViewsRollup < ActiveRecord::Base
   end
 
   def self.bin_for(course, date, category)
-    course_id = course.instance_of?(Course) ? course.id : course
     category = category.to_s
 
-    bin = self.
-      for_course(course_id).
+    if course.instance_of?(Course)
+      scope = course.page_views_rollups
+    else
+      course_id, shard = Shard.local_id_for(course)
+      shard ||= Shard.current
+      scope = self.scoped(:shard => shard, :conditions => { :course_id => course_id })
+    end
+
+    bin = scope.
       for_dates(date).
       for_category(category).
       first
 
     unless bin
-      bin = self.new
-      bin.course_id = course_id
+      if course.instance_of?(Course)
+        bin = scope.build
+      else
+        bin = self.new
+        bin.shard = shard
+        bin.course_id = course
+      end
       bin.date = date
       bin.category = category
       bin.views = 0

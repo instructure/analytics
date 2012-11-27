@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/sharding_spec_helper')
 
 describe PageViewsRollup do
   def create_rollup(opts={})
@@ -8,25 +8,6 @@ describe PageViewsRollup do
     rollup.category = opts[:category]
     rollup.save unless opts[:no_save]
     rollup
-  end
-
-  describe ".for_course" do
-    it "should include all and only rollups for that course" do
-      course1 = course_model
-      course2 = course_model
-      rollup1 = create_rollup(:course => course1, :date => Date.today - 1.day, :category => 'other')
-      rollup2 = create_rollup(:course => course1, :date => Date.today - 2.days, :category => 'other')
-      rollup3 = create_rollup(:course => course2, :date => Date.today - 1.day, :category => 'other')
-      PageViewsRollup.for_course(course1).should include(rollup1)
-      PageViewsRollup.for_course(course1).should include(rollup2)
-      PageViewsRollup.for_course(course1).should_not include(rollup3)
-    end
-
-    it "should work with id as argument" do
-      course = course_model
-      rollup = create_rollup(:course => course, :date => Date.today, :category => 'other')
-      PageViewsRollup.for_course(course.id).should include(rollup)
-    end
   end
 
   describe ".for_dates" do
@@ -126,6 +107,47 @@ describe PageViewsRollup do
 
       it "should not reset participations" do
         @existing.participations.should == @initial.participations
+      end
+    end
+
+    context "sharding" do
+      it_should_behave_like "sharding"
+
+      context "new bin" do
+        it "should return a bin on the correct shard given an AR object" do
+          @shard1.activate do
+            bin = PageViewsRollup.bin_for(@course, @today, @category)
+            bin.shard.should == @course.shard
+            bin.course_id.should == @course.id
+          end
+        end
+
+        it "should return a bin on the correct shard given a non-local id" do
+          @shard1.activate do
+            bin = PageViewsRollup.bin_for(@course.id, @today, @category)
+            bin.shard.should == @course.shard
+            bin.course_id.should == @course.id
+          end
+        end
+      end
+
+      context "existing bin" do
+        before do
+          @existing = PageViewsRollup.bin_for(@course, @today, @category)
+          @existing.save!
+        end
+
+        it "should return the correct bin given an AR object" do
+          @shard1.activate do
+            PageViewsRollup.bin_for(@course, @today, @category).should == @existing
+          end
+        end
+
+        it "should return the correct bin given a non-local id" do
+          @shard1.activate do
+            PageViewsRollup.bin_for(@course.id, @today, @category).should == @existing
+          end
+        end
       end
     end
   end
