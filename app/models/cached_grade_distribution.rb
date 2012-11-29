@@ -11,7 +11,7 @@ class CachedGradeDistribution < ActiveRecord::Base
     Enrollment.send :with_exclusive_scope do
       reset_score_counts 
       grade_distribution_rows.each do |row|
-        update_score( row['score'].to_i, row['user_count'].to_i )
+        update_score( row[1].to_i, row[0].to_i )
       end
     end
     save
@@ -35,6 +35,6 @@ class CachedGradeDistribution < ActiveRecord::Base
       :conditions => { :type => 'StudentEnrollment', :workflow_state => ['active', 'completed'] },
       :group => 'ROUND(computed_current_score)' }).construct_finder_sql({})
       
-    self.class.connection.execute(grade_distribution_sql)
+    self.class.connection.select_rows(grade_distribution_sql)
   end
 end
