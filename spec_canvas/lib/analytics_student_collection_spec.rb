@@ -65,9 +65,10 @@ describe Analytics::StudentCollection do
   end
 
   describe 'sort strategies' do
+    let(:enrollment_count) { 3 }
     before :each do
       @course = Course.create! # no teacher, please
-      @enrollments = Array.new(3) { student_in_course(:active_all => true) }
+      @enrollments = Array.new(enrollment_count) { student_in_course(:active_all => true) }
       @users = @enrollments.map(&:user)
       @pager = PaginatedCollection::Collection.new
       @pager.current_page = 1
@@ -119,13 +120,14 @@ describe Analytics::StudentCollection do
     end
 
     describe Analytics::StudentCollection::SortStrategy::ByScore do
+      let(:enrollment_count) { 4 }
       before :each do
-        assigned_scores = [40, 20, 60]
+        assigned_scores = [40, 20, nil, 60]
         assigned_scores.zip(@enrollments).each { |score, enrollment| enrollment.update_attribute(:computed_current_score, score) }
-        @scope = User.scoped(:include => :enrollments)
+        @scope = User.scoped(:joins => "INNER JOIN enrollments ON enrollments.user_id = users.id")
         @strategy = Analytics::StudentCollection::SortStrategy::ByScore.new
         @reverse_strategy = Analytics::StudentCollection::SortStrategy::ByScore.new(:descending)
-        @expected_sort = [1, 0, 2].map{ |i| @users[i] }
+        @expected_sort = [2, 1, 0, 3].map{ |i| @users[i] }
       end
 
       it_should_behave_like "paginated sort strategy"

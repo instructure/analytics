@@ -46,8 +46,8 @@ module Analytics
       class ByScore < Default
         def order
           @direction == :descending ?
-            "enrollments.computed_current_score DESC, users.id DESC" :
-            "enrollments.computed_current_score ASC, users.id ASC"
+            "enrollments.computed_current_score DESC NULLS LAST, users.id DESC" :
+            "enrollments.computed_current_score ASC NULLS FIRST, users.id ASC"
         end
 
         def paginate(scope, pager)
