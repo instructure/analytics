@@ -124,11 +124,12 @@ module Analytics
         })
     end
 
-    def submission_scope(assignments)
-      @submission_scope ||= @course.shard.activate do
+    def submissions(assignments)
+      @course.shard.activate do
         Submission.
           scoped(:select => "assignment_id, score, user_id, submission_type, submitted_at, graded_at, updated_at, workflow_state").
-          scoped(:conditions => { :assignment_id => assignments.map(&:id) })
+          scoped(:conditions => { :assignment_id => assignments.map(&:id) }).
+          all
       end
     end
 

@@ -125,12 +125,13 @@ module Analytics
         scoped(:conditions => { 'enrollments.workflow_state' => ['active', 'completed'] })
     end
 
-    def submission_scope(assignments, student_ids=self.student_ids)
-      @submission_scope ||= @course.shard.activate do
+    def submissions(assignments, student_ids=self.student_ids)
+      @course.shard.activate do
         Submission.
           scoped(:select => "assignment_id, score, user_id, submission_type, submitted_at, graded_at, updated_at, workflow_state").
           scoped(:conditions => { :assignment_id => assignments.map(&:id) }).
-          scoped(:conditions => { :user_id => student_ids })
+          scoped(:conditions => { :user_id => student_ids }).
+          all
       end
     end
 
@@ -166,7 +167,7 @@ module Analytics
         }
 
         # for each submission...
-        submission_scope(assignments, [student.id]).each do |submission|
+        submissions(assignments, [student.id]).each do |submission|
           assignment = assignments_by_id[submission.assignment_id]
           if submitted_at = submission_date(assignment, submission)
             if assignment.overdue?

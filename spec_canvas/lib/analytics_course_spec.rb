@@ -436,6 +436,23 @@ describe Analytics::Course do
           student_summary[:tardiness_breakdown][:total].should == 5
         end
 
+        it "should have appropriate data per student" do
+          @student1 = @student
+          active_student
+          @student2 = @student
+
+          @assignment = @course.assignments.active.create!(:due_at => 1.day.ago)
+          @submission1 = @assignment.submissions.create!(:user => @student1)
+          @submission2 = @assignment.submissions.create!(:user => @student2)
+
+          submit_submission(:submission => @submission1, :submitted_at => @assignment.due_at - 1.day)
+          submit_submission(:submission => @submission2, :submitted_at => @assignment.due_at + 1.day)
+
+          @summaries = @teacher_analytics.student_summaries.paginate(:page => 1, :per_page => 2)
+          @summaries[0][:tardiness_breakdown].should == expected_breakdown(:on_time).merge(:total => 1)
+          @summaries[1][:tardiness_breakdown].should == expected_breakdown(:late).merge(:total => 1)
+        end
+
         context "an assignment that has a due date" do
           before :each do
             @assignment = @course.assignments.active.create!
@@ -686,9 +703,10 @@ describe Analytics::Course do
   end
 
   def submit_submission(opts={})
-    @submission.submission_type = 'online_text_entry'
-    @submission.submitted_at = opts[:submitted_at] if opts[:submitted_at]
-    @submission.save!
+    submission = opts[:submission] || @submission
+    submission.submission_type = 'online_text_entry'
+    submission.submitted_at = opts[:submitted_at] if opts[:submitted_at]
+    submission.save!
   end
 
   def student_summary(analytics=@teacher_analytics)
