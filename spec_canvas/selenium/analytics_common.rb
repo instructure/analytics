@@ -150,7 +150,7 @@ shared_examples_for "analytics tests" do
   end
 
   def right_nav_buttons
-    ff('#right_nav .button')
+    ff('#right_nav .btn')
   end
 
   def validate_analytics_button_exists(exists = true)
