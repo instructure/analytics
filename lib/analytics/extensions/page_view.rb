@@ -19,7 +19,7 @@ PageView.class_eval do
 
   after_create :create_analytics_cassandra
   def create_analytics_cassandra
-    if PageView.cassandra?
+    if cassandra?
       hour_bucket = PageView.hour_bucket_for_time(created_at)
       counts_update = "page_view_count = page_view_count + 1"
       if self.participated
@@ -38,7 +38,7 @@ PageView.class_eval do
 
   after_save :update_analytics_cassandra
   def update_analytics_cassandra
-    if PageView.cassandra?
+    if cassandra?
       if context_type == 'Course' && context_id && self.participated && self.asset_user_access
         cassandra.execute("INSERT INTO participations_by_context (context, created_at, request_id, url, asset_user_access_id, asset_code, asset_category) VALUES (?, ?, ?, ?, ?, ?, ?)", "#{context.global_asset_string}/#{user.global_asset_string}", created_at, request_id, url, asset_user_access_id, asset_user_access.asset_code, asset_user_access.asset_category)
       end
