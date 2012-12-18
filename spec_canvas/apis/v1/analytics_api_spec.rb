@@ -207,6 +207,17 @@ describe "Analytics API", :type => :integration do
       response_assignment(json, @assignments[2])["max_score"].should be_nil
     end
 
+    it "should not have statistics available if the teacher has blocked it in course settings" do
+      # Disallow in course settings
+      @course.settings = { :hide_distribution_graphs => true }
+      @course.save!
+      # Allow user to see analytics page
+      RoleOverride.manage_role_override(@account, 'StudentEnrollment', 'view_analytics', :override => true)
+      # Log in as the user for this API call
+      json = analytics_api_call(:assignments, @course, @students[1], :user => @students[1])
+      response_assignment(json, @assignments[2])["submission"]["score"].should == 27
+      response_assignment(json, @assignments[2])["max_score"].should be_nil
+    end
 
     it "should fetch data for a student in the course" do
       json = analytics_api_call(:assignments, @course, @students[1])

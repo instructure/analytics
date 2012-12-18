@@ -27,7 +27,7 @@ module Analytics
 
       hash = basic_assignment_hash(assignment).merge(:muted => muted(assignment) )
 
-      unless muted(assignment) || suppressed_due_to_few_submissions(submissions)
+      unless muted(assignment) || suppressed_due_to_few_submissions(submissions) || suppressed_due_to_course_setting
         scores = Stats::Counter.new
         (submissions || []).each do |submission|
           scores << submission.score if submission.score
@@ -70,6 +70,10 @@ module Analytics
 
     def suppressed_due_to_few_submissions(submissions)
       !allow_student_details? && submissions.size < 5
+    end
+
+    def suppressed_due_to_course_setting
+      !allow_student_details? && @course.settings[:hide_distribution_graphs]
     end
   end
 end
