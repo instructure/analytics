@@ -116,6 +116,8 @@ describe PageView do
     end
 
     it "should return user page view counts in the course by hour" do
+      timewarp = Time.parse('2012-12-26T19:15:00Z')
+      Time.stubs(:now).returns(timewarp)
       page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
       page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
       page_view(:user => @user, :context => @course, :created_at => 3.hours.ago)
@@ -139,6 +141,8 @@ describe PageView do
     end
 
     it "should return user page view counts in the course by hour" do
+      timewarp = Time.parse('2012-12-26T19:15:00Z')
+      Time.stubs(:now).returns(timewarp)
       page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
       page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
       page_view(:user => @user, :context => @course, :created_at => 3.hours.ago)

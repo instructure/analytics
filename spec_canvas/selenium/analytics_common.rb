@@ -150,13 +150,13 @@ shared_examples_for "analytics tests" do
   end
 
   def right_nav_buttons
-    ff('#right_nav .btn')
+    ff('#right_nav a')
   end
 
   def validate_analytics_button_exists(exists = true)
     student = StudentEnrollment.last.user
     get "/courses/#{@course.id}/users/#{student.id}"
-    exists ? right_nav_buttons[0].text.strip!.should == "Student Analytics for #{student.name}" : right_nav_buttons.each { |right_nav_button| right_nav_button.should_not include_text(ANALYTICS_BUTTON_TEXT) }
+    exists ? right_nav_buttons[0].text.strip.should == "Analytics" : right_nav_buttons.each { |right_nav_button| right_nav_button.should_not include_text(ANALYTICS_BUTTON_TEXT) }
   end
 
   def validate_analytics_icons_exist(exist = true)

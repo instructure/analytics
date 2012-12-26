@@ -5,7 +5,7 @@ describe "analytics" do
   it_should_behave_like "analytics tests"
 
   ANALYTICS_BUTTON_CSS = '.analytics-grid-button'
-  ANALYTICS_BUTTON_TEXT = 'Student Analytics for '
+  ANALYTICS_BUTTON_TEXT = 'Analytics'
 
   describe "course view" do
 
