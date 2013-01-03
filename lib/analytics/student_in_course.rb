@@ -96,7 +96,7 @@ module Analytics
 
     # Overriding this from Assignments to account for Variable Due Dates
     def basic_assignment_data(assignment)
-      super.merge( :due_at => varied_due_date( assignment, @student ).due_at )
+      super.merge( :due_at => assignment.overridden_for(@student).due_at )
     end
 
     def extended_assignment_data(assignment, submissions)

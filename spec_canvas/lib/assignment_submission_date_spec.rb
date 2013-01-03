@@ -18,10 +18,10 @@ module Analytics
       AssignmentSubmissionDate.new(assignment, user, submission)
     end
 
-    it "memoizes VariedDueDate objects by user" do
-      assign_sub.expects(:varied_due_date_unmemoized).returns(:something).once
-      assign_sub.send(:varied_due_date)
-      assign_sub.send(:varied_due_date)
+    it "memoizes overridden assignments by user" do
+      assign_sub.expects(:overridden_assignment_unmemoized).returns(:something).once
+      assign_sub.send(:overridden_assignment)
+      assign_sub.send(:overridden_assignment)
     end
 
     it "returns a best-effort submission date - submitted_at" do
@@ -29,8 +29,8 @@ module Analytics
       assign_sub.submission_date.should == time1
     end
 
-    it "returns a best-effort submission date - varied_due_date" do
-      assign_sub.expects(:varied_due_date).
+    it "returns a best-effort submission date - overridden_assignment" do
+      assign_sub.expects(:overridden_assignment).
         returns(stub(:due_at => time2)).once
       assignment.stubs(:submittable_type? => false)
       submission.stubs(

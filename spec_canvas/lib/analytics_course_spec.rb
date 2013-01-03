@@ -34,7 +34,7 @@ describe Analytics::Course do
       end
       describe "when viewed by a teacher" do
         it "multiple_due_dates flag is true" do
-          VariedDueDate.new(assignment, @teacher).multiple?.should be_true
+          assignment.multiple_due_dates_apply_to(@teacher).should be_true
           analytics = Analytics::Course.new(@teacher, nil, @course)
           data = analytics.basic_assignment_data(assignment)
           data[:multiple_due_dates].should be_true
@@ -42,7 +42,7 @@ describe Analytics::Course do
       end
       describe "when viewed by a student" do
         it "multiple_due_dates flag is false" do
-          VariedDueDate.new(assignment, @student).multiple?.should be_false
+          assignment.multiple_due_dates_apply_to(@student).should be_false
           analytics = Analytics::Course.new(@student, nil, @course)
           data = analytics.basic_assignment_data(assignment)
           data[:multiple_due_dates].should be_false

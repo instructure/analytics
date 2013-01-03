@@ -62,8 +62,8 @@ module Analytics
 
     include Analytics::Assignments
 
-    def varied_due_date(assignment, user)
-      VariedDueDate.new(assignment, user)
+    def overridden_assignment(assignment, user)
+      assignment.overridden_for(user)
     end
 
     def tardiness_breakdown(assignment_id, total)
@@ -73,10 +73,10 @@ module Analytics
 
     # Overriding this from Assignments to account for Variable Due Dates
     def basic_assignment_data(assignment)
-      vdd = varied_due_date( assignment, @current_user )
+      vdd = overridden_assignment( assignment, @current_user )
       super.merge(
         :due_at => vdd.due_at,
-        :multiple_due_dates => vdd.multiple?
+        :multiple_due_dates => vdd.multiple_due_dates_apply_to(@current_user)
       )
     end
 

@@ -15,19 +15,19 @@ module Analytics
 
     # Returns the most lenient due date for the student
     def due_date
-      varied_due_date.due_at
+      overridden_assignment.due_at
     end
 
   protected
 
-    # Make it easy to stub VariedDueDate out for tests
-    def varied_due_date_unmemoized
-      VariedDueDate.new(@assignment, @user)
+    # Make it easy to stub assignment.overridden_for out for tests
+    def overridden_assignment_unmemoized
+      @assignment.overridden_for(@user)
     end
 
-    # Memoized varied due date by user
-    def varied_due_date
-      @vdd ||= varied_due_date_unmemoized
+    # Memoized overridden assignment by user
+    def overridden_assignment
+      @vdd ||= overridden_assignment_unmemoized
     end
 
     # Returns the submission date if available; otherwise, nil
@@ -42,7 +42,7 @@ module Analytics
     # Returns the most lenient due date if graded; otherwise, nil
     def graded_varied_due_date
       if submission_graded? && !@assignment.submittable_type?
-        varied_due_date.due_at.presence
+        overridden_assignment.due_at.presence
       end
     end
 

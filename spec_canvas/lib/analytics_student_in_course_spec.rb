@@ -36,13 +36,13 @@ module Analytics
     end
 
     describe '#basic_assignment_data' do
-      let(:due_dates) { (1..6).map{ |i| { :due_at => i.days.from_now } } }
-      let(:assignment) { stub_everything(:due_dates_for => [due_dates.first, due_dates], :due_at => 100.days.ago) }
+      let(:due_at) { 100.days.ago }
+      let(:assignment) { stub_everything(:overridden_for => mock(:due_at => due_at)) }
 
-      it 'lets VDD determine the due_at value' do
+      it 'lets overridden_for determine the due_at value' do
         blank = stub_everything
         student_in_course = StudentInCourse.new(blank, blank, blank, blank)
-        student_in_course.basic_assignment_data(assignment)[:due_at].should == due_dates.last[:due_at]
+        student_in_course.basic_assignment_data(assignment)[:due_at].should == due_at
       end
     end
   end

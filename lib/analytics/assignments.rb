@@ -64,8 +64,8 @@ module Analytics
     end
 
     # Mostly for test stubs
-    def varied_due_date(assignment, user)
-      VariedDueDate.new(assignment, user)
+    def overridden_assignment(assignment, user)
+      assignment.overridden_for(user)
     end
 
     # Mostly for test stubs
