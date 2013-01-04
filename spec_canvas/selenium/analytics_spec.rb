@@ -132,8 +132,8 @@ describe "analytics" do
         channel.confirm
       end
 
-      @teacher_conversation = @teacher.initiate_conversation(@students_id)
-      @student_conversation = @student.initiate_conversation(@teachers_id)
+      @teacher_conversation = @teacher.initiate_conversation([@student])
+      @student_conversation = @student.initiate_conversation([@teacher])
       add_message(@teacher_conversation, 1)
       add_message(@student_conversation, 1)
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
