@@ -28,7 +28,7 @@ PageView.class_eval do
       if user
         cassandra.execute("UPDATE page_views_counters_by_context_and_hour SET #{counts_update} WHERE context = ? AND hour_bucket = ?", user.global_asset_string, hour_bucket)
       end
-      if context_type == 'Course' && context_id
+      if user && context_type == 'Course' && context
         cassandra.execute("UPDATE page_views_counters_by_context_and_hour SET #{counts_update} WHERE context = ? AND hour_bucket = ?", "#{context.global_asset_string}/#{user.global_asset_string}", hour_bucket)
         cassandra.execute("UPDATE page_views_counters_by_context_and_user SET #{counts_update} WHERE context = ? AND user_id = ?", context.global_asset_string, user.global_id)
       end
