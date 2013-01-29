@@ -17,34 +17,26 @@ PageView.class_eval do
   end
   alias_method_chain :store, :rollup
 
-  after_create :create_analytics_cassandra
-  def create_analytics_cassandra
-    if cassandra?
+  def update_cassandra_with_analytics
+    update_cassandra_without_analytics
+
+    if new_record?
       hour_bucket = PageView.hour_bucket_for_time(created_at)
       counts_update = "page_view_count = page_view_count + 1"
       if self.participated
         counts_update += ", participation_count = participation_count + 1"
       end
-      if user
-        cassandra.execute("UPDATE page_views_counters_by_context_and_hour SET #{counts_update} WHERE context = ? AND hour_bucket = ?", user.global_asset_string, hour_bucket)
-      end
       if user && context_type == 'Course' && context
-        cassandra.execute("UPDATE page_views_counters_by_context_and_hour SET #{counts_update} WHERE context = ? AND hour_bucket = ?", "#{context.global_asset_string}/#{user.global_asset_string}", hour_bucket)
-        cassandra.execute("UPDATE page_views_counters_by_context_and_user SET #{counts_update} WHERE context = ? AND user_id = ?", context.global_asset_string, user.global_id)
+        cassandra.update("UPDATE page_views_counters_by_context_and_hour SET #{counts_update} WHERE context = ? AND hour_bucket = ?", "#{context.global_asset_string}/#{user.global_asset_string}", hour_bucket)
+        cassandra.update("UPDATE page_views_counters_by_context_and_user SET #{counts_update} WHERE context = ? AND user_id = ?", context.global_asset_string, user.global_id)
       end
     end
-    true
-  end
 
-  after_save :update_analytics_cassandra
-  def update_analytics_cassandra
-    if cassandra?
-      if context_type == 'Course' && context_id && self.participated && self.asset_user_access
-        cassandra.execute("INSERT INTO participations_by_context (context, created_at, request_id, url, asset_user_access_id, asset_code, asset_category) VALUES (?, ?, ?, ?, ?, ?, ?)", "#{context.global_asset_string}/#{user.global_asset_string}", created_at, request_id, url, asset_user_access_id, asset_user_access.asset_code, asset_user_access.asset_category)
-      end
+    if self.participated && self.asset_user_access && context_type == 'Course' && context
+      cassandra.update("INSERT INTO participations_by_context (context, created_at, request_id, url, asset_user_access_id, asset_code, asset_category) VALUES (?, ?, ?, ?, ?, ?, ?)", "#{context.global_asset_string}/#{user.global_asset_string}", created_at, request_id, url, asset_user_access_id, asset_user_access.asset_code, asset_user_access.asset_category)
     end
-    true
   end
+  alias_method_chain :update_cassandra, :analytics
 
   def self.hour_bucket_for_time(time)
     time.to_i - (time.to_i % 1.hour)
