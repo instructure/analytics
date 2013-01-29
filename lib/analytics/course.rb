@@ -1,3 +1,5 @@
+require_dependency 'analytics/tardiness_grid'
+
 module Analytics
   class Course < Analytics::Base
     def self.available_for?(current_user, session, course)
