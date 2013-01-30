@@ -4,6 +4,8 @@
 # This file is part of the analytics engine
 
 require File.expand_path(File.dirname(__FILE__) + '/../../../../../../spec/apis/api_spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../../cassandra_spec_helper')
 
 describe "Analytics API", :type => :integration do
 
@@ -281,6 +283,32 @@ describe "Analytics API", :type => :integration do
         :controller => 'analytics_api', :action => 'course_student_summaries', :format => 'json',
         :course_id => @course.id.to_s)
       response.status.to_i.should == 401 # Unauthorized
+    end
+  end
+
+  context "#student_in_course_participation" do
+    before :each do
+      course_with_student(:active_all => true)
+    end
+
+    context "cassandra" do
+      it_should_behave_like "analytics cassandra page views"
+      it "should have iso8601 page_views keys" do
+        pv = page_view(:user => @student, :course => @course)
+        expected = Time.zone.at(PageView.hour_bucket_for_time(pv.created_at)).iso8601
+        json = analytics_api_call(:participation, @course, @student, :user => @teacher)
+        json['page_views'].keys.should == [expected]
+      end
+    end
+
+    context "non-cassandra" do
+      it "should have date string page_views keys" do
+        pv = page_view(:user => @student, :course => @course)
+        pv.save!
+        expected = pv.created_at.to_date.strftime('%Y-%m-%d')
+        json = analytics_api_call(:participation, @course, @student, :user => @teacher)
+        json['page_views'].keys.should == [expected]
+      end
     end
   end
 end
