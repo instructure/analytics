@@ -52,7 +52,14 @@ module Analytics
 
     def page_views
       slaved(:cache_as => :page_views) do
-        PageView.counters_by_context_and_hour(@course, @student)
+        # convert non-string keys from time objects to iso8601 strings since we
+        # don't want to use Time#to_s on the keys in Hash#to_json
+        buckets = {}
+        PageView.counters_by_context_and_hour(@course, @student).each do |bucket,count|
+          bucket = bucket.is_a?(String) ? bucket : bucket.in_time_zone.iso8601
+          buckets[bucket] = count
+        end
+        buckets
       end
     end
 
