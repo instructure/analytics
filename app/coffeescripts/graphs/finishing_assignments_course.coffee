@@ -120,7 +120,10 @@ define [
     # Build the text for the assignment's tooltip.
     tooltip: (assignment) ->
       tooltip = assignment.title
-      tooltip += "<br/>Due: #{I18n.l 'date.formats.medium', assignment.dueAt}" if assignment.dueAt?
+      if assignment.multipleDueDates
+        tooltip += "<br/>Due: Multiple Dates"
+      else if assignment.dueAt?
+        tooltip += "<br/>Due: #{I18n.l 'date.formats.medium', assignment.dueAt}"
       if (breakdown = assignment.tardinessBreakdown)?
         tooltip += "<br/>Missing: #{@percentText breakdown.missing}" if breakdown.missing > 0
         tooltip += "<br/>Late: #{@percentText breakdown.late}" if breakdown.late > 0
