@@ -11,7 +11,7 @@ PageView.class_eval do
     self.summarized = true
     result = store_without_rollup
     if context_id && context_type == 'Course'
-      PageViewsRollup.increment!(context_id, created_at, category, participated && asset_user_access_id)
+      PageViewsRollup.increment!(context_id, created_at, category, participated && asset_user_access)
     end
     result
   end
