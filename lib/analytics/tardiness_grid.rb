@@ -1,3 +1,7 @@
+require_dependency 'analytics/assignment_submission_date'
+require_dependency 'analytics/tardiness_breakdown'
+require_dependency 'analytics/tardy'
+
 module Analytics
 
   class TardinessGridCoord
