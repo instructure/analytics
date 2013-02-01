@@ -1,5 +1,3 @@
-require 'canvas/cassandra'
-
 class AddParticipationsCountToCassandra < ActiveRecord::Migration
   tag :predeploy
 
