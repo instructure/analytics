@@ -20,6 +20,7 @@ module Analytics
       @assignment_scope ||= @course.shard.activate do
         Assignment.active.
           scoped(:conditions => {:context_id => @course.id, :context_type => 'Course'}).
+          scoped(:include => :versions). # Optimizes AssignmentOverrideApplicator
           scoped(:order => "assignments.due_at, assignments.id")
       end
     end
