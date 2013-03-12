@@ -8,7 +8,7 @@ module Analytics
 
     describe '#assignment_scope' do
       it 'should have versions included' do
-        course = Course.create
+        course = ::Course.create
         3.times{ course.assignments.create }
 
         harness.instance_variable_set '@course', course
