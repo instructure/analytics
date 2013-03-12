@@ -1,4 +1,4 @@
-require 'mocha'
+require 'mocha/api'
 require 'active_support/core_ext'
 require File.expand_path('../../../../../../lib/stats', File.dirname(__FILE__))
 require File.expand_path('../../../lib/analytics/assignments', File.dirname(__FILE__))

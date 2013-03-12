@@ -1,4 +1,4 @@
-require 'mocha'
+require 'mocha/api'
 require File.expand_path('../../lib/analytics/page_view_analysis', File.dirname(__FILE__))
 
 module Analytics

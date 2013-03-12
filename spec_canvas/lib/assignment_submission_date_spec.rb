@@ -1,5 +1,5 @@
 assign_sub_rb = '/../../lib/analytics/assignment_submission_date'
-require 'mocha_standalone'
+require 'mocha/api'
 require 'active_support/core_ext'
 require File.expand_path(File.dirname(__FILE__) + assign_sub_rb)
 

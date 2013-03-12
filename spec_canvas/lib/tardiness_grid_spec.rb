@@ -1,4 +1,4 @@
-require 'mocha_standalone'
+require 'mocha/api'
 require 'active_support/core_ext'
 require File.expand_path(File.dirname(__FILE__) +
           '/../../lib/analytics/tardiness_grid')
