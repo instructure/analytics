@@ -506,8 +506,8 @@ describe Analytics::Course do
             submit_submission(:submission => @submission2, :submitted_at => @assignment.due_at + 1.day)
 
             @summaries = @teacher_analytics.student_summaries.paginate(:page => 1, :per_page => 2)
-            @summaries[0][:tardiness_breakdown].should == expected_breakdown(:on_time).merge(:total => 1)
-            @summaries[1][:tardiness_breakdown].should == expected_breakdown(:late).merge(:total => 1)
+            @summaries.detect{|s| s[:id] == @submission1.user_id}[:tardiness_breakdown].should == expected_breakdown(:on_time).merge(:total => 1)
+            @summaries.detect{|s| s[:id] == @submission2.user_id}[:tardiness_breakdown].should == expected_breakdown(:late).merge(:total => 1)
           end
 
           context "an assignment that has a due date" do
@@ -675,6 +675,7 @@ describe Analytics::Course do
   end
 
   def student_summary(analytics=@teacher_analytics)
+    AssignmentSubmissionRoller.rollup_all
     analytics.student_summaries.paginate(:page => 1, :per_page => 1).first
   end
 
@@ -688,6 +689,7 @@ describe Analytics::Course do
   end
 
   def expect_assignment_breakdown(bin, opts={})
+    AssignmentSubmissionRoller.rollup_all
     breakdown = @teacher_analytics.assignments.first[:tardiness_breakdown]
     expected = expected_breakdown(bin)
 

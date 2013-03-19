@@ -238,12 +238,14 @@ class AnalyticsApiController < ApplicationController
   #         "on_time": 0.65,
   #         "missing": 0.12,
   #         "late": 0.23
+  #         "total": 275
   #       }
   #     }
   #   ]
   def course_assignments
     return unless require_analytics_for_course
-    render :json => @course_analytics.assignments
+    analytics = Analytics::PermittedCourse.new(@current_user, @course, @course_analytics)
+    render :json => analytics.assignments
   end
 
   # @API Get course-level student summary data

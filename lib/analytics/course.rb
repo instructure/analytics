@@ -70,8 +70,18 @@ module Analytics
     end
 
     def tardiness_breakdown(assignment_id, total)
-      tardiness_grid.tally(:assignment, assignment_id).
-          as_hash_scaled(total).merge(:total => total)
+      subs_scope = submissions(assignment_id).select{|s| s.cached_tardy_status.present? }
+      breakdown_hash = subs_scope.inject(Hash.new(0)) do |memo, submission|
+        key = submission.cached_tardy_status.to_sym
+        memo[key] = memo[key] + 1
+        memo
+      end
+
+      other_missing = total - breakdown_hash.values.sum
+      breakdown_hash[:missing] = breakdown_hash[:missing] + other_missing
+
+      breakdown = TardinessBreakdown.new(breakdown_hash[:missing], breakdown_hash[:late], breakdown_hash[:on_time])
+      breakdown.as_hash_scaled(total).merge(:total => total)
     end
 
     # Overriding this from Assignments to account for Variable Due Dates
@@ -127,8 +137,6 @@ module Analytics
       @course.grants_rights?(@current_user, @session, :manage_grades, :view_all_grades).values.any?
     end
 
-  private
-
     def cache_prefix
       [@course, Digest::MD5.hexdigest(enrollment_scope.to_sql)]
     end
@@ -140,13 +148,15 @@ module Analytics
 
     def submissions(assignments, student_ids=self.student_ids)
       @course.shard.activate do
-        Submission.
-          select([:id, :assignment_id, :score, :user_id, :submission_type,
-            :submitted_at, :graded_at, :updated_at, :workflow_state]).
-          where(:assignment_id => assignments).
-          where(:user_id => student_ids).
-          all
+        ::Analytics::Course.submission_scope_for(assignments).where(:user_id => student_ids).all
       end
+    end
+
+    def self.submission_scope_for(assignments)
+      Submission.
+        select([ :id, :assignment_id, :score, :user_id, :submission_type,
+            :submitted_at, :graded_at, :updated_at, :workflow_state, :cached_tardy_status]).
+        where(:assignment_id => assignments)
     end
 
     def student_scope
@@ -172,8 +182,9 @@ module Analytics
         slaved(:cache_as => :tardiness_breakdown) do
           assignments = raw_assignments
           students = student_scope.all
+          subs = submissions(assignments)
           # We call prebuild, which memoizes the grid and returns self
-          TardinessGrid.new(assignments, students, submissions(assignments)).prebuild
+          TardinessGrid.new(assignments, students, subs).prebuild
         end
     end
   end

@@ -12,17 +12,45 @@ module Analytics
       end
     end
 
-    def assignment_scope
-      # would be nicer if this could be
-      # @course.assignments.active.scoped(:order => ...), but the
-      # Course#assignments association has a built in order that can't be
-      # overridden.
-      @assignment_scope ||= @course.shard.activate do
-        Assignment.active.
-          where(:context_id => @course, :context_type => 'Course').
-          includes(:versions). # Optimizes AssignmentOverrideApplicator
-          order("assignments.due_at, assignments.id")
+    def assignment_rollups
+      slaved(:cache_as => :assignment_rollups) do
+        assignments = assignment_scope.all
+        @course.shard.activate do
+          rollup_scope = Analytics::Assignments.assignment_rollup_scope_for(assignments)
+          rollup_scope.map{|r| r.data }
+        end
       end
+    end
+
+    def assignment_rollups_for(section_ids)
+      slaved(:cache_as => [:assignment_rollups_for, section_ids]) do
+        assignments = assignment_scope.all
+
+        @course.shard.activate do
+          rollup_scope = Analytics::Assignments.assignment_rollup_scope_for(assignments, section_ids)
+          rollup_scope.group_by(&:assignment_id).map do |assignment_id, rollups|
+            Rollups::AssignmentRollupAggregate.new(rollups).data
+          end
+        end
+      end
+    end
+
+    def assignment_scope
+      @assignment_scope ||= ::Analytics::Assignments.assignment_scope_for(@course)
+    end
+
+    def self.assignment_scope_for(this_course)
+      this_course.shard.activate do
+        this_course.assignments.active.
+          includes(:versions). # Optimizes AssignmentOverrideApplicator
+          reorder("assignments.due_at, assignments.id")
+      end
+    end
+
+    def self.assignment_rollup_scope_for(assignments, section_ids = nil)
+      AssignmentRollup.
+        where(:assignment_id => assignments, :course_section_id => section_ids).
+        order(:due_at, :assignment_id)
     end
 
     def assignment_data(assignment, submissions)
@@ -55,7 +83,7 @@ module Analytics
     end
 
     def basic_assignment_data(assignment)
-      { 
+      {
         :assignment_id => assignment.id,
         :title => assignment.title,
         :unlock_at => assignment.unlock_at,

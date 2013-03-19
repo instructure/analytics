@@ -1,7 +1,4 @@
-require 'mocha/api'
-require 'active_support/core_ext'
-require File.expand_path('../../../../../../lib/stats', File.dirname(__FILE__))
-require File.expand_path('../../../lib/analytics/assignments', File.dirname(__FILE__))
+require File.expand_path('../../../../../../spec/spec_helper', File.dirname(__FILE__))
 
 module Analytics
 
@@ -50,10 +47,56 @@ module Analytics
       end
 
     end
+
+    describe '#assignment_rollups_for' do
+      let(:this_course) { course }
+      let(:sections) { this_course.course_sections }
+      let(:section_ids) { sections.map(&:id) }
+      let!(:assignment) { this_course.assignments.create!(:points_possible=>100, :due_at => Date.today) }
+
+      before do
+        3.times do
+          section = this_course.course_sections.create!
+          section.update_attribute(:workflow_state, 'active')
+        end
+        assignment.update_attribute(:workflow_state, 'active')
+      end
+
+      it 'retrieves an empty array if there is no useful data' do
+        assignments = AssignmentsHarness.new(this_course)
+        data = assignments.assignment_rollups_for(section_ids)
+        data.should == []
+      end
+
+      it 'retrieves a hash that looks like assignments if there are rollups' do
+        user = User.create!
+        StudentEnrollment.create!(:user => user, :course => this_course, :course_section => sections.first)
+        assignment.submissions.create!(:user => user, :score => 95)
+        AssignmentSubmissionRoller.rollup_all
+        AssignmentsRoller.rollup_all
+
+        assignments = AssignmentsHarness.new(this_course)
+        data = assignments.assignment_rollups_for(section_ids)
+        data.should == [{
+          :assignment_id=>assignment.id, :title=>assignment.title, :due_at=>assignment.due_at,
+          :muted=>assignment.muted, :points_possible=>assignment.points_possible,
+          :max_score=>95, :min_score=>95, :first_quartile=>94,
+          :median=>94, :third_quartile=>94, :tardiness_breakdown=>{
+            :missing=>0, :late=>0, :on_time=>0, :total=>0
+          }
+        }]
+      end
+    end
   end
 
   class AssignmentsHarness
     include Assignments
+
+    def initialize(course_object=nil)
+      @course = course_object
+    end
+
+    def slaved(options={}); yield; end
   end
 
 end

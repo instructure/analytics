@@ -102,6 +102,11 @@ shared_examples_for "analytics tests" do
     tooltip
   end
 
+  def run_analytics_rollups
+    AssignmentSubmissionRoller.rollup_all
+    AssignmentsRoller.rollup_all
+  end
+
   def setup_variety_assignments(add_no_due_date = true)
     @missed_assignment = @course.assignments.create!(:title => "missed assignment", :due_at => 5.days.ago, :points_possible => 10)
     @no_due_date_assignment = @course.assignments.create!(:title => 'no due date assignment', :due_at => nil, :points_possible => 20) if add_no_due_date
@@ -109,6 +114,7 @@ shared_examples_for "analytics tests" do
     @late_assignment.submit_homework(@student, :submission_type => 'online_url')
     @on_time_assignment = @course.assignments.create!(:title => 'on time submission', :due_at => 2.days.from_now, :points_possible => 10, :submission_types => 'online_url')
     @on_time_assignment.submit_homework(@student, :submission_type => 'online_url')
+    run_analytics_rollups
   end
 
   def current_student_score
@@ -119,6 +125,7 @@ shared_examples_for "analytics tests" do
     randomly_grade_assignments(10)
     @first_assignment = Assignment.first
     @first_submission_score = Submission.first.score.to_s
+    run_analytics_rollups
   end
 
   def validate_element_fill(element, fill_hex_color)
