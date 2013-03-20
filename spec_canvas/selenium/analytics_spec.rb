@@ -19,6 +19,7 @@ describe "analytics" do
       end
 
       it "should validate analytics icon link works" do
+        pending("new course users page doesn't have this link yet, known issue")
         get "/courses/#{@course.id}/users"
 
         expect_new_page_load { student_roster[0].find_element(:css, ANALYTICS_BUTTON_CSS).click }

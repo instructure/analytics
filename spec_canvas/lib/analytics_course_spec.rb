@@ -474,7 +474,7 @@ describe Analytics::Course do
     shared_examples_for "#student_summaries" do
       describe "a student's summary" do
         before :each do
-          active_student
+          active_student(:name => 'Student1')
         end
 
         it "should count page_views for that student" do
@@ -495,7 +495,7 @@ describe Analytics::Course do
 
           it "should have appropriate data per student" do
             @student1 = @student
-            active_student
+            active_student(:name => 'Student2')
             @student2 = @student
 
             @assignment = @course.assignments.active.create!(:due_at => 1.day.ago)
@@ -505,7 +505,6 @@ describe Analytics::Course do
             submit_submission(:submission => @submission1, :submitted_at => @assignment.due_at - 1.day)
             submit_submission(:submission => @submission2, :submitted_at => @assignment.due_at + 1.day)
 
-            # require 'debug'
             @summaries = @teacher_analytics.student_summaries.paginate(:page => 1, :per_page => 2)
             @summaries[0][:tardiness_breakdown].should == expected_breakdown(:on_time).merge(:total => 1)
             @summaries[1][:tardiness_breakdown].should == expected_breakdown(:late).merge(:total => 1)
