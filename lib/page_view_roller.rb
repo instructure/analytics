@@ -2,7 +2,7 @@ module PageViewRoller
   # We ignore page views not related to a course. include "summarized IS NULL"
   # to ignore page views inserted since the rollup tables were introduced, also
   # to speed up query (index includes summarized)
-  PAGE_VIEWS = PageView.scoped(:conditions => "context_id IS NOT NULL AND context_type='Course' AND summarized IS NULL")
+  PAGE_VIEWS = PageView.where("context_id IS NOT NULL AND context_type='Course' AND summarized IS NULL")
 
   # Generate the remaining rollups.
   #
@@ -46,7 +46,7 @@ module PageViewRoller
   #     amounts if set to 'flood')
   def self.rollup_one(day, opts={})
     # scope the page views down to just that day
-    page_views = PAGE_VIEWS.scoped(:conditions => ["created_at >= ? AND created_at < ?", day, day + 1.day])
+    page_views = PAGE_VIEWS.where(:created_at => day..(day + 1.day))
 
     # bin them by course id and category, and insert a rollup row for each
     # result. if a row for the bin already exists, assume all views for that
@@ -82,8 +82,8 @@ module PageViewRoller
       today = Date.today
       loop do
         logger.info "Looking for oldest page view before #{day}." if opts[:verbose] == 'flood'
-        row = PAGE_VIEWS.scoped(:select => 'MIN(created_at) AS result', :conditions => ["created_at <= ?", day]).first
-        return row.result.to_date if row.result
+        row = PAGE_VIEWS.where("created_at<=?", day).minimum(:created_at)
+        return row.to_date if row
         logger.info "No page views before #{day}." if opts[:verbose] == 'flood'
 
         # break here rather than at the start of loop so we still attempt the
@@ -114,10 +114,8 @@ module PageViewRoller
       opts[:start_day] ||= start_day(opts)
       return nil unless opts[:start_day]
       logger.info "Looking for oldest roll up on or after #{opts[:start_day]}." if opts[:verbose] == 'flood'
-      row = PageViewsRollup.scoped(
-        :select => 'MIN(date) AS date',
-        :conditions => ['date >= ?', opts[:start_day]]).first
-      row.date || Date.today
+      date = PageViewsRollup.where("date>=?", opts[:start_day]).minimum(:date)
+      date || Date.today
     end
   end
 
@@ -125,7 +123,7 @@ module PageViewRoller
   # provided block. participations are those views which had participated true
   # and an asset_user_access_id. the category is the same as PageView#category
   def self.binned(scope)
-    scope = scope.scoped(:select => <<-SELECT, :group => 'context_id, category')
+    scope = scope.group(:context_id, :category).select(<<-SQL)
       context_id,
       CASE controller
         WHEN 'assignments'         THEN 'assignments'
@@ -154,7 +152,7 @@ module PageViewRoller
       END AS category,
       COUNT(*) AS views,
       SUM(CAST(participated AND asset_user_access_id IS NOT NULL AS INTEGER)) AS participations
-    SELECT
+    SQL
 
     rows = slaved { scope.all }
     rows.each do |row|

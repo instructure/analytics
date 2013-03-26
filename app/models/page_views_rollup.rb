@@ -7,13 +7,13 @@ class PageViewsRollup < ActiveRecord::Base
 
   belongs_to :course
 
-  named_scope :for_dates, lambda{ |date_range|
-    { :conditions => { :date => date_range } }
-  }
+  def self.for_dates(date_range)
+    where(:date => date_range)
+  end
 
-  named_scope :for_category, lambda{ |category|
-    { :conditions => { :category => category } }
-  }
+  def self.for_category(category)
+    where(:category => category)
+  end
 
   def augment(views, participations)
     self.views += views
@@ -28,7 +28,7 @@ class PageViewsRollup < ActiveRecord::Base
     else
       course_id, shard = Shard.local_id_for(course)
       shard ||= Shard.current
-      scope = self.scoped(:shard => shard, :conditions => { :course_id => course_id })
+      scope = self.shard(shard).where(:course_id => course_id)
     end
 
     bin = scope.

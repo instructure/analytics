@@ -124,7 +124,7 @@ describe Analytics::StudentCollection do
       before :each do
         assigned_scores = [40, 20, nil, 60]
         assigned_scores.zip(@enrollments).each { |score, enrollment| enrollment.update_attribute(:computed_current_score, score) }
-        @scope = User.scoped(:joins => "INNER JOIN enrollments ON enrollments.user_id = users.id")
+        @scope = User.joins("INNER JOIN enrollments ON enrollments.user_id=users.id")
         @strategy = Analytics::StudentCollection::SortStrategy::ByScore.new
         @reverse_strategy = Analytics::StudentCollection::SortStrategy::ByScore.new(:descending)
         @expected_sort = [2, 1, 0, 3].map{ |i| @users[i] }

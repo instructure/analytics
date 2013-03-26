@@ -78,10 +78,10 @@ module Analytics
         unless shared_conversation_ids.empty?
           # TODO sharding
           ConversationMessage.
-            scoped(:conditions => { :conversation_id => shared_conversation_ids }).
-            scoped(:conditions => { :author_id => [@student, *instructors].map(&:id) }).
-            scoped(:select => "DATE(created_at) AS day, author_id=#{@student.id} AS student, COUNT(*) AS ct",
-                   :group => "DATE(created_at), author_id").each do |row|
+            where(:conversation_id => shared_conversation_ids).
+            where(:author_id => [@student, *instructors]).
+            select("DATE(created_at) AS day, author_id=#{@student.id} AS student, COUNT(*) AS ct").
+            group("DATE(created_at), author_id").each do |row|
 
             day = row.day
             type = ActiveRecord::ConnectionAdapters::Column.value_to_boolean(row.student) ?
@@ -132,17 +132,14 @@ module Analytics
 
     def enrollment_scope
       @enrollment_scope ||= @course.enrollments_visible_to(@current_user, :include_priors => true).
-        scoped(:conditions => {
-          :workflow_state => ['active', 'completed'],
-          :user_id => @student.id
-        })
+        where(:workflow_state => ['active', 'completed'], :user_id => @student)
     end
 
     def submissions(assignments)
       @course.shard.activate do
         Submission.
-          scoped(:select => "assignment_id, score, user_id, submission_type, submitted_at, graded_at, updated_at, workflow_state").
-          scoped(:conditions => { :assignment_id => assignments.map(&:id) }).
+          select([:assignment_id, :score, :user_id, :submission_type, :submitted_at, :graded_at, :updated_at, :workflow_state]).
+          where(:assignment_id => assignments).
           all
       end
     end
@@ -156,9 +153,10 @@ module Analytics
       # TODO: sharding
       @student_conversation_ids ||= ConversationParticipant.
         tagged("course_#{@course.id}").
-        scoped(:conditions => { :user_id => @student.id }).
-        find(:all, :select => 'DISTINCT conversation_id').
-        map{ |cp| cp.conversation_id }
+        where(:user_id => @student).
+        select(:conversation_id).
+        uniq.
+        map(&:conversation_id)
     end
 
     def shared_conversation_ids
@@ -167,10 +165,11 @@ module Analytics
       return {} if student_conversation_ids.empty?
       # TODO: sharding
       @shared_conversation_ids ||= ConversationParticipant.
-        scoped(:conditions => { :user_id => instructors.map(&:id) }).
-        scoped(:conditions => { :conversation_id => student_conversation_ids }).
-        find(:all, :select => 'DISTINCT conversation_id').
-        map{ |cp| cp.conversation_id }
+        where(:user_id => instructors).
+        where(:conversation_id => student_conversation_ids).
+        select(:conversation_id).
+        uniq.
+        map(&:conversation_id)
     end
   end
 end

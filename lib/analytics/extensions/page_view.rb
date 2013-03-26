@@ -49,15 +49,15 @@ PageView.class_eval do
         participations << row.to_hash.with_indifferent_access
       end
     else
-      self.for_context(context).for_users([user]).all(
-        :select => "page_views.created_at, page_views.url, asset_user_accesses.asset_code, asset_user_accesses.asset_category",
-        :include => :asset_user_access,
-        :conditions => "page_views.participated AND page_views.asset_user_access_id IS NOT NULL").map do |participation|
+      self.for_context(context).for_users([user]).
+        select("page_views.created_at, page_views.url, asset_user_accesses.asset_code AS asset_code, asset_user_accesses.asset_category AS asset_category").
+        joins(:asset_user_access).
+        where("page_views.participated AND page_views.asset_user_access_id IS NOT NULL").map do |participation|
           participations << {
             :created_at => participation.created_at,
             :url => participation.url,
-            :asset_code => participation.asset_user_access.asset_code,
-            :asset_category => participation.asset_user_access.asset_category
+            :asset_code => participation.asset_code,
+            :asset_category => participation.asset_category
           }.with_indifferent_access
       end
     end
@@ -74,14 +74,8 @@ PageView.class_eval do
         end
       end
     else
-      self.for_context(context).for_users([user]).all(
-          :select => "DATE(created_at) AS day, COUNT(*) AS ct",
-          :group => "DATE(created_at)").each do |row|
-        day = row.day
-        count = row.ct.to_i
-        counts[day] ||= 0
-        counts[day] += count
-      end
+      counts = self.for_context(context).for_users([user]).group("DATE(created_at)").
+        count(:all)
     end
     counts
   end

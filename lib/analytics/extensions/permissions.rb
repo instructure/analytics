@@ -46,7 +46,7 @@ module AnalyticsPermissions
     # course or student in course) can be viewed by the current user.
     def require_course_with_analytics
       # do you have permission to use them?
-      scope = Course.scoped(:conditions => {:workflow_state => ['available', 'completed']})
+      scope = Course.where(:workflow_state => ['available', 'completed'])
       @course = api_request? ? api_find(scope, params[:course_id]) : scope.find(params[:course_id])
       return false unless authorized_action(@course, @current_user, :view_analytics)
 

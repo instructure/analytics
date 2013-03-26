@@ -94,22 +94,7 @@ describe "analytics account view" do
 
     %w(courses teachers students assignments topics attachments media).each do |data_point|
       it "should validate #{data_point} data point" do
-        case data_point
-          when 'courses'
-            validate_data_point(data_point)
-          when 'teachers'
-            validate_data_point(data_point)
-          when 'students'
-            validate_data_point(data_point)
-          when 'assignments'
-            validate_data_point(data_point)
-          when 'topics'
-            validate_data_point(data_point)
-          when 'attachments'
-            validate_data_point(data_point)
-          when 'media'
-            validate_data_point(data_point)
-        end
+        validate_data_point(data_point)
       end
     end
   end

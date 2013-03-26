@@ -38,7 +38,8 @@ module Analytics
     def participation_by_date
       slaved(:cache_as => :participation_by_date) do
         page_views_rollups.
-          scoped(:select => "date, sum(views) as views, sum(participations) as participations", :group => "date").
+          select("date, SUM(views) AS views, SUM(participations) AS participations").
+          group(:date).
           map{ |rollup| rollup.as_json[:page_views_rollup] }
       end
     end
@@ -46,7 +47,9 @@ module Analytics
     def participation_by_category
       slaved(:cache_as => :participation_by_category) do
         page_views_rollups.
-          scoped(:select => "category, sum(views) as views", :group => "category", :order => "category").
+          select("category, SUM(views) AS views").
+          group(:category).
+          order(:category).
           map{ |rollup| rollup.as_json[:page_views_rollup] }
       end
     end
@@ -63,7 +66,7 @@ module Analytics
     def statistics
       slaved(:cache_as => :statistics) do
         {
-          :courses => courses.scoped(:select => "COUNT(DISTINCT courses.id) AS ct").first.ct.to_i,
+          :courses => courses.count("courses.id", :distinct => true),
           :teachers => count_users_for_enrollments(teacher_enrollments),
           :students => count_users_for_enrollments(student_enrollments),
           :discussion_topics => discussion_topics.count,
@@ -85,12 +88,9 @@ module Analytics
     end
 
     def courses_for_term(term, workflow_state=['completed', 'available'])
-      @account.course_account_associations.scoped(
-        :joins => :course,
-        :conditions => {
-          'courses.enrollment_term_id' => term.id,
-          'courses.workflow_state' => workflow_state
-        })
+      @account.course_account_associations.
+        joins(:course).
+        where(:courses => { :enrollment_term_id => term, :workflow_state => workflow_state })
     end
 
     def courses_for_filter(filter)
@@ -109,49 +109,49 @@ module Analytics
     end
 
     def courses_subselect
-      courses.scoped(:select => 'DISTINCT courses.id').construct_finder_sql({})
+      courses.select("courses.id").uniq.to_sql
     end
 
     def page_views_rollups
-      PageViewsRollup.scoped(:joins => "
-        INNER JOIN (#{courses_subselect}) AS courses
+      PageViewsRollup.
+        joins("INNER JOIN (#{courses_subselect}) AS courses
           ON courses.id=page_views_rollups.course_id")
     end
 
     def cached_grade_distribution
-      selects = (0..100).map{ |i| "sum(s#{i}) as s#{i}" }
-      CachedGradeDistribution.scoped(:select => selects.join(','), :joins => "
-        INNER JOIN (#{courses_subselect}) AS courses ON
+      selects = (0..100).map{ |i| "SUM(s#{i}) AS s#{i}" }
+      CachedGradeDistribution.select(selects).
+        joins("INNER JOIN (#{courses_subselect}) AS courses ON
           courses.id=cached_grade_distributions.course_id").first
     end
 
     def enrollments
-      Enrollment.scoped(:conditions => {:workflow_state => ['active', 'completed']}).scoped(:joins => "
-        INNER JOIN (#{courses_subselect}) AS courses
+      Enrollment.where(:workflow_state => ['active', 'completed']).
+        joins("INNER JOIN (#{courses_subselect}) AS courses
           ON courses.id=enrollments.course_id")
     end
 
     def teacher_enrollments
-      enrollments.scoped(:conditions => {:type => 'TeacherEnrollment'})
+      enrollments.where(:type => 'TeacherEnrollment')
     end
 
     def student_enrollments
-      enrollments.scoped(:conditions => {:type => 'StudentEnrollment'})
+      enrollments.where(:type => 'StudentEnrollment')
     end
 
     def count_users_for_enrollments(enrollments_scope)
-      enrollments_scope.scoped(:select => "COUNT(DISTINCT enrollments.user_id) AS ct").first.ct.to_i
+      enrollments_scope.count(:user_id, :distinct => true)
     end
 
     def discussion_topics
-      DiscussionTopic.active.scoped(:joins => "
-        INNER JOIN (#{courses_subselect}) AS courses
+      DiscussionTopic.active.
+        joins("INNER JOIN (#{courses_subselect}) AS courses
           ON courses.id=discussion_topics.context_id
           AND discussion_topics.context_type='Course'")
     end
 
     def discussion_replies
-      DiscussionEntry.active.scoped(:joins => "
+      DiscussionEntry.active.joins("
         INNER JOIN discussion_topics
           ON discussion_topics.id=discussion_entries.discussion_topic_id
           AND discussion_topics.workflow_state != 'deleted'
@@ -161,28 +161,28 @@ module Analytics
     end
 
     def media_objects
-      MediaObject.active.scoped(:joins => "
+      MediaObject.active.joins("
         INNER JOIN (#{courses_subselect}) AS courses
           ON courses.id=media_objects.context_id
           AND media_objects.context_type='Course'")
     end
 
     def attachments
-      Attachment.active.scoped(:joins => "
+      Attachment.active.joins("
         INNER JOIN (#{courses_subselect}) AS courses
           ON courses.id=attachments.context_id
           AND attachments.context_type='Course'")
     end
 
     def assignments
-      Assignment.active.scoped(:joins => "
+      Assignment.active.joins("
         INNER JOIN (#{courses_subselect}) AS courses
           ON courses.id=assignments.context_id
           AND assignments.context_type='Course'")
     end
 
     def submissions
-      Submission.scoped(:joins => "
+      Submission.joins("
         INNER JOIN assignments
           ON assignments.id=submissions.assignment_id
           AND assignments.workflow_state != 'deleted'
@@ -198,7 +198,7 @@ module Analytics
       select << 'MIN(courses.created_at) AS created_at' unless start_at
       select << 'MAX(courses.conclude_at) AS conclude_at' unless end_at
       unless select.empty?
-        dates = slaved{ courses.scoped(:select => select.join(',')).first }
+        dates = slaved{ courses.select(select).first }
         start_at ||= parse_utc_time(dates.created_at) || Time.zone.now
         end_at ||= parse_utc_time(dates.conclude_at) || start_at
       end

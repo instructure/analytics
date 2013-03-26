@@ -30,10 +30,11 @@ class CachedGradeDistribution < ActiveRecord::Base
   end
 
   def grade_distribution_rows
-    grade_distribution_sql = course.all_student_enrollments.scoped({
-      :select => 'COUNT(DISTINCT user_id) AS user_count, ROUND(computed_current_score) AS score',
-      :conditions => { :type => 'StudentEnrollment', :workflow_state => ['active', 'completed'] },
-      :group => 'ROUND(computed_current_score)' }).construct_finder_sql({})
+    grade_distribution_sql = course.all_student_enrollments.
+      select("COUNT(DISTINCT user_id) AS user_count, ROUND(computed_current_score) AS score").
+      where(:type => 'StudentEnrollment', :workflow_state => ['active', 'completed']).
+      group("ROUND(computed_current_score)").
+      to_sql
       
     self.class.connection.select_rows(grade_distribution_sql)
   end

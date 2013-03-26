@@ -51,7 +51,7 @@ module Analytics
         end
 
         def paginate(scope, pager)
-          super scope.scoped(:order => order), pager
+          super scope.order(order), pager
         end
       end
 
@@ -67,8 +67,7 @@ module Analytics
         def paginate(scope, pager)
           set_pages(pager)
           paged_ids = @sorted_ids[(pager.current_page - 1) * pager.per_page, pager.per_page]
-          paged_students = scope.scoped(:conditions => {:id => paged_ids})
-          student_map = paged_students.inject({}) { |h,student| h[student.id] = student; h }
+          student_map = scope.where(:id => paged_ids).index_by(&:id)
           pager.replace paged_ids.map{ |id| student_map[id] }
         end
 

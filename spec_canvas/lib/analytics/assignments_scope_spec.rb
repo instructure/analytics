@@ -13,7 +13,7 @@ module Analytics
 
         harness.instance_variable_set '@course', course
 
-        assignments = harness.assignment_scope.find(:all)
+        assignments = harness.assignment_scope.all
         assignments.size.should == 3
         assignments.each do |assignment|
           assignment.versions.loaded?.should be_true

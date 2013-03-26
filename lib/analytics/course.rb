@@ -50,14 +50,15 @@ module Analytics
     def student_ids
       slaved(:cache_as => :student_ids) do
         # id of any user with an enrollment, order unimportant
-        enrollment_scope.scoped(:select => 'DISTINCT user_id').map{ |e| e.user_id }
+        enrollment_scope.select(:user_id).uniq.map{ |e| e.user_id }
       end
     end
 
     def participation
       slaved(:cache_as => :participation) do
         @course.page_views_rollups.
-          scoped(:select => "date, sum(views) as views, sum(participations) as participations", :group => "date").
+          select("date, SUM(views) AS views, SUM(participations) AS participations").
+          group(:date).
           map{ |rollup| rollup.as_json[:page_views_rollup] }
       end
     end
@@ -129,22 +130,21 @@ module Analytics
   private
 
     def cache_prefix
-      [@course, Digest::MD5.hexdigest(enrollment_scope.construct_finder_sql({}))]
+      [@course, Digest::MD5.hexdigest(enrollment_scope.to_sql)]
     end
 
     def enrollment_scope
       @enrollment_scope ||= @course.enrollments_visible_to(@current_user, :include_priors => true).
-        scoped(:conditions => { 'enrollments.workflow_state' => ['active', 'completed'] })
+        where(:enrollments => { :workflow_state => ['active', 'completed'] })
     end
 
     def submissions(assignments, student_ids=self.student_ids)
       @course.shard.activate do
         Submission.
-          scoped(:select =>
-            "id, assignment_id, score, user_id, submission_type, " +
-            "submitted_at, graded_at, updated_at, workflow_state").
-          scoped(:conditions => { :assignment_id => assignments.map(&:id) }).
-          scoped(:conditions => { :user_id => student_ids }).
+          select([:id, :assignment_id, :score, :user_id, :submission_type,
+            :submitted_at, :graded_at, :updated_at, :workflow_state]).
+          where(:assignment_id => assignments).
+          where(:user_id => student_ids).
           all
       end
     end
@@ -152,10 +152,10 @@ module Analytics
     def student_scope
       @student_scope ||= begin
         # any user with an enrollment, ordered by name
-        subselect = enrollment_scope.scoped(:select => 'DISTINCT user_id, computed_current_score').construct_finder_sql({})
-        User.scoped(
-          :select => "users.*, enrollments.computed_current_score",
-          :joins => "INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id=users.id")
+        subselect = enrollment_scope.select([:user_id, :computed_current_score]).uniq.to_sql
+        User.
+          select("users.*, enrollments.computed_current_score").
+          joins("INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id=users.id")
       end
     end
 
