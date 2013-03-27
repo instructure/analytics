@@ -258,11 +258,6 @@ class AnalyticsApiController < ApplicationController
   # visualizations (since determining maximums client side can be tricky with
   # pagination).
   #
-  # NOTE: If there are more than 50 students in the course, this will only
-  # return summaries for the first 50 students. This is for performance
-  # reasons. In the near future, it will be paginated to allow you to request
-  # additional pages of users.
-  #
   # @example_request
   #
   #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/student_summaries \ 
