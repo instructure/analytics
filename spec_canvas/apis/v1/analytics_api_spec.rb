@@ -295,7 +295,9 @@ describe "Analytics API", :type => :integration do
       it_should_behave_like "analytics cassandra page views"
       it "should have iso8601 page_views keys" do
         pv = page_view(:user => @student, :course => @course)
-        expected = Time.zone.at(PageView.hour_bucket_for_time(pv.created_at)).iso8601
+
+        bucket = Analytics::PageViewIndex::EventStream.bucket_for_time(pv.created_at)
+        expected = Time.zone.at(bucket).iso8601
         json = analytics_api_call(:participation, @course, @student, :user => @teacher)
         json['page_views'].keys.should == [expected]
       end
