@@ -172,6 +172,6 @@ module PageViewRoller
   end
 
   def self.slaved
-    ActiveRecord::Base::ConnectionSpecification.with_environment(:slave) { yield }
+    Shackles.activate(:slave) { yield }
   end
 end
