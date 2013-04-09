@@ -81,7 +81,6 @@ describe "analytics course view" do
       end
 
       go_to_analytics("/courses/#{@course.id}/analytics")
-
       student_rows.count.should == 1
       student_rows.first.text.should == INITIAL_STUDENT_NAME
       add_students_to_course(2)
@@ -94,6 +93,15 @@ describe "analytics course view" do
       randomly_grade_assignments(5)
       go_to_analytics("/courses/#{@course.id}/analytics")
       f('div.current_score').should include_text(current_student_score)
+    end
+
+    it "should display student activity for tomorrow" do
+      tomorrow = Time.now.utc + 1.day
+      page_view(:user => @student, :course => @course, :participated => true, :created_at => tomorrow)
+
+      go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
+      fj("rect.#{Time.now.utc.strftime("%Y-%m-%d")}").should be_nil
+      fj("rect.#{tomorrow.strftime("%Y-%m-%d")}").should be_displayed
     end
 
     context 'main bars' do
