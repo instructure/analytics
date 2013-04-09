@@ -111,7 +111,7 @@ describe PageViewsRollup do
     end
 
     context "sharding" do
-      it_should_behave_like "sharding"
+      specs_require_sharding
 
       context "new bin" do
         it "should return a bin on the correct shard given an AR object" do
