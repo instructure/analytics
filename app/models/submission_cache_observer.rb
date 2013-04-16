@@ -5,7 +5,7 @@ class SubmissionCacheObserver < ActiveRecord::Observer
     unless record.is_a? Submission
       class_name = record.class.to_s.underscore
       class_name = 'enrollment' if class_name =~ /enrollment/
-      send("cache_for_#{class_name}".to_sym, record)
+      send_later_if_production_enqueue_args("cache_for_#{class_name}", {:singleton => "assignment_rollup_for_#{class_name}:#{record.global_id}"}, record)
     end
   end
 
@@ -14,13 +14,13 @@ class SubmissionCacheObserver < ActiveRecord::Observer
       class_name = record.class.to_s.underscore
 
       if class_name == 'assignment_override'
-        cache_for_assignment_override(record)
+        send_later_if_production_enqueue_args('cache_for_assignment_override', {:singleton => "assignment_rollup_for_assignment_override:#{record.global_id}" }, record)
       elsif class_name == 'assignment' and record.due_at_changed?
-        cache_for_assignment(record)
+        send_later_if_production_enqueue_args('cache_for_assignment', {:singleton => "assignment_rollup_for_assignment:#{record.global_id}"}, record)
       elsif class_name =~ /enrollment/ and record.course_section_id_changed?
-        cache_for_enrollment(record)
+        send_later_if_production_enqueue_args('cache_for_enrollment', {:singleton => "assignment_rollup_for_enrollment:#{record.global_id}"}, record)
       elsif class_name == 'group_membership' and record.group_id_changed?
-        cache_for_group_membership(record)
+        send_later_if_production_enqueue_args('cache_for_group_membership', {:singleton => "assignment_rollup_for_group_membership:#{record.global_id}"}, record)
       end
 
     end
@@ -39,25 +39,17 @@ class SubmissionCacheObserver < ActiveRecord::Observer
       AssignmentSubmissionRoller.update_caches_for_scope(students_scope)
     end
   end
-  handle_asynchronously_if_production :cache_for_assignment_override,
-        :singleton => proc { |observer,override| "assignment_rollup_for_assignment_override:#{override.global_id}" }
 
   def cache_for_assignment(assignment)
     AssignmentSubmissionRoller.update_caches_for_scope(assignment.submissions)
   end
-  handle_asynchronously_if_production :cache_for_assignment,
-        :singleton => proc { |observer,assignment| "assignment_rollup_for_assignment:#{assignment.global_id}" }
 
   def cache_for_enrollment(enrollment)
     AssignmentSubmissionRoller.update_caches_for_scope(enrollment.user.submissions)
   end
-  handle_asynchronously_if_production :cache_for_enrollment,
-        :singleton => proc { |observer,enrollment| "assignment_rollup_for_enrollment:#{enrollment.global_id}" }
 
   def cache_for_group_membership(membership)
     AssignmentSubmissionRoller.update_caches_for_scope(membership.user.submissions)
   end
-  handle_asynchronously_if_production :cache_for_group_membership,
-        :singleton => proc { |observer,membership| "assignment_rollup_for_membership:#{membership.global_id}" }
 
 end
