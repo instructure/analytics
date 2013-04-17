@@ -7,18 +7,12 @@ module AssignmentsRoller
       assignments = ::Analytics::Assignments.assignment_scope_for(course)
       logger.info "Rolling up #{assignments.count} Assignments for course #{course.id}" if options[:verbose]
       assignments.each do |assignment|
-        rollup_one_assignment_immediately(course, assignment, options)
+        rollup_one_assignment(course, assignment, options)
       end
     end
   end
 
   def self.rollup_one_assignment(course, assignment, options = {})
-    rollup_one_assignment_immediately(course, assignment, options)
-  end
-  singleton_class.handle_asynchronously_if_production :rollup_one_assignment,
-        :singleton => proc { |roller,course,assignment| "rollup_one_assignment:#{assignment.global_id}" }
-
-  def self.rollup_one_assignment_immediately(course, assignment, options = {})
     rollup_one(course, assignment, nil, options)
     course.active_course_sections.each do |section|
       rollup_one(course, assignment, section, options)
