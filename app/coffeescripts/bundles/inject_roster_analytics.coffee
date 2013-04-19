@@ -5,7 +5,7 @@
 # account))
 require [
   'jquery'
-  'compiled/views/courses/RosterView'
+  'compiled/views/courses/roster/RosterView'
   'compiled/fn/punch'
   'analytics/jst/student_analytics_grid_button'
 ], ($, RosterView, punch, template) ->
