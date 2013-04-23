@@ -48,7 +48,7 @@ class AssignmentRollup < ActiveRecord::Base
   def calculate_scores(points_possible, submission_scope)
     if points_possible
       buckets = Rollups::ScoreBuckets.new(points_possible)
-      submission_scope.useful_find_each do |submission|
+      submission_scope.select('submissions.score').find_each do |submission|
         buckets << submission.score if submission.score
       end
       self.attributes = {

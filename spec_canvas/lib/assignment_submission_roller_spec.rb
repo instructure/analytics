@@ -16,17 +16,19 @@ describe AssignmentSubmissionRoller do
     end
 
     describe 'time range' do
-      let(:other_user) { User.create! }
-
-      let!(:old_submission) do
-        sub = Submission.create!(:assignment => assignment, :user => other_user, :submission_type => 'online_url')
+      def build_submission_for(days_ago)
+        sub = Submission.create!(:assignment => assignment, :user => User.create!, :submission_type => 'online_url')
         Submission.record_timestamps = false
-        sub.update_attribute(:submitted_at, 900.days.ago)
-        sub.update_attribute(:created_at, 874.days.ago)
-        sub.update_attribute(:updated_at, 873.days.ago)
+        sub.update_attribute(:submitted_at, days_ago.days.ago)
+        sub.update_attribute(:created_at, days_ago.days.ago)
+        sub.update_attribute(:updated_at, days_ago.days.ago)
         Submission.record_timestamps = true
+        Submission.update_all('cached_tardy_status = NULL', "id = #{sub.id}")
         sub
       end
+
+      let!(:old_submission) { build_submission_for(900) }
+      let!(:less_old_submission) { build_submission_for(800) }
 
       it 'grabs submissions modified in the last 2 years by default' do
         lambda{ AssignmentSubmissionRoller.rollup_all }.should_not change { old_submission.reload.updated_at }
@@ -35,6 +37,14 @@ describe AssignmentSubmissionRoller do
       it 'can be overriden to cache submissions farther back' do
         AssignmentSubmissionRoller.rollup_all(:start_at => 3.years.ago)
         old_submission.reload.cached_tardy_status.should_not be_nil
+        less_old_submission.reload.cached_tardy_status.should_not be_nil
+      end
+
+      it 'can target a specific window' do
+        old_submission.reload.cached_tardy_status.should be_nil
+        AssignmentSubmissionRoller.rollup_all(:start_at => 820.days.ago, :end_at => 780.days.ago)
+        old_submission.reload.cached_tardy_status.should be_nil
+        less_old_submission.reload.cached_tardy_status.should_not be_nil
       end
     end
   end

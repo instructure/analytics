@@ -26,7 +26,8 @@ describe AssignmentRollup do
 
     let(:submission_scope) do
       scope = stub('sub_scope')
-      scope.stubs(:useful_find_each).multiple_yields(*scores.map{|s| [stub(:score => s)] })
+      scope.stubs(:select).returns(scope)
+      scope.stubs(:find_each).multiple_yields(*scores.map{|s| [stub(:score => s)] })
       scope
     end
 

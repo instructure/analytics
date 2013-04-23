@@ -417,7 +417,6 @@ describe Analytics::Course do
             it "should count as on time if graded on or before due_at" do
               @submission.graded_at = @assignment.due_at - 1.day
               @submission.save!
-
               expect_assignment_breakdown(:on_time)
             end
 
@@ -675,7 +674,6 @@ describe Analytics::Course do
   end
 
   def student_summary(analytics=@teacher_analytics)
-    AssignmentSubmissionRoller.rollup_all
     analytics.student_summaries.paginate(:page => 1, :per_page => 1).first
   end
 
@@ -689,7 +687,6 @@ describe Analytics::Course do
   end
 
   def expect_assignment_breakdown(bin, opts={})
-    AssignmentSubmissionRoller.rollup_all
     breakdown = @teacher_analytics.assignments.first[:tardiness_breakdown]
     expected = expected_breakdown(bin)
 

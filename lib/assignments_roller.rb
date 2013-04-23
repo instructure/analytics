@@ -3,10 +3,10 @@ module AssignmentsRoller
   def self.rollup_all(options={})
     logger.info "Rolling up all assignments"
 
-    Course.active.useful_find_each do |course|
+    Course.active.select('courses.id').find_each do |course|
       assignments = ::Analytics::Assignments.assignment_scope_for(course)
       logger.info "Rolling up #{assignments.count} Assignments for course #{course.id}" if options[:verbose]
-      assignments.each do |assignment|
+      assignments.select('assignments.id, assignments.title, assignments.muted, assignments.points_possible, assignments.due_at').each do |assignment|
         rollup_one_assignment(course, assignment, options)
       end
     end
@@ -14,7 +14,7 @@ module AssignmentsRoller
 
   def self.rollup_one_assignment(course, assignment, options = {})
     rollup_one(course, assignment, nil, options)
-    course.active_course_sections.each do |section|
+    course.active_course_sections.select('course_sections.id').each do |section|
       rollup_one(course, assignment, section, options)
       logger.info "Finished rolling up Assignments for course #{course.id} section #{section.id}" if options[:verbose]
     end
