@@ -17,11 +17,15 @@ module Analytics
     end
 
     def as_hash_scaled(denominator)
-      {
-        :missing => @missing / denominator.to_f,
-        :late    => @late    / denominator.to_f,
-        :on_time => @on_time / denominator.to_f
-      }
+      if denominator <= 0
+        { :missing => 0, :late => 0, :on_time => 0 }
+      else
+        {
+          :missing => @missing / denominator.to_f,
+          :late    => @late    / denominator.to_f,
+          :on_time => @on_time / denominator.to_f
+        }
+      end
     end
 
     def as_hash

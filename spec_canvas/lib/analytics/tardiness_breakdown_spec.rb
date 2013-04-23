@@ -48,6 +48,12 @@ module Analytics
           :on_time => 0.3
         }
       end
+
+      it 'handles a 0 denominator acceptably' do
+        breakdown.as_hash_scaled(0.0).should == {
+          :missing => 0.0, :late => 0.0, :on_time => 0.0
+        }
+      end
     end
   end
 end

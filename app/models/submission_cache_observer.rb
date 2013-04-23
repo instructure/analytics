@@ -7,6 +7,7 @@ class SubmissionCacheObserver < ActiveRecord::Observer
       class_name = 'enrollment' if class_name =~ /enrollment/
       send_later_if_production_enqueue_args("cache_for_#{class_name}", {:singleton => "assignment_rollup_for_#{class_name}:#{record.global_id}"}, record)
     end
+    true
   end
 
   def after_update(record)
@@ -24,12 +25,14 @@ class SubmissionCacheObserver < ActiveRecord::Observer
       end
 
     end
+    true
   end
 
   def before_save(record)
-    if record.is_a?(Submission) && (record.new_record? || record.submitted_at_changed?)
+    if record.is_a?(Submission) && (record.new_record? || record.submitted_at_changed? || record.graded_at_changed?)
       AssignmentSubmissionRoller.update_cache(record, false)
     end
+    true
   end
 
   def cache_for_assignment_override(override)
