@@ -14,6 +14,10 @@
   <%= t :page_title, "Analytics: %{course}", :course => @course.short_name %>
 <% end %>
 
+<h1 class='screenreader-only'>
+  <%= t :page_title, "Analytics: %{course}", :course => @course.short_name %>
+</h1>
+
 <div id="analytics_body"></div>
 
 <% jammit_css :analytics, :plugin => :analytics %>

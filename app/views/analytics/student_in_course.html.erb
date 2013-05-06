@@ -16,6 +16,9 @@
   <%= t :page_title, "Analytics: %{course} -- %{student}", :course => @course.short_name, :student => context_user_name(@course, @student) %>
 <% end %>
 
+<h1 class='screenreader-only'>
+  <%= t :page_title, "Analytics: %{course} -- %{student}", :course => @course.short_name, :student => context_user_name(@course, @student) %>
+</h1>
 
 <div id="analytics_body"></div>
 
