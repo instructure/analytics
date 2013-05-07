@@ -16,8 +16,8 @@ module Rollups
       if @rollups.first.points_possible
         buckets = ScoreBuckets.parse(@rollups.first.points_possible, composite_bucket_list)
         {
-          :max_score => @rollups.map(&:max_score).max,
-          :min_score => @rollups.map(&:min_score).min,
+          :max_score => @rollups.map(&:max_score).compact.max,
+          :min_score => @rollups.map(&:min_score).compact.min,
           :first_quartile => buckets.first_quartile,
           :median => buckets.median,
           :third_quartile => buckets.third_quartile,

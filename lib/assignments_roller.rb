@@ -22,7 +22,6 @@ module AssignmentsRoller
 
   def self.rollup_one(course, assignment, section, options={})
     course.shard.activate do
-      submissions_scope = ::Analytics::Course.submission_scope_for(assignment)
       #these scopes are based on what I found in lib/analytics/course.rb
       enrollments_scope = if section.present?
         section.all_enrollments
@@ -30,6 +29,7 @@ module AssignmentsRoller
         course.all_student_enrollments
       end
       enrollments_scope = enrollments_scope.where(:workflow_state => ['active', 'completed'])
+      submissions_scope = ::Analytics::Course.submission_scope_for(assignment).where(:user_id => enrollments_scope.select(:user_id).uniq.map(&:user_id))
       student_count = enrollments_scope.count(:user_id, :distinct => true)
       AssignmentRollup.init(assignment, section, submissions_scope, student_count)
       logger.info "Rolled up assignment #{assignment.id} for course #{course.id}, section #{section.nil? ? 'none' : section.id}." if options[:verbose]
