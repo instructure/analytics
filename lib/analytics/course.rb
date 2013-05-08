@@ -70,18 +70,7 @@ module Analytics
     end
 
     def tardiness_breakdown(assignment_id, total)
-      subs_scope = submissions(assignment_id).select{|s| s.cached_tardy_status.present? }
-      breakdown_hash = subs_scope.inject(Hash.new(0)) do |memo, submission|
-        key = submission.cached_tardy_status.to_sym
-        memo[key] = memo[key] + 1
-        memo
-      end
-
-      other_missing = total - breakdown_hash.values.sum
-      breakdown_hash[:missing] = breakdown_hash[:missing] + other_missing
-
-      breakdown = TardinessBreakdown.new(breakdown_hash[:missing], breakdown_hash[:late], breakdown_hash[:on_time])
-      breakdown.as_hash_scaled(total).merge(:total => total)
+      tardiness_grid.tally(:assignment, assignment_id).as_hash_scaled(total).merge(:total => total)
     end
 
     # Overriding this from Assignments to account for Variable Due Dates
