@@ -23,10 +23,6 @@ Rails.configuration.to_prepare do
   require 'analytics/periodic_jobs'
 end
 
-Rails.configuration.after_initialize do
-  ActiveRecord::Base.observers << SubmissionCacheObserver
-  ActiveRecord::Base.observers << AssignmentRollupObserver
-end
 
 Permissions.register :view_analytics,
   :label => lambda { I18n.t('#role_override.permissions.view_analytics', "View analytics pages") },
