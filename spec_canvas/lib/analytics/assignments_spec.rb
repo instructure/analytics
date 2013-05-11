@@ -69,6 +69,7 @@ module Analytics
       end
 
       it 'retrieves a hash that looks like assignments if there are rollups' do
+        pending "rollups temporarily disabled"
         user = User.create!
         enrollment = StudentEnrollment.create!(:user => user, :course => this_course, :course_section => sections.first)
         Enrollment.where(:id => enrollment).update_all(:workflow_state => 'active')
