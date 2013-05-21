@@ -7,6 +7,7 @@ module Rollups
     STABLE_ATTRS = [:assignment_id, :title, :due_at, :muted, :points_possible]
 
     def data
+      return nil if @rollups.blank?
       hash = @rollups.first.data.slice(*STABLE_ATTRS)
       hash.merge!(score_summary)
       hash.merge({:tardiness_breakdown => tardiness_summary})

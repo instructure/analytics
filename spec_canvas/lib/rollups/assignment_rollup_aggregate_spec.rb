@@ -22,7 +22,7 @@ module Rollups
     }
 
     let(:the_course) { course }
-    let(:rollup) { AssignmentRollup.create!(rollup_attrs) }
+    let(:rollup) { AssignmentRollup.new(rollup_attrs) }
 
     describe 'data from a single rollup' do
       let(:aggregate) { AssignmentRollupAggregate.new([rollup]) }

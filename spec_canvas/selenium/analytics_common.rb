@@ -104,7 +104,6 @@ shared_examples_for "analytics tests" do
 
   def run_analytics_rollups
     AssignmentSubmissionRoller.rollup_all
-    AssignmentsRoller.rollup_all
   end
 
   def setup_variety_assignments(add_no_due_date = true)

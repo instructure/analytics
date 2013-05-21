@@ -1,8 +1,8 @@
 module Analytics
   class TardinessBreakdown
-    attr_reader :missing, :late, :on_time
+    attr_accessor :missing, :late, :on_time
 
-    def initialize(missing, late, on_time)
+    def initialize(missing = 0, late = 0, on_time = 0)
       @missing = missing || 0
       @late = late || 0
       @on_time = on_time || 0

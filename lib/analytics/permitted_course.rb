@@ -7,7 +7,14 @@ module Analytics
     end
 
     def assignments
-      @course_analytics.assignments
+      visibilities = @course.section_visibilities_for(@user)
+      level = @course.enrollment_visibility_level_for(@user, visibilities)
+
+      if level == :full || level == :sections
+        @course_analytics.assignment_rollups_for(visibilities.map{|s| s[:course_section_id]})
+      else
+        @course_analytics.assignments
+      end
     end
 
   end
