@@ -12,8 +12,8 @@ module Analytics
       before do
         late_submission = assignment.submissions.create!(:user => ::User.create!)
         on_time_submission = assignment.submissions.create!(:user => ::User.create!)
-        ::Submission.where(:id => late_submission).update_all(:cached_tardy_status => 'late')
-        ::Submission.where(:id => on_time_submission).update_all(:cached_tardy_status => 'on_time')
+        ::Submission.where(:id => late_submission).update_all(:cached_due_date => 2.days.ago, :submitted_at => 1.day.ago)
+        ::Submission.where(:id => on_time_submission).update_all(:cached_due_date => 1.day.ago, :submitted_at => 2.days.ago)
       end
 
       subject { TardinessBreakdown.init_with_scope(assignment.submissions, 3) }

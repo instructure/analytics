@@ -9,10 +9,21 @@ module Analytics
     end
 
     def self.init_with_scope(submission_scope, total)
-      counts = submission_scope.group(:cached_tardy_status).count
+      counts = submission_scope.group(<<-SQL).count
+        CASE
+        WHEN cached_due_date < NOW() AND submitted_at > cached_due_date THEN 'late'
+        WHEN submitted_at IS NOT NULL THEN 'on_time'
+        WHEN cached_due_date < NOW() THEN 'missing'
+        ELSE 'floating'
+        END
+      SQL
       late = counts['late']
       on_time = counts['on_time']
-      missing = total - counts.values.sum
+      missing = counts['missing'] || 0
+      # XXX: incorrectly assumes that if a submission doesn't exist it's
+      # missing. it may be floating if the absent submission's due date is null
+      # or in the future
+      missing += total - counts.values.sum
       self.new(missing, late, on_time)
     end
 
