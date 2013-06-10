@@ -61,12 +61,17 @@ class AssignmentRollup
     # Left join so we get a row for every student enrollment, whether a submission exists or not.
     # The observer only rebuilds this rollup if one of the relevant submission
     # columns changes, so if you add new columns here then check the observer too.
-    enrollments_scope.joins("LEFT JOIN submissions ON submissions.user_id = enrollments.user_id AND submissions.assignment_id = #{assignment.id}").select("enrollments.id, enrollments.user_id, enrollments.course_id, enrollments.course_section_id, submissions.id as submission_id, submissions.score, submissions.cached_due_date, submissions.submitted_at")
+    enrollments_scope.joins("LEFT JOIN submissions ON submissions.user_id = enrollments.user_id AND submissions.assignment_id = #{assignment.id}").select("enrollments.id, enrollments.user_id, enrollments.course_id, enrollments.course_section_id, submissions.id as submission_id, submissions.score, submissions.cached_due_date, submissions.submitted_at, submissions.submission_type")
   end
 
   def update_stats(assignment, submission)
     self.total_submissions += 1
-    if !submission.submission_id || submission.missing?
+
+    # convert submission portion into actual Submission so we can use methods
+    submission = submission.submission_id && Submission.send(:instantiate,
+      submission.attributes.slice("score", "cached_due_date", "submitted_at", "submission_type"))
+
+    if !submission || submission.missing?
       # XXX: incorrectly assumes that if a submission doesn't exist it's
       # missing. it may be floating if the absent submission's due date is null
       # or in the future
@@ -76,7 +81,7 @@ class AssignmentRollup
     elsif submission.submitted_at
       self.tardiness_breakdown.on_time += 1
     end
-    if self.buckets && submission.score
+    if self.buckets && submission.try(:score)
       self.buckets << submission.score.to_f
     end
   end
