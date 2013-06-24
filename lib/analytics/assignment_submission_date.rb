@@ -48,7 +48,7 @@ module Analytics
 
     # Returns the date the submission was graded if available; otherwise, nil
     def graded_date
-      @submission && @submission.graded_at.presence
+      @submission.graded_at if @submission && @submission.grade.present?
     end
 
   end

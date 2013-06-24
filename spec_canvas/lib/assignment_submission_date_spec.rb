@@ -43,6 +43,7 @@ module Analytics
     it "returns a best-effort submission date - graded_at" do
       submission.stubs(
         :submitted_at => nil,
+        :grade => 'A',
         :graded? => false,
         :graded_at => time2)
       assign_sub.submission_date.should == time2
@@ -51,8 +52,18 @@ module Analytics
     it "returns a best-effort submission date - nil when none available" do
       submission.stubs(
         :submitted_at => nil,
+        :grade => 'A',
         :graded? => false,
         :graded_at => nil)
+      assign_sub.submission_date.should be_nil
+    end
+
+    it "returns a nil submission date when there is a graded_at date but no grade" do
+      submission.stubs(
+        :submitted_at => nil,
+        :grade => nil,
+        :graded? => false,
+        :graded_at => time2)
       assign_sub.submission_date.should be_nil
     end
   end
