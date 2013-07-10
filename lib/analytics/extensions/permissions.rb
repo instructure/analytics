@@ -38,7 +38,7 @@ module AnalyticsPermissions
         end
       end
 
-      @department_analytics = Analytics::Department.new(@current_user, session, @account, @term, @filter)
+      @department_analytics = Analytics::Department.new(@current_user, @account, @term, @filter)
       return true
     end
 
@@ -50,7 +50,7 @@ module AnalyticsPermissions
       @course = api_request? ? api_find(scope, params[:course_id]) : scope.find(params[:course_id])
       return false unless authorized_action(@course, @current_user, :view_analytics)
 
-      @course_analytics = Analytics::Course.new(@current_user, session, @course)
+      @course_analytics = Analytics::Course.new(@current_user, @course)
       raise ActiveRecord::RecordNotFound unless @course_analytics.available?
 
       return true
@@ -72,7 +72,7 @@ module AnalyticsPermissions
       # student's enrollment in the course?
       @student = api_request? ? api_find(User, params[:student_id]) : User.find(params[:student_id])
 
-      @student_analytics = Analytics::StudentInCourse.new(@current_user, session, @course, @student)
+      @student_analytics = Analytics::StudentInCourse.new(@current_user, @course, @student)
       raise ActiveRecord::RecordNotFound unless @student_analytics.available?
 
       return false unless authorized_action(@student_analytics.enrollment, @current_user, :read_grades)

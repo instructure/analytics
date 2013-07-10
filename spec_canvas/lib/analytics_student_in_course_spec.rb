@@ -10,15 +10,15 @@ module Analytics
     describe "#enrollment" do
       it "should not cache the enrollment" do
         enable_cache do
-          a1 = StudentInCourse.new(@teacher, nil, @course, @student)
-          a2 = StudentInCourse.new(@teacher, nil, @course, @student)
+          a1 = StudentInCourse.new(@teacher, @course, @student)
+          a2 = StudentInCourse.new(@teacher, @course, @student)
           a1.enrollment.object_id.should_not == a2.enrollment.object_id
         end
       end
     end
 
     describe "#extended_assignment_data" do
-      let(:analytics) { StudentInCourse.new(@teacher, nil, @course, @student) }
+      let(:analytics) { StudentInCourse.new(@teacher, @course, @student) }
       let(:time1) { Time.local(2012, 10, 1) }
       it "has a :submission field" do
         assignment = stub('assignment')
@@ -41,7 +41,7 @@ module Analytics
 
       it 'lets overridden_for determine the due_at value' do
         blank = stub_everything
-        student_in_course = StudentInCourse.new(blank, blank, blank, blank)
+        student_in_course = StudentInCourse.new(blank, blank, blank)
         student_in_course.basic_assignment_data(assignment)[:due_at].should == due_at
       end
     end

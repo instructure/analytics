@@ -37,13 +37,13 @@ class ContextController
     ['available', 'completed'].include?(@context.workflow_state) &&
     service_enabled?(:analytics) &&
     @context.grants_right?(@current_user, session, :view_analytics) &&
-    Analytics::Course.available_for?(@current_user, session, @context)
+    Analytics::Course.available_for?(@current_user, @context)
   end
 
   # can the user view analytics for this student in the course?
   def analytics_enabled_student?(student)
-    analytics = Analytics::StudentInCourse.new(@current_user, session, @context, student)
+    analytics = Analytics::StudentInCourse.new(@current_user, @context, student)
     analytics.available? &&
-    analytics.enrollment.grants_right?(@current_user, session, :read_grades)
+    analytics.enrollment.grants_right?(@current_user, :read_grades)
   end
 end

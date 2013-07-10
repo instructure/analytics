@@ -1,11 +1,11 @@
 module Analytics
   class StudentInCourse < Analytics::Base
-    def self.available_for?(current_user, session, course, student)
-      new(current_user, session, course, student).available?
+    def self.available_for?(current_user, course, student)
+      new(current_user, course, student).available?
     end
 
-    def initialize(current_user, session, course, student)
-      super(current_user, session)
+    def initialize(current_user, course, student)
+      super(current_user)
       @course = course
       @student = student
     end
@@ -121,7 +121,7 @@ module Analytics
     end
 
     def allow_student_details?
-      @course.grants_rights?(@current_user, @session, :manage_grades, :view_all_grades).values.any?
+      @course.grants_rights?(@current_user, :manage_grades, :view_all_grades).values.any?
     end
 
   private

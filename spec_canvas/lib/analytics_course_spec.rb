@@ -7,7 +7,7 @@ describe Analytics::Course do
     # set @course, @teacher, @teacher_enrollment
     course(:active_course => true)
     @teacher_enrollment = course_with_teacher(:course => @course, :name => 'Teacher', :active_all => true)
-    @teacher_analytics = Analytics::Course.new(@teacher, nil, @course)
+    @teacher_analytics = Analytics::Course.new(@teacher, @course)
     Setting.set('enable_page_views', 'db')
   end
 
@@ -36,7 +36,7 @@ describe Analytics::Course do
       describe "when viewed by a teacher" do
         it "multiple_due_dates flag is true" do
           assignment.multiple_due_dates_apply_to(@teacher).should be_true
-          analytics = Analytics::Course.new(@teacher, nil, @course)
+          analytics = Analytics::Course.new(@teacher, @course)
           data = analytics.basic_assignment_data(assignment)
           data[:multiple_due_dates].should be_true
         end
@@ -44,7 +44,7 @@ describe Analytics::Course do
       describe "when viewed by a student" do
         it "multiple_due_dates flag is false" do
           assignment.multiple_due_dates_apply_to(@student).should be_false
-          analytics = Analytics::Course.new(@student, nil, @course)
+          analytics = Analytics::Course.new(@student, @course)
           data = analytics.basic_assignment_data(assignment)
           data[:multiple_due_dates].should be_false
         end
@@ -61,7 +61,7 @@ describe Analytics::Course do
       @ta_enrollment.course_section = @course_section
       @ta_enrollment.save!
 
-      @ta_analytics = Analytics::Course.new(@ta, nil, @course)
+      @ta_analytics = Analytics::Course.new(@ta, @course)
     end
 
     it "should use the same cache for users with the same visibility" do
@@ -168,7 +168,7 @@ describe Analytics::Course do
         @ta_enrollment.course_section = @sectionB
         @ta_enrollment.limit_privileges_to_course_section = true
         @ta_enrollment.save!
-        @ta_analytics = Analytics::Course.new(@ta, nil, @course)
+        @ta_analytics = Analytics::Course.new(@ta, @course)
       end
 
       it "should include enrollments from the user's sections" do
@@ -183,20 +183,20 @@ describe Analytics::Course do
     end
   end
 
-  describe "#available_for?(user, session, course)" do
+  describe "#available_for?(user, course)" do
     it "should be true with an active enrollment in the course" do
       active_student
-      Analytics::Course.available_for?(@teacher, nil, @course).should be_true
+      Analytics::Course.available_for?(@teacher, @course).should be_true
     end
 
     it "should be true with a completed enrollment in the course" do
       completed_student
-      Analytics::Course.available_for?(@teacher, nil, @course).should be_true
+      Analytics::Course.available_for?(@teacher, @course).should be_true
     end
 
     it "should be false with only invited enrollments in the course" do
       invited_student
-      Analytics::Course.available_for?(@teacher, nil, @course).should be_false
+      Analytics::Course.available_for?(@teacher, @course).should be_false
     end
 
     context "when the user is section limited" do
@@ -208,17 +208,17 @@ describe Analytics::Course do
         @ta_enrollment.course_section = @sectionB
         @ta_enrollment.limit_privileges_to_course_section = true
         @ta_enrollment.save!
-        @ta_analytics = Analytics::Course.new(@ta, nil, @course)
+        @ta_analytics = Analytics::Course.new(@ta, @course)
       end
 
       it "should be true with an enrollment in the user's section" do
         active_student(:section => @sectionB)
-        Analytics::Course.available_for?(@ta, nil, @course).should be_true
+        Analytics::Course.available_for?(@ta, @course).should be_true
       end
 
       it "should be false with no enrollments in the user's section" do
         active_student(:section => @sectionA)
-        Analytics::Course.available_for?(@ta, nil, @course).should be_false
+        Analytics::Course.available_for?(@ta, @course).should be_false
       end
     end
   end
@@ -248,7 +248,7 @@ describe Analytics::Course do
         @ta_enrollment.course_section = @sectionB
         @ta_enrollment.limit_privileges_to_course_section = true
         @ta_enrollment.save!
-        @ta_analytics = Analytics::Course.new(@ta, nil, @course)
+        @ta_analytics = Analytics::Course.new(@ta, @course)
       end
 
       it "should be true with an enrollment in the user's section" do

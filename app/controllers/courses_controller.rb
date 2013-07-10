@@ -64,6 +64,6 @@ class CoursesController
     service_enabled?(:analytics) &&
     @context.grants_right?(@current_user, session, :view_analytics) &&
     @context.grants_rights?(@current_user, session, :read_as_admin).values.any? &&
-    Analytics::Course.available_for?(@current_user, session, @context)
+    Analytics::Course.available_for?(@current_user, @context)
   end
 end

@@ -2,12 +2,12 @@ require_dependency 'analytics/tardiness_grid'
 
 module Analytics
   class Course < Analytics::Base
-    def self.available_for?(current_user, session, course)
-      new(current_user, session, course).available?
+    def self.available_for?(current_user, course)
+      new(current_user, course).available?
     end
 
-    def initialize(current_user, session, course)
-      super(current_user, session)
+    def initialize(current_user, course)
+      super(current_user)
       @course = course
     end
 
@@ -123,7 +123,7 @@ module Analytics
     end
 
     def allow_student_details?
-      @course.grants_rights?(@current_user, @session, :manage_grades, :view_all_grades).values.any?
+      @course.grants_rights?(@current_user, :manage_grades, :view_all_grades).values.any?
     end
 
     def cache_prefix

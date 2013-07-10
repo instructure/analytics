@@ -1,7 +1,7 @@
 module Analytics
   class Department < Analytics::Base
-    def initialize(current_user, session, account, term, filter)
-      super(current_user, session)
+    def initialize(current_user, account, term, filter)
+      super(current_user)
       @account = account
       @term = term
       @filter = filter
