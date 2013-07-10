@@ -4,8 +4,8 @@ define [ 'analytics/compiled/BaseData' ], (BaseData) ->
   # Loads assignment data. Exposes the data as the 'assignments' property once
   # loaded.
   class BaseAssignmentData extends BaseData
-    constructor: (scope) ->
-      super "/api/v1/#{scope}/assignments"
+    constructor: (scope, parameters={}) ->
+      super "/api/v1/#{scope}/assignments", parameters
 
     populate: (data) ->
       @assignments = []

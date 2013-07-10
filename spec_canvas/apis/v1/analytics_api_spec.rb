@@ -286,6 +286,56 @@ describe "Analytics API", :type => :integration do
     end
   end
 
+  context "#course_assignments" do
+    before do
+      course_with_teacher(:active_all => true)
+      student_in_course(:active_all => true)
+      @user = @teacher
+    end
+
+    let(:url) { "/api/v1/courses/#{@course.id}/analytics/assignments" }
+    let(:course_assignments_route) do
+      {
+        :controller => 'analytics_api',
+        :action => 'course_assignments',
+        :format => 'json',
+        :course_id => @course.id.to_s
+      }
+    end
+
+    it "should return assignments" do
+      Assignment.create!(
+          :title => "assignment",
+          :context => @course,
+          :points_possible => 10,
+          :due_at => Time.now + 2.days)
+
+      json = api_call(:get, url, course_assignments_route)
+      response.status.to_i.should == 200
+      json.size.should == 1
+      json.first.keys.should include('assignment_id')
+    end
+
+    context "with async" do
+      it "should return progress" do
+        enable_cache do
+          json = api_call(:get, url, course_assignments_route, :async => 1.to_s)
+          response.status.to_i.should == 200
+          json.keys.should include('progress_url')
+          json['progress_url'].should match(%r{http://www.example.com/api/v1/progress/\d+})
+        end
+      end
+
+      it "should return the same progress object if called consecutively" do
+        enable_cache do
+          json1 = api_call(:get, url, course_assignments_route, :async => 1.to_s)
+          json2 = api_call(:get, url, course_assignments_route, :async => 1.to_s)
+          json1.should == json2
+        end
+      end
+    end
+  end
+
   context "#student_in_course_participation" do
     before :each do
       course_with_student(:active_all => true)
