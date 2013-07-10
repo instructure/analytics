@@ -162,7 +162,7 @@ describe PageView do
 
     it "should return user total page views and participants counts" do
       page_view(:user => @user1, :context => @course, :participated => true,  :created_at => 2.days.ago)
-      page_view(:user => @user1, :context => @course, :participated => false, :created_at => 15.months.ago)
+      page_view(:user => @user1, :context => @course, :participated => false, :created_at => 11.months.ago)
       page_view(:user => @user1, :context => @course, :participated => true,  :created_at => 1.hour.ago)
       page_view(:user => @user1, :context => @course, :participated => true,  :created_at => 1.hour.ago)
 
