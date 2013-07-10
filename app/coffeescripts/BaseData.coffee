@@ -1,4 +1,8 @@
-define [ 'jquery', 'jquery.ajaxJSON' ], ($) ->
+define [
+  'jquery'
+  'compiled/models/ContentMigrationProgress'
+  'jquery.ajaxJSON'
+], ($, ProgressModel) ->
 
   ##
   # Base class for all the analytics data models. Performs an AJAX GET of a url
@@ -10,16 +14,26 @@ define [ 'jquery', 'jquery.ajaxJSON' ], ($) ->
     constructor: (url, parameters={}) ->
       deferred = $.Deferred()
       @loading = deferred.promise()
+      @getData(url, parameters, deferred)
 
+    getData: (url, parameters, deferred) ->
       $.ajaxJSON url, 'GET', parameters,
         # success
         (data) =>
-          @populate(data)
-          @loading = null
-          deferred.resolve()
+          if data.progress_url
+            @progress = new ProgressModel
+              url: data.progress_url
+            @progress.poll().then =>
+              @getData(url, parameters, deferred)
+          else
+            @populate(data)
+            @loading = null
+            deferred.resolve()
+
         # error
         (data) ->
           deferred.reject()
+
 
     ##
     # Process the data returned by the ajax call to populate the data model.

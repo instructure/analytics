@@ -197,6 +197,14 @@ class AnalyticsApiController < ApplicationController
   # each assignment returns basic assignment information, the grade breakdown,
   # and a breakdown of on-time/late status of homework submissions.
   #
+  # @argument async [Boolean]
+  #   If async is true, then the course_assignments call can happen asynch-
+  #   ronously and MAY return a response containing a progress_url key instead
+  #   of an assignments array. If it does, then it is the caller's
+  #   responsibility to poll the API again to see if the progress is complete.
+  #   If the data is ready (possibly even on the first async call) then it
+  #   will be passed back normally, as documented in the example response.
+  #
   # @example_request
   #
   #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/assignments \ 
@@ -244,8 +252,15 @@ class AnalyticsApiController < ApplicationController
   #   ]
   def course_assignments
     return unless require_analytics_for_course
-    analytics = Analytics::PermittedCourse.new(@current_user, @course, @course_analytics)
-    render :json => analytics.assignments
+    permitted_course = Analytics::PermittedCourse.new(@current_user, @course)
+
+    if async_request && !permitted_course.async_data_available?
+      progress = permitted_course.progress_for_background_assignments
+      render :json => {:progress_url => polymorphic_url([:api_v1, progress])}
+      return
+    end
+
+    render :json => permitted_course.assignments
   end
 
   # @API Get course-level student summary data
@@ -414,5 +429,11 @@ class AnalyticsApiController < ApplicationController
   def student_in_course_messaging
     return unless require_analytics_for_student_in_course
     render :json => @student_analytics.messages
+  end
+
+  protected
+
+  def async_request
+    value_to_boolean(params[:async]) && cache_configured?
   end
 end
