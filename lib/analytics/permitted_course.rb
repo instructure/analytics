@@ -11,7 +11,10 @@ module Analytics
       course_analytics = Analytics::Course.new(@user, @course)
 
       if level == :full || level == :sections
-        course_analytics.assignment_rollups_for(visibilities.map{|s| s[:course_section_id]})
+        visible_section_ids = level == :full ?
+          @course.course_sections.active.pluck(:id) :
+          visibilities.map{|s| s[:course_section_id]}
+        course_analytics.assignment_rollups_for(visible_section_ids)
       else
         course_analytics.assignments
       end
