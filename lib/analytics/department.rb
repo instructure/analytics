@@ -119,7 +119,8 @@ module Analytics
     end
 
     def cached_grade_distribution
-      selects = (0..100).map{ |i| "SUM(s#{i}) AS s#{i}" }
+      # need to select a value for course_id here, or we get complaints about primary key missing_attribute
+      selects = ["NULL AS course_id"] + (0..100).map{ |i| "SUM(s#{i}) AS s#{i}" }
       CachedGradeDistribution.select(selects).
         joins("INNER JOIN (#{courses_subselect}) AS courses ON
           courses.id=cached_grade_distributions.course_id").first
