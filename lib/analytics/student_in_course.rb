@@ -138,7 +138,7 @@ module Analytics
     def submissions(assignments)
       @course.shard.activate do
         Submission.
-          select([:assignment_id, :score, :user_id, :submission_type, :submitted_at, :graded_at, :updated_at, :workflow_state]).
+          select(Analytics::Assignments::SUBMISSION_COLUMNS_SELECT).
           where(:assignment_id => assignments).
           all
       end

@@ -143,8 +143,7 @@ module Analytics
 
     def self.submission_scope_for(assignments)
       Submission.
-        select([ :id, :assignment_id, :score, :user_id, :submission_type,
-            :submitted_at, :grade, :graded_at, :updated_at, :workflow_state, :cached_due_date]).
+        select(Analytics::Assignments::SUBMISSION_COLUMNS_SELECT).
         where(:assignment_id => assignments)
     end
 

@@ -2,6 +2,9 @@ module Analytics
   module Assignments
     # required of host: submissions(assignments)
 
+    SUBMISSION_COLUMNS_SELECT = [:id, :assignment_id, :score, :user_id, :submission_type,
+            :submitted_at, :grade, :graded_at, :updated_at, :workflow_state, :cached_due_date]
+
     def assignments
       slaved(:cache_as => [:assignments, allow_student_details?]) do
         assignments = assignment_scope.all

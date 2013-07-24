@@ -341,6 +341,14 @@ describe "Analytics API", :type => :integration do
       course_with_student(:active_all => true)
     end
 
+    it "should return submission data when graded but not submitted" do
+      assignment = assignment_model course: @course
+      assignment.grade_student(@student, grade: 1)
+
+      json = analytics_api_call(:assignments, @course, @student, user: @teacher)
+      json.first['submission']['score'].should == 1
+    end
+
     context "cassandra" do
       it_should_behave_like "analytics cassandra page views"
       it "should have iso8601 page_views keys" do
