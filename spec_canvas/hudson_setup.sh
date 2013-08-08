@@ -1,9 +1,8 @@
 #!/bin/bash
-
 analytics=vendor/plugins/analytics
 canvalytics=vendor/plugins/canvalytics
 mra=vendor/plugins/multiple_root_accounts
-mra_repo="ssh://hudson@10.86.151.193/home/gerrit/multiple_root_accounts.git"
+mra_repo="$REPO/multiple_root_accounts.git"
 
 # force correct plugin name
 if [ -e $canvalytics ]; then
@@ -26,4 +25,3 @@ if [ ! -e $mra ]; then
 fi
 
 $mra/spec_canvas/hudson_setup.sh
-
