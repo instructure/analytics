@@ -220,6 +220,7 @@ define [
         dueAtString = I18n.t 'time.due_date',
           date: I18n.l('date.formats.medium', assignment.dueAt)
           time: I18n.l('time.formats.tiny', assignment.dueAt)
+          defaultValue: "%{date} by %{time}"
         tooltip += "<br/>Due: #{dueAtString}"
       else
         tooltip += "<br/>(no due date)"
@@ -227,6 +228,7 @@ define [
         submittedAtString = I18n.t 'time.event',
           date: I18n.l('date.formats.medium', assignment.submittedAt)
           time: I18n.l('time.formats.tiny', assignment.submittedAt)
+          defaultValue: "%{date} at %{time}"
         tooltip += "<br/>Submitted: #{submittedAtString}"
       if assignment.muted
         tooltip += "<br/>Score: (muted)"
