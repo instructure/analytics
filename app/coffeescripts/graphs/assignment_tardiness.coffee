@@ -217,18 +217,12 @@ define [
       tooltip = assignment.title
 
       if assignment.dueAt?
-        dueAtString = I18n.t 'time.due_date',
-          date: I18n.l('date.formats.medium', assignment.dueAt)
-          time: I18n.l('time.formats.tiny', assignment.dueAt)
-          defaultValue: "%{date} by %{time}"
+        dueAtString = "#{I18n.l('date.formats.medium', assignment.dueAt)} by #{I18n.l('time.formats.tiny', assignment.dueAt)}"
         tooltip += "<br/>Due: #{dueAtString}"
       else
         tooltip += "<br/>(no due date)"
       if assignment.submittedAt?
-        submittedAtString = I18n.t 'time.event',
-          date: I18n.l('date.formats.medium', assignment.submittedAt)
-          time: I18n.l('time.formats.tiny', assignment.submittedAt)
-          defaultValue: "%{date} at %{time}"
+        submittedAtString = "#{I18n.l('date.formats.medium', assignment.submittedAt)} at #{I18n.l('time.formats.tiny', assignment.submittedAt)}"
         tooltip += "<br/>Submitted: #{submittedAtString}"
       if assignment.muted
         tooltip += "<br/>Score: (muted)"
