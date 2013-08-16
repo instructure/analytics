@@ -4,7 +4,7 @@ define [
   'analytics/compiled/graphs/cover'
   'analytics/compiled/helpers'
   'compiled/str/TextHelper'
-  'i18nObj'
+  'i18n!time'
 ], (_, DateAlignedGraph, Cover, helpers, {delimit}, I18n) ->
 
   ##
@@ -217,12 +217,16 @@ define [
       tooltip = assignment.title
 
       if assignment.dueAt?
-        dueAtString = "#{I18n.l('date.formats.medium', assignment.dueAt)} by #{I18n.l('time.formats.tiny', assignment.dueAt)}"
+        dueAtString = I18n.t 'due_date', "%{date} by %{time}",
+          date: I18n.l('date.formats.medium', assignment.dueAt)
+          time: I18n.l('time.formats.tiny', assignment.dueAt)
         tooltip += "<br/>Due: #{dueAtString}"
       else
         tooltip += "<br/>(no due date)"
       if assignment.submittedAt?
-        submittedAtString = "#{I18n.l('date.formats.medium', assignment.submittedAt)} at #{I18n.l('time.formats.tiny', assignment.submittedAt)}"
+        submittedAtString = I18n.t 'event', "%{date} at %{time}",
+          date: I18n.l('date.formats.medium', assignment.submittedAt)
+          time: I18n.l('time.formats.tiny', assignment.submittedAt)
         tooltip += "<br/>Submitted: #{submittedAtString}"
       if assignment.muted
         tooltip += "<br/>Score: (muted)"
