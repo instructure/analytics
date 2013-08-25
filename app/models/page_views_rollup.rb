@@ -76,7 +76,7 @@ class PageViewsRollup < ActiveRecord::Base
     course_id = course.is_a?(Course) ? course.id : course
     key = page_views_rollup_key_from_course_id(course_id)
     begin
-      redis = Canvas.redis
+      redis = self.redis
       res = redis.multi do
         redis.hincrby(key, data_key_from_date_and_category(date, category), 1)
         if participated
@@ -95,7 +95,7 @@ class PageViewsRollup < ActiveRecord::Base
   end
 
   def self.process_cached_rollups
-    redis = Canvas.redis
+    redis = self.redis
     lock_key = "page_view_rollup_processing:#{Shard.current.id}"
     lock_time = Setting.get("page_view_rollup_lock_time", 15.minutes.to_s).to_i
 
@@ -163,6 +163,14 @@ class PageViewsRollup < ActiveRecord::Base
 
   def self.page_views_rollup_keys_set_key
     "page_views_rollup_keys:#{Shard.current.id}"
+  end
+
+  def self.redis
+    if Canvas.redis.respond_to?(:node_for)
+      Canvas.redis.node_for(self.page_views_rollup_keys_set_key)
+    else
+      Canvas.redis
+    end
   end
 
   def self.page_views_rollup_key_from_course_id(course)

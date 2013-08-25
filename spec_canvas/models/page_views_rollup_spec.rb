@@ -216,8 +216,21 @@ describe PageViewsRollup do
         Canvas.redis.flushdb
       end
 
+      class FakeCluster < Struct.new(:original_redis)
+        def node_for(key)
+          key.should == PageViewsRollup.page_views_rollup_keys_set_key
+          return original_redis
+        end
+        # don't delegate any methods to original_redis, since the code should
+        # only call #node_for and nothing else
+      end
+
       describe ".increment_cached!" do
         it "should increment via redis and a batch job" do
+          # simulate having a redis cluster
+          fake_cluster = FakeCluster.new(Canvas.redis)
+          Canvas.stubs(:redis).returns(fake_cluster)
+
           @course = course_model
           @today = Date.today
           @category = 'other'
