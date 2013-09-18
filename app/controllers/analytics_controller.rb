@@ -102,7 +102,12 @@ class AnalyticsController < ApplicationController
     json[:current_score] = student.computed_current_score
     json[:html_url] = polymorphic_url [@course, student]
     json[:analytics_url] = analytics_student_in_course_path(:course_id => @course.id, :student_id => student.id)
-    json[:message_student_url] = conversations_path(:user_id => student.id) unless student == @current_user
+    unless student == @current_user
+      json[:message_student_url] = conversations_path(
+        context_id: @course.asset_string,
+        user_id: student.id,
+        user_name: student.name)
+    end
     json
   end
 end
