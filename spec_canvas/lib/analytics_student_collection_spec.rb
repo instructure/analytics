@@ -34,19 +34,20 @@ describe Analytics::StudentCollection do
 
   describe "#paginate" do
     before :each do
+      User.update_all workflow_state: 'deleted'
       @course = Course.create! # no teacher, please
       @enrollments = Array.new(3) { student_in_course(:active_all => true) }
       @users = @enrollments.map(&:user)
     end
 
     it "should paginate values from the initial scope" do
-      collection = Analytics::StudentCollection.new(User)
+      collection = Analytics::StudentCollection.new(User.active)
       students = collection.paginate(:page => 1, :per_page => 3)
       students.map(&:id).sort.should == @users.map(&:id).sort
     end
 
     it "should use the specified sort strategy" do
-      collection = Analytics::StudentCollection.new(User)
+      collection = Analytics::StudentCollection.new(User.active)
       collection.sort_by(:page_views, :page_view_counts => {
         @users[0].id => { :page_views => 40, :participations => 10 },
         @users[1].id => { :page_views => 20, :participations => 10 },
@@ -57,7 +58,7 @@ describe Analytics::StudentCollection do
     end
 
     it "should pass the results through the formatter" do
-      collection = Analytics::StudentCollection.new(User)
+      collection = Analytics::StudentCollection.new(User.active)
       collection.format { "formatted" }
       students = collection.paginate(:page => 1, :per_page => 3)
       students.should == Array.new(3) { "formatted" }
@@ -67,6 +68,7 @@ describe Analytics::StudentCollection do
   describe 'sort strategies' do
     let(:enrollment_count) { 3 }
     before :each do
+      User.update_all workflow_state: 'deleted'
       @course = Course.create! # no teacher, please
       @enrollments = Array.new(enrollment_count) { student_in_course(:active_all => true) }
       @users = @enrollments.map(&:user)
@@ -110,7 +112,7 @@ describe Analytics::StudentCollection do
       before :each do
         assigned_names = ['Student 2', 'Student 1', 'Student 3']
         assigned_names.zip(@users).each { |name, user| user.update_attribute(:sortable_name, name) }
-        @scope = User
+        @scope = User.active
         @strategy = Analytics::StudentCollection::SortStrategy::ByName.new
         @reverse_strategy = Analytics::StudentCollection::SortStrategy::ByName.new(:descending)
         @expected_sort = [1, 0, 2].map{ |i| @users[i] }
@@ -124,7 +126,7 @@ describe Analytics::StudentCollection do
       before :each do
         assigned_scores = [40, 20, nil, 60]
         assigned_scores.zip(@enrollments).each { |score, enrollment| enrollment.update_attribute(:computed_current_score, score) }
-        @scope = User.joins("INNER JOIN enrollments ON enrollments.user_id=users.id")
+        @scope = User.active.joins("INNER JOIN enrollments ON enrollments.user_id=users.id")
         @strategy = Analytics::StudentCollection::SortStrategy::ByScore.new
         @reverse_strategy = Analytics::StudentCollection::SortStrategy::ByScore.new(:descending)
         @expected_sort = [2, 1, 0, 3].map{ |i| @users[i] }
@@ -140,7 +142,7 @@ describe Analytics::StudentCollection do
           @users[1].id => { :page_views => 20, :participations => 10 },
           @users[2].id => { :page_views => 60, :participations => 10 },
         }
-        @scope = User
+        @scope = User.active
         @strategy = Analytics::StudentCollection::SortStrategy::ByPageViews.new(page_view_counts)
         @reverse_strategy = Analytics::StudentCollection::SortStrategy::ByPageViews.new(page_view_counts, :descending)
         @expected_sort = [1, 0, 2].map{ |i| @users[i] }
@@ -156,7 +158,7 @@ describe Analytics::StudentCollection do
           @users[1].id => { :participations => 20, :page_views => 100 },
           @users[2].id => { :participations => 60, :page_views => 100 },
         }
-        @scope = User
+        @scope = User.active
         @strategy = Analytics::StudentCollection::SortStrategy::ByParticipations.new(page_view_counts)
         @reverse_strategy = Analytics::StudentCollection::SortStrategy::ByParticipations.new(page_view_counts, :descending)
         @expected_sort = [1, 0, 2].map{ |i| @users[i] }
