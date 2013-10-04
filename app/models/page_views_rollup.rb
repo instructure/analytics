@@ -60,7 +60,7 @@ class PageViewsRollup < ActiveRecord::Base
   end
 
   def self.increment!(course, date, category, participated)
-    if Setting.get_cached("page_view_rollups_method", "") == "redis" &&
+    if Setting.get("page_view_rollups_method", "") == "redis" &&
         Canvas.redis_enabled?
       increment_cached!(course, date, category, participated)
     else
