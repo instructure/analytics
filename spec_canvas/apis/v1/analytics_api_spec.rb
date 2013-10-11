@@ -201,7 +201,10 @@ describe "Analytics API", :type => :integration do
       # Remove one of the 5 submissions, so we can test that min, max, quartile stats
       # are not present (fewer than 5 submissions will suppress stats data, see
       # suppressed_due_to_few_submissions)
-      @assignments[2].submissions[0].destroy
+      # TODO: the submissions are not returning in a consistent order causing a false negative when the
+      # destroyed submission is later referenced. Rejecting the referenced students submission will prevent
+      # the false negative, but a more robust solution should eventually be developed.
+      @assignments[2].submissions.reject { |s| s.user == @students[1] }[0].destroy
       # Allow user to see analytics page
       RoleOverride.manage_role_override(@account, 'StudentEnrollment', 'view_analytics', :override => true)
       # Log in as the user for this API call
