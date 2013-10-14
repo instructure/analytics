@@ -41,7 +41,7 @@ describe CachedGradeDistribution do
     end
 
     it "should not count grades from fake student enrollments" do
-      @enrollment.type = 'FakeStudentEnrollment'
+      @enrollment.type = 'StudentViewEnrollment'
       @enrollment.save!
 
       @dist.recalculate!
