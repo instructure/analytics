@@ -118,7 +118,7 @@ shared_examples_for "analytics tests" do
   def setup_for_grades_graph
     randomly_grade_assignments(10)
     @first_assignment = Assignment.first
-    @first_submission_score = Submission.first.score.to_s
+    @first_submission_score = @first_assignment.submissions.first.score.to_s
   end
 
   def validate_element_fill(element, fill_hex_color)

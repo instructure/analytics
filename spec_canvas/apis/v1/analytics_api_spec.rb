@@ -153,7 +153,7 @@ describe "Analytics API", :type => :integration do
       @students = []
       @assignments = []
       @outcomes = []
-      
+
       num_students.times {|u| @students << user(:active_all => true)}
 
       course_with_teacher(:active_all => true)
