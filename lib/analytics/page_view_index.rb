@@ -49,15 +49,15 @@ module Analytics::PageViewIndex
       unless counts_updates.empty?
         counts_update = counts_updates.join(', ')
         bucket = bucket_for_time(page_view.created_at)
-        database.update("UPDATE page_views_counters_by_context_and_hour SET #{counts_update} WHERE context = ? AND hour_bucket = ?", "#{context.global_asset_string}/#{user.global_asset_string}", bucket)
-        database.update("UPDATE page_views_counters_by_context_and_user SET #{counts_update} WHERE context = ? AND user_id = ?", context.global_asset_string, user.global_id)
+        database.update_counter("UPDATE page_views_counters_by_context_and_hour SET #{counts_update} WHERE context = ? AND hour_bucket = ?", "#{context.global_asset_string}/#{user.global_asset_string}", bucket)
+        database.update_counter("UPDATE page_views_counters_by_context_and_user SET #{counts_update} WHERE context = ? AND user_id = ?", context.global_asset_string, user.global_id.to_s)
       end
 
       if participation
         database.update("INSERT INTO participations_by_context (context, created_at, request_id, url, asset_user_access_id, asset_code, asset_category) VALUES (?, ?, ?, ?, ?, ?, ?)",
                          "#{context.global_asset_string}/#{user.global_asset_string}",
                          page_view.created_at, page_view.request_id,
-                         page_view.url, page_view.asset_user_access_id,
+                         page_view.url, page_view.asset_user_access_id.to_s,
                          page_view.asset_user_access.asset_code,
                          page_view.asset_user_access.asset_category)
       end
