@@ -6,9 +6,7 @@ ActiveSupport::Dependencies.autoload_paths.unshift controller_path
 
 
 Rails.configuration.to_prepare do
-  view_path = File.dirname(__FILE__)+'/app/views'
-  ::ApplicationController.view_paths.delete view_path
-  ::ApplicationController.prepend_view_path(view_path)
+  ::ApplicationController.promote_view_path File.dirname(__FILE__)+'/app/views'
 
   Account.register_service :analytics,
     :name => "Analytics",
