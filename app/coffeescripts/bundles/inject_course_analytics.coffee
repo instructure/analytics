@@ -2,5 +2,8 @@ require [
   'jquery'
   'analytics/jst/course_analytics_button'
 ], ($, template) ->
-  $sidebar = $('#course_show_secondary .course-options')
+  if ENV.DRAFT_STATE
+    $sidebar = $('#course_show_secondary .course-options')
+  else
+    $sidebar = $('#course_show_secondary .secondary-button-group')
   $sidebar.append template ENV.ANALYTICS
