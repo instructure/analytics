@@ -145,7 +145,7 @@ module Analytics
     end
 
     def instructors
-      @instructors ||= @course.instructors.restrict_to_sections([enrollment.course_section_id])
+      @instructors ||= @course.instructors.restrict_to_sections([enrollment.course_section_id]).except(:select).select("users.id").to_a
     end
 
     def student_conversation_ids
