@@ -24,6 +24,5 @@ def page_view(opts={})
   end
 
   page_view.store
-  PageView.process_cache_queue if PageView.redis_queue?
   page_view
 end
