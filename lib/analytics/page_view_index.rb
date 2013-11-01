@@ -63,9 +63,13 @@ module Analytics::PageViewIndex
       end
     end
 
+    def self.read_consistency_clause
+      PageView::EventStream.read_consistency_clause
+    end
+
     def self.participations_for_context(context, user)
       participations = []
-      database.execute("SELECT created_at, url, asset_code, asset_category FROM participations_by_context WHERE context = ?", "#{context.global_asset_string}/#{user.global_asset_string}").fetch do |row|
+      database.execute("SELECT created_at, url, asset_code, asset_category FROM participations_by_context #{read_consistency_clause}WHERE context = ?", "#{context.global_asset_string}/#{user.global_asset_string}").fetch do |row|
         participations << row.to_hash.with_indifferent_access
       end
       participations
@@ -73,7 +77,7 @@ module Analytics::PageViewIndex
 
     def self.counters_by_context_and_hour(context, user)
       counts = ::ActiveSupport::OrderedHash.new
-      database.execute("SELECT hour_bucket, page_view_count FROM page_views_counters_by_context_and_hour WHERE context = ?", "#{context.global_asset_string}/#{user.global_asset_string}").fetch do |row|
+      database.execute("SELECT hour_bucket, page_view_count FROM page_views_counters_by_context_and_hour #{read_consistency_clause}WHERE context = ?", "#{context.global_asset_string}/#{user.global_asset_string}").fetch do |row|
         time = row['hour_bucket'].to_i
         if time > 0
           counts[Time.at(time)] = row['page_view_count'] || 0
@@ -92,7 +96,7 @@ module Analytics::PageViewIndex
       end
 
       id_map = user_ids.index_by{ |id| Shard.global_id_for(id).to_s }
-      database.execute("SELECT user_id, page_view_count, participation_count FROM page_views_counters_by_context_and_user WHERE context = ?", context.global_asset_string).fetch do |row|
+      database.execute("SELECT user_id, page_view_count, participation_count FROM page_views_counters_by_context_and_user #{read_consistency_clause}WHERE context = ?", context.global_asset_string).fetch do |row|
         if id = id_map[row['user_id']]
           counters[id] = {
             :page_views => row['page_view_count'].to_i,
