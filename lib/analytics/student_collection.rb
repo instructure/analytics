@@ -66,7 +66,12 @@ module Analytics
 
         def paginate(scope, pager)
           set_pages(pager)
-          paged_ids = @sorted_ids[(pager.current_page - 1) * pager.per_page, pager.per_page]
+          offset = (pager.current_page - 1) * pager.per_page
+          if defined?(Folio)
+            raise Folio::InvalidPage if pager.current_page < 1
+            raise Folio::InvalidPage if pager.current_page > 1 && offset >= @sorted_ids.size
+          end
+          paged_ids = @sorted_ids[offset, pager.per_page]
           student_map = scope.where(:id => paged_ids).index_by(&:id)
           pager.replace paged_ids.map{ |id| student_map[id] }
         end

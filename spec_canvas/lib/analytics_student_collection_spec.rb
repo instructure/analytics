@@ -96,7 +96,11 @@ describe Analytics::StudentCollection do
       it 'should handle accidental pagination past the end' do
         @pager.current_page = @users.size + 1
         @pager.per_page = 1
-        @strategy.paginate(@scope, @pager).should == []
+        if defined?(Folio)
+          lambda{ @strategy.paginate(@scope, @pager) }.should raise_error Folio::InvalidPage
+        else
+          @strategy.paginate(@scope, @pager).should == []
+        end
       end
 
       it 'should return a WillPaginate-style object' do
