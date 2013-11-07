@@ -71,10 +71,12 @@ class AssignmentRollup
     submission = submission.submission_id && Submission.send(:instantiate,
       submission.attributes.slice("score", "cached_due_date", "submitted_at", "submission_type"))
 
-    if !submission || submission.missing?
-      # XXX: incorrectly assumes that if a submission doesn't exist it's
-      # missing. it may be floating if the absent submission's due date is null
-      # or in the future
+    # If the submission does not exist then assume there are no overrides
+    # and use the assignments date due.  The DueDateCacher should cache due
+    # dates if they are overridden.
+    if !submission
+      self.tardiness_breakdown.missing += 1 if assignment.overdue?
+    elsif submission.missing?
       self.tardiness_breakdown.missing += 1
     elsif submission.late?
       self.tardiness_breakdown.late += 1
