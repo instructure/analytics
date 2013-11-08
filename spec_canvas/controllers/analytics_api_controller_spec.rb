@@ -57,7 +57,7 @@ describe AnalyticsApiController do
       let(:permission) { :some_other_permission }
 
       it 'does not render the json' do
-        controller.expects(:render_unauthorized_action).with(course)
+        controller.expects(:render_unauthorized_action)
         controller.course_student_summaries.should_not == "RENDERED!"
       end
     end
