@@ -1,4 +1,4 @@
-FakeRails3Routes.draw do
+(CANVAS_RAILS2 ? FakeRails3Routes : CanvasRails::Application.routes).draw do
   # common path strings
   department_path = 'accounts/:account_id/analytics'
   department_term_path = department_path + '/terms/:term_id'
