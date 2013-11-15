@@ -4,6 +4,7 @@
 class AnalyticsApiController < ApplicationController
   unloadable
 
+  require 'analytics/extensions/permissions'
   include AnalyticsPermissions
 
   # @API Get department-level participation data
