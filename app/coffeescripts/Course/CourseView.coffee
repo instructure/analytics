@@ -12,6 +12,8 @@ define [
 
   class CourseView extends Backbone.View
     initialize: ->
+      super
+
       # build view
       @$el = $ template
         course: @model.toJSON()

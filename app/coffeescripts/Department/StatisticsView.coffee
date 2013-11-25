@@ -6,6 +6,7 @@ define [
 
   class StatisticsView extends Backbone.View
     initialize: ->
+      super
       @model.on 'change', @render
       @render()
 

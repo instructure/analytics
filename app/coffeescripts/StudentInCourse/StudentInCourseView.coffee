@@ -13,6 +13,8 @@ define [
 
   class StudentInCourseView extends Backbone.View
     initialize: ->
+      super
+
       course = @model.get('course')
       student = @model.get('student')
       students = course.get('students')

@@ -11,6 +11,7 @@ define [
   # Aggregate view for the Department Analytics page.
   class DepartmentGraphView extends Backbone.View
     initialize: ->
+      super
       # render now and any time the model changes
       @render()
       @model.on 'change:filter', @render

@@ -10,6 +10,7 @@ define [
     tagName: 'tr'
 
     initialize: ->
+      super
       @render()
 
     render: =>

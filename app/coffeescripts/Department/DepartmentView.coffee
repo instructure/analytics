@@ -11,6 +11,8 @@ define [
   # Aggregate view for the Department Analytics page.
   class DepartmentView extends Backbone.View
     initialize: ->
+      super
+
       # render template into anchor $el
       @$el.html template account: @model.get('account').toJSON()
 
