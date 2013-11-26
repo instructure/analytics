@@ -34,10 +34,11 @@ describe Analytics::StudentCollection do
 
   describe "#paginate" do
     before :each do
-      User.update_all workflow_state: 'deleted'
       @course = Course.create! # no teacher, please
       @enrollments = Array.new(3) { student_in_course(:active_all => true) }
       @users = @enrollments.map(&:user)
+      # hide fixtures
+      User.update_all({workflow_state: 'deleted'}, ["id NOT IN (?)", @users.map(&:id)])
     end
 
     it "should paginate values from the initial scope" do
@@ -68,10 +69,11 @@ describe Analytics::StudentCollection do
   describe 'sort strategies' do
     let(:enrollment_count) { 3 }
     before :each do
-      User.update_all workflow_state: 'deleted'
       @course = Course.create! # no teacher, please
       @enrollments = Array.new(enrollment_count) { student_in_course(:active_all => true) }
       @users = @enrollments.map(&:user)
+      # hide fixtures
+      User.update_all({workflow_state: 'deleted'}, ["id NOT IN (?)", @users.map(&:id)])
       @pager = PaginatedCollection::Collection.new
       @pager.current_page = 1
       @pager.per_page = 10
