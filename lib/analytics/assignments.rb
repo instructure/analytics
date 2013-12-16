@@ -37,9 +37,11 @@ module Analytics
 
     def self.assignment_scope_for(this_course)
       this_course.shard.activate do
-        this_course.assignments.active.
-          includes(:versions). # Optimizes AssignmentOverrideApplicator
-          reorder("assignments.due_at, assignments.id")
+        scope = this_course.assignments.published if this_course.feature_enabled?(:draft_state)
+        scope ||= this_course.assignments.active
+
+        scope.includes(:versions). # Optimizes AssignmentOverrideApplicator
+              reorder("assignments.due_at, assignments.id")
       end
     end
 
