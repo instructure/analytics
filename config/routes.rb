@@ -7,7 +7,7 @@
   course_path = 'courses/:course_id/analytics'
   student_in_course_path = course_path + '/users/:student_id'
 
-  scope controller: :analytics, name_prefix: 'analytics_', via: :get do
+  scope controller: :analytics, as: 'analytics', via: :get do
     # default department route. basically an alias for one of
     #  - analytics_department_term :term_id => account.default_enrollment_term_id
     #  - analytics_department_current
