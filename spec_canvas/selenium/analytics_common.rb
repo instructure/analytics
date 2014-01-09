@@ -1,5 +1,5 @@
 shared_examples_for "analytics tests" do
-  it_should_behave_like "in-process server selenium tests"
+  include_examples "in-process server selenium tests"
 
   module GraphColors
     FRAME = "#959595"
