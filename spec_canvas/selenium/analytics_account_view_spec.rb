@@ -99,12 +99,4 @@ describe "analytics account view" do
     end
   end
 
-  context "bottom data point with large number" do
-
-    it "should validate a very large number in data point" do
-      1100.times { |i| @course.active_assignments.create!(:name => "course #{i}") }
-      go_to_analytics("/accounts/#{ACCOUNT_ID}/analytics")
-      validate_data_point('assignments', '1,100')
-    end
-  end
 end
