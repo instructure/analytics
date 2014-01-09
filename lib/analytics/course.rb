@@ -78,7 +78,7 @@ module Analytics
       vdd = overridden_assignment( assignment, @current_user )
       super.merge(
         :due_at => vdd.due_at,
-        :multiple_due_dates => vdd.multiple_due_dates_apply_to(@current_user)
+        :multiple_due_dates => vdd.multiple_due_dates_apply_to?(@current_user)
       )
     end
 
