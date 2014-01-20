@@ -103,6 +103,15 @@ describe "Analytics API", :type => :integration do
   end
 
   context "course and quiz with a submitted score" do
+    # shim for quiz namespacing
+    def quiz_klass
+      @quiz_klass ||= begin
+                        "Quiz".constantize
+                      rescue NameError
+                        "Quizzes::Quiz".constantize
+                      end
+    end
+
     before do
       @student1 = user(:active_all => true)
       course_with_teacher(:active_all => true)
@@ -110,7 +119,7 @@ describe "Analytics API", :type => :integration do
       @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
       @course.enroll_user(@student1, 'StudentEnrollment', :section => @section).accept!
 
-      quiz = Quiz.create!(:title => 'quiz1', :context => @course, :points_possible => 10)
+      quiz = quiz_klass.create!(:title => 'quiz1', :context => @course, :points_possible => 10)
       quiz.did_edit!
       quiz.offer!
       @a1 = quiz.assignment
