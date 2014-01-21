@@ -5,7 +5,7 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../../../../../../spec/apis/api_spec_helper')
 
-describe "Courses API Extensions", :type => :integration do
+describe "Courses API Extensions", :type => :request do
   before :each do
     @account = Account.default
     @account.allowed_services = '+analytics'

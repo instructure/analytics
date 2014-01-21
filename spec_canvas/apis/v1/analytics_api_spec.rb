@@ -7,7 +7,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../../../../../../spec/apis/
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 require File.expand_path(File.dirname(__FILE__) + '/../../cassandra_spec_helper')
 
-describe "Analytics API", :type => :integration do
+describe "Analytics API", :type => :request do
 
   before :each do
     @account = Account.default
