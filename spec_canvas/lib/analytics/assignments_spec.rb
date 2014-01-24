@@ -37,13 +37,13 @@ module Analytics
         its(:median) { should == 3 }
         its(:third_quartile) { should == 4.5 }
 
-        it_should_behave_like 'basic assignment data'
+        include_examples 'basic assignment data'
       end
 
       describe '#base_data' do
         subject { OpenStruct.new( assignments.basic_assignment_data(assignment) ) }
 
-        it_should_behave_like 'basic assignment data'
+        include_examples 'basic assignment data'
       end
 
     end

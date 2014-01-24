@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../../../spec/cassandra_spec_helper')
 
 shared_examples_for "analytics cassandra page views" do
-  it_should_behave_like "cassandra page views"
+  include_examples "cassandra page views"
   before do
     if Canvas::Cassandra::DatabaseBuilder.configured?('page_views')
       PageView::EventStream.database.execute("TRUNCATE page_views_counters_by_context_and_user")

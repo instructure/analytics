@@ -102,12 +102,12 @@ describe PageView do
   end
 
   describe ".participations_for_context db" do
-    it_should_behave_like ".participations_for_context"
+    include_examples ".participations_for_context"
   end
 
   describe ".participations_for_context cassandra" do
-    it_should_behave_like "analytics cassandra page views"
-    it_should_behave_like ".participations_for_context"
+    include_examples "analytics cassandra page views"
+    include_examples ".participations_for_context"
   end
 
   describe ".counters_by_context_and_hour db" do
@@ -134,7 +134,7 @@ describe PageView do
   # buckets instead of 24-hour buckets, to solve the problem of people viewing
   # analytics from different timezones.
   describe ".counters_by_context_and_hour cassandra" do
-    it_should_behave_like "analytics cassandra page views"
+    include_examples "analytics cassandra page views"
 
     before do
       student_in_course(:active_all => true)
@@ -183,11 +183,11 @@ describe PageView do
   end
 
   describe ".counters_by_context_for_users db" do
-    it_should_behave_like ".counters_by_context_for_users"
+    include_examples ".counters_by_context_for_users"
   end
 
   describe ".counters_by_context_for_users cassandra" do
-    it_should_behave_like ".counters_by_context_for_users"
-    it_should_behave_like "analytics cassandra page views"
+    include_examples ".counters_by_context_for_users"
+    include_examples "analytics cassandra page views"
   end
 end

@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/selenium
 require File.expand_path(File.dirname(__FILE__) + '/analytics_common')
 
 describe "analytics course view" do
-  it_should_behave_like "analytics tests"
+  include_examples "analytics tests"
 
   module StudentBars
     PAGE_VIEWS = '#students .page_views .paper span'
@@ -30,7 +30,7 @@ describe "analytics course view" do
 
     context "participation graph" do
       let(:analytics_url) { "/courses/#{@course.id}/analytics" }
-      it_should_behave_like "participation graph specs"
+      include_examples "participation graph specs"
     end
 
     it "should validate finishing assignments graph" do

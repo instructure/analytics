@@ -362,7 +362,7 @@ describe "Analytics API", :type => :request do
     end
 
     context "cassandra" do
-      it_should_behave_like "analytics cassandra page views"
+      include_examples "analytics cassandra page views"
       it "should have iso8601 page_views keys" do
         pv = page_view(:user => @student, :course => @course)
 

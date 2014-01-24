@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/selenium
 require File.expand_path(File.dirname(__FILE__) + '/analytics_common')
 
 describe "analytics" do
-  it_should_behave_like "analytics tests"
+  include_examples "analytics tests"
 
   ANALYTICS_BUTTON_CSS = '.analytics-grid-button'
   ANALYTICS_BUTTON_TEXT = 'Analytics'
@@ -44,7 +44,7 @@ describe "analytics" do
           add_students_to_course(5)
         end
 
-        it_should_behave_like "analytics permissions specs"
+        include_examples "analytics permissions specs"
       end
 
       describe "with analytics turned off" do
@@ -55,7 +55,7 @@ describe "analytics" do
           add_students_to_course(5)
         end
 
-        it_should_behave_like "analytics permissions specs"
+        include_examples "analytics permissions specs"
       end
     end
 
@@ -70,7 +70,7 @@ describe "analytics" do
           add_students_to_course(5)
         end
 
-        it_should_behave_like "analytics permissions specs"
+        include_examples "analytics permissions specs"
       end
 
       describe "with analytics permissions off" do
@@ -82,7 +82,7 @@ describe "analytics" do
           add_students_to_course(5)
         end
 
-        it_should_behave_like "analytics permissions specs"
+        include_examples "analytics permissions specs"
       end
     end
   end
@@ -113,7 +113,7 @@ describe "analytics" do
 
     context 'participation view' do
       let(:analytics_url) { "/courses/#{@course.id}/analytics/users/#{@student.id}" }
-      it_should_behave_like "participation graph specs"
+      include_examples "participation graph specs"
     end
 
     it "should validate responsiveness graph" do

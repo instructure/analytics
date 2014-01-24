@@ -613,12 +613,12 @@ describe Analytics::Course do
       end
     end
     describe "#student_summaries db" do
-      it_should_behave_like "#student_summaries"
+      include_examples "#student_summaries"
     end
 
     describe "#student_summaries cassandra" do
-      it_should_behave_like "analytics cassandra page views"
-      it_should_behave_like "#student_summaries"
+      include_examples "analytics cassandra page views"
+      include_examples "#student_summaries"
     end
   end
 

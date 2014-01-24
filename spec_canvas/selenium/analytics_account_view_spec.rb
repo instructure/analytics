@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/selenium
 require File.expand_path(File.dirname(__FILE__) + '/analytics_common')
 
 describe "analytics account view" do
-  it_should_behave_like "analytics tests"
+  include_examples "analytics tests"
 
   ACCOUNT_ID = Account.default.id
 
