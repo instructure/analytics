@@ -291,7 +291,8 @@ class AnalyticsApiController < ApplicationController
   #         "total": 5,
   #         "on_time": 3,
   #         "late": 0,
-  #         "missing": 2
+  #         "missing": 2,
+  #         "floating": 0
   #       }
   #     },
   #     {
@@ -302,7 +303,8 @@ class AnalyticsApiController < ApplicationController
   #         "total": 5,
   #         "on_time": 1,
   #         "late": 2,
-  #         "missing": 3
+  #         "missing": 3,
+  #         "floating": 0
   #       }
   #     }
   #   ]

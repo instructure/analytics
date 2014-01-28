@@ -424,8 +424,8 @@ describe Analytics::Course do
       submit_submission(:submission => @submission2, :submitted_at => @assignment.due_at + 1.day)
 
       @summaries = @teacher_analytics.student_summaries.paginate(:page => 1, :per_page => 2)
-      @summaries.detect{|s| s[:id] == @submission1.user_id}[:tardiness_breakdown].should == expected_breakdown(:on_time).merge(:total => 1)
-      @summaries.detect{|s| s[:id] == @submission2.user_id}[:tardiness_breakdown].should == expected_breakdown(:late).merge(:total => 1)
+      @summaries.detect{|s| s[:id] == @submission1.user_id}[:tardiness_breakdown].should == expected_breakdown(:on_time)
+      @summaries.detect{|s| s[:id] == @submission2.user_id}[:tardiness_breakdown].should == expected_breakdown(:late)
     end
 
     context "an assignment that has a due date" do
@@ -464,12 +464,27 @@ describe Analytics::Course do
           grade_submission
         end
 
-        it "should count as on time when the assignment does not expect a submission" do
-          @assignment.submission_types = 'none'
-          @assignment.save!
+        context "when the assignment does not expect a submission" do
+          before :each do
+            @assignment.submission_types = 'none'
+            @assignment.save!
+          end
 
-          expect_assignment_breakdown(:on_time)
-          expect_summary_breakdown(:on_time)
+          it "should count as on time when graded with a score greater than zero" do
+            @submission.graded_at = @assignment.due_at - 1.day
+            @submission.save!
+
+            expect_assignment_breakdown(:on_time)
+            expect_summary_breakdown(:on_time)
+          end
+
+          it "should count as missing when graded with a score equal to zero" do
+            @submission.score = 0
+            @submission.save!
+
+            expect_assignment_breakdown(:missing)
+            expect_summary_breakdown(:missing)
+          end
         end
 
         context "when the assignment expects a submission" do
@@ -478,20 +493,12 @@ describe Analytics::Course do
             @assignment.save!
           end
 
-          it "should count as on time if graded on or before due_at" do
-            @submission.graded_at = @assignment.due_at - 1.day
-            @submission.save!
-
-            expect_assignment_breakdown(:on_time)
-            expect_summary_breakdown(:on_time)
-          end
-
-          it "should count as late if graded after due_at" do
+          it "should count only when submitted" do
             @submission.graded_at = @assignment.due_at + 1.day
             @submission.save!
 
-            expect_assignment_breakdown(:late)
-            expect_summary_breakdown(:late)
+            expect_assignment_breakdown(:missing)
+            expect_summary_breakdown(:missing)
           end
         end
       end
@@ -509,8 +516,8 @@ describe Analytics::Course do
           @assignment.due_at = 1.day.from_now
           @assignment.save!
 
-          expect_assignment_breakdown(:none, :total => 1)
-          expect_summary_breakdown(:none)
+          expect_assignment_breakdown(:floating, :total => 1)
+          expect_summary_breakdown(:floating)
         end
       end
     end
@@ -527,15 +534,33 @@ describe Analytics::Course do
         expect_summary_breakdown(:on_time)
       end
 
-      it "should count as on time when the student hasn't submitted anything but was graded" do
-        grade_submission
-        expect_assignment_breakdown(:on_time)
-        expect_summary_breakdown(:on_time)
+      context "when the assignment does not expect a submission" do
+        it "should count as on time when the student hasn't submitted anything but was graded with a score greater then zero" do
+          grade_submission
+          expect_assignment_breakdown(:on_time)
+          expect_summary_breakdown(:on_time)
+        end
+
+        it "should not count when the student that hasn't submitted anything nor been graded" do
+          expect_assignment_breakdown(:floating, :total => 1)
+          expect_summary_breakdown(:floating)
+        end
+
+        it "should not count when the student that hasn't submitted anything and has been graded with a score of zero" do
+          @submission.score = 0
+          @submission.save!
+
+          expect_assignment_breakdown(:floating, :total => 1)
+          expect_summary_breakdown(:floating)
+        end
       end
 
-      it "should not count when the student that hasn't submitted anything nor been graded" do
-        expect_assignment_breakdown(:none, :total => 1)
-        expect_summary_breakdown(:none)
+      context "when the assignment expects a submission" do
+        it "should not count when the student hasn't submitted anything but has been graded" do
+          grade_submission
+          expect_assignment_breakdown(:on_time)
+          expect_summary_breakdown(:on_time)
+        end
       end
     end
   end
@@ -596,7 +621,7 @@ describe Analytics::Course do
   end
 
   def expected_breakdown(bin)
-    expected = { :on_time => 0, :late => 0, :missing => 0, :total => 0 }
+    expected = { :on_time => 0, :late => 0, :missing => 0, :floating => 0, :total => 0 }
     if bin != :none
       expected[bin] = 1
       expected[:total] = 1

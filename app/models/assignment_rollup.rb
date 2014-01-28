@@ -58,10 +58,20 @@ class AssignmentRollup
   end
 
   def self.enrollments_with_submissions_scope(assignment, enrollments_scope)
-    # Left join so we get a row for every student enrollment, whether a submission exists or not.
-    # The observer only rebuilds this rollup if one of the relevant submission
-    # columns changes, so if you add new columns here then check the observer too.
-    enrollments_scope.joins("LEFT JOIN submissions ON submissions.user_id = enrollments.user_id AND submissions.assignment_id = #{assignment.id}").select("enrollments.id, enrollments.user_id, enrollments.course_id, enrollments.course_section_id, submissions.id as submission_id, submissions.score, submissions.cached_due_date, submissions.submitted_at, submissions.submission_type")
+    enrollments_scope
+      .joins("LEFT JOIN submissions ON submissions.user_id = enrollments.user_id
+              AND submissions.assignment_id = #{assignment.id}")
+      .select("enrollments.id,
+               enrollments.user_id,
+               enrollments.course_id,
+               enrollments.course_section_id,
+               submissions.id as submission_id,
+               submissions.score,
+               submissions.cached_due_date,
+               submissions.submitted_at,
+               submissions.submission_type,
+               submissions.graded_at,
+               submissions.workflow_state")
   end
 
   def update_stats(assignment, submission)
@@ -69,23 +79,14 @@ class AssignmentRollup
 
     # convert submission portion into actual Submission so we can use methods
     submission = submission.submission_id && Submission.send(:instantiate,
-      submission.attributes.slice("score", "cached_due_date", "submitted_at", "submission_type"))
+      submission.attributes.slice("score", "cached_due_date", "submitted_at", "submission_type", "graded_at", "workflow_state"))
     submission.assignment = assignment if submission
 
-    # If the submission does not exist then assume there are no overrides
-    # and use the assignments date due.  The DueDateCacher should cache due
-    # dates if they are overridden.
-    if !submission
-      self.tardiness_breakdown.missing += 1 if assignment.overdue?
-    elsif submission.missing?
-      self.tardiness_breakdown.missing += 1
-    elsif submission.late?
-      self.tardiness_breakdown.late += 1
-    elsif submission.submitted_at
-      self.tardiness_breakdown.on_time += 1
-    end
-    if self.buckets && submission.try(:score)
-      self.buckets << submission.score.to_f
+    assignment_submission = Analytics::AssignmentSubmission.new(assignment, submission)
+    self.tardiness_breakdown.tally!(assignment_submission)
+
+    if self.buckets && score = assignment_submission.score
+      self.buckets << score
     end
   end
 

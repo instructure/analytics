@@ -1,3 +1,5 @@
+require_dependency 'analytics/assignment_submission'
+
 module Analytics
   class StudentInCourse < Analytics::Base
     def self.available_for?(current_user, course, student)
@@ -102,17 +104,22 @@ module Analytics
     end
 
     # Overriding this from Assignments to account for Variable Due Dates
-    def basic_assignment_data(assignment)
-      super.merge( :due_at => assignment.overridden_for(@student).due_at )
+    def basic_assignment_data(assignment, submissions=nil)
+      s = my_submission(submissions) if submissions
+      assignment_submission = AssignmentSubmission.new(assignment, s)
+      super.merge(
+        :due_at => assignment_submission.due_at,
+        :status => assignment_submission.status
+      )
     end
 
     def extended_assignment_data(assignment, submissions)
       if s = my_submission(submissions)
-        asd = assignment_submission_date(assignment, @student, s)
+        assignment_submission = AssignmentSubmission.new(assignment, s)
         return {
           :submission => {
             :score => muted(assignment) ? nil : s.score,
-            :submitted_at => asd.submission_date
+            :submitted_at => assignment_submission.recorded_at
           }
         }
       else

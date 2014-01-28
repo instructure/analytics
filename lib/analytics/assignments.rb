@@ -48,7 +48,7 @@ module Analytics
     def assignment_data(assignment, submissions)
       submissions ||= []
 
-      hash = basic_assignment_data(assignment).
+      hash = basic_assignment_data(assignment, submissions).
         merge(:muted => muted(assignment))
 
       unless muted(assignment) || suppressed_due_to_few_submissions(submissions) || suppressed_due_to_course_setting
@@ -74,7 +74,7 @@ module Analytics
       hash
     end
 
-    def basic_assignment_data(assignment)
+    def basic_assignment_data(assignment, submissions=nil)
       {
         :assignment_id => assignment.id,
         :title => assignment.title,
@@ -87,11 +87,6 @@ module Analytics
     # Mostly for test stubs
     def overridden_assignment(assignment, user)
       assignment.overridden_for(user)
-    end
-
-    # Mostly for test stubs
-    def assignment_submission_date(assignment, user, submission)
-      AssignmentSubmissionDate.new(assignment, user, submission)
     end
 
     def muted(assignment)

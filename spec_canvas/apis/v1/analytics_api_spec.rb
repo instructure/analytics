@@ -145,6 +145,7 @@ describe "Analytics API", :type => :request do
         "due_at" => nil,
         "points_possible" => 0,
         "muted" => false,
+        "status" => "on_time",
         "multiple_due_dates" => false,
         "submission" => {
           "submitted_at" => @submitted_at.iso8601,

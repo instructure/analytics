@@ -1,4 +1,4 @@
-require_dependency 'analytics/tardiness_grid'
+require_dependency 'analytics/assignment_submission'
 
 module Analytics
   class Course < Analytics::Base
@@ -69,12 +69,8 @@ module Analytics
       assignment.overridden_for(user)
     end
 
-    def tardiness_breakdown(assignment_id, total)
-      tardiness_grid.tally(:assignment, assignment_id).as_hash_scaled(total).merge(:total => total)
-    end
-
     # Overriding this from Assignments to account for Variable Due Dates
-    def basic_assignment_data(assignment)
+    def basic_assignment_data(assignment, submissions=nil)
       vdd = overridden_assignment( assignment, @current_user )
       super.merge(
         :due_at => vdd.due_at,
@@ -83,8 +79,7 @@ module Analytics
     end
 
     def extended_assignment_data(assignment, submissions)
-      return :tardiness_breakdown =>
-        tardiness_breakdown(assignment.id, student_ids.size)
+      { tardiness_breakdown: tardiness_breakdowns[:assignments][assignment.id].as_hash_scaled }
     end
 
     def student_summaries(sort_column=nil)
@@ -106,10 +101,7 @@ module Analytics
           :max_page_views => analysis.max_page_views,
           :participations => page_view_counts[student.id][:participations],
           :max_participations => analysis.max_participations,
-          :tardiness_breakdown => tardiness_grid.
-            tally(:student, student.id).
-            as_hash.
-            merge(:total => tardiness_grid.assignments.size)
+          :tardiness_breakdown => tardiness_breakdowns[:students][student.id].as_hash
         }
       end
 
@@ -163,17 +155,43 @@ module Analytics
       end
     end
 
-    # Create a cached, memoized TardinessGrid object that will allow us to
-    # tally tardiness scores by student or by assignment
-    def tardiness_grid
-      @tardiness_grid ||=
-        slaved(:cache_as => :tardiness_breakdown) do
-          assignments = raw_assignments
-          students = student_scope.all
-          subs = submissions(assignments)
-          # We call prebuild, which memoizes the grid and returns self
-          TardinessGrid.new(assignments, students, subs).prebuild
+    def tardiness_breakdowns
+      @tardiness_breakdowns ||= slaved(:cache_as => :tardiness_breakdowns) do
+        breakdowns = { assignments: {}, students: {} }
+        course_submissions = submissions(raw_assignments)
+
+        # Tally By Assignments
+        assignment_submissions = course_submissions.group_by(&:assignment_id)
+        raw_assignments.each do |assignment|
+          breakdowns[:assignments][assignment.id] ||= TardinessBreakdown.new
+          if assignment_submissions[assignment.id]
+            submissions = assignment_submissions[assignment.id].index_by(&:user_id)
+          end
+          submissions ||= {}
+
+          student_ids.each do |student_id|
+            assignment_submission = AssignmentSubmission.new(assignment, submissions[student_id])
+            breakdowns[:assignments][assignment.id].tally!(assignment_submission)
+          end
         end
+
+        # Tally By Students
+        student_submissions = course_submissions.group_by(&:user_id)
+        student_ids.each do |student_id|
+          breakdowns[:students][student_id] ||= TardinessBreakdown.new
+          if student_submissions[student_id]
+            submissions = student_submissions[student_id].index_by(&:assignment_id)
+          end
+          submissions ||= {}
+
+          raw_assignments.each do |assignment|
+            assignment_submission = AssignmentSubmission.new(assignment, submissions[assignment.id])
+            breakdowns[:students][student_id].tally!(assignment_submission)
+          end
+        end
+
+        breakdowns
+      end
     end
   end
 end

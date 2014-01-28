@@ -1,50 +1,56 @@
 module Analytics
   class TardinessBreakdown
-    attr_accessor :missing, :late, :on_time
+    attr_accessor :missing, :late, :on_time, :floating
 
-    def initialize(missing = 0, late = 0, on_time = 0)
+    def initialize(missing = 0, late = 0, on_time = 0, floating = 0)
       @missing = missing || 0
       @late = late || 0
       @on_time = on_time || 0
+      @floating = floating || 0
     end
 
-    def self.init_with_scope(submission_scope, total)
-      counts = submission_scope.group(<<-SQL).count
-        CASE
-        WHEN cached_due_date < NOW() AND submitted_at > cached_due_date THEN 'late'
-        WHEN submitted_at IS NOT NULL THEN 'on_time'
-        WHEN cached_due_date < NOW() THEN 'missing'
-        ELSE 'floating'
-        END
-      SQL
-      late = counts['late']
-      on_time = counts['on_time']
-      missing = counts['missing'] || 0
-      # XXX: incorrectly assumes that if a submission doesn't exist it's
-      # missing. it may be floating if the absent submission's due date is null
-      # or in the future
-      missing += total - counts.values.sum
-      self.new(missing, late, on_time)
+    def total
+      @missing + @late + @on_time + @floating
     end
 
-    def as_hash_scaled(denominator)
+    def as_hash_scaled(denominator = nil)
+      denominator ||= total
       if denominator <= 0
-        { :missing => 0, :late => 0, :on_time => 0 }
+        { :missing => 0, :late => 0, :on_time => 0, :floating => 0, :total => 0 }
       else
         {
-          :missing => @missing / denominator.to_f,
-          :late    => @late    / denominator.to_f,
-          :on_time => @on_time / denominator.to_f
+          :missing  => @missing / denominator.to_f,
+          :late     => @late    / denominator.to_f,
+          :on_time  => @on_time / denominator.to_f,
+          :floating => @floating / denominator.to_f,
+          :total    => denominator
         }
       end
     end
 
     def as_hash
       {
-        :missing => @missing,
-        :late    => @late,
-        :on_time => @on_time
+        :missing  => @missing,
+        :late     => @late,
+        :on_time  => @on_time,
+        :floating => @floating,
+        :total    => total
       }
+    end
+
+    def tally!(assignment_submission)
+      return unless assignment_submission
+
+      case assignment_submission.status
+      when :missing
+        @missing += 1
+      when :late
+        @late += 1
+      when :on_time
+        @on_time += 1
+      when :floating
+        @floating += 1
+      end
     end
   end
 end
