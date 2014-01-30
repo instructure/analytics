@@ -6,5 +6,5 @@ require [
     $sidebar = $('#course_show_secondary .course-options')
   else
     $sidebar = $('#course_show_secondary .secondary-button-group')
-  params = $.merge({draft_state: ENV.DRAFT_STATE}, ENV.ANALYTICS)
+  params = $.extend({draft_state: ENV.DRAFT_STATE}, ENV.ANALYTICS)
   $sidebar.append template params
