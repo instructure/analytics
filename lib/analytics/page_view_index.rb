@@ -145,7 +145,7 @@ module Analytics::PageViewIndex
       # context's shard (id_map.keys). do the lookups on the context's shard,
       # and map the ids back to those relative to the current shard when
       # populating counters
-      id_map = user_ids.index_by{ |id| Shard.relative_id_for(id, context.shard) }
+      id_map = user_ids.index_by{ |id| Shard.relative_id_for(id, Shard.current, context.shard) }
 
       context.shard.activate do
         PageView.for_context(context).for_users(id_map.keys).count(:group => :user_id).each do |relative_user_id,count|
