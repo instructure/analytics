@@ -70,6 +70,7 @@ class AssignmentRollup
     # convert submission portion into actual Submission so we can use methods
     submission = submission.submission_id && Submission.send(:instantiate,
       submission.attributes.slice("score", "cached_due_date", "submitted_at", "submission_type"))
+    submission.assignment = assignment if submission
 
     # If the submission does not exist then assume there are no overrides
     # and use the assignments date due.  The DueDateCacher should cache due
