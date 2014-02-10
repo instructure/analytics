@@ -370,110 +370,6 @@ describe Analytics::Course do
         @teacher_analytics.assignments.first[:min_score].should be_nil
       end
     end
-
-    describe ":tardiness_breakdown" do
-      before :each do
-        active_student
-        @submission = @assignment.submissions.create!(:user => @student)
-      end
-
-      context "when the assignment has a due date" do
-        before :each do
-          @assignment.due_at = 1.day.ago
-          @assignment.save!
-        end
-
-        context "a student that submitted something" do
-          before :each do
-            submit_submission
-          end
-
-          it "should count as on time if submitted on or before the due date" do
-            @submission.submitted_at = @assignment.due_at - 1.day
-            @submission.save!
-
-            expect_assignment_breakdown(:on_time)
-          end
-
-          it "should count as late if submitted after the due date" do
-            @submission.submitted_at = @assignment.due_at + 1.day
-            @submission.save!
-
-            expect_assignment_breakdown(:late)
-          end
-        end
-
-        context "a student that hasn't submitted anything but was graded" do
-          before :each do
-            grade_submission
-          end
-
-          it "should count as on time when the assignment does not expect a submission" do
-            @assignment.submission_types = 'none'
-            @assignment.save!
-
-            expect_assignment_breakdown(:on_time)
-          end
-
-          context "when the assignment expects a submission" do
-            before :each do
-              @assignment.submission_types = 'online_text_entry'
-              @assignment.save!
-            end
-
-            it "should count as on time if graded on or before due_at" do
-              @submission.graded_at = @assignment.due_at - 1.day
-              @submission.save!
-              expect_assignment_breakdown(:on_time)
-            end
-
-            it "should count as late if graded after due_at" do
-              @submission.graded_at = @assignment.due_at + 1.day
-              @submission.save!
-
-              expect_assignment_breakdown(:late)
-            end
-          end
-        end
-
-        context "a student that hasn't submitted anything nor been graded" do
-          it "should count as missing if the due date is in the past" do
-            @assignment.due_at = 1.day.ago
-            @assignment.save!
-
-            expect_assignment_breakdown(:missing)
-          end
-
-          it "should not count if the due date is in the future" do
-            @assignment.due_at = 1.day.from_now
-            @assignment.save!
-
-            expect_assignment_breakdown(:none, :total => 1)
-          end
-        end
-      end
-
-      context "when the assignment has no due date" do
-        before :each do
-          @assignment.due_at = nil
-          @assignment.save!
-        end
-
-        it "should count a student that submitted something as on time" do
-          submit_submission(:submitted_at => 1.day.ago)
-          expect_assignment_breakdown(:on_time)
-        end
-
-        it "should count a student that hasn't submitted anything but was graded as on time" do
-          grade_submission
-          expect_assignment_breakdown(:on_time)
-        end
-
-        it "should not count a student that hasn't submitted anything nor been graded" do
-          expect_assignment_breakdown(:none, :total => 1)
-        end
-      end
-    end
   end
 
   describe "student summaries" do
@@ -492,133 +388,9 @@ describe Analytics::Course do
           view = page_view(:user => @student, :course => @course, :participated => true)
           student_summary[:participations].should == 1
         end
-
-        describe ":tardiness_breakdown" do
-          it "should include the number of assignments" do
-            5.times{ @course.assignments.active.create! }
-            student_summary[:tardiness_breakdown][:total].should == 5
-          end
-
-          it "should have appropriate data per student" do
-            @student1 = @student
-            active_student(:name => 'Student2')
-            @student2 = @student
-
-            @assignment = @course.assignments.active.create!(:due_at => 1.day.ago)
-            @submission1 = @assignment.submissions.create!(:user => @student1)
-            @submission2 = @assignment.submissions.create!(:user => @student2)
-
-            submit_submission(:submission => @submission1, :submitted_at => @assignment.due_at - 1.day)
-            submit_submission(:submission => @submission2, :submitted_at => @assignment.due_at + 1.day)
-
-            @summaries = @teacher_analytics.student_summaries.paginate(:page => 1, :per_page => 2)
-            @summaries.detect{|s| s[:id] == @submission1.user_id}[:tardiness_breakdown].should == expected_breakdown(:on_time).merge(:total => 1)
-            @summaries.detect{|s| s[:id] == @submission2.user_id}[:tardiness_breakdown].should == expected_breakdown(:late).merge(:total => 1)
-          end
-
-          context "an assignment that has a due date" do
-            before :each do
-              @assignment = @course.assignments.active.create!
-              @submission = @assignment.submissions.create!(:user => @student)
-
-              @assignment.due_at = 1.day.ago
-              @assignment.save!
-            end
-
-            context "when the student submitted something" do
-              before :each do
-                submit_submission
-              end
-
-              it "should count as on time if submitted on or before the due date" do
-                @submission.submitted_at = @assignment.due_at - 1.day
-                @submission.save!
-
-                expect_summary_breakdown(:on_time)
-              end
-
-              it "should count as late if submitted after the due date" do
-                @submission.submitted_at = @assignment.due_at + 1.day
-                @submission.save!
-
-                expect_summary_breakdown(:late)
-              end
-            end
-
-            context "when the student hasn't submitted anything but was graded" do
-              before :each do
-                grade_submission
-              end
-
-              it "should count as on time when the assignment does not expect a submission" do
-                @assignment.submission_types = 'none'
-                @assignment.save!
-
-                expect_summary_breakdown(:on_time)
-              end
-
-              context "when the assignment expects a submission" do
-                before :each do
-                  @assignment.submission_types = 'online_text_entry'
-                  @assignment.save!
-                end
-
-                it "should count as on time if graded on or before due_at" do
-                  @submission.graded_at = @assignment.due_at - 1.day
-                  @submission.save!
-
-                  expect_summary_breakdown(:on_time)
-                end
-
-                it "should count as late if graded after due_at" do
-                  @submission.graded_at = @assignment.due_at + 1.day
-                  @submission.save!
-
-                  expect_summary_breakdown(:late)
-                end
-              end
-            end
-
-            context "when the student hasn't submitted anything nor been graded" do
-              it "should count as missing if the due date is in the past" do
-                @assignment.due_at = 1.day.ago
-                @assignment.save!
-
-                expect_summary_breakdown(:missing)
-              end
-
-              it "should not count if the due date is in the future" do
-                @assignment.due_at = 1.day.from_now
-                @assignment.save!
-
-                expect_summary_breakdown(:none)
-              end
-            end
-          end
-
-          context "an assignment that has no due date" do
-            before :each do
-              @assignment = @course.assignments.active.create!
-              @submission = @assignment.submissions.create!(:user => @student)
-            end
-
-            it "should count as on time when the student submitted something" do
-              submit_submission(:submitted_at => 1.day.ago)
-              expect_summary_breakdown(:on_time)
-            end
-
-            it "should count as on time when the student hasn't submitted anything but was graded" do
-              grade_submission
-              expect_summary_breakdown(:on_time)
-            end
-
-            it "should not count when the student that hasn't submitted anything nor been graded" do
-              expect_summary_breakdown(:none)
-            end
-          end
-        end
       end
     end
+
     describe "#student_summaries db" do
       include_examples "#student_summaries"
     end
@@ -626,6 +398,145 @@ describe Analytics::Course do
     describe "#student_summaries cassandra" do
       include_examples "analytics cassandra page views"
       include_examples "#student_summaries"
+    end
+  end
+
+  describe ":tardiness_breakdown" do
+    before :each do
+      active_student(:name => 'Student1')
+    end
+
+    it "should include the number of assignments" do
+      5.times{ @course.assignments.active.create! }
+      student_summary[:tardiness_breakdown][:total].should == 5
+    end
+
+    it "should have appropriate data per student" do
+      @student1 = @student
+      active_student(:name => 'Student2')
+      @student2 = @student
+
+      @assignment = @course.assignments.active.create!(:due_at => 1.day.ago)
+      @submission1 = @assignment.submissions.create!(:user => @student1)
+      @submission2 = @assignment.submissions.create!(:user => @student2)
+
+      submit_submission(:submission => @submission1, :submitted_at => @assignment.due_at - 1.day)
+      submit_submission(:submission => @submission2, :submitted_at => @assignment.due_at + 1.day)
+
+      @summaries = @teacher_analytics.student_summaries.paginate(:page => 1, :per_page => 2)
+      @summaries.detect{|s| s[:id] == @submission1.user_id}[:tardiness_breakdown].should == expected_breakdown(:on_time).merge(:total => 1)
+      @summaries.detect{|s| s[:id] == @submission2.user_id}[:tardiness_breakdown].should == expected_breakdown(:late).merge(:total => 1)
+    end
+
+    context "an assignment that has a due date" do
+      before :each do
+        @assignment = @course.assignments.active.create!
+        @submission = @assignment.submissions.create!(:user => @student)
+
+        @assignment.due_at = 1.day.ago
+        @assignment.save!
+      end
+
+      context "when the student submitted something" do
+        before :each do
+          submit_submission
+        end
+
+        it "should count as on time if submitted on or before the due date" do
+          @submission.submitted_at = @assignment.due_at - 1.day
+          @submission.save!
+
+          expect_assignment_breakdown(:on_time)
+          expect_summary_breakdown(:on_time)
+        end
+
+        it "should count as late if submitted after the due date" do
+          @submission.submitted_at = @assignment.due_at + 1.day
+          @submission.save!
+
+          expect_assignment_breakdown(:late)
+          expect_summary_breakdown(:late)
+        end
+      end
+
+      context "when the student hasn't submitted anything but was graded" do
+        before :each do
+          grade_submission
+        end
+
+        it "should count as on time when the assignment does not expect a submission" do
+          @assignment.submission_types = 'none'
+          @assignment.save!
+
+          expect_assignment_breakdown(:on_time)
+          expect_summary_breakdown(:on_time)
+        end
+
+        context "when the assignment expects a submission" do
+          before :each do
+            @assignment.submission_types = 'online_text_entry'
+            @assignment.save!
+          end
+
+          it "should count as on time if graded on or before due_at" do
+            @submission.graded_at = @assignment.due_at - 1.day
+            @submission.save!
+
+            expect_assignment_breakdown(:on_time)
+            expect_summary_breakdown(:on_time)
+          end
+
+          it "should count as late if graded after due_at" do
+            @submission.graded_at = @assignment.due_at + 1.day
+            @submission.save!
+
+            expect_assignment_breakdown(:late)
+            expect_summary_breakdown(:late)
+          end
+        end
+      end
+
+      context "when the student hasn't submitted anything nor been graded" do
+        it "should count as missing if the due date is in the past" do
+          @assignment.due_at = 1.day.ago
+          @assignment.save!
+
+          expect_assignment_breakdown(:missing)
+          expect_summary_breakdown(:missing)
+        end
+
+        it "should not count if the due date is in the future" do
+          @assignment.due_at = 1.day.from_now
+          @assignment.save!
+
+          expect_assignment_breakdown(:none, :total => 1)
+          expect_summary_breakdown(:none)
+        end
+      end
+    end
+
+    context "an assignment that has no due date" do
+      before :each do
+        @assignment = @course.assignments.active.create!
+        @submission = @assignment.submissions.create!(:user => @student)
+      end
+
+      it "should count as on time when the student submitted something" do
+        submit_submission(:submitted_at => 1.day.ago)
+        expect_assignment_breakdown(:on_time)
+        expect_summary_breakdown(:on_time)
+      end
+
+      it "should count as on time when the student hasn't submitted anything but was graded" do
+        grade_submission
+        expect_assignment_breakdown(:on_time)
+        expect_summary_breakdown(:on_time)
+      end
+
+      it "should not count when the student that hasn't submitted anything nor been graded" do
+        expect_assignment_breakdown(:none, :total => 1)
+        expect_summary_breakdown(:none)
+      end
     end
   end
 

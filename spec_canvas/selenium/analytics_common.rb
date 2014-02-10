@@ -116,8 +116,7 @@ shared_examples_for "analytics tests" do
   end
 
   def setup_for_grades_graph
-    randomly_grade_assignments(10)
-    @first_assignment = Assignment.first
+    @first_assignment = randomly_grade_assignments(10).first
     @first_submission_score = @first_assignment.submissions.first.score.to_s
   end
 
