@@ -15,13 +15,13 @@ module AnalyticsPermissions
     def require_analytics_for_department
       # do you have permission to use them?
       account_scope = Account.active
-      @account = api_request? ? api_find(account_scope, params[:account_id]) : account_scope.find(params[:account_id])
+      @account = api_find(account_scope, params[:account_id])
       return false unless authorized_action(@account, @current_user, :view_analytics)
 
       terms = @account.root_account.enrollment_terms.active
       if params[:term_id]
         # load the specific term, no filter
-        @term = api_request? ? api_find(terms, params[:term_id]) : terms.find(params[:term_id])
+        @term = api_find(terms, params[:term_id])
         @filter = nil
       else
         # no term specified, use the default term
@@ -47,7 +47,7 @@ module AnalyticsPermissions
     def require_course_with_analytics
       # do you have permission to use them?
       scope = Course.where(:workflow_state => ['available', 'completed'])
-      @course = api_request? ? api_find(scope, params[:course_id]) : scope.find(params[:course_id])
+      @course = api_find(scope, params[:course_id])
       return false unless authorized_action(@course, @current_user, :view_analytics)
 
       @course_analytics = Analytics::Course.new(@current_user, @course)
@@ -70,7 +70,7 @@ module AnalyticsPermissions
 
       # you can use analytics and see this course, but do you have access to this
       # student's enrollment in the course?
-      @student = api_request? ? api_find(User, params[:student_id]) : User.find(params[:student_id])
+      @student = api_find(User, params[:student_id])
 
       @student_analytics = Analytics::StudentInCourse.new(@current_user, @course, @student)
       raise ActiveRecord::RecordNotFound unless @student_analytics.available?
