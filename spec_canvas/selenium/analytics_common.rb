@@ -46,7 +46,7 @@ shared_examples_for "analytics tests" do
         :controller => controller)
 
     page_view.summarized = summarized
-    page_view.request_id = ActiveSupport::SecureRandom.hex(10)
+    page_view.request_id = SecureRandom.hex(10)
     page_view.created_at = opts[:created_at] || Time.now
 
     if opts[:participated]
