@@ -109,27 +109,21 @@ module Analytics
     end
 
     def courses_subselect
-      courses.select("courses.id").uniq.to_sql
+      courses.select("courses.id").uniq
     end
 
     def page_views_rollups
-      PageViewsRollup.
-        joins("INNER JOIN (#{courses_subselect}) AS courses
-          ON courses.id=page_views_rollups.course_id")
+      PageViewsRollup.where(course_id: courses_subselect)
     end
 
     def cached_grade_distribution
       # need to select a value for course_id here, or we get complaints about primary key missing_attribute
       selects = ["NULL AS course_id"] + (0..100).map{ |i| "SUM(s#{i}) AS s#{i}" }
-      CachedGradeDistribution.select(selects).
-        joins("INNER JOIN (#{courses_subselect}) AS courses ON
-          courses.id=cached_grade_distributions.course_id").first
+      CachedGradeDistribution.select(selects).where(course_id: courses_subselect).first
     end
 
     def enrollments
-      Enrollment.where(:workflow_state => ['active', 'completed']).
-        joins("INNER JOIN (#{courses_subselect}) AS courses
-          ON courses.id=enrollments.course_id")
+      Enrollment.where(workflow_state: ['active', 'completed'], course_id: courses_subselect)
     end
 
     def teacher_enrollments
@@ -145,51 +139,35 @@ module Analytics
     end
 
     def discussion_topics
-      DiscussionTopic.active.
-        joins("INNER JOIN (#{courses_subselect}) AS courses
-          ON courses.id=discussion_topics.context_id
-          AND discussion_topics.context_type='Course'")
+      DiscussionTopic.active.where(context_id: courses_subselect,
+                                   context_type: 'Course')
     end
 
     def discussion_replies
-      DiscussionEntry.active.joins("
-        INNER JOIN discussion_topics
-          ON discussion_topics.id=discussion_entries.discussion_topic_id
-          AND discussion_topics.workflow_state != 'deleted'
-        INNER JOIN (#{courses_subselect}) AS courses
-          ON courses.id=discussion_topics.context_id
-          AND discussion_topics.context_type='Course'")
+      DiscussionEntry.active.joins(:discussion_topic).where(
+          discussion_topics: { context_id: courses_subselect, context_type: 'Course' }
+      ).where("discussion_topics.workflow_state<>'deleted'")
     end
 
     def media_objects
-      MediaObject.active.joins("
-        INNER JOIN (#{courses_subselect}) AS courses
-          ON courses.id=media_objects.context_id
-          AND media_objects.context_type='Course'")
+      MediaObject.active.where(context_id: courses_subselect,
+                               context_type: 'Course')
     end
 
     def attachments
-      Attachment.active.joins("
-        INNER JOIN (#{courses_subselect}) AS courses
-          ON courses.id=attachments.context_id
-          AND attachments.context_type='Course'")
+      Attachment.active.where(context_id: courses_subselect,
+                              context_type: 'Course')
     end
 
     def assignments
-      Assignment.active.joins("
-        INNER JOIN (#{courses_subselect}) AS courses
-          ON courses.id=assignments.context_id
-          AND assignments.context_type='Course'")
+      Assignment.active.where(context_id: courses_subselect,
+                              context_type: 'Course')
     end
 
     def submissions
-      Submission.joins("
-        INNER JOIN assignments
-          ON assignments.id=submissions.assignment_id
-          AND assignments.workflow_state != 'deleted'
-        INNER JOIN (#{courses_subselect}) AS courses
-          ON courses.id=assignments.context_id
-          AND assignments.context_type='Course'")
+      Submission.joins(:assignment).where(
+          assignments: { context_id: courses_subselect, context_type: 'Course' }
+      ).where("assignments.workflow_state<>'deleted'")
     end
 
     def calculate_and_clamp_dates(start_at, end_at, courses)
