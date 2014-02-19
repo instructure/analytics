@@ -17,8 +17,8 @@ class ContextController
     if analytics_enabled_course? && analytics_enabled_student?(@user)
       # inject a button to the analytics page for the student in the course
       js_env :ANALYTICS => {
-        :link => analytics_student_in_course_path(:course_id => @context.id, :student_id => @user.id),
-        :student_name => @user.short_name || @user.name
+        'link' => analytics_student_in_course_path(:course_id => @context.id, :student_id => @user.id),
+        'student_name' => @user.short_name || @user.name
       }
       js_bundle :inject_roster_user_analytics, :plugin => :analytics
       jammit_css :analytics_buttons, :plugin => :analytics

@@ -1,8 +1,8 @@
 <%
   js_env :ANALYTICS => {
-    :account => @account_json,
-    :filters => @filters,
-    :filter => @filter || @term.id
+    'account' => @account_json,
+    'filters' => @filters,
+    'filter' => @filter || @term.id
   }
 
   jammit_css :analytics, :plugin => :analytics

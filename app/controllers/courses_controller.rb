@@ -11,7 +11,7 @@ class CoursesController
 
     if analytics_enabled?
       # inject a button to the analytics page for the course
-      js_env :ANALYTICS => { :link => analytics_course_path(:course_id => @context.id) }
+      js_env :ANALYTICS => { 'link' => analytics_course_path(:course_id => @context.id) }
       js_bundle :inject_course_analytics, :plugin => :analytics
       jammit_css :analytics_buttons, :plugin => :analytics
     end

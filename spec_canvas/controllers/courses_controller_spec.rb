@@ -26,7 +26,7 @@ describe CoursesController, :type => :controller do
       course = opts[:course] || @course
       get 'show', :id => course.id
       assigns(:js_env).has_key?(:ANALYTICS).should be_true
-      assigns(:js_env)[:ANALYTICS].should == { :link => "/courses/#{course.id}/analytics" }
+      assigns(:js_env)[:ANALYTICS].should == { 'link' => "/courses/#{course.id}/analytics" }
     end
 
     def forbid_injection(opts={})

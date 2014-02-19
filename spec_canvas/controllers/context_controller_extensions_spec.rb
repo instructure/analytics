@@ -30,7 +30,7 @@ describe ContextController, :type => :controller do
       expected_link = "/courses/#{course.id}/analytics/users/#{student.id}"
       get 'roster_user', :course_id => course.id, :id => student.id
       assigns(:js_env).has_key?(:ANALYTICS).should be_true
-      assigns(:js_env)[:ANALYTICS].should == { :link => expected_link, :student_name => student.short_name }
+      assigns(:js_env)[:ANALYTICS].should == { 'link' => expected_link, 'student_name' => student.short_name }
     end
 
     def forbid_injection(course, student)
