@@ -10,7 +10,8 @@ describe AnalyticsApiController do
                      :require_analytics_for_course => true,
                      :render => "RENDERED!",
                      :params => params,
-                     :api_v1_course_student_summaries_url => '/')
+                     :api_v1_course_student_summaries_url => '/',
+                     :session => nil)
   end
 
   describe '#course_student_summaries' do

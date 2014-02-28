@@ -15,6 +15,8 @@ describe AnalyticsController, :type => :controller do
     RoleOverride.manage_role_override(@account, @role, 'view_analytics', :override => true)
     @admin = account_admin_user(:account => @account, :membership_type => @role, :active_all => true)
     user_session(@admin)
+
+    rescue_action_in_public! if CANVAS_RAILS2
   end
 
   describe "department" do
@@ -31,13 +33,15 @@ describe AnalyticsController, :type => :controller do
     it "should 404 with analytics disabled" do
       @account.allowed_services = ''
       @account.save!
-      lambda{ department_analytics }.should raise_error ActiveRecord::RecordNotFound
+      department_analytics
+      assert_status(404)
     end
 
     it "should 404 on an inactive account" do
       @account = Account.create
       @account.destroy
-      lambda{ department_analytics }.should raise_error ActiveRecord::RecordNotFound
+      department_analytics
+      assert_status 404
     end
 
     it "should 401 without view_analytics permission" do
@@ -66,18 +70,21 @@ describe AnalyticsController, :type => :controller do
     it "should 404 with analytics disabled" do
       @account.allowed_services = ''
       @account.save!
-      lambda{ course_analytics }.should raise_error ActiveRecord::RecordNotFound
+      course_analytics
+      assert_status(404)
     end
 
     it "should 404 on a deleted course" do
       @course.destroy
-      lambda{ course_analytics }.should raise_error ActiveRecord::RecordNotFound
+      course_analytics
+      assert_status(404)
     end
 
     it "should 404 on an unpublished course" do
       @course.workflow_state = 'created'
       @course.save!
-      lambda{ course_analytics }.should raise_error ActiveRecord::RecordNotFound
+      course_analytics
+      assert_status(404)
     end
 
     it "should not 404 on a concluded course" do
@@ -100,7 +107,8 @@ describe AnalyticsController, :type => :controller do
 
     it "should 404 without no enrollments in the course" do
       @enrollment.destroy
-      lambda{ course_analytics }.should raise_error ActiveRecord::RecordNotFound
+      course_analytics
+      assert_status(404)
     end
 
     it "should 401 without read_as_admin permission" do
@@ -143,18 +151,21 @@ describe AnalyticsController, :type => :controller do
     it "should 404 with analytics disabled" do
       @account.allowed_services = ''
       @account.save!
-      lambda{ student_in_course_analytics }.should raise_error ActiveRecord::RecordNotFound
+      student_in_course_analytics
+      assert_status(404)
     end
 
     it "should 404 on a deleted course" do
       @course.destroy
-      lambda{ student_in_course_analytics }.should raise_error ActiveRecord::RecordNotFound
+      student_in_course_analytics
+      assert_status(404)
     end
 
     it "should 404 on an unpublished course" do
       @course.workflow_state = 'created'
       @course.save!
-      lambda{ student_in_course_analytics }.should raise_error ActiveRecord::RecordNotFound
+      student_in_course_analytics
+      assert_status(404)
     end
 
     it "should not 404 on a concluded course" do
@@ -182,13 +193,15 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "should 404 for a non-student" do
-      lambda{ student_in_course_analytics(:student => @teacher) }.should raise_error ActiveRecord::RecordNotFound
+      student_in_course_analytics(:student => @teacher)
+      assert_status(404)
     end
 
     it "should 404 for an invited (not accepted) student" do
       @enrollment.workflow_state = 'invited'
       @enrollment.save!
-      lambda{ student_in_course_analytics }.should raise_error ActiveRecord::RecordNotFound
+      student_in_course_analytics
+      assert_status(404)
     end
 
     it "should 401 for without read_grades permission" do
