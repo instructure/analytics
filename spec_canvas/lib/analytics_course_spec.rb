@@ -66,30 +66,37 @@ describe Analytics::Course do
 
     it "should use the same cache for users with the same visibility" do
       enable_cache do
-        @ta_analytics.students.object_id.should == @teacher_analytics.students.object_id
+        @ta_analytics.students
+        @teacher_analytics.expects(:student_scope).never
+        @teacher_analytics.students
       end
     end
 
     it "should not use the same cache for users with the same visibility but different details" do
       enable_cache do
         # while the permissions are ok, they should match
-        teacher_expected = @teacher_analytics.assignments.object_id
-        @ta_analytics.assignments.object_id.should == teacher_expected
+        @teacher_analytics.assignments
+        @ta_analytics.expects(:assignment_scope).never
+        @ta_analytics.assignments
 
         # when permissions differ, the ta should get a different value
         @course.stubs(:grants_rights?).returns({})
-        @ta_analytics.assignments.object_id.should_not == teacher_expected
-        ta_expected = @ta_analytics.assignments.object_id
+        @ta_analytics.unstub(:assignment_scope)
+        scope = @ta_analytics.assignment_scope
+        @ta_analytics.expects(:assignment_scope).returns(scope)
+        @ta_analytics.assignments
 
         # when permissions are the same again, they should still be the same
         # original cache
         @course.unstub(:grants_rights?)
-        @ta_analytics.assignments.object_id.should == teacher_expected
+        @ta_analytics.expects(:assignment_scope).never
+        @ta_analytics.assignments
 
         # when permissions differ again, the previous different value should
         # have been cached and now reused
         @course.stubs(:grants_rights?).returns({})
-        @ta_analytics.assignments.object_id.should == ta_expected
+        @ta_analytics.expects(:assignment_scope).never
+        @ta_analytics.assignments
       end
     end
 
