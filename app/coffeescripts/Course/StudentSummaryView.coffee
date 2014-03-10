@@ -1,10 +1,11 @@
 define [
   'jquery'
+  'underscore'
   'Backbone'
   'analytics/jst/course_student_summary'
   'analytics/compiled/Course/CountBar'
   'analytics/compiled/Course/TardinessBar'
-], ($, Backbone, template, CountBar, TardinessBar) ->
+], ($, _, Backbone, template, CountBar, TardinessBar) ->
 
   class StudentSummaryView extends Backbone.View
     tagName: 'tr'
@@ -16,7 +17,7 @@ define [
     render: =>
       # replace $el with new rendering of template
       oldEl = @$el
-      @$el = $ template @model.get('student').toJSON()
+      @$el = $ template _.omit(@model.get('student').toJSON(), 'html_url')
       oldEl.replaceWith @$el
 
       # update activity and assignments graphs from student summary

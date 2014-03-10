@@ -3,13 +3,14 @@ define [
   'underscore'
   'Backbone'
   'analytics/jst/student_in_course'
+  'jst/_avatar'
   'analytics/compiled/graphs/page_views'
   'analytics/compiled/graphs/responsiveness'
   'analytics/compiled/graphs/assignment_tardiness'
   'analytics/compiled/graphs/grades'
   'analytics/compiled/graphs/colors'
   'analytics/compiled/StudentInCourse/StudentComboBox'
-], ($, _, Backbone, template, PageViews, Responsiveness, AssignmentTardiness, Grades, colors, StudentComboBox) ->
+], ($, _, Backbone, template, avatarPartial, PageViews, Responsiveness, AssignmentTardiness, Grades, colors, StudentComboBox) ->
 
   class StudentInCourseView extends Backbone.View
     initialize: ->
@@ -21,13 +22,12 @@ define [
 
       # build view
       @$el = $ template
-        student: student.toJSON()
+        student: _.omit(student.toJSON(), 'html_url')
         course: course.toJSON()
 
       # cache elements for updates
       @$crumb_span = $('#student_analytics_crumb span')
       @$crumb_link = $('#student_analytics_crumb a')
-      @$avatar = @$('.avatar')
       @$student_link = @$('.student_link')
       @$current_score = @$('.current_score')
 
@@ -53,7 +53,7 @@ define [
       @$crumb_span.text student.get 'short_name'
       @$crumb_link.attr href: student.get 'analytics_url'
 
-      @$avatar.attr src: student.get 'avatar_url'
+      @$('.avatar').replaceWith(avatarPartial(_.omit(student.toJSON(), 'html_url')))
       @$student_link.text student.get 'name'
       @$student_link.attr href: student.get 'html_url'
 
