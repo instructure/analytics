@@ -1,8 +1,6 @@
 #!/bin/bash
 analytics=vendor/plugins/analytics
 canvalytics=vendor/plugins/canvalytics
-mra=vendor/plugins/multiple_root_accounts
-mra_repo="$REPO/multiple_root_accounts.git"
 
 # force correct plugin name
 if [ -e $canvalytics ]; then
@@ -18,10 +16,3 @@ else
     exit 1
   fi
 fi
-
-# checkout MRA plugin since we depend on it
-if [ ! -e $mra ]; then
-    git clone $mra_repo $mra
-fi
-
-$mra/spec_canvas/hudson_setup.sh
