@@ -16,7 +16,7 @@ describe AnalyticsApiController do
 
   describe '#course_student_summaries' do
 
-    let(:course) { FakeCourse.new( permission ) }
+    let(:course) { stub_everything() }
     let(:user) { stub_everything() }
     let(:analytics) { stub_everything(:student_summaries => ['summary1']) }
 
@@ -28,7 +28,9 @@ describe AnalyticsApiController do
     end
 
     describe 'when the user can manage_grades' do
-      let(:permission) { :manage_grades }
+      before do
+        controller.expects(:is_authorized_action?).with(course, user, includes(:manage_grades)).returns(true)
+      end
 
       it 'renders the json' do
         controller.course_student_summaries.should == "RENDERED!"
@@ -47,7 +49,9 @@ describe AnalyticsApiController do
     end
 
     describe 'when the user can view_all_grades' do
-      let(:permission) { :view_all_grades }
+      before do
+        controller.expects(:is_authorized_action?).with(course, user, includes(:view_all_grades)).returns(true)
+      end
 
       it 'renders the json' do
         controller.course_student_summaries.should == "RENDERED!"
@@ -55,23 +59,11 @@ describe AnalyticsApiController do
     end
 
     describe 'when the user has no grades permissions' do
-      let(:permission) { :some_other_permission }
-
       it 'does not render the json' do
         controller.expects(:render_unauthorized_action)
         controller.course_student_summaries.should_not == "RENDERED!"
       end
     end
 
-  end
-end
-
-class FakeCourse < Struct.new(:permission)
-  def grants_rights?(user, session, *actions)
-    if actions.include? permission
-      { permission => permission }
-    else
-      {}
-    end
   end
 end
