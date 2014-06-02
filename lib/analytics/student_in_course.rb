@@ -128,7 +128,7 @@ module Analytics
     end
 
     def allow_student_details?
-      @course.grants_right?(@current_user, :manage_grades) || @course.grants_right?(@current_user, :view_all_grades)
+      @course.grants_any_right?(@current_user, :manage_grades, :view_all_grades)
     end
 
   private

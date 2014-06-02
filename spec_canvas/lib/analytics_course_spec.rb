@@ -80,7 +80,7 @@ describe Analytics::Course do
         @ta_analytics.assignments
 
         # when permissions differ, the ta should get a different value
-        @course.stubs(:grants_right?).returns(false)
+        @course.stubs(:grants_any_right?).returns(false)
         @ta_analytics.unstub(:assignment_scope)
         scope = @ta_analytics.assignment_scope
         @ta_analytics.expects(:assignment_scope).returns(scope)
@@ -88,13 +88,13 @@ describe Analytics::Course do
 
         # when permissions are the same again, they should still be the same
         # original cache
-        @course.unstub(:grants_right?)
+        @course.unstub(:rights_status)
         @ta_analytics.expects(:assignment_scope).never
         @ta_analytics.assignments
 
         # when permissions differ again, the previous different value should
         # have been cached and now reused
-        @course.stubs(:grants_right?).returns(false)
+        @course.stubs(:grants_any_right?).returns(false)
         @ta_analytics.expects(:assignment_scope).never
         @ta_analytics.assignments
       end
