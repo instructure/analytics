@@ -63,7 +63,7 @@ class CoursesController
     ['available', 'completed'].include?(@context.workflow_state) &&
     service_enabled?(:analytics) &&
     @context.grants_right?(@current_user, session, :view_analytics) &&
-    @context.grants_rights?(@current_user, session, :read_as_admin).values.any? &&
+    @context.grants_right?(@current_user, session, :read_as_admin) &&
     Analytics::Course.available_for?(@current_user, @context)
   end
 end
