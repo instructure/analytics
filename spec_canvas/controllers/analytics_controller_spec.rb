@@ -124,6 +124,7 @@ describe AnalyticsController, :type => :controller do
       RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'manage_grades', :override => false)
       RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_all_grades', :override => false)
 
+      @account.clear_permissions_cache(@user) if @account.respond_to?(:clear_permissions_cache)
       course_analytics
       assigns[:course_json][:students].should be_nil
     end
