@@ -154,6 +154,44 @@ class AnalyticsApiController < ApplicationController
     render :json => @department_analytics.statistics
   end
 
+  # @API Get department-level statistics, broken down by subaccount
+   #
+   # Returns numeric statistics about the department subaccounts and term (or filter).
+   #
+   # Shares the same variations on endpoint as the participation data.
+   #
+   # @example_request
+   #
+   #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/current/statistics_by_subaccount \ 
+   #         -H 'Authorization: Bearer <token>'
+   #
+   #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/completed/statistics_by_subaccount \ 
+   #         -H 'Authorization: Bearer <token>'
+   #
+   #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/terms/<term_id>/statistics_by_subaccount \ 
+   #         -H 'Authorization: Bearer <token>'
+   #
+   # @example_response
+   #   {"accounts": [
+   #     {
+   #       "name": "some string",
+   #       "id": 188,
+   #       "courses": 27,
+   #       "teachers": 36,
+   #       "students": 418,
+   #       "discussion_topics": 77,
+   #       "discussion_replies": 823,
+   #       "media_objects": 219,
+   #       "attachments": 1268,
+   #       "assignments": 290,
+   #       "submissions": 354
+   #     }
+   #   ]}
+   def department_statistics_by_subaccount
+     return unless require_analytics_for_department
+     render :json => {accounts: @department_analytics.statistics_by_subaccount}
+   end
+
   # @API Get course-level participation data
   #
   # Returns page view hits and participation numbers grouped by day through the

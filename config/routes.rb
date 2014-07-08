@@ -28,14 +28,17 @@
   ApiRouteSet::V1.draw(self) do
     scope controller: :analytics_api do
       get department_term_path + '/statistics', :to => :department_statistics
+      get department_term_path + '/statistics_by_subaccount', :to => :department_statistics_by_subaccount
       get department_term_path + '/activity', :to => :department_participation
       get department_term_path + '/grades', :to => :department_grades
 
       get department_current_path + '/statistics', :to => :department_statistics, :filter => 'current'
+      get department_current_path + '/statistics_by_subaccount', :to => :department_statistics_by_subaccount, :filter => 'current'
       get department_current_path + '/activity', :to => :department_participation, :filter => 'current'
       get department_current_path + '/grades', :to => :department_grades, :filter => 'current'
 
       get department_completed_path + '/statistics', :to => :department_statistics, :filter => 'completed'
+      get department_completed_path + '/statistics_by_subaccount', :to => :department_statistics_by_subaccount, :filter => 'completed'
       get department_completed_path + '/activity', :to => :department_participation, :filter => 'completed'
       get department_completed_path + '/grades', :to => :department_grades, :filter => 'completed'
 

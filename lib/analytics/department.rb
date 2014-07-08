@@ -67,6 +67,7 @@ module Analytics
       slaved(:cache_as => :statistics) do
         {
           :courses => courses.count("courses.id", :distinct => true),
+          :subaccounts => subaccounts.count,
           :teachers => count_users_for_enrollments(teacher_enrollments),
           :students => count_users_for_enrollments(student_enrollments),
           :discussion_topics => discussion_topics.count,
@@ -74,6 +75,25 @@ module Analytics
           :attachments => attachments.count,
           :assignments => assignments.count,
         }
+      end
+    end
+
+    def statistics_by_subaccount
+      slaved(:cache_as => :statistics_by_subaccount) do
+        # todo y u no paginate?
+        ([@account] + subaccounts).map do |a|
+          {
+            :name => a.name,
+            :id => a.id,
+            :courses => courses_for_subaccount(a).count("courses.id", :distinct => true),
+            :teachers => count_users_for_enrollments(teacher_enrollments_for_subaccount(a)),
+            :students => count_users_for_enrollments(student_enrollments_for_subaccount(a)),
+            :discussion_topics => 0,
+            :media_objects => 0,
+            :attachments => 0,
+            :assignments => 0
+          }
+        end
       end
     end
 
@@ -85,6 +105,10 @@ module Analytics
 
     def default_term
       @account.root_account.default_enrollment_term
+    end
+
+    def subaccounts
+      @account.sub_accounts
     end
 
     def courses_for_term(term, workflow_state=['completed', 'available'])
@@ -108,6 +132,10 @@ module Analytics
         courses_for_term(@term)
     end
 
+    def courses_for_subaccount(subaccount)
+      courses.where(:courses => { account_id: subaccount})
+    end
+
     def courses_subselect
       courses.select("courses.id").uniq
     end
@@ -126,12 +154,24 @@ module Analytics
       Enrollment.where(workflow_state: ['active', 'completed'], course_id: courses_subselect)
     end
 
+    def enrollments_for_subaccount(acct)
+      enrollments.joins(:course).where(:courses  => { account_id: acct } )
+    end
+
     def teacher_enrollments
       enrollments.where(:type => 'TeacherEnrollment')
     end
 
+    def teacher_enrollments_for_subaccount(acct)
+      enrollments_for_subaccount(acct).where(:type => 'TeacherEnrollment')
+    end
+
     def student_enrollments
       enrollments.where(:type => 'StudentEnrollment')
+    end
+
+    def student_enrollments_for_subaccount(acct)
+      enrollments_for_subaccount(acct).where(:type => 'StudentEnrollment')
     end
 
     def count_users_for_enrollments(enrollments_scope)
