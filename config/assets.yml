@@ -2,6 +2,6 @@ stylesheets:
   analytics:
     - public/stylesheets/compiled/analytics.css
     - ~:public/stylesheets/compiled/ui.selectmenu.css
-    - ~:public/stylesheets/compiled/ComboBox.css
+    - public/stylesheets/compiled/ComboBox.css
   analytics_buttons:
     - public/stylesheets/compiled/analytics_buttons.css
