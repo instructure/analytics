@@ -4,7 +4,7 @@ controller_path = File.dirname(__FILE__)+'/app/controllers'
 ActiveSupport::Dependencies.autoload_paths.delete controller_path
 ActiveSupport::Dependencies.autoload_paths.unshift controller_path
 
-configure_method = Proc.new do
+Rails.configuration.to_prepare do
   ::ApplicationController.promote_view_path File.dirname(__FILE__)+'/app/views'
 
   Account.register_service :analytics,
@@ -18,13 +18,6 @@ configure_method = Proc.new do
   # This is in a separate file so the Delayed::Periodic job is only created
   # one time.
   require 'analytics/periodic_jobs'
-end
-
-if CANVAS_RAILS2
-  Rails.configuration.to_prepare(&configure_method)
-else
-  class AnalyticsRailtie < Rails::Railtie; end
-  AnalyticsRailtie.config.to_prepare(&configure_method)
 end
 
 Permissions.register :view_analytics,

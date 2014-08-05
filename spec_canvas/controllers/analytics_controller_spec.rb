@@ -30,8 +30,6 @@ describe AnalyticsController, :type => :controller do
     RoleOverride.manage_role_override(@account, @role, 'view_analytics', :override => true)
     @admin = account_admin_user(:account => @account, :membership_type => @role, :active_all => true)
     user_session(@admin)
-
-    rescue_action_in_public! if CANVAS_RAILS2
   end
 
   describe "department" do
