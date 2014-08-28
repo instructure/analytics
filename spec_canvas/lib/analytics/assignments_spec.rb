@@ -111,7 +111,7 @@ module Analytics
   end
 
   class AssignmentsHarness
-    include Assignments
+    include ::Analytics::Assignments
 
     def initialize(course_object=nil)
       @course = course_object

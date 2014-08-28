@@ -73,7 +73,7 @@ module Analytics
   end
 
   class AssignmentsHarness
-    include Assignments
+    include ::Analytics::Assignments
   end
 
 end
