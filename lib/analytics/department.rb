@@ -235,15 +235,26 @@ module Analytics
       select << 'MIN(courses.created_at) AS created_at' unless start_at
       select << 'MAX(courses.conclude_at) AS conclude_at' unless end_at
       unless select.empty?
-        dates = slaved{ courses.select(select).first }
-        start_at ||= parse_utc_time(dates.created_at) || Time.zone.now
-        end_at ||= parse_utc_time(dates.conclude_at) || start_at
+        if dates = slaved{ courses.select(select).first }
+          start_at ||= parse_utc_time(dates.created_at)
+          end_at ||= parse_utc_time(dates.conclude_at)
+        end
       end
 
-      # clamp start_at to (-∞, now]
-      # clamp end_at to [start_at, now]
-      start_at = [start_at, Time.zone.now].sort.min
-      end_at = [start_at, end_at, Time.zone.now].sort[1]
+      # unless otherwise specified, end at current date. never go past current
+      # date
+      now = Time.zone.now
+      end_at ||= now
+      end_at = [now, end_at].min
+
+      # unless otherwise specified, start 1 year before target end date. never
+      # start after current date
+      start_at ||= end_at - 1.year
+      start_at = [now, start_at].min
+
+      # if start_at and end_at both specified but out of order, end on start
+      # date
+      end_at = [start_at, end_at].max
 
       return start_at, end_at
     end
