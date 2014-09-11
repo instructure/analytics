@@ -31,7 +31,7 @@ module Analytics
           :unlock_at => '2/2/2',
           :points_possible => 5,
           :muted? => true,
-          :multiple_due_dates => false) 
+          :multiple_due_dates => false)
       end
 
       shared_examples_for "basic assignment data" do
@@ -108,13 +108,39 @@ module Analytics
         }]
       end
     end
+
+    describe "#assignment_scope" do
+      before :once do
+        course_with_student_logged_in(draft_state: true, active_all: true)
+        @section_one = @course.course_sections.create!(name: "Section One")
+        @section_two = @course.course_sections.create!(name: "Section Two")
+        student_in_section(@section_one, user: @student)
+        @assignment_one = @course.assignments.create!(title: "assignment 1")
+        @assignment_two = @course.assignments.create!(title: "assignment 2")
+        differentiated_assignment(assignment: @assignment_one, course_section: @section_one)
+        differentiated_assignment(assignment: @assignment_two, course_section: @section_two)
+        @course.reload
+      end
+
+      it "returns all assignments without differentiated assignments" do
+        harness = AssignmentsHarness.new(@course, @student)
+        harness.assignment_scope.length.should == @course.assignments.length
+      end
+
+      it "returns only visible assignments with differentiated assignments" do
+        @course.enable_feature!(:differentiated_assignments)
+        harness = AssignmentsHarness.new(@course, @student)
+        harness.assignment_scope.length.should == 1
+      end
+    end
   end
 
   class AssignmentsHarness
     include ::Analytics::Assignments
 
-    def initialize(course_object=nil)
+    def initialize(course_object=nil, user=nil)
       @course = course_object
+      @current_user = user
     end
 
     def slaved(options={}); yield; end

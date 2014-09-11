@@ -24,7 +24,9 @@ module Analytics
             :submitted_at, :grade, :graded_at, :updated_at, :workflow_state, :cached_due_date]
 
     def assignments
-      slaved(:cache_as => [:assignments, allow_student_details?]) do
+      cache_array = [:assignments, allow_student_details?]
+      cache_array << @current_user if differentiated_assignments_applies?
+      slaved(:cache_as => cache_array) do
         assignments = assignment_scope.all
         submissions = submissions(assignments).group_by{ |s| s.assignment_id }
         assignments.map do |assignment|
@@ -50,17 +52,25 @@ module Analytics
     end
 
     def assignment_scope
-      @assignment_scope ||= ::Analytics::Assignments.assignment_scope_for(@course)
+      @assignment_scope ||= ::Analytics::Assignments.assignment_scope_for(@course, @current_user)
     end
 
-    def self.assignment_scope_for(this_course)
+    def self.assignment_scope_for(this_course, user)
       this_course.shard.activate do
         scope = this_course.assignments.published if this_course.feature_enabled?(:draft_state)
         scope ||= this_course.assignments.active
 
+        if differentiated_assignments_applies?(this_course, user)
+          scope = scope.visible_to_student_in_course_with_da(user.id, this_course.id)
+        end
+
         scope.includes(:versions). # Optimizes AssignmentOverrideApplicator
               reorder("assignments.due_at, assignments.id")
       end
+    end
+
+    def self.differentiated_assignments_applies?(course, user)
+      course.feature_enabled?(:differentiated_assignments) && !course.grants_any_right?(user, :read_as_admin, :manage_grades, :manage_assignments)
     end
 
     def assignment_data(assignment, submissions)
@@ -100,6 +110,10 @@ module Analytics
         :points_possible => assignment.points_possible,
         :multiple_due_dates => false # can be overridden in submodules
       }
+    end
+
+    def differentiated_assignments_applies?
+      ::Analytics::Assignments.differentiated_assignments_applies?(@course, @current_user)
     end
 
     # Mostly for test stubs

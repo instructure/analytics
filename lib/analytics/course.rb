@@ -168,13 +168,17 @@ module Analytics
     end
 
     def raw_assignments
-      slaved(:cache_as => :raw_assignments) do
+      cache_array = [:raw_assignments]
+      cache_array << @current_user if differentiated_assignments_applies?
+      slaved(:cache_as => cache_array) do
         assignment_scope.all
       end
     end
 
     def tardiness_breakdowns
-      @tardiness_breakdowns ||= slaved(:cache_as => :tardiness_breakdowns) do
+      cache_array = [:tardiness_breakdowns]
+      cache_array << @current_user if differentiated_assignments_applies?
+      @tardiness_breakdowns ||= slaved(:cache_as => cache_array) do
         breakdowns = { assignments: {}, students: {} }
         course_submissions = submissions(raw_assignments)
 
