@@ -64,6 +64,23 @@ div#analytics_body
     text-indent: -9999px
 
 
+  // Done here rather than converting the h4 below so that actual h4's don't
+  // get affected, while still having the course h4's become h3's and maintain
+  // the same style.
+  .course_graphs
+    h3, .h3
+      position: relative
+      font-size: 1.3em
+      margin-bottom: 0
+      padding-right: 150px
+      span.qualifier
+        padding-left: 1em
+        position: absolute
+        right: 0
+        top: 0
+        width: 150px
+
+
   .student_graphs, .course_graphs, .department_graphs
     table
       width: 100%
