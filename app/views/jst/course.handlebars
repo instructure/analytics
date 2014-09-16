@@ -49,6 +49,9 @@
 
   <div id='students'>
     <table class='table table-striped table-hover table-condensed'>
+      <caption id="student_table_caption" class="screenreader-only" role="alert" aria-live="polite">
+        {{#t "student_summary.not_sorted"}}Student summary table not sorted{{/t}}
+      </caption>
       <thead>
         <tr>
           <th class='student'><span class='sortable' data-sort_key='name'>Student</span></th>
