@@ -26,9 +26,15 @@ describe AnalyticsController, :type => :controller do
     @account.allowed_services = '+analytics'
     @account.save!
 
-    @role = 'TestAdmin'
-    RoleOverride.manage_role_override(@account, @role, 'view_analytics', :override => true)
-    @admin = account_admin_user(:account => @account, :membership_type => @role, :active_all => true)
+    if Role.constants.include?(:NEW_ROLES)
+      @role = custom_account_role('TestAdmin', :account => @account)
+      RoleOverride.manage_role_override(@account, @role, 'view_analytics', :override => true)
+      @admin = account_admin_user(:account => @account, :role_id => @role.id, :active_all => true)
+    else
+      @role = 'TestAdmin'
+      RoleOverride.manage_role_override(@account, @role, 'view_analytics', :override => true)
+      @admin = account_admin_user(:account => @account, :membership_type => @role, :active_all => true)
+    end
     user_session(@admin)
   end
 
