@@ -12,17 +12,17 @@ CanvasRails::Application.routes.draw do
     #  - analytics_department_term :term_id => account.default_enrollment_term_id
     #  - analytics_department_current
     # depending on the number of terms in the account
-    match department_path, to: :department, as: :department
+    get department_path, to: :department, as: :department
     # department: specific term
-    match department_term_path, to: :department, as: :department_term
+    get department_term_path, to: :department, as: :department_term
     # department: default term, current courses
-    match department_current_path, to: :department, :filter => 'current', as: :department_current
+    get department_current_path, to: :department, :filter => 'current', as: :department_current
     # department: default term, concluded courses
-    match department_completed_path, to: :department, :filter => 'completed', as: :department_completed
+    get department_completed_path, to: :department, :filter => 'completed', as: :department_completed
     # course
-    match course_path, to: :course, as: :course
+    get course_path, to: :course, as: :course
     # student in course
-    match student_in_course_path, to: :student_in_course, as: :student_in_course
+    get student_in_course_path, to: :student_in_course, as: :student_in_course
   end
 
   ApiRouteSet::V1.draw(self) do
