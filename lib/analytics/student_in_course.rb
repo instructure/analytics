@@ -44,8 +44,8 @@ module Analytics
     # just parrots back @student, but sets the computed_current_score from the
     # enrollment on the student, for parity with Analytics::Course.students
     def student
-      unless @student.read_attribute(:computed_current_score)
-        @student.write_attribute(:computed_current_score, enrollment.computed_current_score)
+      unless @student.computed_current_score
+        @student.computed_current_score = enrollment.computed_current_score
       end
       @student
     end

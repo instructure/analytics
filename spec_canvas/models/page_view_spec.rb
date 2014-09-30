@@ -44,7 +44,7 @@ describe PageView do
     end
 
     it "should prefer the category attribute if any" do
-      @view.write_attribute(:category, 'category')
+      @view.expects(:read_attribute).with(:category).returns('category')
       @view.category.should == 'category'
     end
   end

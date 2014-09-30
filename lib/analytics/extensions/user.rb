@@ -16,9 +16,10 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require 'analytics/extensions/course'
-require 'analytics/extensions/enrollment'
-require 'analytics/extensions/grade_calculator'
-require 'analytics/extensions/page_view'
-require 'analytics/extensions/permissions'
-require 'analytics/extensions/user'
+User.class_eval do
+  attr_writer :computed_current_score
+
+  def computed_current_score
+    read_attribute(:computed_current_score) || @computed_current_score
+  end
+end
