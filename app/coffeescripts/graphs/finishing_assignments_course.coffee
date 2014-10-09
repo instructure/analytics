@@ -5,7 +5,8 @@ define [
   'analytics/compiled/graphs/ScaleByBins'
   'analytics/compiled/graphs/YAxis'
   'i18nObj'
-], (_, Base, Cover, ScaleByBins, YAxis, I18n) ->
+  'str/htmlEscape'
+], (_, Base, Cover, ScaleByBins, YAxis, I18n, htmlEscape) ->
 
   ##
   # FinishingAssignmentCourse visualizes the proportion of students that are
@@ -119,7 +120,7 @@ define [
     ##
     # Build the text for the assignment's tooltip.
     tooltip: (assignment) ->
-      tooltip = assignment.title
+      tooltip = htmlEscape(assignment.title)
       if assignment.multipleDueDates
         tooltip += "<br/>Due: Multiple Dates"
       else if assignment.dueAt?

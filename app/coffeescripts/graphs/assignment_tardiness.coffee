@@ -5,7 +5,8 @@ define [
   'analytics/compiled/helpers'
   'compiled/str/TextHelper'
   'i18n!time'
-], (_, DateAlignedGraph, Cover, helpers, {delimit}, I18n) ->
+  'str/htmlEscape'
+], (_, DateAlignedGraph, Cover, helpers, {delimit}, I18n, htmlEscape) ->
 
   ##
   # AssignmentTardiness visualizes the student's ability to turn in assignments
@@ -214,7 +215,7 @@ define [
     ##
     # Build the text for the assignment's tooltip.
     tooltip: (assignment) ->
-      tooltip = assignment.title
+      tooltip = htmlEscape(assignment.title)
 
       if assignment.dueAt?
         dueAtString = I18n.t 'due_date', "%{date} by %{time}",

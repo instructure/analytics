@@ -5,7 +5,8 @@ define [
   'analytics/compiled/graphs/ScaleByBins'
   'analytics/compiled/graphs/YAxis'
   'compiled/str/TextHelper'
-], (_, Base, Cover, ScaleByBins, YAxis, {delimit}) ->
+  'str/htmlEscape'
+], (_, Base, Cover, ScaleByBins, YAxis, {delimit}, htmlEscape) ->
 
   ##
   # Grades visualizes the student's scores on assignments compared to the
@@ -199,7 +200,7 @@ define [
     ##
     # Build the text for the assignment's tooltip.
     tooltip: (assignment) ->
-      tooltip = assignment.title
+      tooltip = htmlEscape(assignment.title)
       if assignment.scoreDistribution?
         tooltip += "<br/>High: #{delimit assignment.scoreDistribution.maxScore}"
         tooltip += "<br/>Median: #{delimit assignment.scoreDistribution.median}"
