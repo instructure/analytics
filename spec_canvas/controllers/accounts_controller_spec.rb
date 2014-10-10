@@ -33,7 +33,7 @@ describe AccountsController, :type => :controller do
       RoleOverride.manage_role_override(@account, role, 'read_course_list', :override => true)
       RoleOverride.manage_role_override(@account, role, 'view_analytics', :override => true)
 
-      @admin = account_admin_user(:account => @account, :role_id => role, :active_all => true)
+      @admin = account_admin_user(:account => @account, :role => role, :active_all => true)
     else
       RoleOverride.manage_role_override(@account, ROLE, 'read_course_list', :override => true)
       RoleOverride.manage_role_override(@account, ROLE, 'view_analytics', :override => true)
