@@ -22,14 +22,14 @@ require File.expand_path(File.dirname(__FILE__) + '/../cassandra_spec_helper')
 describe Analytics::StudentCollection do
   it "should default sort_strategy to Default" do
     collection = Analytics::StudentCollection.new(User)
-    collection.sort_strategy.should be_a(Analytics::StudentCollection::SortStrategy::Default)
+    expect(collection.sort_strategy).to be_a(Analytics::StudentCollection::SortStrategy::Default)
   end
 
   describe "#sort_by" do
     it "should set the sort_strategy" do
       collection = Analytics::StudentCollection.new(User)
       collection.sort_by(:score)
-      collection.sort_strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByScore)
+      expect(collection.sort_strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByScore)
     end
 
     it "should pass along options" do
@@ -37,7 +37,7 @@ describe Analytics::StudentCollection do
       page_view_counts = { id => { :page_views => 0, :participations => 0 } }
       collection = Analytics::StudentCollection.new(User)
       collection.sort_by(:page_views, :page_view_counts => page_view_counts)
-      collection.sort_strategy.sorted_ids.should == [id]
+      expect(collection.sort_strategy.sorted_ids).to eq [id]
     end
   end
 
@@ -46,7 +46,7 @@ describe Analytics::StudentCollection do
       formatter = proc{}
       collection = Analytics::StudentCollection.new(User)
       collection.format(&formatter)
-      collection.formatter.should == formatter
+      expect(collection.formatter).to eq formatter
     end
   end
 
@@ -62,7 +62,7 @@ describe Analytics::StudentCollection do
     it "should paginate values from the initial scope" do
       collection = Analytics::StudentCollection.new(User.active)
       students = collection.paginate(:page => 1, :per_page => 3)
-      students.map(&:id).sort.should == @users.map(&:id).sort
+      expect(students.map(&:id).sort).to eq @users.map(&:id).sort
     end
 
     it "should use the specified sort strategy" do
@@ -73,14 +73,14 @@ describe Analytics::StudentCollection do
         @users[2].id => { :page_views => 60, :participations => 10 },
       })
       students = collection.paginate(:page => 1, :per_page => 3)
-      students.should == [1, 0, 2].map{ |i| @users[i] }
+      expect(students).to eq [1, 0, 2].map{ |i| @users[i] }
     end
 
     it "should pass the results through the formatter" do
       collection = Analytics::StudentCollection.new(User.active)
       collection.format { "formatted" }
       students = collection.paginate(:page => 1, :per_page => 3)
-      students.should == Array.new(3) { "formatted" }
+      expect(students).to eq Array.new(3) { "formatted" }
     end
   end
 
@@ -102,29 +102,29 @@ describe Analytics::StudentCollection do
       # set up in a before block
 
       it 'should order the students as expected' do
-        @strategy.paginate(@scope, @pager).should == @expected_sort
+        expect(@strategy.paginate(@scope, @pager)).to eq @expected_sort
       end
 
       it 'should respect pagination' do
         @pager.per_page = 1
         @users.size.times do |i|
           @pager.current_page = i + 1
-          @strategy.paginate(@scope, @pager).should == @expected_sort[i, 1]
+          expect(@strategy.paginate(@scope, @pager)).to eq @expected_sort[i, 1]
         end
       end
 
       it 'should handle accidental pagination past the end' do
         @pager.current_page = @users.size + 1
         @pager.per_page = 1
-        lambda{ @strategy.paginate(@scope, @pager) }.should raise_error Folio::InvalidPage
+        expect{ @strategy.paginate(@scope, @pager) }.to raise_error Folio::InvalidPage
       end
 
       it 'should return a WillPaginate-style object' do
-        @strategy.paginate(@scope, @pager).should respond_to(:current_page)
+        expect(@strategy.paginate(@scope, @pager)).to respond_to(:current_page)
       end
 
       it 'should implement direction' do
-        @reverse_strategy.paginate(@scope, @pager).should == @expected_sort.reverse
+        expect(@reverse_strategy.paginate(@scope, @pager)).to eq @expected_sort.reverse
       end
     end
 
@@ -190,99 +190,99 @@ describe Analytics::StudentCollection do
     describe '.for(strategy_name)' do
       it "should recognize :name" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:name)
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByName)
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByName)
       end
 
       it "should recognize :name_ascending" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:name_ascending)
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByName)
-        strategy.direction.should == :ascending
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByName)
+        expect(strategy.direction).to eq :ascending
       end
 
       it "should recognize :name_descending" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:name_descending)
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByName)
-        strategy.direction.should == :descending
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByName)
+        expect(strategy.direction).to eq :descending
       end
 
       it "should recognize :score" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:score)
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByScore)
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByScore)
       end
 
       it "should recognize :score_ascending" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:score_ascending)
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByScore)
-        strategy.direction.should == :ascending
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByScore)
+        expect(strategy.direction).to eq :ascending
       end
 
       it "should recognize :score_descending" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:score_descending)
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByScore)
-        strategy.direction.should == :descending
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByScore)
+        expect(strategy.direction).to eq :descending
       end
 
       it "should recognize :page_views" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:page_views, :page_view_counts => {})
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByPageViews)
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByPageViews)
       end
 
       it "should recognize :page_views_ascending" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:page_views_ascending, :page_view_counts => {})
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByPageViews)
-        strategy.direction.should == :ascending
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByPageViews)
+        expect(strategy.direction).to eq :ascending
       end
 
       it "should recognize :page_views_descending" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:page_views_descending, :page_view_counts => {})
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByPageViews)
-        strategy.direction.should == :descending
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByPageViews)
+        expect(strategy.direction).to eq :descending
       end
 
       it "should recognize :participations" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:participations, :page_view_counts => {})
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByParticipations)
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByParticipations)
       end
 
       it "should recognize :participations_ascending" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:participations_ascending, :page_view_counts => {})
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByParticipations)
-        strategy.direction.should == :ascending
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByParticipations)
+        expect(strategy.direction).to eq :ascending
       end
 
       it "should recognize :participations_descending" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:participations_descending, :page_view_counts => {})
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByParticipations)
-        strategy.direction.should == :descending
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByParticipations)
+        expect(strategy.direction).to eq :descending
       end
 
       it "should recognize nil as ByName" do
         strategy = Analytics::StudentCollection::SortStrategy.for(nil)
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByName)
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByName)
       end
 
       it "should recognize unknown values as ByName" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:bogus)
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByName)
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByName)
       end
 
       it "should recognize strings" do
         strategy = Analytics::StudentCollection::SortStrategy.for("score")
-        strategy.should be_a(Analytics::StudentCollection::SortStrategy::ByScore)
+        expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByScore)
       end
 
       it "should pass :page_view_counts to ByPageViews" do
         id = 5
         page_view_counts = { id => { :page_views => 0, :participations => 0 } }
         strategy = Analytics::StudentCollection::SortStrategy.for(:page_views, :page_view_counts => page_view_counts)
-        strategy.sorted_ids.should == [id]
+        expect(strategy.sorted_ids).to eq [id]
       end
 
       it "should pass :page_view_counts to ByParticipations" do
         id = 5
         page_view_counts = { id => { :page_views => 0, :participations => 0 } }
         strategy = Analytics::StudentCollection::SortStrategy.for(:participations, :page_view_counts => page_view_counts)
-        strategy.sorted_ids.should == [id]
+        expect(strategy.sorted_ids).to eq [id]
       end
     end
   end

@@ -53,18 +53,18 @@ describe Analytics::Course do
       end
       describe "when viewed by a teacher" do
         it "multiple_due_dates flag is true" do
-          assignment.multiple_due_dates_apply_to?(@teacher).should be_true
+          expect(assignment.multiple_due_dates_apply_to?(@teacher)).to be_truthy
           analytics = Analytics::Course.new(@teacher, @course)
           data = analytics.basic_assignment_data(assignment)
-          data[:multiple_due_dates].should be_true
+          expect(data[:multiple_due_dates]).to be_truthy
         end
       end
       describe "when viewed by a student" do
         it "multiple_due_dates flag is false" do
-          assignment.multiple_due_dates_apply_to?(@student).should be_false
+          expect(assignment.multiple_due_dates_apply_to?(@student)).to be_falsey
           analytics = Analytics::Course.new(@student, @course)
           data = analytics.basic_assignment_data(assignment)
-          data[:multiple_due_dates].should be_false
+          expect(data[:multiple_due_dates]).to be_falsey
         end
       end
     end
@@ -123,7 +123,7 @@ describe Analytics::Course do
       @ta_enrollment.save!
 
       enable_cache do
-        @ta_analytics.students.object_id.should_not == @teacher_analytics.students.object_id
+        expect(@ta_analytics.students.object_id).not_to eq @teacher_analytics.students.object_id
       end
     end
   end
@@ -136,25 +136,25 @@ describe Analytics::Course do
 
       it "should include student's page views in the course" do
         page_view(:user => @student, :course => @course)
-        @teacher_analytics.participation.should_not be_empty
+        expect(@teacher_analytics.participation).not_to be_empty
       end
 
       it "should include teacher's page views in the course" do
         page_view(:user => @teacher, :course => @course)
-        @teacher_analytics.participation.should_not be_empty
+        expect(@teacher_analytics.participation).not_to be_empty
       end
 
       it "should not include student's page views from outside the course" do
         @other_course = course(:active_course => true)
         page_view(:user => @student, :course => @other_course)
-        @teacher_analytics.participation.should be_empty
+        expect(@teacher_analytics.participation).to be_empty
       end
     end
 
     describe '#page_views_by_student' do
       it 'delegates to the PageView' do
         PageView.stubs(:counters_by_context_for_users => { 1 => 2 } )
-        @teacher_analytics.page_views_by_student.should == { 1 => 2 }
+        expect(@teacher_analytics.page_views_by_student).to eq({ 1 => 2 })
       end
 
       it 'passes the course and students array to the page view' do
@@ -166,22 +166,22 @@ describe Analytics::Course do
 
   describe "#enrollments" do
     it "should not include non-student enrollments from the course" do
-      @teacher_analytics.enrollments.should_not include(@teacher_enrollment)
+      expect(@teacher_analytics.enrollments).not_to include(@teacher_enrollment)
     end
 
     it "should include active student enrollments from the course" do
       active_student
-      @teacher_analytics.enrollments.should include(@student_enrollment)
+      expect(@teacher_analytics.enrollments).to include(@student_enrollment)
     end
 
     it "should include completed student enrollments from the course" do
       completed_student
-      @teacher_analytics.enrollments.should include(@student_enrollment)
+      expect(@teacher_analytics.enrollments).to include(@student_enrollment)
     end
 
     it "should not include invited student enrollments from the course" do
       invited_student
-      @teacher_analytics.enrollments.should_not include(@student_enrollment)
+      expect(@teacher_analytics.enrollments).not_to include(@student_enrollment)
     end
 
     context "when the user is section limited" do
@@ -198,12 +198,12 @@ describe Analytics::Course do
 
       it "should include enrollments from the user's sections" do
         active_student(:section => @sectionB)
-        @ta_analytics.enrollments.should include(@student_enrollment)
+        expect(@ta_analytics.enrollments).to include(@student_enrollment)
       end
 
       it "should not include enrollments from other sections" do
         active_student(:section => @sectionA)
-        @ta_analytics.enrollments.should_not include(@student_enrollment)
+        expect(@ta_analytics.enrollments).not_to include(@student_enrollment)
       end
     end
   end
@@ -211,17 +211,17 @@ describe Analytics::Course do
   describe "#available_for?(user, course)" do
     it "should be true with an active enrollment in the course" do
       active_student
-      Analytics::Course.available_for?(@teacher, @course).should be_true
+      expect(Analytics::Course.available_for?(@teacher, @course)).to be_truthy
     end
 
     it "should be true with a completed enrollment in the course" do
       completed_student
-      Analytics::Course.available_for?(@teacher, @course).should be_true
+      expect(Analytics::Course.available_for?(@teacher, @course)).to be_truthy
     end
 
     it "should be false with only invited enrollments in the course" do
       invited_student
-      Analytics::Course.available_for?(@teacher, @course).should be_false
+      expect(Analytics::Course.available_for?(@teacher, @course)).to be_falsey
     end
 
     context "when the user is section limited" do
@@ -238,12 +238,12 @@ describe Analytics::Course do
 
       it "should be true with an enrollment in the user's section" do
         active_student(:section => @sectionB)
-        Analytics::Course.available_for?(@ta, @course).should be_true
+        expect(Analytics::Course.available_for?(@ta, @course)).to be_truthy
       end
 
       it "should be false with no enrollments in the user's section" do
         active_student(:section => @sectionA)
-        Analytics::Course.available_for?(@ta, @course).should be_false
+        expect(Analytics::Course.available_for?(@ta, @course)).to be_falsey
       end
     end
   end
@@ -251,17 +251,17 @@ describe Analytics::Course do
   describe "#available?" do
     it "should be true with an active enrollment in the course" do
       active_student
-      @teacher_analytics.should be_available
+      expect(@teacher_analytics).to be_available
     end
 
     it "should be true with a completed enrollment in the course" do
       completed_student
-      @teacher_analytics.should be_available
+      expect(@teacher_analytics).to be_available
     end
 
     it "should be false with only invited enrollments in the course" do
       invited_student
-      @teacher_analytics.should_not be_available
+      expect(@teacher_analytics).not_to be_available
     end
 
     context "when the user is section limited" do
@@ -278,12 +278,12 @@ describe Analytics::Course do
 
       it "should be true with an enrollment in the user's section" do
         active_student(:section => @sectionB)
-        @ta_analytics.should be_available
+        expect(@ta_analytics).to be_available
       end
 
       it "should be false with no enrollments in the user's section" do
         active_student(:section => @sectionA)
-        @ta_analytics.should_not be_available
+        expect(@ta_analytics).not_to be_available
       end
     end
   end
@@ -294,7 +294,7 @@ describe Analytics::Course do
       dates.each{ active_student }
       @teacher_analytics.enrollments.zip(dates).each{ |e,date| e.stubs(:effective_start_at).returns(date) }
 
-      @teacher_analytics.start_date.should == dates.min
+      expect(@teacher_analytics.start_date).to eq dates.min
     end
 
     it "should not be nil even if none of the enrollments have an effective_start_at" do
@@ -302,7 +302,7 @@ describe Analytics::Course do
       dates.each{ active_student }
       @teacher_analytics.enrollments.zip(dates).each{ |e,date| e.stubs(:effective_start_at).returns(date) }
 
-      @teacher_analytics.start_date.should_not be_nil
+      expect(@teacher_analytics.start_date).not_to be_nil
     end
   end
 
@@ -312,7 +312,7 @@ describe Analytics::Course do
       dates.each{ active_student }
       @teacher_analytics.enrollments.zip(dates).each{ |e,date| e.stubs(:effective_end_at).returns(date) }
 
-      @teacher_analytics.end_date.should == dates.max
+      expect(@teacher_analytics.end_date).to eq dates.max
     end
 
     it "should be 'now' if none of the enrollments have an effective_end_at" do
@@ -320,7 +320,7 @@ describe Analytics::Course do
       dates.each{ active_student }
       @teacher_analytics.enrollments.zip(dates).each{ |e,date| e.stubs(:effective_end_at).returns(date) }
 
-      @teacher_analytics.end_date.should_not be_nil
+      expect(@teacher_analytics.end_date).not_to be_nil
     end
   end
 
@@ -332,7 +332,7 @@ describe Analytics::Course do
         student_ids << @student.id
       end
 
-      @teacher_analytics.students.map{ |s| s.id }.sort.should == student_ids.sort
+      expect(@teacher_analytics.students.map{ |s| s.id }.sort).to eq student_ids.sort
     end
 
     it "should include each student only once" do
@@ -347,8 +347,8 @@ describe Analytics::Course do
       @course.reload
 
       # should see both enrollments, but the student only once
-      @teacher_analytics.enrollments.size.should == 2
-      @teacher_analytics.students.map{ |s| s.id }.should == [ @student.id ]
+      expect(@teacher_analytics.enrollments.size).to eq 2
+      expect(@teacher_analytics.students.map{ |s| s.id }).to eq [ @student.id ]
     end
   end
 
@@ -364,16 +364,16 @@ describe Analytics::Course do
           @assignment.submissions.create!(:user => @student, :score => i)
         end
 
-        @teacher_analytics.assignments.first[:min_score].should == 0
-        @teacher_analytics.assignments.first[:first_quartile].should == 0.5
-        @teacher_analytics.assignments.first[:median].should == 2
-        @teacher_analytics.assignments.first[:third_quartile].should == 3.5
-        @teacher_analytics.assignments.first[:max_score].should == 4
+        expect(@teacher_analytics.assignments.first[:min_score]).to eq 0
+        expect(@teacher_analytics.assignments.first[:first_quartile]).to eq 0.5
+        expect(@teacher_analytics.assignments.first[:median]).to eq 2
+        expect(@teacher_analytics.assignments.first[:third_quartile]).to eq 3.5
+        expect(@teacher_analytics.assignments.first[:max_score]).to eq 4
       end
 
       it "should not include non-student's submissions in the course" do
         @assignment.submissions.create!(:user => @teacher)
-        @teacher_analytics.assignments.first[:min_score].should be_nil
+        expect(@teacher_analytics.assignments.first[:min_score]).to be_nil
       end
 
       it "should not include student's submissions from outside the course" do
@@ -385,7 +385,7 @@ describe Analytics::Course do
         @other_assignment = @other_course.assignments.active.create!
         @other_assignment.submissions.create!(:user => @student, :score => 1)
 
-        @teacher_analytics.assignments.first[:min_score].should be_nil
+        expect(@teacher_analytics.assignments.first[:min_score]).to be_nil
       end
     end
   end
@@ -399,12 +399,12 @@ describe Analytics::Course do
 
         it "should count page_views for that student" do
           page_view(:user => @student, :course => @course)
-          student_summary[:page_views].should == 1
+          expect(student_summary[:page_views]).to eq 1
         end
 
         it "should count participations for that student" do
           view = page_view(:user => @student, :course => @course, :participated => true)
-          student_summary[:participations].should == 1
+          expect(student_summary[:participations]).to eq 1
         end
       end
     end
@@ -426,7 +426,7 @@ describe Analytics::Course do
 
     it "should include the number of assignments" do
       5.times{ @course.assignments.active.create! }
-      student_summary[:tardiness_breakdown][:total].should == 5
+      expect(student_summary[:tardiness_breakdown][:total]).to eq 5
     end
 
     it "should have appropriate data per student" do
@@ -442,8 +442,8 @@ describe Analytics::Course do
       submit_submission(:submission => @submission2, :submitted_at => @assignment.due_at + 1.day)
 
       @summaries = @teacher_analytics.student_summaries.paginate(:page => 1, :per_page => 2)
-      @summaries.detect{|s| s[:id] == @submission1.user_id}[:tardiness_breakdown].should == expected_breakdown(:on_time)
-      @summaries.detect{|s| s[:id] == @submission2.user_id}[:tardiness_breakdown].should == expected_breakdown(:late)
+      expect(@summaries.detect{|s| s[:id] == @submission1.user_id}[:tardiness_breakdown]).to eq expected_breakdown(:on_time)
+      expect(@summaries.detect{|s| s[:id] == @submission2.user_id}[:tardiness_breakdown]).to eq expected_breakdown(:late)
     end
 
     context "an assignment that has a due date" do
@@ -655,14 +655,14 @@ describe Analytics::Course do
       expected[:total] = opts[:total]
     end
 
-    breakdown.should == expected
+    expect(breakdown).to eq expected
     breakdown
   end
 
   def expect_summary_breakdown(bin)
     expected = expected_breakdown(bin)
     expected[:total] = 1
-    student_summary[:tardiness_breakdown].should == expected
+    expect(student_summary[:tardiness_breakdown]).to eq expected
   end
 
 end

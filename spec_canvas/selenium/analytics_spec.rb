@@ -37,7 +37,7 @@ describe "analytics" do
       end
 
       it "should validate analytics icon link works" do
-        pending("new course users page doesn't have this link yet, known issue")
+        skip("new course users page doesn't have this link yet, known issue")
         get "/courses/#{@course.id}/users"
 
         expect_new_page_load { student_roster[0].find_element(:css, ANALYTICS_BUTTON_CSS).click }
@@ -126,7 +126,7 @@ describe "analytics" do
       randomly_grade_assignments(5)
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
-      f('.student_summary').should include_text(current_student_score)
+      expect(f('.student_summary')).to include_text(current_student_score)
     end
 
     context 'participation view' do
@@ -201,16 +201,16 @@ describe "analytics" do
 
       driver.execute_script("$('#grades-graph .assignment_#{first_assignment.id}.cover').mouseover()")
       tooltip = f(".analytics-tooltip")
-      tooltip.text.should == first_assignment.title
+      expect(tooltip.text).to eq first_assignment.title
     end
 
     describe "student combo box" do
 
       def validate_combobox_presence(is_present = true)
         if is_present
-          f('.ui-combobox').should be_displayed
+          expect(f('.ui-combobox')).to be_displayed
         else
-          f('.ui-combobox').should be_nil
+          expect(f('.ui-combobox')).to be_nil
         end
       end
 
@@ -229,11 +229,11 @@ describe "analytics" do
         def select_next_student(nav_button, expected_student)
           nav_button.click
           wait_for_ajaximations
-          driver.current_url.should include(expected_student.id.to_s)
+          expect(driver.current_url).to include(expected_student.id.to_s)
         end
 
         def validate_combobox_name(student_name)
-          f('.ui-selectmenu-status').should include_text(student_name)
+          expect(f('.ui-selectmenu-status')).to include_text(student_name)
         end
 
         def validate_first_students_grade_graph
@@ -250,7 +250,7 @@ describe "analytics" do
         prev_button = f('.ui-combobox-prev')
 
         #check that first student in course is selected
-        driver.current_url.should include(@student.id.to_s)
+        expect(driver.current_url).to include(@student.id.to_s)
         validate_combobox_name(@student.name)
 
         #validate grades graph for first graded student

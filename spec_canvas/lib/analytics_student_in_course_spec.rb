@@ -30,7 +30,7 @@ module Analytics
         enable_cache do
           a1 = StudentInCourse.new(@teacher, @course, @student)
           a2 = StudentInCourse.new(@teacher, @course, @student)
-          a1.enrollment.object_id.should_not == a2.enrollment.object_id
+          expect(a1.enrollment.object_id).not_to eq a2.enrollment.object_id
         end
       end
     end
@@ -43,12 +43,12 @@ module Analytics
         assignment = stub('assignment')
         subm = stub('subm', :user_id => @student.id, :score => 10, :submitted_at => time1, :missing? => false)
         data = analytics.extended_assignment_data(assignment, [subm])
-        data.should == {
+        expect(data).to eq({
           :submission => {
             :score => 10,
             :submitted_at => time1
           }
-        }
+        })
       end
     end
 
@@ -71,7 +71,7 @@ module Analytics
       }
 
       it 'lets overridden_for determine the due_at value' do
-        analytics.basic_assignment_data(assignment, [submission])[:due_at].should == due_at
+        expect(analytics.basic_assignment_data(assignment, [submission])[:due_at]).to eq due_at
       end
     end
   end

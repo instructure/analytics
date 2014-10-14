@@ -54,15 +54,15 @@ describe "Courses API Extensions", :type => :request do
       json.each do |student_json|
         student = students.detect{ |s| s.id == student_json['id'] }
         if student
-          student_json['analytics_url'].should == "/courses/#{course.id}/analytics/users/#{student.id}"
+          expect(student_json['analytics_url']).to eq "/courses/#{course.id}/analytics/users/#{student.id}"
           seen_students << student
         else
-          student_json.has_key?('analytics_url').should be_false
+          expect(student_json.has_key?('analytics_url')).to be_falsey
         end
       end
 
       # all the given students should have been seen
-      seen_students.map(&:id).sort.should == students.map(&:id).sort
+      expect(seen_students.map(&:id).sort).to eq students.map(&:id).sort
     end
 
     def forbid_injection(course, students)
@@ -77,7 +77,7 @@ describe "Courses API Extensions", :type => :request do
       json.each do |student_json|
         student = students.detect{ |s| s.id == student_json['id'] }
         if student
-          student_json['analytics_url'].should be_false
+          expect(student_json['analytics_url']).to be_falsey
         end
       end
     end

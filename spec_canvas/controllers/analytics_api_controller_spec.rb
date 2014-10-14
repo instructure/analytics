@@ -51,7 +51,7 @@ describe AnalyticsApiController do
       end
 
       it 'renders the json' do
-        controller.course_student_summaries.should == "RENDERED!"
+        expect(controller.course_student_summaries).to eq "RENDERED!"
       end
 
       it 'passes a sort_column down to the analytics engine if one is present' do
@@ -72,14 +72,14 @@ describe AnalyticsApiController do
       end
 
       it 'renders the json' do
-        controller.course_student_summaries.should == "RENDERED!"
+        expect(controller.course_student_summaries).to eq "RENDERED!"
       end
     end
 
     describe 'when the user has no grades permissions' do
       it 'does not render the json' do
         controller.expects(:render_unauthorized_action)
-        controller.course_student_summaries.should_not == "RENDERED!"
+        expect(controller.course_student_summaries).not_to eq "RENDERED!"
       end
     end
 

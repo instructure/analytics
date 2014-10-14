@@ -45,12 +45,12 @@ module Analytics
 
       it 'uses the full rollups when visibility level is full' do
         course.stubs(:enrollment_visibility_level_for).returns(:full)
-        permitted_course.assignments_uncached.should == ['SECTIONAL_ROLLUP']
+        expect(permitted_course.assignments_uncached).to eq ['SECTIONAL_ROLLUP']
       end
 
       it 'uses tallied rollups for section visibility' do
         course.stubs(:enrollment_visibility_level_for).returns(:sections)
-        permitted_course.assignments_uncached.should == ['SECTIONAL_ROLLUP']
+        expect(permitted_course.assignments_uncached).to eq ['SECTIONAL_ROLLUP']
       end
 
       it 'includes all sections for full visibility users regardless of enrollments' do
@@ -67,7 +67,7 @@ module Analytics
 
       it 'tallys assignments for direct visibility' do
         course.stubs(:enrollment_visibility_level_for).returns(:users)
-        permitted_course.assignments_uncached.should == ['ASSIGNMENT_DATA']
+        expect(permitted_course.assignments_uncached).to eq ['ASSIGNMENT_DATA']
       end
     end
 
@@ -77,19 +77,19 @@ module Analytics
       it "reads and saves the data if available in cache" do
         permitted_course.expects(:assignments_uncached).never
         Rails.cache.expects(:read).once.returns("data")
-        permitted_course.async_data_available?.should == true
-        permitted_course.assignments.should == "data"
+        expect(permitted_course.async_data_available?).to eq true
+        expect(permitted_course.assignments).to eq "data"
       end
 
       it "kicks off a background job when creating the Progress model" do
         enable_cache do
           progress = permitted_course.progress_for_background_assignments
-          permitted_course.async_data_available?.should == false
+          expect(permitted_course.async_data_available?).to eq false
           # returns the same progress again
-          permitted_course.progress_for_background_assignments.should == progress
+          expect(permitted_course.progress_for_background_assignments).to eq progress
           run_jobs
-          permitted_course.async_data_available?.should == true
-          permitted_course.progress_for_background_assignments.should == progress
+          expect(permitted_course.async_data_available?).to eq true
+          expect(permitted_course.progress_for_background_assignments).to eq progress
         end
       end
 
@@ -97,7 +97,7 @@ module Analytics
         progress = permitted_course.progress_for_background_assignments
         progress.start!
         progress.complete!
-        permitted_course.progress_for_background_assignments.should_not == progress
+        expect(permitted_course.progress_for_background_assignments).not_to eq progress
       end
     end
   end

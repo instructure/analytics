@@ -148,7 +148,7 @@ describe "Analytics API", :type => :request do
 
     it "should include student data" do
       json = analytics_api_call(:assignments, @course, @student1)
-      json.should == [{
+      expect(json).to eq [{
         "title" => @a1.title,
         "assignment_id" => @a1.id,
         "max_score" => 9,
@@ -218,7 +218,7 @@ describe "Analytics API", :type => :request do
 
     def response_assignment(json, assignment)
       json_assignment = json.detect{ |a| a["assignment_id"] == assignment.id }
-      json_assignment.should_not be_nil
+      expect(json_assignment).not_to be_nil
       json_assignment
     end
 
@@ -234,8 +234,8 @@ describe "Analytics API", :type => :request do
       RoleOverride.manage_role_override(@account, 'StudentEnrollment', 'view_analytics', :override => true)
       # Log in as the user for this API call
       json = analytics_api_call(:assignments, @course, @students[1], :user => @students[1])
-      response_assignment(json, @assignments[2])["submission"]["score"].should == 27
-      response_assignment(json, @assignments[2])["max_score"].should be_nil
+      expect(response_assignment(json, @assignments[2])["submission"]["score"]).to eq 27
+      expect(response_assignment(json, @assignments[2])["max_score"]).to be_nil
     end
 
     it "should not have statistics available if the teacher has blocked it in course settings" do
@@ -246,8 +246,8 @@ describe "Analytics API", :type => :request do
       RoleOverride.manage_role_override(@account, 'StudentEnrollment', 'view_analytics', :override => true)
       # Log in as the user for this API call
       json = analytics_api_call(:assignments, @course, @students[1], :user => @students[1])
-      response_assignment(json, @assignments[2])["submission"]["score"].should == 27
-      response_assignment(json, @assignments[2])["max_score"].should be_nil
+      expect(response_assignment(json, @assignments[2])["submission"]["score"]).to eq 27
+      expect(response_assignment(json, @assignments[2])["max_score"]).to be_nil
     end
 
     it "should fetch data for a student in the course" do
@@ -256,42 +256,42 @@ describe "Analytics API", :type => :request do
 
     it "should calculate max score" do
       json = analytics_api_call(:assignments, @course, @students[1])
-      response_assignment(json, @assignments[3])["max_score"].should == 40
+      expect(response_assignment(json, @assignments[3])["max_score"]).to eq 40
     end
 
     it "should calculate min score" do
       json = analytics_api_call(:assignments, @course, @students[1])
-      response_assignment(json, @assignments[4])["min_score"].should == 30
+      expect(response_assignment(json, @assignments[4])["min_score"]).to eq 30
     end
 
     it "should calculate first quartile of scores" do
       json = analytics_api_call(:assignments, @course, @students[1])
-      response_assignment(json, @assignments[0])["first_quartile"].should == 6.5
+      expect(response_assignment(json, @assignments[0])["first_quartile"]).to eq 6.5
     end
 
     it "should calculate median of scores" do
       json = analytics_api_call(:assignments, @course, @students[1])
-      response_assignment(json, @assignments[0])["median"].should == 8
+      expect(response_assignment(json, @assignments[0])["median"]).to eq 8
     end
 
     it "should calculate third quartile of scores" do
       json = analytics_api_call(:assignments, @course, @students[1])
-      response_assignment(json, @assignments[0])["third_quartile"].should == 9.5
+      expect(response_assignment(json, @assignments[0])["third_quartile"]).to eq 9.5
     end
 
     it "should have the student score" do
       json = analytics_api_call(:assignments, @course, @students[1])
-      response_assignment(json, @assignments[2])["submission"]["score"].should == 27
+      expect(response_assignment(json, @assignments[2])["submission"]["score"]).to eq 27
     end
 
     it "should have the student submit time" do
       json = analytics_api_call(:assignments, @course, @students[1])
-      response_assignment(json, @assignments[4])["submission"]["submitted_at"].should == (@due_time - 2.hours).iso8601
+      expect(response_assignment(json, @assignments[4])["submission"]["submitted_at"]).to eq (@due_time - 2.hours).iso8601
     end
 
     it "should track due dates" do
       json = analytics_api_call(:assignments, @course, @students[1])
-      response_assignment(json, @assignments[3])["due_at"].should == @due_time.iso8601
+      expect(response_assignment(json, @assignments[3])["due_at"]).to eq @due_time.iso8601
     end
   end
 
@@ -310,7 +310,7 @@ describe "Analytics API", :type => :request do
       raw_api_call(:get, "/api/v1/courses/#{@course.id}/analytics/student_summaries",
         :controller => 'analytics_api', :action => 'course_student_summaries', :format => 'json',
         :course_id => @course.id.to_s)
-      response.status.to_i.should == 401 # Unauthorized
+      expect(response.status.to_i).to eq 401 # Unauthorized
     end
   end
 
@@ -339,18 +339,18 @@ describe "Analytics API", :type => :request do
           :due_at => Time.now + 2.days)
 
       json = api_call(:get, url, course_assignments_route)
-      response.status.to_i.should == 200
-      json.size.should == 1
-      json.first.keys.should include('assignment_id')
+      expect(response.status.to_i).to eq 200
+      expect(json.size).to eq 1
+      expect(json.first.keys).to include('assignment_id')
     end
 
     context "with async" do
       it "should return progress" do
         enable_cache do
           json = api_call(:get, url, course_assignments_route, :async => 1.to_s)
-          response.status.to_i.should == 200
-          json.keys.should include('progress_url')
-          json['progress_url'].should match(%r{http://www.example.com/api/v1/progress/\d+})
+          expect(response.status.to_i).to eq 200
+          expect(json.keys).to include('progress_url')
+          expect(json['progress_url']).to match(%r{http://www.example.com/api/v1/progress/\d+})
         end
       end
 
@@ -358,7 +358,7 @@ describe "Analytics API", :type => :request do
         enable_cache do
           json1 = api_call(:get, url, course_assignments_route, :async => 1.to_s)
           json2 = api_call(:get, url, course_assignments_route, :async => 1.to_s)
-          json1.should == json2
+          expect(json1).to eq json2
         end
       end
     end
@@ -374,7 +374,7 @@ describe "Analytics API", :type => :request do
       assignment.grade_student(@student, grade: 1)
 
       json = analytics_api_call(:assignments, @course, @student, user: @teacher)
-      json.first['submission']['score'].should == 1
+      expect(json.first['submission']['score']).to eq 1
     end
 
     context "cassandra" do
@@ -385,7 +385,7 @@ describe "Analytics API", :type => :request do
         bucket = Analytics::PageViewIndex::EventStream.bucket_for_time(pv.created_at)
         expected = Time.zone.at(bucket).iso8601
         json = analytics_api_call(:participation, @course, @student, :user => @teacher)
-        json['page_views'].keys.should == [expected]
+        expect(json['page_views'].keys).to eq [expected]
       end
     end
 
@@ -395,7 +395,7 @@ describe "Analytics API", :type => :request do
         pv.save!
         expected = pv.created_at.to_date.strftime('%Y-%m-%d')
         json = analytics_api_call(:participation, @course, @student, :user => @teacher)
-        json['page_views'].keys.should == [expected]
+        expect(json['page_views'].keys).to eq [expected]
       end
     end
   end

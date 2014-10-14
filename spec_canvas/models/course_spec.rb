@@ -31,24 +31,24 @@ describe Course do
     it "should create the distribution row if not there yet" do
       @course.cached_grade_distribution.destroy
       @course.reload.recache_grade_distribution
-      @course.reload.cached_grade_distribution.should_not be_nil
+      expect(@course.reload.cached_grade_distribution).not_to be_nil
     end
 
     it "should update the existing distribution row if any" do
       @course.recache_grade_distribution
       existing = @course.cached_grade_distribution
-      existing.s11.should == 0
-      existing.s12.should == 1
+      expect(existing.s11).to eq 0
+      expect(existing.s12).to eq 1
 
       @enrollment.computed_current_score = 11
       @enrollment.save!
 
       @course.reload.recache_grade_distribution
-      @course.cached_grade_distribution.should == existing
+      expect(@course.cached_grade_distribution).to eq existing
       existing.reload
 
-      existing.s11.should == 1
-      existing.s12.should == 0
+      expect(existing.s11).to eq 1
+      expect(existing.s12).to eq 0
     end
   end
 end

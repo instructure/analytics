@@ -36,9 +36,9 @@ module Analytics
     let(:hash) { analysis.hash }
 
     describe '#hash' do
-      specify { hash.should_not be_nil }
-      specify { hash[:max_page_views].should == 10 }
-      specify { hash[:max_participations].should == 32 }
+      specify { expect(hash).not_to be_nil }
+      specify { expect(hash[:max_page_views]).to eq 10 }
+      specify { expect(hash[:max_participations]).to eq 32 }
 
       it 'memoizes the hash' do
         analysis.expects(:page_view_counts).once.returns({})
@@ -50,11 +50,11 @@ module Analytics
 
     describe '#max_page_views' do
       it 'pulls from the hash' do
-        analysis.max_page_views.should == 10
+        expect(analysis.max_page_views).to eq 10
       end
 
       it 'does the same thing with #max_participations' do
-        analysis.max_participations.should == 32
+        expect(analysis.max_participations).to eq 32
       end
     end
 

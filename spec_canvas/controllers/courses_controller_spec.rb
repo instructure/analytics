@@ -40,14 +40,14 @@ describe CoursesController, :type => :controller do
     def expect_injection(opts={})
       course = opts[:course] || @course
       get 'show', :id => course.id
-      assigns(:js_env).has_key?(:ANALYTICS).should be_true
-      assigns(:js_env)[:ANALYTICS].should == { 'link' => "/courses/#{course.id}/analytics" }
+      expect(assigns(:js_env).has_key?(:ANALYTICS)).to be_truthy
+      expect(assigns(:js_env)[:ANALYTICS]).to eq({ 'link' => "/courses/#{course.id}/analytics" })
     end
 
     def forbid_injection(opts={})
       course = opts[:course] || @course
       get 'show', :id => course.id
-      assigns(:js_env).try(:has_key?, :ANALYTICS).should be_false
+      expect(assigns(:js_env).try(:has_key?, :ANALYTICS)).to be_falsey
     end
 
     it "should inject an analytics button under nominal conditions" do

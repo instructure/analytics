@@ -44,13 +44,13 @@ describe ContextController, :type => :controller do
     def expect_injection(course, student)
       expected_link = "/courses/#{course.id}/analytics/users/#{student.id}"
       get 'roster_user', :course_id => course.id, :id => student.id
-      assigns(:js_env).has_key?(:ANALYTICS).should be_true
-      assigns(:js_env)[:ANALYTICS].should == { 'link' => expected_link, 'student_name' => student.short_name }
+      expect(assigns(:js_env).has_key?(:ANALYTICS)).to be_truthy
+      expect(assigns(:js_env)[:ANALYTICS]).to eq({ 'link' => expected_link, 'student_name' => student.short_name })
     end
 
     def forbid_injection(course, student)
       get 'roster_user', :course_id => course.id, :id => student.id
-      assigns(:js_env).try(:has_key?, :ANALYTICS).should be_false
+      expect(assigns(:js_env).try(:has_key?, :ANALYTICS)).to be_falsey
     end
 
     context "nominal conditions" do

@@ -90,7 +90,7 @@ describe "analytics course view" do
       RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'manage_grades', :override => false)
       RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_all_grades', :override => false)
       go_to_analytics("/courses/#{@course.id}/analytics")
-      f('#students').should be_nil
+      expect(f('#students')).to be_nil
     end
 
     it "should validate correct number of students are showing up" do
@@ -99,18 +99,18 @@ describe "analytics course view" do
       end
 
       go_to_analytics("/courses/#{@course.id}/analytics")
-      student_rows.count.should == 1
-      student_rows.first.text.should == INITIAL_STUDENT_NAME
+      expect(student_rows.count).to eq 1
+      expect(student_rows.first.text).to eq INITIAL_STUDENT_NAME
       add_students_to_course(2)
       refresh_page #in order to make new students show up
       wait_for_ajaximations # student rows are loaded asynchronously
-      student_rows.count.should == 3
+      expect(student_rows.count).to eq 3
     end
 
     it "should validate current score display for students" do
       randomly_grade_assignments(5)
       go_to_analytics("/courses/#{@course.id}/analytics")
-      f('div.current_score').should include_text(current_student_score)
+      expect(f('div.current_score')).to include_text(current_student_score)
     end
 
     it "should display student activity for tomorrow" do
@@ -118,8 +118,8 @@ describe "analytics course view" do
       page_view(:user => @student, :course => @course, :participated => true, :created_at => tomorrow)
 
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
-      fj("rect.#{Time.now.utc.strftime("%Y-%m-%d")}").should be_nil
-      fj("rect.#{tomorrow.strftime("%Y-%m-%d")}").should be_displayed
+      expect(fj("rect.#{Time.now.utc.strftime("%Y-%m-%d")}")).to be_nil
+      expect(fj("rect.#{tomorrow.strftime("%Y-%m-%d")}")).to be_displayed
     end
 
     context 'main bars' do
@@ -133,7 +133,7 @@ describe "analytics course view" do
         2.times { page_view(:user => @student, :course => @course) }
         4.times { page_view(:user => @added_students[0], :course => @course, :participated => true) }
         go_to_analytics("/courses/#{@course.id}/analytics")
-        student_bars(StudentBars::PAGE_VIEWS).each_with_index { |page_view_bar, i| page_view_bar.should have_attribute(:style, "right: #{page_view_styles[i]}") }
+        student_bars(StudentBars::PAGE_VIEWS).each_with_index { |page_view_bar, i| expect(page_view_bar).to have_attribute(:style, "right: #{page_view_styles[i]}") }
       end
 
       it "should validate participation bar for students" do
@@ -142,7 +142,7 @@ describe "analytics course view" do
         2.times { page_view(:user => @added_students[0], :course => @course, :participated => true) }
         4.times { page_view(:user => @added_students[1], :course => @course, :participated => true) }
         go_to_analytics("/courses/#{@course.id}/analytics")
-        student_bars(StudentBars::PARTICIPATION).each_with_index { |page_view_bar, i| page_view_bar.should have_attribute(:style, "right: #{page_view_styles[i]}") }
+        student_bars(StudentBars::PARTICIPATION).each_with_index { |page_view_bar, i| expect(page_view_bar).to have_attribute(:style, "right: #{page_view_styles[i]}") }
       end
     end
 
@@ -151,7 +151,7 @@ describe "analytics course view" do
       setup_variety_assignments(false)
       go_to_analytics("/courses/#{@course.id}/analytics")
       assignments_regions = student_bars(StudentBars::ASSIGNMENTS)
-      expected_classes.each_with_index { |expected_class, i| assignments_regions[i].should have_class(expected_class) }
+      expected_classes.each_with_index { |expected_class, i| expect(assignments_regions[i]).to have_class(expected_class) }
     end
   end
 end

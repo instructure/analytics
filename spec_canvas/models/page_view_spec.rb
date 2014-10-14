@@ -30,22 +30,22 @@ describe PageView do
     end
 
     it "should be :other if controller is nil" do
-      @view.category.should == :other
+      expect(@view.category).to eq :other
     end
 
     it "should recognize known controllers" do
       @view.controller = 'assignments'
-      @view.category.should == :assignments
+      expect(@view.category).to eq :assignments
     end
 
     it "should be :other for unknown controllers" do
       @view.controller = 'unknown'
-      @view.category.should == :other
+      expect(@view.category).to eq :other
     end
 
     it "should prefer the category attribute if any" do
       @view.expects(:read_attribute).with(:category).returns('category')
-      @view.category.should == 'category'
+      expect(@view.category).to eq 'category'
     end
   end
 
@@ -71,7 +71,7 @@ describe PageView do
 
   it "should always flag new page views as summarized" do
     view = page_view
-    view.should be_summarized
+    expect(view).to be_summarized
   end
 
   it "should not automatically summarize existing non-summarized page views on save" do
@@ -83,16 +83,16 @@ describe PageView do
 
     # re-save, shouldn't become summarized
     view.save
-    view.should_not be_summarized
+    expect(view).not_to be_summarized
   end
 
   it "should increment the rollup when a new page view is created" do
     date = Date.today
     course = course_model
-    PageViewsRollup.bin_for(course, date, 'other').views.should == 0
+    expect(PageViewsRollup.bin_for(course, date, 'other').views).to eq 0
 
     view = page_view(:context => course, :created_at => date)
-    PageViewsRollup.bin_for(course, date, 'other').views.should == 1
+    expect(PageViewsRollup.bin_for(course, date, 'other').views).to eq 1
   end
 
   it "should assign new page view to bin by utc date" do
@@ -100,8 +100,8 @@ describe PageView do
     time = Time.zone.parse('2012-06-01 20:00:00-08:00').in_time_zone('Alaska')
     course = course_model
     view = page_view(:context => course, :created_at => time)
-    PageViewsRollup.bin_for(course, time.to_date, 'other').views.should == 0
-    PageViewsRollup.bin_for(course, time.utc.to_date, 'other').views.should == 1
+    expect(PageViewsRollup.bin_for(course, time.to_date, 'other').views).to eq 0
+    expect(PageViewsRollup.bin_for(course, time.utc.to_date, 'other').views).to eq 1
   end
 
   shared_examples_for ".participations_for_context" do
@@ -114,8 +114,8 @@ describe PageView do
       page_view(:user => @user, :context => @course, :participated => true)
       page_view(:user => @user, :context => @course)
       parts = PageView.participations_for_context(@course, @user)
-      parts.size.should == 2
-      parts.each { |p| p.key?(:created_at).should be_true }
+      expect(parts.size).to eq 2
+      parts.each { |p| expect(p.key?(:created_at)).to be_truthy }
     end
   end
 
@@ -142,8 +142,8 @@ describe PageView do
       page_view(:user => @user, :context => @course, :created_at => 1.hour.ago)
       page_view(:user => @user, :context => @course, :created_at => 1.hour.ago)
       counts = PageView.counters_by_context_and_hour(@course, @user)
-      counts.size.should == 2
-      counts.values.sum.should == 5
+      expect(counts.size).to eq 2
+      expect(counts.values.sum).to eq 5
     end
   end
 
@@ -167,8 +167,8 @@ describe PageView do
       page_view(:user => @user, :context => @course, :created_at => 1.hour.ago)
       page_view(:user => @user, :context => @course, :created_at => 1.hour.ago)
       counts = PageView.counters_by_context_and_hour(@course, @user)
-      counts.size.should == 3
-      counts.values.sum.should == 5
+      expect(counts.size).to eq 3
+      expect(counts.values.sum).to eq 5
     end
   end
 
@@ -191,12 +191,12 @@ describe PageView do
       page_view(:user => @user2, :context => @course, :participated => false, :created_at => 1.hour.ago)
 
       counts = PageView.counters_by_context_for_users(@course, [@user1.id, @user2.id])
-      counts.should == { @user1.id => { :page_views => 4, :participations => 3 },
+      expect(counts).to eq({ @user1.id => { :page_views => 4, :participations => 3 },
                          @user2.id => { :page_views => 5, :participations => 1 },
-      }
+      })
 
       # partial retrieval
-      PageView.counters_by_context_for_users(@course, [@user2.id]).should == { @user2.id => counts[@user2.id] }
+      expect(PageView.counters_by_context_for_users(@course, [@user2.id])).to eq({ @user2.id => counts[@user2.id] })
     end
   end
 

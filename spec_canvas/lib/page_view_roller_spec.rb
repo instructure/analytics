@@ -58,30 +58,30 @@ describe PageViewRoller do
 
   describe "#start_day" do
     it "should return nil with no page views" do
-      PageViewRoller.start_day.should be_nil
+      expect(PageViewRoller.start_day).to be_nil
     end
 
     it "should not include page_views without a non-course context" do
       build_page_view(:context => Account.default)
-      PageViewRoller.start_day.should be_nil
+      expect(PageViewRoller.start_day).to be_nil
     end
 
     it "should not include summarized page_views" do
       build_page_view(:summarized => true)
-      PageViewRoller.start_day.should be_nil
+      expect(PageViewRoller.start_day).to be_nil
     end
 
     it "should return the earliest page_view's created_at"  do
       date1 = Date.today - 1.day
       date2 = Date.today - 2.days
       [date1, date2].each{ |date| build_page_view(:created_at => date) }
-      PageViewRoller.start_day.should == date2
+      expect(PageViewRoller.start_day).to eq date2
     end
   end
 
   describe "#end_day" do
     it "should return nil with no page views" do
-      PageViewRoller.end_day.should be_nil
+      expect(PageViewRoller.end_day).to be_nil
     end
 
     it "should return the earliest existing rollup's date"  do
@@ -89,13 +89,13 @@ describe PageViewRoller do
       date2 = Date.today - 2.days
       build_page_view(:created_at => date2)
       [date1, date2].each{ |date| PageViewsRollup.bin_for(@course, date, 'other').save }
-      PageViewRoller.end_day.should == date2
+      expect(PageViewRoller.end_day).to eq date2
     end
 
     it "should return today if no existing rollup's but existing page views"  do
       build_page_view(:created_at => Date.today - 2.days)
       PageViewsRollup.delete_all
-      PageViewRoller.end_day.should == Date.today
+      expect(PageViewRoller.end_day).to eq Date.today
     end
 
     it "should ignore rollups before overridden start_day"  do
@@ -103,7 +103,7 @@ describe PageViewRoller do
       date2 = Date.today - 2.days
       build_page_view(:created_at => date2)
       [date1, date2].each{ |date| PageViewsRollup.bin_for(@course, date, 'other').save }
-      PageViewRoller.end_day(:start_day => date1).should == date1
+      expect(PageViewRoller.end_day(:start_day => date1)).to eq date1
     end
   end
 

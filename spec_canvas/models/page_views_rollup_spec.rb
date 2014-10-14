@@ -37,8 +37,8 @@ describe PageViewsRollup do
       today = Date.today
       rollup = create_rollup(:course => @course, :date => today, :category => 'other')
       other = create_rollup(:course => @course, :date => today - 1.day, :category => 'other')
-      PageViewsRollup.for_dates(today).should include(rollup)
-      PageViewsRollup.for_dates(today).should_not include(other)
+      expect(PageViewsRollup.for_dates(today)).to include(rollup)
+      expect(PageViewsRollup.for_dates(today)).not_to include(other)
     end
 
     it "should work for a date range" do
@@ -52,10 +52,10 @@ describe PageViewsRollup do
       after_end = create_rollup(:course => @course, :date => end_day + 1.day, :category => 'other')
 
       rollups.each do |rollup|
-        PageViewsRollup.for_dates(start_day..end_day).should include(rollup)
+        expect(PageViewsRollup.for_dates(start_day..end_day)).to include(rollup)
       end
-      PageViewsRollup.for_dates(start_day..end_day).should_not include(before_start)
-      PageViewsRollup.for_dates(start_day..end_day).should_not include(after_end)
+      expect(PageViewsRollup.for_dates(start_day..end_day)).not_to include(before_start)
+      expect(PageViewsRollup.for_dates(start_day..end_day)).not_to include(after_end)
     end
   end
 
@@ -68,15 +68,15 @@ describe PageViewsRollup do
     it "should include all rollups for that category" do
       rollup1 = create_rollup(:course => @course, :date => @today, :category => 'first')
       rollup2 = create_rollup(:course => course_model, :date => @today, :category => 'first')
-      PageViewsRollup.for_category('first').should include(rollup1)
-      PageViewsRollup.for_category('first').should include(rollup2)
+      expect(PageViewsRollup.for_category('first')).to include(rollup1)
+      expect(PageViewsRollup.for_category('first')).to include(rollup2)
     end
 
     it "should only include rollups for that category" do
       rollup1 = create_rollup(:course => @course, :date => @today, :category => 'first')
       rollup2 = create_rollup(:course => @course, :date => @today, :category => 'second')
-      PageViewsRollup.for_category('first').should include(rollup1)
-      PageViewsRollup.for_category('first').should_not include(rollup2)
+      expect(PageViewsRollup.for_category('first')).to include(rollup1)
+      expect(PageViewsRollup.for_category('first')).not_to include(rollup2)
     end
   end
 
@@ -93,15 +93,15 @@ describe PageViewsRollup do
       end
 
       it "should be a new record" do
-        @bin.should be_new_record
+        expect(@bin).to be_new_record
       end
 
       it "should initialize views to 0 on a new bin" do
-        @bin.views.should == 0
+        expect(@bin.views).to eq 0
       end
 
       it "should initialize participations to 0 on a new bin" do
-        @bin.participations.should == 0
+        expect(@bin.participations).to eq 0
       end
     end
 
@@ -116,15 +116,15 @@ describe PageViewsRollup do
       end
 
       it "should not return new bin" do
-        @existing.should == @initial
+        expect(@existing).to eq @initial
       end
 
       it "should not reset views" do
-        @existing.views.should == @initial.views
+        expect(@existing.views).to eq @initial.views
       end
 
       it "should not reset participations" do
-        @existing.participations.should == @initial.participations
+        expect(@existing.participations).to eq @initial.participations
       end
     end
 
@@ -135,16 +135,16 @@ describe PageViewsRollup do
         it "should return a bin on the correct shard given an AR object" do
           @shard1.activate do
             bin = PageViewsRollup.bin_for(@course, @today, @category)
-            bin.shard.should == @course.shard
-            bin.course_id.should == @course.id
+            expect(bin.shard).to eq @course.shard
+            expect(bin.course_id).to eq @course.id
           end
         end
 
         it "should return a bin on the correct shard given a non-local id" do
           @shard1.activate do
             bin = PageViewsRollup.bin_for(@course.id, @today, @category)
-            bin.shard.should == @course.shard
-            bin.course_id.should == @course.id
+            expect(bin.shard).to eq @course.shard
+            expect(bin.course_id).to eq @course.id
           end
         end
       end
@@ -157,13 +157,13 @@ describe PageViewsRollup do
 
         it "should return the correct bin given an AR object" do
           @shard1.activate do
-            PageViewsRollup.bin_for(@course, @today, @category).should == @existing
+            expect(PageViewsRollup.bin_for(@course, @today, @category)).to eq @existing
           end
         end
 
         it "should return the correct bin given a non-local id" do
           @shard1.activate do
-            PageViewsRollup.bin_for(@course.id, @today, @category).should == @existing
+            expect(PageViewsRollup.bin_for(@course.id, @today, @category)).to eq @existing
           end
         end
       end
@@ -176,19 +176,19 @@ describe PageViewsRollup do
     end
 
     it "should increase views" do
-      @bin.views.should == 0
+      expect(@bin.views).to eq 0
       @bin.augment(5, 2)
-      @bin.views.should == 5
+      expect(@bin.views).to eq 5
       @bin.augment(5, 2)
-      @bin.views.should == 10
+      expect(@bin.views).to eq 10
     end
 
     it "should increase participations" do
-      @bin.participations.should == 0
+      expect(@bin.participations).to eq 0
       @bin.augment(5, 2)
-      @bin.participations.should == 2
+      expect(@bin.participations).to eq 2
       @bin.augment(5, 2)
-      @bin.participations.should == 4
+      expect(@bin.participations).to eq 4
     end
   end
 
@@ -235,8 +235,10 @@ describe PageViewsRollup do
       end
 
       class FakeCluster < Struct.new(:original_redis)
+        include RSpec::Matchers
+
         def node_for(key)
-          key.should == PageViewsRollup.page_views_rollup_keys_set_key
+          expect(key).to eq PageViewsRollup.page_views_rollup_keys_set_key
           return original_redis
         end
         # don't delegate any methods to original_redis, since the code should
@@ -254,28 +256,28 @@ describe PageViewsRollup do
           @category = 'other'
 
           PageViewsRollup.increment!(@course, @today, @category, false)
-          PageViewsRollup.count.should == 0
+          expect(PageViewsRollup.count).to eq 0
 
           PageViewsRollup.process_cached_rollups
-          PageViewsRollup.count.should == 1
+          expect(PageViewsRollup.count).to eq 1
 
           pvr = PageViewsRollup.last
-          pvr.course_id.should == @course.id
-          pvr.date.should == @today
-          pvr.category.should == @category
-          pvr.views.should == 1
-          pvr.participations.should == 0
+          expect(pvr.course_id).to eq @course.id
+          expect(pvr.date).to eq @today
+          expect(pvr.category).to eq @category
+          expect(pvr.views).to eq 1
+          expect(pvr.participations).to eq 0
 
           # you should be able to supply Course or course_id
           PageViewsRollup.increment!(@course.id, @today, @category, true)
-          PageViewsRollup.count.should == 1
+          expect(PageViewsRollup.count).to eq 1
 
           PageViewsRollup.process_cached_rollups
-          PageViewsRollup.count.should == 1
+          expect(PageViewsRollup.count).to eq 1
 
           pvr = PageViewsRollup.last
-          pvr.views.should == 2
-          pvr.participations.should == 1
+          expect(pvr.views).to eq 2
+          expect(pvr.participations).to eq 1
         end
       end
     end

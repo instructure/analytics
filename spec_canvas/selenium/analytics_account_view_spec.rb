@@ -25,7 +25,7 @@ describe "analytics account view" do
   ACCOUNT_ID = Account.default.id
 
   def validate_data_point(data_point, expected_count = "1")
-    f(".#{data_point}_count").text.should == expected_count
+    expect(f(".#{data_point}_count").text).to eq expected_count
   end
 
   before (:each) do
@@ -80,7 +80,7 @@ describe "analytics account view" do
     end
 
     it "should validate grade distribution graph" do
-      pending('figure out how to validate this graph')
+      skip('figure out how to validate this graph')
       added_students = add_students_to_course(5)
       added_students.each { |student| randomly_grade_assignments(5, student) }
       go_to_analytics("/accounts/#{ACCOUNT_ID}/analytics")

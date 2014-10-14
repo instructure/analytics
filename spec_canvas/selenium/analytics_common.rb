@@ -116,7 +116,7 @@ shared_examples_for "analytics tests" do
   def validate_tooltip_text(css_selector, text)
     driver.execute_script("$('#{css_selector}').mouseover()")
     tooltip = f('.analytics-tooltip')
-    tooltip.should include_text(text)
+    expect(tooltip).to include_text(text)
     tooltip
   end
 
@@ -139,11 +139,11 @@ shared_examples_for "analytics tests" do
   end
 
   def validate_element_fill(element, fill_hex_color)
-    element.attribute('fill').should == "#{fill_hex_color}"
+    expect(element.attribute('fill')).to eq "#{fill_hex_color}"
   end
 
   def validate_element_stroke(element, stroke_hex_color)
-    element.attribute('stroke').should == "#{stroke_hex_color}"
+    expect(element.attribute('stroke')).to eq "#{stroke_hex_color}"
   end
 
   def format_date(date)
@@ -173,21 +173,21 @@ shared_examples_for "analytics tests" do
   def validate_analytics_button_exists(exists = true)
     student = StudentEnrollment.last.user
     get "/courses/#{@course.id}/users/#{student.id}"
-    exists ? right_nav_buttons[0].text.strip.should == "Analytics" : right_nav_buttons.each { |right_nav_button| right_nav_button.should_not include_text(ANALYTICS_BUTTON_TEXT) }
+    exists ? (expect(right_nav_buttons[0].text.strip).to eq "Analytics") : right_nav_buttons.each { |right_nav_button| expect(right_nav_button).not_to include_text(ANALYTICS_BUTTON_TEXT) }
   end
 
   def validate_analytics_icons_exist(exist = true)
     get "/courses/#{@course.id}/users"
     wait_for_ajaximations
     if !exist
-      ff(ANALYTICS_BUTTON_CSS).should be_empty
+      expect(ff(ANALYTICS_BUTTON_CSS)).to be_empty
     else
-      ff(ANALYTICS_BUTTON_CSS).count.should == student_roster.count
+      expect(ff(ANALYTICS_BUTTON_CSS).count).to eq student_roster.count
     end
   end
 
   def validate_student_display(student_name)
-    f('.student_summary').should include_text(student_name)
+    expect(f('.student_summary')).to include_text(student_name)
   end
 
   shared_examples_for "analytics permissions specs" do

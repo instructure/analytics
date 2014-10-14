@@ -35,10 +35,25 @@ module Analytics
       end
 
       shared_examples_for "basic assignment data" do
-        its(:points_possible) { should == assignment.points_possible }
-        its(:unlock_at) { should == assignment.unlock_at }
-        its(:assignment_id) { should == assignment.id }
-        its(:title) { should == assignment.title }
+        describe '#points_possible' do
+          subject { super().points_possible }
+          it { is_expected.to eq assignment.points_possible }
+        end
+
+        describe '#unlock_at' do
+          subject { super().unlock_at }
+          it { is_expected.to eq assignment.unlock_at }
+        end
+
+        describe '#assignment_id' do
+          subject { super().assignment_id }
+          it { is_expected.to eq assignment.id }
+        end
+
+        describe '#title' do
+          subject { super().title }
+          it { is_expected.to eq assignment.title }
+        end
       end
 
       describe '#assignment_data' do
@@ -48,12 +63,35 @@ module Analytics
         before { assignments.stubs(:allow_student_details? => true) }
         subject { OpenStruct.new( assignments.assignment_data(assignment, scores) ) }
 
-        its(:max_score) { should == 5 }
-        its(:min_score) { should == 1 }
-        its(:muted) { should be_false }
-        its(:first_quartile) { should == 1.5 }
-        its(:median) { should == 3 }
-        its(:third_quartile) { should == 4.5 }
+        describe '#max_score' do
+          subject { super().max_score }
+          it { is_expected.to eq 5 }
+        end
+
+        describe '#min_score' do
+          subject { super().min_score }
+          it { is_expected.to eq 1 }
+        end
+
+        describe '#muted' do
+          subject { super().muted }
+          it { is_expected.to be_falsey }
+        end
+
+        describe '#first_quartile' do
+          subject { super().first_quartile }
+          it { is_expected.to eq 1.5 }
+        end
+
+        describe '#median' do
+          subject { super().median }
+          it { is_expected.to eq 3 }
+        end
+
+        describe '#third_quartile' do
+          subject { super().third_quartile }
+          it { is_expected.to eq 4.5 }
+        end
 
         include_examples 'basic assignment data'
       end
@@ -83,11 +121,11 @@ module Analytics
       it 'retrieves an empty array if there is no useful data' do
         assignments = AssignmentsHarness.new(this_course)
         data = assignments.assignment_rollups_for(section_ids)
-        data.should == []
+        expect(data).to eq []
       end
 
       it 'retrieves a hash that looks like assignments if there are rollups' do
-        pending("requires the submission cached_due_at updating code")
+        skip("requires the submission cached_due_at updating code")
         user = User.create!
         enrollment = StudentEnrollment.create!(:user => user, :course => this_course, :course_section => sections.first)
         Enrollment.where(:id => enrollment).update_all(:workflow_state => 'active')
@@ -98,7 +136,7 @@ module Analytics
 
         assignments = AssignmentsHarness.new(this_course)
         data = assignments.assignment_rollups_for(section_ids)
-        data.should == [{
+        expect(data).to eq [{
           :assignment_id=>assignment.id, :title=>assignment.title, :due_at=>assignment.due_at,
           :muted=>assignment.muted, :points_possible=>assignment.points_possible,
           :max_score=>95, :min_score=>95, :first_quartile=>94,
@@ -124,13 +162,13 @@ module Analytics
 
       it "returns all assignments without differentiated assignments" do
         harness = AssignmentsHarness.new(@course, @student)
-        harness.assignment_scope.length.should == @course.assignments.length
+        expect(harness.assignment_scope.length).to eq @course.assignments.length
       end
 
       it "returns only visible assignments with differentiated assignments" do
         @course.enable_feature!(:differentiated_assignments)
         harness = AssignmentsHarness.new(@course, @student)
-        harness.assignment_scope.length.should == 1
+        expect(harness.assignment_scope.length).to eq 1
       end
     end
   end

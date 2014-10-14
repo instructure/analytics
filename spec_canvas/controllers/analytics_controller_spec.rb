@@ -46,7 +46,7 @@ describe AnalyticsController, :type => :controller do
 
     it "should set @department_analytics on success" do
       department_analytics
-      assigns[:department_analytics].should_not be_nil
+      expect(assigns[:department_analytics]).not_to be_nil
     end
 
     it "should 404 with analytics disabled" do
@@ -83,7 +83,7 @@ describe AnalyticsController, :type => :controller do
 
     it "should set @course_analytics on success" do
       course_analytics
-      assigns[:course_analytics].should_not be_nil
+      expect(assigns[:course_analytics]).not_to be_nil
     end
 
     it "should 404 with analytics disabled" do
@@ -138,14 +138,14 @@ describe AnalyticsController, :type => :controller do
 
     it "should only include student data with manage_grades or view_all_grades permissions" do
       course_analytics
-      assigns[:course_json][:students].should_not be_nil
+      expect(assigns[:course_json][:students]).not_to be_nil
 
       RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'manage_grades', :override => false)
       RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_all_grades', :override => false)
 
       @account.clear_permissions_cache(@user)
       course_analytics
-      assigns[:course_json][:students].should be_nil
+      expect(assigns[:course_json][:students]).to be_nil
     end
   end
 
@@ -164,8 +164,8 @@ describe AnalyticsController, :type => :controller do
 
     it "should set @course_analytics and @student_analytics on success" do
       student_in_course_analytics
-      assigns[:course_analytics].should_not be_nil
-      assigns[:student_analytics].should_not be_nil
+      expect(assigns[:course_analytics]).not_to be_nil
+      expect(assigns[:student_analytics]).not_to be_nil
     end
 
     it "should 404 with analytics disabled" do
@@ -236,7 +236,7 @@ describe AnalyticsController, :type => :controller do
       students = [@student]
       3.times{ students << student_in_course(:active_all => true).user }
       student_in_course_analytics
-      assigns[:course_json][:students].map{ |s| s[:id] }.sort.should == students.map(&:id).sort
+      expect(assigns[:course_json][:students].map{ |s| s[:id] }.sort).to eq students.map(&:id).sort
     end
 
     it "should include only self for a student" do
@@ -244,7 +244,7 @@ describe AnalyticsController, :type => :controller do
       3.times{ students << student_in_course(:active_all => true).user }
       user_session(@student)
       student_in_course_analytics
-      assigns[:course_json][:students].map{ |s| s[:id] }.sort.should == [@student.id]
+      expect(assigns[:course_json][:students].map{ |s| s[:id] }.sort).to eq [@student.id]
     end
   end
 end

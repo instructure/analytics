@@ -15,20 +15,20 @@ describe Analytics::Department do
 
   describe "account level statistics" do
     it "should return number of subaccounts" do
-      @acct_statistics.statistics[:subaccounts].should == 1
-      @acct_statistics.statistics_by_subaccount.size.should == 2
+      expect(@acct_statistics.statistics[:subaccounts]).to eq 1
+      expect(@acct_statistics.statistics_by_subaccount.size).to eq 2
     end
 
     it "should return the number of courses, across all subaccounts" do
       course(account: @account, active_course: true)
       course(account: @account.sub_accounts.first, active_course: true)
-      @acct_statistics.statistics[:courses].should == 2
+      expect(@acct_statistics.statistics[:courses]).to eq 2
     end
 
     it "should return the number of courses, grouped by subaccount" do
       course(account: @account, active_course: true)
       course(account: @account.sub_accounts.first, active_course: true)
-      @acct_statistics.statistics_by_subaccount.each { |hsh| hsh[:courses].should == 1 }
+      @acct_statistics.statistics_by_subaccount.each { |hsh| expect(hsh[:courses]).to eq 1 }
     end
 
     it "should return the number of teachers and students, across all subaccounts" do
@@ -37,8 +37,8 @@ describe Analytics::Department do
       student_in_course(course: c1, active_all: true)
       student_in_course(course: c2, active_all: true)
       hsh = @acct_statistics.statistics
-      hsh[:teachers].should == 2
-      hsh[:students].should == 2
+      expect(hsh[:teachers]).to eq 2
+      expect(hsh[:students]).to eq 2
     end
 
     it "should return the number of teachers and students, grouped by subaccount" do
@@ -47,8 +47,8 @@ describe Analytics::Department do
       student_in_course(course: c1, active_all: true)
       student_in_course(course: c2, active_all: true)
       lst = @acct_statistics.statistics_by_subaccount
-      lst.each{ |hsh| hsh[:teachers].should == 1 }
-      lst.each{ |hsh| hsh[:students].should == 1 }
+      lst.each{ |hsh| expect(hsh[:teachers]).to eq 1 }
+      lst.each{ |hsh| expect(hsh[:students]).to eq 1 }
     end
   end
 
@@ -81,8 +81,8 @@ describe Analytics::Department do
       Timecop.freeze(now) do
         start_at, end_at = @acct_statistics.send(:calculate_and_clamp_dates, start_at, end_at, nil)
 
-        start_at.should == expected_start_at
-        end_at.should == expected_end_at
+        expect(start_at).to eq expected_start_at
+        expect(end_at).to eq expected_end_at
       end
     end
 

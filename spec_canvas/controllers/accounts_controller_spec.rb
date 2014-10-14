@@ -48,14 +48,14 @@ describe AccountsController, :type => :controller do
       call_parameters = []
       AccountsController.any_instance.expects(:js_env).at_least_once.with{ |*parameters| call_parameters << parameters }
       get 'show', :id => @account.id, :format => 'html'
-      call_parameters.should include([{:ANALYTICS => { 'link' => "/accounts/#{@account.id}/analytics" }}])
+      expect(call_parameters).to include([{:ANALYTICS => { 'link' => "/accounts/#{@account.id}/analytics" }}])
     end
 
     def forbid_injection
       call_parameters = []
       AccountsController.any_instance.expects(:js_env).at_least(0).yields{ |*parameters| call_parameters << parameters }
       get 'show', :id => @account.id, :format => 'html'
-      call_parameters.should_not include([{:ANALYTICS => { 'link' => "/accounts/#{@account.id}/analytics" }}])
+      expect(call_parameters).not_to include([{:ANALYTICS => { 'link' => "/accounts/#{@account.id}/analytics" }}])
     end
 
     it "should inject an analytics button on the account page under nominal conditions" do

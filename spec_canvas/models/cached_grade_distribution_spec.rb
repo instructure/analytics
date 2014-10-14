@@ -31,7 +31,7 @@ describe CachedGradeDistribution do
 
     it "should count grades from active student enrollments" do
       @dist.recalculate!
-      @dist.s12.should == 1
+      expect(@dist.s12).to eq 1
     end
 
     it "should count grades from completed student enrollments" do
@@ -39,7 +39,7 @@ describe CachedGradeDistribution do
       @enrollment.save!
 
       @dist.recalculate!
-      @dist.s12.should == 1
+      expect(@dist.s12).to eq 1
     end
 
     it "should not count grades from invited student enrollments" do
@@ -47,7 +47,7 @@ describe CachedGradeDistribution do
       @enrollment.save!
 
       @dist.recalculate!
-      @dist.s12.should == 0
+      expect(@dist.s12).to eq 0
     end
 
     it "should not count grades from deleted student enrollments" do
@@ -55,7 +55,7 @@ describe CachedGradeDistribution do
       @enrollment.save!
 
       @dist.recalculate!
-      @dist.s12.should == 0
+      expect(@dist.s12).to eq 0
     end
 
     it "should not count grades from fake student enrollments" do
@@ -63,7 +63,7 @@ describe CachedGradeDistribution do
       @enrollment.save!
 
       @dist.recalculate!
-      @dist.s12.should == 0
+      expect(@dist.s12).to eq 0
     end
 
     it "should not count grades from teacher enrollments" do
@@ -71,7 +71,7 @@ describe CachedGradeDistribution do
       @enrollment.save!
 
       @dist.recalculate!
-      @dist.s12.should == 0
+      expect(@dist.s12).to eq 0
     end
 
     it "should count same grade only once per student" do
@@ -83,18 +83,18 @@ describe CachedGradeDistribution do
       @second_enrollment.computed_current_score = 12
 
       @dist.recalculate!
-      @dist.s12.should == 1 # not 2
+      expect(@dist.s12).to eq 1 # not 2
     end
 
     it "should zero out scores it doesn't see" do
       @dist.recalculate!
-      @dist.s12.should == 1
+      expect(@dist.s12).to eq 1
 
       @enrollment.computed_current_score = 11
       @enrollment.save!
 
       @dist.recalculate!
-      @dist.s12.should == 0
+      expect(@dist.s12).to eq 0
     end
 
     it "should round scores" do
@@ -102,15 +102,15 @@ describe CachedGradeDistribution do
       @enrollment.save!
 
       @dist.recalculate!
-      @dist.s11.should == 1
-      @dist.s12.should == 0
+      expect(@dist.s11).to eq 1
+      expect(@dist.s12).to eq 0
 
       @enrollment.computed_current_score = 11.6
       @enrollment.save!
 
       @dist.recalculate!
-      @dist.s11.should == 0
-      @dist.s12.should == 1
+      expect(@dist.s11).to eq 0
+      expect(@dist.s12).to eq 1
     end
   end
 

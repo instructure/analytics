@@ -48,14 +48,14 @@ module Rollups
 
       describe 'scores' do
         it 'keeps the max/min from the rollup' do
-          data[:max_score].should == rollup.max_score
-          data[:min_score].should == rollup.min_score
+          expect(data[:max_score]).to eq rollup.max_score
+          expect(data[:min_score]).to eq rollup.min_score
         end
 
         it 'gets the quartiles from the buckets' do
-          data[:first_quartile].should == 26
-          data[:median].should == rollup.median_score
-          data[:third_quartile].should == 74
+          expect(data[:first_quartile]).to eq 26
+          expect(data[:median]).to eq rollup.median_score
+          expect(data[:third_quartile]).to eq 74
         end
       end
 
@@ -92,20 +92,20 @@ module Rollups
 
       describe 'scores' do
         it 'finds the real max min' do
-          data[:max_score].should == 100
-          data[:min_score].should == 0
+          expect(data[:max_score]).to eq 100
+          expect(data[:min_score]).to eq 0
         end
 
         it 'gets the quartiles from the buckets' do
-          data[:first_quartile].should == 29
-          data[:median].should == 38
-          data[:third_quartile].should == 47
+          expect(data[:first_quartile]).to eq 29
+          expect(data[:median]).to eq 38
+          expect(data[:third_quartile]).to eq 47
         end
       end
 
       it 'has the assignment id and name' do
-        data[:assignment_id].should == rollup_attrs[:assignment_id]
-        data[:title].should == rollup_attrs[:title]
+        expect(data[:assignment_id]).to eq rollup_attrs[:assignment_id]
+        expect(data[:title]).to eq rollup_attrs[:title]
       end
 
     end

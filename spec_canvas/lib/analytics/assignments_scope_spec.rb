@@ -34,9 +34,9 @@ module Analytics
       it 'should have versions included' do
         assignments = harness.assignment_scope.all
 
-        assignments.size.should == 3
+        expect(assignments.size).to eq 3
         assignments.each do |assignment|
-          assignment.versions.loaded?.should be_true
+          expect(assignment.versions.loaded?).to be_truthy
         end
       end
 
@@ -50,8 +50,8 @@ module Analytics
           unpublished_assignment.update_attribute(:workflow_state, 'unpublished')
 
           assignments = harness.assignment_scope.all
-          assignments.size.should == 2
-          assignments.should_not include(unpublished_assignment)
+          expect(assignments.size).to eq 2
+          expect(assignments).not_to include(unpublished_assignment)
         end
       end
 
@@ -65,8 +65,8 @@ module Analytics
           unpublished_assignment.update_attribute(:workflow_state, 'unpublished')
 
           assignments = harness.assignment_scope.all
-          assignments.size.should == 3
-          assignments.should include(unpublished_assignment)
+          expect(assignments.size).to eq 3
+          expect(assignments).to include(unpublished_assignment)
         end
       end
     end
