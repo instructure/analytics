@@ -149,7 +149,7 @@ module Analytics
 
     describe "#assignment_scope" do
       before :once do
-        course_with_student_logged_in(draft_state: true, active_all: true)
+        course_with_student_logged_in(active_all: true)
         @section_one = @course.course_sections.create!(name: "Section One")
         @section_two = @course.course_sections.create!(name: "Section Two")
         student_in_section(@section_one, user: @student)

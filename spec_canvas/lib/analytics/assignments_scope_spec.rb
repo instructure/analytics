@@ -40,19 +40,13 @@ module Analytics
         end
       end
 
-      context 'draft_state enabled' do
-        before do
-          course.root_account.enable_feature!(:draft_state)
-        end
+      it 'should only return published assignments' do
+        unpublished_assignment = course.assignments.first
+        unpublished_assignment.update_attribute(:workflow_state, 'unpublished')
 
-        it 'should only return published assignments' do
-          unpublished_assignment = course.assignments.first
-          unpublished_assignment.update_attribute(:workflow_state, 'unpublished')
-
-          assignments = harness.assignment_scope.all
-          expect(assignments.size).to eq 2
-          expect(assignments).not_to include(unpublished_assignment)
-        end
+        assignments = harness.assignment_scope.all
+        expect(assignments.size).to eq 2
+        expect(assignments).not_to include(unpublished_assignment)
       end
     end
   end

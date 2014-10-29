@@ -59,8 +59,7 @@ module Analytics
 
     def self.assignment_scope_for(this_course, user)
       this_course.shard.activate do
-        scope = this_course.assignments.published if this_course.feature_enabled?(:draft_state)
-        scope ||= this_course.assignments.active
+        scope = this_course.assignments.published
 
         if differentiated_assignments_applies?(this_course, user)
           scope = scope.visible_to_students_in_course_with_da(user.id, this_course.id)
