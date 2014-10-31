@@ -1,0 +1,97 @@
+<div class="student_summary">
+  {{>avatar student}}
+
+  <div id="course_info">
+    <h3><a class="course_link" href="{{course.url}}">{{course.name}}</a></h3>
+    <div class='students_box' />
+  </div>
+
+  <div>
+    <h2><a class="student_link" href="{{student.html_url}}">{{student.name}}</a></h2>
+    <table>
+      <tr>
+        <th>Current Total:</th>
+        <td class="current_score">{{student.current_score}}%</td>
+        <td class="message_student">
+          <a href="{{student.message_student_url}}"
+             class="message_student_link"
+             title="Message this student">
+            <img src="/images/email.png" alt="" />
+          </a>
+        </td>
+      </tr>
+      <!--<tr>
+        <th>Status:</th>
+        <td class="status_green">Low Risk</td>
+        <td>&nbsp;</td>
+      </tr>-->
+    </table>
+  </div>
+</div>
+
+<div class="student_graphs">
+<table>
+  <tr>
+    <td>
+      <h4>
+        <span class="graph_name">Activity</span>
+        <!-- <span class="qualifier status_green">Active</span> -->
+      </h4>
+      <p class="description">
+        Each bar represents the number of <span class='pageview'>page
+        views</span> on that day. An orange bar indicates that the student
+        <span class='participation'>took some action</span> within the course
+        on that day.
+      </p>
+    </td>
+    <td><div class="graph" id="participating-graph"/></td>
+  </tr>
+  <tr>
+    <td>
+      <h4>
+        <span class="graph_name">Communication</span>
+        <!-- <span class="qualifier status_red">Responsive</span> -->
+      </h4>
+      <p class="description">
+        The top track represents days on which the
+        <span class='student'>student sent messages</span> to course
+        instructors. The bottom track is for <span class='instructor'>messages
+        from the instructors</span> to the student.
+      </p>
+    </td>
+    <td><div class="graph" id="responsiveness-graph"/></td>
+  </tr>
+  <tr>
+    <td>
+      <h4>
+        <span class="graph_name">Assignments</span>
+        <!-- <span class="qualifier status_green">On Time</span> -->
+      </h4>
+      <p class="description">
+        Each row is one assignment. The diamond is the due date and the bar
+        extends to the submission date. Green indicates an
+        <span class='onTime'>on time submission</span>, yellow a
+        <span class='late'>late submission</span>, and red a
+        <span class='missing'>missed assignment</span>. Gray diamonds are
+        assignments without due dates, placed at the time of submission.
+      </p>
+    </td>
+    <td><div class="graph" id="assignment-finishing-graph"/></td>
+  </tr>
+  <tr>
+    <td>
+      <h4>
+        <span class="graph_name">Grades</span>
+        <!-- <span class="qualifier status_yellow">Fair</span> -->
+      </h4>
+      <p class="description">
+        Each bar is one assignment. The thin whisker extends from the lowest
+        score for any student in the course to the highest score. The thicker
+        bar extends from the 25th percentile to the 75th, with the median
+        marked. The student's score is marked with a dot.
+      </p>
+    </td>
+    <td><div class="graph" id="grades-graph"/></td>
+  </tr>
+</table>
+</div>

@@ -1,0 +1,10 @@
+class FixCachedGradeDistributionsSequence < ActiveRecord::Migration
+  tag :postdeploy
+
+  def self.up
+    # postgres creates a sequence for the "primary key"
+    return unless connection.adapter_name == 'PostgreSQL'
+    change_column_default(:cached_grade_distributions, :course_id, nil)
+    execute("DROP SEQUENCE cached_grade_distributions_course_id_seq")
+  end
+end

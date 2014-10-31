@@ -1,0 +1,10 @@
+tmp/**/*
+tmp/*
+public/javascripts/jst/*
+public/javascripts/compiled/*
+public/stylesheets/compiled/*
+public/stylesheets/compiled/**/*
+public/optimized/
+.sass-cache
+spec_canvas/javascripts/
+.DS_Store

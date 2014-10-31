@@ -1,0 +1,26 @@
+<%
+  js_env :ANALYTICS => {
+    'course' => @course_json,
+    'student_id' => @student.id,
+    'startDate' => @start_date,
+    'endDate' => @end_date
+  }
+
+  @body_classes << 'full-width'
+  add_crumb @course.short_name, url_for(@course)
+  add_crumb t(:analytics, "Analytics"), @course_json[:analytics_url]
+  add_crumb @student.short_name, analytics_student_in_course_path(:course_id => @course.id, :student_id => @student.id), :id => "student_analytics_crumb"
+%>
+
+<% content_for :page_title do %>
+  <%= t :page_title, "Analytics: %{course} -- %{student}", :course => @course.short_name, :student => context_user_name(@course, @student) %>
+<% end %>
+
+<h1 class='screenreader-only'>
+  <%= t :page_title, "Analytics: %{course} -- %{student}", :course => @course.short_name, :student => context_user_name(@course, @student) %>
+</h1>
+
+<div id="analytics_body"></div>
+
+<% jammit_css :analytics, :plugin => :analytics %>
+<% js_bundle :student_in_course, :plugin => :analytics %>
