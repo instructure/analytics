@@ -28,18 +28,11 @@ describe AccountsController, :type => :controller do
     @account.allowed_services = '+analytics'
     @account.save!
 
-    if Role.constants.include?(:NEW_ROLES)
-      role = custom_account_role(ROLE, :account => @account)
-      RoleOverride.manage_role_override(@account, role, 'read_course_list', :override => true)
-      RoleOverride.manage_role_override(@account, role, 'view_analytics', :override => true)
+    role = custom_account_role(ROLE, :account => @account)
+    RoleOverride.manage_role_override(@account, role, 'read_course_list', :override => true)
+    RoleOverride.manage_role_override(@account, role, 'view_analytics', :override => true)
 
-      @admin = account_admin_user(:account => @account, :role => role, :active_all => true)
-    else
-      RoleOverride.manage_role_override(@account, ROLE, 'read_course_list', :override => true)
-      RoleOverride.manage_role_override(@account, ROLE, 'view_analytics', :override => true)
-
-      @admin = account_admin_user(:account => @account, :membership_type => ROLE, :active_all => true)
-    end
+    @admin = account_admin_user(:account => @account, :role => role, :active_all => true)
     user_session(@admin)
   end
 
