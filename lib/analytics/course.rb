@@ -21,6 +21,7 @@ require_dependency 'analytics/student_collection'
 require_dependency 'analytics/tardiness_breakdown'
 require_dependency 'analytics/page_view_analysis'
 require_dependency 'analytics/assignment_submission'
+require_dependency 'analytics/fake_submission'
 
 module Analytics
   class Course < Analytics::Base
@@ -72,7 +73,7 @@ module Analytics
     def student_ids
       slaved(:cache_as => :student_ids) do
         # id of any user with an enrollment, order unimportant
-        enrollment_scope.select(:user_id).uniq.map{ |e| e.user_id }
+        enrollment_scope.uniq.pluck(:user_id)
       end
     end
 
@@ -150,9 +151,11 @@ module Analytics
     end
 
     def submissions(assignments, student_ids=self.student_ids)
-      @course.shard.activate do
-        ::Analytics::Course.submission_scope_for(assignments).where(:user_id => student_ids).all
-      end
+      @course.shard.activate{ submission_scope(assignments, student_ids).all }
+    end
+
+    def submission_scope(assignments, student_ids=self.student_ids)
+      ::Analytics::Course.submission_scope_for(assignments).where(user_id: student_ids)
     end
 
     def self.submission_scope_for(assignments)
@@ -180,43 +183,35 @@ module Analytics
     end
 
     def tardiness_breakdowns
-      cache_array = [:tardiness_breakdowns]
-      cache_array << @current_user if differentiated_assignments_applies?
-      @tardiness_breakdowns ||= slaved(:cache_as => cache_array) do
-        breakdowns = { assignments: {}, students: {} }
-        course_submissions = submissions(raw_assignments)
+      @course.shard.activate do
+        cache_array = [:tardiness_breakdowns]
+        cache_array << @current_user if differentiated_assignments_applies?
+        @tardiness_breakdowns ||= slaved(:cache_as => cache_array) do
+          # initialize breakdown tallies
+          breakdowns = {
+            assignments: Hash[raw_assignments.map{ |a| [a.id, TardinessBreakdown.new] }],
+            students:    Hash[student_ids.map{  |s_id| [s_id, TardinessBreakdown.new] }]
+          }
 
-        # Tally By Assignments
-        assignment_submissions = course_submissions.group_by(&:assignment_id)
-        raw_assignments.each do |assignment|
-          breakdowns[:assignments][assignment.id] ||= TardinessBreakdown.new
-          if assignment_submissions[assignment.id]
-            submissions = assignment_submissions[assignment.id].index_by(&:user_id)
-          end
-          submissions ||= {}
+          # load submissions and index them by (assignment, student) tuple
+          submissions = FakeSubmission.from_scope(submission_scope(raw_assignments))
+          submissions = submissions.index_by{ |s| [s.assignment_id, s.user_id] }
 
-          student_ids.each do |student_id|
-            assignment_submission = AssignmentSubmission.new(assignment, submissions[student_id])
-            breakdowns[:assignments][assignment.id].tally!(assignment_submission)
-          end
-        end
-
-        # Tally By Students
-        student_submissions = course_submissions.group_by(&:user_id)
-        student_ids.each do |student_id|
-          breakdowns[:students][student_id] ||= TardinessBreakdown.new
-          if student_submissions[student_id]
-            submissions = student_submissions[student_id].index_by(&:assignment_id)
-          end
-          submissions ||= {}
-
+          # tally each submission (or lack thereof) into the columns and rows of
+          # the breakdown
           raw_assignments.each do |assignment|
-            assignment_submission = AssignmentSubmission.new(assignment, submissions[assignment.id])
-            breakdowns[:students][student_id].tally!(assignment_submission)
+            student_ids.each do |student_id|
+              submission = submissions[[assignment.id, student_id]]
+              submission.assignment = assignment if submission
+              assignment_submission = AssignmentSubmission.new(assignment, submission)
+              breakdowns[:assignments][assignment.id].tally!(assignment_submission)
+              breakdowns[:students][student_id].tally!(assignment_submission)
+            end
           end
-        end
 
-        breakdowns
+          # done
+          breakdowns
+        end
       end
     end
   end
