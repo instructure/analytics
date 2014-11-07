@@ -1,4 +1,7 @@
-define [ 'analytics/compiled/BaseData' ], (BaseData) ->
+define [
+  'analytics/compiled/BaseData'
+  'timezone'
+], (BaseData, tz) ->
 
   ##
   # Loads the participation data for the student and course. Exposes the data
@@ -26,18 +29,15 @@ define [ 'analytics/compiled/BaseData' ], (BaseData) ->
 
       # sort the page view data to the appropriate bins
       for date, views of data.page_views
-        # this date is the utc date for the bin, not local. but we'll treat it
-        # as local for the purposes of presentation.
+        # this date is the hour for the bin
         bin = binFor(Date.parse date)
         bin.views += views
 
       # sort the participation date to the appropriate bins
       for event in data.participations
         event.createdAt = Date.parse event.created_at
-        # bin to the utc date corresponding to event.createdAt, so that all
+        # bin to the hour corresponding to event.createdAt, so that all
         # participations fall in the same bin as their respective page views.
-        offset = event.createdAt.getTimezoneOffset()
-        date = event.createdAt.clone().addMinutes(offset).clearTime()
-        bin = binFor(date)
+        bin = binFor(tz.parse(tz.format(event.createdAt, '%F %H:00:00')))
         bin.participation_events.push event
         bin.participations += 1
