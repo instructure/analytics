@@ -94,17 +94,15 @@ class PageViewsRollup < ActiveRecord::Base
     course_id = course.is_a?(Course) ? course.id : course
     key = page_views_rollup_key_from_course_id(course_id)
     begin
-      redis = self.redis
-      res = redis.multi do
-        redis.hincrby(key, data_key_from_date_and_category(date, category), 1)
-        if participated
-          redis.hincrby(key, data_key_from_date_and_category(date, category, true), 1)
-        end
-        redis.sadd(page_views_rollup_keys_set_key, key)
+      to_increment = [data_key_from_date_and_category(date, category)]
+      if participated
+        to_increment << data_key_from_date_and_category(date, category, true)
       end
+      lua_run(:increment, [key, *to_increment])
+      res = true
     rescue => e
       # If this fails for any reason we'll write the values directly
-      res = nil
+      res = false
     end
 
     if !res
@@ -113,50 +111,37 @@ class PageViewsRollup < ActiveRecord::Base
   end
 
   def self.process_cached_rollups
-    redis = self.redis
     lock_key = "page_view_rollup_processing:#{Shard.current.id}"
     lock_time = Setting.get("page_view_rollup_lock_time", 15.minutes.to_s).to_i
 
-    # Lock out other processors, letting the lock drop if we take too long to
-    # finish.
-    unless redis.setnx lock_key, 1
+    # Lock out other processors, letting the lock drop if we take too long to finish.
+    # Move the active set of keys to another set to work on (since new keys
+    # will be added to the original set, and we don't necessarily want to
+    # worry about them right now.)
+    # If that second set already exists, we can assume that a processor failed
+    # and we want to finish its work instead of copying the set.
+    in_progress_set_key = "#{page_views_rollup_keys_set_key}:in_progress"
+    keys = nil
+    begin
+      # we grab all the keys up front, because redis lua scripts aren't allowed
+      # to call the SPOP command (it's non-deterministic).
+      keys = lua_run(:process_setup, [in_progress_set_key, lock_key, lock_time])
+    rescue => e
+      # An error here likely means that the original key does not exist,
+      # so there is no work to do.
       return
     end
-    redis.expire lock_key, lock_time
 
     begin
-      # Move the active set of keys to another set to work on (since new keys
-      # will be added to the original set, and we don't necessarily want to
-      # worry about them right now.)
-      # If that second set already exists, we can assume that a processor failed
-      # and we want to finish its work instead of copying the set.
-      in_progress_set_key = "#{page_views_rollup_keys_set_key}:in_progress"
-      begin
-        redis.renamenx page_views_rollup_keys_set_key, in_progress_set_key
-      rescue => e
-        # An error here likely means that the original key does not exist,
-        # so there is no work to do.
-        return
-      end
+      keys.each do |data_key|
+        data = lua_run(:process, [in_progress_set_key, data_key, lock_key, lock_time])
+        next if data.nil?
 
-      key = redis.spop in_progress_set_key
-      while key
-        res = redis.multi do
-          redis.hgetall key
-          redis.del key
-
-          # Go ahead and grab the next one while we're hitting redis.
-          redis.spop in_progress_set_key
-
-          # Refresh our lock every time. This is a O(1) op, and we're hitting
-          # redis with a pipeline of commands anyway.
-          redis.expire lock_key, lock_time
+        # different versions of the redis gem return a hash vs an array
+        unless data.is_a?(Hash)
+          data = Hash[*data]
         end
-
-        course = course_id_from_page_views_rollup_key(key)
-
-        # redis 3.x gem returns a hash, redis 2.x gem returns an array of keys/values
-        data = res[0].is_a?(Hash) ? res[0] : Hash[*res[0]]
+        course = course_id_from_page_views_rollup_key(data_key)
         data.keys.each do |dk|
           date, category = date_and_category_from_data_key(dk)
           # A nil date means this is a participation, which we'll handle
@@ -168,12 +153,10 @@ class PageViewsRollup < ActiveRecord::Base
 
           augment!(course, date, category, views, participations)
         end
-
-        key = res[2]
       end
 
     ensure
-      redis.del lock_key
+      lua_run(:unlock, [lock_key])
     end
   end
 
@@ -183,12 +166,20 @@ class PageViewsRollup < ActiveRecord::Base
     "page_views_rollup_keys:#{Shard.current.id}"
   end
 
-  def self.redis
-    if Canvas.redis.respond_to?(:node_for)
-      Canvas.redis.node_for(self.page_views_rollup_keys_set_key)
-    else
-      Canvas.redis
-    end
+  # Our use of Redis in this class is a little unusual. When operating on a
+  # distributed ring of redis nodes, we want all the data to live on one node,
+  # and all the operations to happen against that node. This makes our locking
+  # and processing logic a lot simpler, because we can do things like renamenx
+  # on the set.
+  #
+  # Because of this, all the lua calls pass in the same single key, so they'll
+  # all run against the node for that key, even as they're acting on other keys
+  # hidden inside the args passed to the script.
+  #
+  # So don't go hitting redis directly for any of this, always go through lua_run.
+  def self.lua_run(script_name, args)
+    @lua ||= ::Redis::Scripting::Module.new(nil, File.join(File.dirname(__FILE__), "../lua/page_views_rollup"))
+    @lua.run(script_name, [page_views_rollup_keys_set_key], args, Canvas.redis)
   end
 
   def self.page_views_rollup_key_from_course_id(course)
