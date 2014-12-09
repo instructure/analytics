@@ -53,6 +53,10 @@ module Analytics
       end
     end
 
+    def fake_student_ids
+      @fake_student_ids ||= @course.enrollments.where("enrollments.type = 'StudentViewEnrollment'").pluck(:user_id)
+    end
+
     def assignment_scope
       @assignment_scope ||= ::Analytics::Assignments.assignment_scope_for(@course, @current_user)
     end
@@ -76,13 +80,14 @@ module Analytics
 
     def assignment_data(assignment, submissions)
       submissions ||= []
+      real_submissions = submissions.reject{|s| fake_student_ids.include?(s.user_id)}
 
       hash = basic_assignment_data(assignment, submissions).
         merge(:muted => muted(assignment))
 
-      unless muted(assignment) || suppressed_due_to_few_submissions(submissions) || suppressed_due_to_course_setting
+      unless muted(assignment) || suppressed_due_to_few_submissions(real_submissions) || suppressed_due_to_course_setting
         scores = Stats::Counter.new
-        (submissions || []).each do |submission|
+        (real_submissions || []).each do |submission|
           scores << submission.score if submission.score
         end
         quartiles = scores.quartiles

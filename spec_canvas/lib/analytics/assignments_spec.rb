@@ -58,9 +58,12 @@ module Analytics
 
       describe '#assignment_data' do
 
-        let(:scores) { (1..5).map{|score| stub(:score => score) } }
+        let(:scores) { (1..5).map{|score| stub(:score => score, :user_id => 123) } }
 
-        before { assignments.stubs(:allow_student_details? => true) }
+        before do
+         assignments.stubs(:fake_student_ids).returns([])
+         assignments.stubs(:allow_student_details? => true)
+        end
         subject { OpenStruct.new( assignments.assignment_data(assignment, scores) ) }
 
         describe '#max_score' do
