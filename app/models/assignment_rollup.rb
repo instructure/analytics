@@ -21,7 +21,7 @@ require 'rollups/score_buckets'
 class AssignmentRollup
   attr_accessor :title, :points_possible, :due_at, :muted
   attr_accessor :total_submissions, :late_submissions, :missing_submissions, :on_time_submissions
-  attr_accessor :max_score, :min_score, :first_quartile_score, :median_score, :third_quartile_score, :score_buckets
+  attr_accessor :max_score, :min_score, :first_quartile_score, :median_score, :third_quartile_score, :score_buckets, :non_digital_submission
   attr_accessor :assignment_id, :course_section_id
   attr_accessor :tardiness_breakdown, :buckets
 
@@ -36,6 +36,7 @@ class AssignmentRollup
       rollup.points_possible     = assignment.points_possible
       rollup.due_at              = assignment.due_at
       rollup.muted               = assignment.muted?
+      rollup.non_digital_submission  = assignment.non_digital_submission?
       rollup.total_submissions   = 0
       rollup.missing_submissions = 0
       rollup.late_submissions    = 0
@@ -139,6 +140,7 @@ class AssignmentRollup
       :min_score => min_score,
       :points_possible => points_possible,
       :third_quartile => third_quartile_score,
+      :non_digital_submission  => non_digital_submission,
       :tardiness_breakdown => {
         :late => late_submissions,
         :missing => missing_submissions,

@@ -83,7 +83,7 @@ define [
     graph: (assignments) =>
       return unless super
 
-      assignments = assignments.assignments
+      assignments = _.reject(assignments.assignments, (a) -> a.non_digital_submission)
       if !assignments? || assignments.length == 0
         # no data
         return

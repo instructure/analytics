@@ -16,6 +16,9 @@ define [ 'analytics/compiled/BaseData' ], (BaseData) ->
           muted: original.muted
           original: original
 
+        if original.non_digital_submission?
+          assignment.non_digital_submission = original.non_digital_submission
+
         if original.multiple_due_dates?
           assignment.multipleDueDates = original.multiple_due_dates
 

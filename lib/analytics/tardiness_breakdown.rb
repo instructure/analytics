@@ -57,7 +57,7 @@ module Analytics
     end
 
     def tally!(assignment_submission)
-      return unless assignment_submission
+      return if !assignment_submission || assignment_submission.non_digital_submission?
 
       case assignment_submission.status
       when :missing

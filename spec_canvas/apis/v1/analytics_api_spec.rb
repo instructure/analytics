@@ -162,6 +162,7 @@ describe "Analytics API", :type => :request do
         "muted" => false,
         "status" => "on_time",
         "multiple_due_dates" => false,
+        "non_digital_submission" => false,
         "submission" => {
           "submitted_at" => @submitted_at.iso8601,
           "score" => 9

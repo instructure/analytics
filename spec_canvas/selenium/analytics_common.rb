@@ -105,7 +105,7 @@ shared_examples_for "analytics tests" do
   def randomly_grade_assignments(number_of_assignments, student = @student)
     graded_assignments = []
     number_of_assignments.times do |i|
-      assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100, :due_at => Time.now.utc)
+      assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100, :due_at => Time.now.utc, :submission_types => "online")
       assignment.submit_homework(student)
       assignment.grade_student(student, :grade => rand(100) + 1)
       graded_assignments.push(assignment)
@@ -121,8 +121,8 @@ shared_examples_for "analytics tests" do
   end
 
   def setup_variety_assignments(add_no_due_date = true)
-    @missed_assignment = @course.assignments.create!(:title => "missed assignment", :due_at => 5.days.ago, :points_possible => 10)
-    @no_due_date_assignment = @course.assignments.create!(:title => 'no due date assignment', :due_at => nil, :points_possible => 20) if add_no_due_date
+    @missed_assignment = @course.assignments.create!(:title => "missed assignment", :due_at => 5.days.ago, :points_possible => 10, :submission_types => 'online_url')
+    @no_due_date_assignment = @course.assignments.create!(:title => 'no due date assignment', :due_at => nil, :points_possible => 20, :submission_types => 'online_url') if add_no_due_date
     @late_assignment = @course.assignments.create!(:title => 'late assignment', :due_at => 1.day.ago, :points_possible => 20, :submission_types => 'online_url')
     @late_assignment.submit_homework(@student, :submission_type => 'online_url')
     @on_time_assignment = @course.assignments.create!(:title => 'on time submission', :due_at => 2.days.from_now, :points_possible => 10, :submission_types => 'online_url')

@@ -58,7 +58,8 @@ module Analytics
     end
 
     def assignment_scope
-      @assignment_scope ||= ::Analytics::Assignments.assignment_scope_for(@course, @current_user)
+      user = @student || @current_user
+      @assignment_scope ||= ::Analytics::Assignments.assignment_scope_for(@course, user)
     end
 
     def self.assignment_scope_for(this_course, user)
@@ -114,6 +115,7 @@ module Analytics
         :title => assignment.title,
         :unlock_at => assignment.unlock_at,
         :points_possible => assignment.points_possible,
+        :non_digital_submission => assignment.non_digital_submission?,
         :multiple_due_dates => false # can be overridden in submodules
       }
     end

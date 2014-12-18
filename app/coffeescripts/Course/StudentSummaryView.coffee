@@ -24,7 +24,7 @@ define [
       # update activity and assignments graphs from student summary
       @pageViews = new PageViewsBar @$('.page_views')
       @participations = new ParticipationsBar @$('.participations')
-      @tardiness = new TardinessBar @$('.assignments')
+      @tardiness = new TardinessBar @$('.submissions')
 
       @pageViews.show @model.get 'pageViews'
       @participations.show @model.get 'participations'

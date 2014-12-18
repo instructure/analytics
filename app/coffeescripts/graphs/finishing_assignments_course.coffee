@@ -68,7 +68,7 @@ define [
     graph: (assignments) ->
       return unless super
 
-      assignments = assignments.assignments
+      assignments = _.reject(assignments.assignments, (a) -> a.non_digital_submission)
       @scaleByBins assignments.length
       @drawXLabel I18n.t "Assignments"
       _.each assignments, @graphAssignment

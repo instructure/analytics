@@ -98,6 +98,10 @@ module Analytics
       @submission.submitted_at if @submission
     end
 
+    def non_digital_submission?
+      @assignment.non_digital_submission?
+    end
+
     private
 
     def submitted_status

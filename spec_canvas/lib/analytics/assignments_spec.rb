@@ -31,7 +31,10 @@ module Analytics
           :unlock_at => '2/2/2',
           :points_possible => 5,
           :muted? => true,
-          :multiple_due_dates => false)
+          :multiple_due_dates => false,
+          :grading_type => "percent",
+          :submission_types => "online",
+          :non_digital_submission? => false)
       end
 
       shared_examples_for "basic assignment data" do

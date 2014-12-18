@@ -24,7 +24,7 @@ describe "analytics course view" do
 
   module StudentBars
     PAGE_VIEWS = '#students .page_views .paper span'
-    ASSIGNMENTS = '#students .assignments .paper span'
+    SUBMISSIONS = '#students .submissions .paper span'
     PARTICIPATION = '#students .participation .paper span'
   end
 
@@ -159,7 +159,7 @@ describe "analytics course view" do
       expected_classes = %w(onTime late missing)
       setup_variety_assignments(false)
       go_to_analytics("/courses/#{@course.id}/analytics")
-      assignments_regions = student_bars(StudentBars::ASSIGNMENTS)
+      assignments_regions = student_bars(StudentBars::SUBMISSIONS)
       expected_classes.each_with_index { |expected_class, i| expect(assignments_regions[i]).to have_class(expected_class) }
     end
   end
