@@ -1,4 +1,4 @@
-define [ 'jquery' ], ($) ->
+define [ 'jquery', 'str/htmlEscape' ], ($, htmlEscape) ->
 
   ##
   # Global shared tooltip elements. The $tooltip will be reused by each Tooltip
@@ -22,7 +22,9 @@ define [ 'jquery' ], ($) ->
         when 'down' then $tooltip.addClass('carat-top')
         when 'left' then $tooltip.addClass('carat-right')
         when 'right' then $tooltip.addClass('carat-left')
-      $tooltip.html @contents
+      # can remove superfluous var and toString once xsspalooza lands in canvas
+      contentsHtml = htmlEscape(@contents).toString()
+      $tooltip.html contentsHtml
       $tooltip.prepend $carat
 
     ##

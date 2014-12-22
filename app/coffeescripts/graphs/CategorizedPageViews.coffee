@@ -5,8 +5,9 @@ define [
   'analytics/compiled/graphs/ScaleByBins'
   'analytics/compiled/graphs/YAxis'
   'compiled/str/TextHelper'
-  'i18nObj'
-], (_, Base, Cover, ScaleByBins, YAxis, {delimit}, I18n) ->
+  'i18n!page_views'
+  'str/htmlEscape'
+], (_, Base, Cover, ScaleByBins, YAxis, {delimit}, I18n, htmlEscape) ->
 
   ##
   # CategorizedPageViews visualizes the student's activity within the course by
@@ -76,7 +77,7 @@ define [
       max = Math.max(views...)
       max = 1 unless max? && max > 0
       @countSpacing = (@height - @topPadding - @bottomPadding) / max
-      @yAxis = new YAxis this, range: [0, max], title: "Page Views"
+      @yAxis = new YAxis this, range: [0, max], title: I18n.t "Page Views"
 
     ##
     # Draw a guide along the x-axis. Each category bin gets a pair of ticks;
@@ -135,5 +136,4 @@ define [
     # Build the text for the bin's tooltip.
     tooltip: (bin) ->
       count = bin.views
-      noun = if count is 1 then "page view" else "page views"
-      "#{bin.category}<br/>#{delimit count} #{noun}"
+      $.raw "#{htmlEscape(bin.category)}<br/>#{htmlEscape I18n.t {one: "1 page view", other: "%{num} page views"}, {num: delimit(count), count: count}}"

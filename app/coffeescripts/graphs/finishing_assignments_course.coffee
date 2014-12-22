@@ -4,7 +4,7 @@ define [
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/ScaleByBins'
   'analytics/compiled/graphs/YAxis'
-  'i18nObj'
+  'i18n!finishing_assignments'
   'str/htmlEscape'
 ], (_, Base, Cover, ScaleByBins, YAxis, I18n, htmlEscape) ->
 
@@ -70,7 +70,7 @@ define [
 
       assignments = assignments.assignments
       @scaleByBins assignments.length
-      @drawXLabel "Assignments"
+      @drawXLabel I18n.t "Assignments"
       _.each assignments, @graphAssignment
 
     ##
@@ -122,14 +122,14 @@ define [
     tooltip: (assignment) ->
       tooltip = htmlEscape(assignment.title)
       if assignment.multipleDueDates
-        tooltip += "<br/>Due: Multiple Dates"
+        tooltip += "<br/>" + htmlEscape I18n.t("Due: Multiple Dates")
       else if assignment.dueAt?
-        tooltip += "<br/>Due: #{I18n.l 'date.formats.medium', assignment.dueAt}"
+        tooltip += "<br/>" + htmlEscape I18n.t("Due: %{date}", date: I18n.l('date.formats.medium', assignment.dueAt))
       if (breakdown = assignment.tardinessBreakdown)?
-        tooltip += "<br/>Missing: #{@percentText breakdown.missing}" if breakdown.missing > 0
-        tooltip += "<br/>Late: #{@percentText breakdown.late}" if breakdown.late > 0
-        tooltip += "<br/>On Time: #{@percentText breakdown.onTime}" if breakdown.onTime > 0
-      tooltip
+        tooltip += "<br/>" + htmlEscape I18n.t("Missing: %{percent}", percent: @percentText breakdown.missing) if breakdown.missing > 0
+        tooltip += "<br/>" + htmlEscape I18n.t("Late: %{percent}", percent: @percentText breakdown.late) if breakdown.late > 0
+        tooltip += "<br/>" + htmlEscape I18n.t("On Time: %{percent}", percent: @percentText breakdown.onTime) if breakdown.onTime > 0
+      $.raw tooltip
 
     percentText: (percent) ->
       String(Math.round(percent * 1000) / 10) + '%'

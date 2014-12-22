@@ -57,7 +57,7 @@ define [
 
     ##
     # Message when dates fall outside bounds of graph
-    clippedWarningLabel: "Note: some items fall outside the start and/or end dates of the course"
+    clippedWarningLabel: I18n.t "Note: some items fall outside the start and/or end dates of the course"
 
   class AssignmentTardiness extends DateAlignedGraph
     ##
@@ -90,7 +90,7 @@ define [
 
       @scaleToAssignments assignments
       @drawGrid assignments if @gridColor
-      @drawYLabel "Assignments"
+      @drawYLabel I18n.t "Assignments"
       _.each assignments, @graphAssignment
 
       if @clippedDate
@@ -221,16 +221,16 @@ define [
         dueAtString = I18n.t 'due_date', "%{date} by %{time}",
           date: I18n.l('date.formats.medium', assignment.dueAt)
           time: I18n.l('time.formats.tiny', assignment.dueAt)
-        tooltip += "<br/>Due: #{dueAtString}"
+        tooltip += "<br/>" + htmlEscape I18n.t("Due: %{dateTime}", dateTime: dueAtString)
       else
-        tooltip += "<br/>(no due date)"
+        tooltip += "<br/>" + htmlEscape I18n.t("(no due date)")
       if assignment.submittedAt?
         submittedAtString = I18n.t 'event', "%{date} at %{time}",
           date: I18n.l('date.formats.medium', assignment.submittedAt)
           time: I18n.l('time.formats.tiny', assignment.submittedAt)
-        tooltip += "<br/>Submitted: #{submittedAtString}"
+        tooltip += "<br/>" + htmlEscape I18n.t("Submitted: %{dateTime}", dateTime: submittedAtString)
       if assignment.muted
-        tooltip += "<br/>Score: (muted)"
+        tooltip += "<br/>" + htmlEscape I18n.t("Score: (muted)")
       else if assignment.studentScore?
-        tooltip += "<br/>Score: #{delimit assignment.studentScore}"
-      tooltip
+        tooltip += "<br/>" + htmlEscape I18n.t("Score: %{score}", score: delimit assignment.studentScore)
+      $.raw tooltip

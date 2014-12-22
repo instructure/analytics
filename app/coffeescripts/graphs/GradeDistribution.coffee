@@ -3,7 +3,7 @@ define [
   'analytics/compiled/graphs/base'
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/YAxis'
-  'i18nObj'
+  'i18n!grade_distribution'
 ], (_, Base, Cover, YAxis, I18n) ->
 
   ##
@@ -153,7 +153,7 @@ define [
     ##
     # Build the text for the score tooltip.
     tooltip: (score, value) ->
-      "#{@percentText value} of students scored #{@percentText score / 100}"
+      I18n.t("%{percent} of students scored %{score}", percent: @percentText(value), score: @percentText(score / 100))
 
     percentText: (percent) ->
       String(Math.round(percent * 1000) / 10) + '%'
