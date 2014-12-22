@@ -83,6 +83,9 @@ module Analytics
       end
     end
 
+    # Note: we had to remove statistics for discussion_replies and submissions
+    # because the queries were too slow.  If we bring them back, we need to
+    # find a way to make them performant.
     def statistics
       slaved(:cache_as => :statistics) do
         {
@@ -203,12 +206,6 @@ module Analytics
                                    context_type: 'Course')
     end
 
-    def discussion_replies
-      DiscussionEntry.active.joins(:discussion_topic).where(
-          discussion_topics: { context_id: courses_subselect, context_type: 'Course' }
-      ).where("discussion_topics.workflow_state<>'deleted'")
-    end
-
     def media_objects
       MediaObject.active.where(context_id: courses_subselect,
                                context_type: 'Course')
@@ -222,12 +219,6 @@ module Analytics
     def assignments
       Assignment.active.where(context_id: courses_subselect,
                               context_type: 'Course')
-    end
-
-    def submissions
-      Submission.joins(:assignment).where(
-          assignments: { context_id: courses_subselect, context_type: 'Course' }
-      ).where("assignments.workflow_state<>'deleted'")
     end
 
     def calculate_and_clamp_dates(start_at, end_at, courses)

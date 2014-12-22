@@ -160,14 +160,13 @@ class AnalyticsApiController < ApplicationController
   # @example_response
   #   {
   #     "courses": 27,
+  #     "subaccounts": 3,
   #     "teachers": 36,
   #     "students": 418,
   #     "discussion_topics": 77,
-  #     "discussion_replies": 823,
   #     "media_objects": 219,
   #     "attachments": 1268,
   #     "assignments": 290,
-  #     "submissions": 354
   #   }
   def department_statistics
     return unless require_analytics_for_department
@@ -200,11 +199,9 @@ class AnalyticsApiController < ApplicationController
    #       "teachers": 36,
    #       "students": 418,
    #       "discussion_topics": 77,
-   #       "discussion_replies": 823,
    #       "media_objects": 219,
    #       "attachments": 1268,
    #       "assignments": 290,
-   #       "submissions": 354
    #     }
    #   ]}
    def department_statistics_by_subaccount
