@@ -32,6 +32,7 @@ enabled. Then:
 ```sh
 cd [canvas-rails-root]
 git clone [analytics-repo-url] gems/plugins/analytics
+bundle update
 rake db:migrate
 rake canvas:compile_assets
 ```
