@@ -1,4 +1,7 @@
-define ['analytics/compiled/graphs/tooltip'], (Tooltip) ->
+define [
+  'analytics/compiled/graphs/tooltip'
+  'i18n!tardiness_bar'
+], (Tooltip, I18n) ->
 
   ##
   # Draws a horizontal bar with layers representing the tardiness breakdown
@@ -27,7 +30,8 @@ define ['analytics/compiled/graphs/tooltip'], (Tooltip) ->
     # Calculate and add layers proportional to the count/total ratios in the
     # given data.
     show: (data) ->
-      @tooltip.contents = "#{data.onTime} on time, #{data.late} late, #{data.missing} missing"
+      @tooltip.contents = I18n.t("%{onTime} on time, %{late} late, %{missing} missing",
+        {onTime: data.onTime, late: data.late, missing: data.missing})
       @layer 'onTime', 100 * (data.onTime / data.total)
       @layer 'late', 100 * (data.late / data.total)
       @layer 'missing', 100 * (data.missing / data.total)

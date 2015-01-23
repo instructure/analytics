@@ -60,7 +60,7 @@ define [
       @yAxis.draw()
 
       # x label
-      @drawXLabel "Grades", offset: @labelHeight
+      @drawXLabel I18n.t("Grades"), offset: @labelHeight
 
       # build path for distribution line
       path = _.map distribution.values, (value, score) =>

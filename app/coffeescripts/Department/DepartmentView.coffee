@@ -5,7 +5,8 @@ define [
   'analytics/compiled/Department/DepartmentFilterBox'
   'analytics/compiled/Department/DepartmentGraphView'
   'analytics/compiled/Department/StatisticsView'
-], ($, Backbone, template, DepartmentFilterBox, DepartmentGraphView, StatisticsView) ->
+  'i18n!department_view'
+], ($, Backbone, template, DepartmentFilterBox, DepartmentGraphView, StatisticsView, I18n) ->
 
   ##
   # Aggregate view for the Department Analytics page.
@@ -44,6 +45,7 @@ define [
       account = @model.get 'account'
       filter = @model.get 'filter'
 
-      document.title = "Analytics: #{account.get 'name'} -- #{filter.get 'label'}"
+      document.title = I18n.t("Analytics: %{account_name} -- %{filter_name}",
+        {account_name: account.get('name'), filter_name: filter.get('label')})
       @$crumb_span.text filter.get 'label'
       @$crumb_link.attr href: filter.get 'url'

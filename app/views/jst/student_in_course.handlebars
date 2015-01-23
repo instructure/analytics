@@ -10,21 +10,16 @@
     <h2><a class="student_link" href="{{student.html_url}}">{{student.name}}</a></h2>
     <table>
       <tr>
-        <th>Current Total:</th>
+        <th>{{t "Current Total:"}}</th>
         <td class="current_score">{{student.current_score}}%</td>
         <td class="message_student">
           <a href="{{student.message_student_url}}"
              class="message_student_link"
-             title="Message this student">
+             title="{{t "Message this student"}}">
             <img src="/images/email.png" alt="" />
           </a>
         </td>
       </tr>
-      <!--<tr>
-        <th>Status:</th>
-        <td class="status_green">Low Risk</td>
-        <td>&nbsp;</td>
-      </tr>-->
     </table>
   </div>
 </div>
@@ -34,14 +29,13 @@
   <tr>
     <td>
       <h4>
-        <span class="graph_name">Activity</span>
-        <!-- <span class="qualifier status_green">Active</span> -->
+        <span class="graph_name">{{t "Activity"}}</span>
       </h4>
       <p class="description">
-        Each bar represents the number of <span class='pageview'>page
+        {{#t}}Each bar represents the number of <span class='pageview'>page
         views</span> on that day. An orange bar indicates that the student
         <span class='participation'>took some action</span> within the course
-        on that day.
+        on that day.{{/t}}
       </p>
     </td>
     <td><div class="graph" id="participating-graph"/></td>
@@ -49,14 +43,13 @@
   <tr>
     <td>
       <h4>
-        <span class="graph_name">Communication</span>
-        <!-- <span class="qualifier status_red">Responsive</span> -->
+        <span class="graph_name">{{t "Communication"}}</span>
       </h4>
       <p class="description">
-        The top track represents days on which the
+        {{#t}}The top track represents days on which the
         <span class='student'>student sent messages</span> to course
         instructors. The bottom track is for <span class='instructor'>messages
-        from the instructors</span> to the student.
+        from the instructors</span> to the student.{{/t}}
       </p>
     </td>
     <td><div class="graph" id="responsiveness-graph"/></td>
@@ -64,16 +57,15 @@
   <tr>
     <td>
       <h4>
-        <span class="graph_name">Assignments</span>
-        <!-- <span class="qualifier status_green">On Time</span> -->
+        <span class="graph_name">{{t "Assignments"}}</span>
       </h4>
       <p class="description">
-        Each row is one assignment. The diamond is the due date and the bar
+        {{#t}}Each row is one assignment. The diamond is the due date and the bar
         extends to the submission date. Green indicates an
         <span class='onTime'>on time submission</span>, yellow a
         <span class='late'>late submission</span>, and red a
         <span class='missing'>missed assignment</span>. Gray diamonds are
-        assignments without due dates, placed at the time of submission.
+        assignments without due dates, placed at the time of submission.{{/t}}
       </p>
     </td>
     <td><div class="graph" id="assignment-finishing-graph"/></td>
@@ -81,14 +73,13 @@
   <tr>
     <td>
       <h4>
-        <span class="graph_name">Grades</span>
-        <!-- <span class="qualifier status_yellow">Fair</span> -->
+        <span class="graph_name">{{t "Grades"}}</span>
       </h4>
       <p class="description">
-        Each bar is one assignment. The thin whisker extends from the lowest
+        {{#t}}Each bar is one assignment. The thin whisker extends from the lowest
         score for any student in the course to the highest score. The thicker
         bar extends from the 25th percentile to the 75th, with the median
-        marked. The student's score is marked with a dot.
+        marked. The student's score is marked with a dot.{{/t}}
       </p>
     </td>
     <td><div class="graph" id="grades-graph"/></td>

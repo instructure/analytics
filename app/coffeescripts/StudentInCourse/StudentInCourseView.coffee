@@ -10,7 +10,8 @@ define [
   'analytics/compiled/graphs/grades'
   'analytics/compiled/graphs/colors'
   'analytics/compiled/StudentInCourse/StudentComboBox'
-], ($, _, Backbone, template, avatarPartial, PageViews, Responsiveness, AssignmentTardiness, Grades, colors, StudentComboBox) ->
+  'i18n!student_in_course_view'
+], ($, _, Backbone, template, avatarPartial, PageViews, Responsiveness, AssignmentTardiness, Grades, colors, StudentComboBox, I18n) ->
 
   class StudentInCourseView extends Backbone.View
     initialize: ->
@@ -49,7 +50,8 @@ define [
       course = @model.get 'course'
       student = @model.get 'student'
 
-      document.title = "Analytics: #{course.get 'course_code'} -- #{student.get 'short_name'}"
+      document.title = I18n.t("Analytics: %{course_code} -- %{student_name}",
+        {course_code: course.get('course_code'), student_name: student.get('short_name')})
       @$crumb_span.text student.get 'short_name'
       @$crumb_link.attr href: student.get 'analytics_url'
 

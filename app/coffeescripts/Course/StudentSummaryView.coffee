@@ -3,9 +3,10 @@ define [
   'underscore'
   'Backbone'
   'analytics/jst/course_student_summary'
-  'analytics/compiled/Course/CountBar'
+  'analytics/compiled/Course/PageViewsBar'
+  'analytics/compiled/Course/ParticipationsBar'
   'analytics/compiled/Course/TardinessBar'
-], ($, _, Backbone, template, CountBar, TardinessBar) ->
+], ($, _, Backbone, template, PageViewsBar, ParticipationsBar, TardinessBar) ->
 
   class StudentSummaryView extends Backbone.View
     tagName: 'tr'
@@ -21,8 +22,8 @@ define [
       oldEl.replaceWith @$el
 
       # update activity and assignments graphs from student summary
-      @pageViews = new CountBar @$('.page_views'), 'page views'
-      @participations = new CountBar @$('.participations'), 'participations'
+      @pageViews = new PageViewsBar @$('.page_views')
+      @participations = new ParticipationsBar @$('.participations')
       @tardiness = new TardinessBar @$('.assignments')
 
       @pageViews.show @model.get 'pageViews'

@@ -62,22 +62,22 @@ define [
       super
 
       # label the tracks
-      @paper.text(@leftMargin - 10, @topMargin, "student").attr
+      @paper.text(@leftMargin - 10, @topMargin, I18n.t("student")).attr
         fill: @frameColor
         transform: 'r-90'
         'text-anchor': 'end'
 
-      @paper.text(@leftMargin + @width + 10, @topMargin, "student").attr
+      @paper.text(@leftMargin + @width + 10, @topMargin, I18n.t("student")).attr
         fill: @frameColor
         transform: 'r90'
         'text-anchor': 'start'
 
-      @paper.text(@leftMargin - 10, @topMargin + @height, "instructors").attr
+      @paper.text(@leftMargin - 10, @topMargin + @height, I18n.t("instructors")).attr
         fill: @frameColor
         transform: 'r-90'
         'text-anchor': 'start'
 
-      @paper.text(@leftMargin + @width + 10, @topMargin + @height, "instructors").attr
+      @paper.text(@leftMargin + @width + 10, @topMargin + @height, I18n.t("instructors")).attr
         fill: @frameColor,
         transform: 'r90',
         'text-anchor': 'end'

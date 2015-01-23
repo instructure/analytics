@@ -78,7 +78,7 @@ define [
       max = Math.max(views...)
       max = 1 unless max? && max > 0
       @countSpacing = (@height - @topPadding - @bottomPadding) / max
-      @yAxis = new YAxis this, range: [0, max], title: "Page Views"
+      @yAxis = new YAxis this, range: [0, max], title: I18n.t("Page Views")
 
     ##
     # Graph a single bin. Fat arrowed because it's called by _.each

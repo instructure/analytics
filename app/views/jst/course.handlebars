@@ -5,41 +5,41 @@
   <table>
     <tr>
       <td>
-        <h3><span class="graph_name">Activity</span></h3>
+        <h3><span class="graph_name">{{t "Activity"}}</span></h3>
 
         <p class="description">
-          Each bar represents the number of <span class='pageview'>page
+          {{#t}}Each bar represents the number of <span class='pageview'>page
           views</span> on that day. An orange bar indicates that some user
           <span class='participation'>took an action</span> within the course on that
-          day.
+          day.{{/t}}
         </p>
       </td>
       <td><div class="graph" id="participating-graph"/></td>
     </tr>
     <tr>
       <td>
-        <h3><span class="graph_name">Assignments</span></h3>
+        <h3><span class="graph_name">{{t "Assignments"}}</span></h3>
 
         <p class="description">
-          Each bar is an assignment. The green layer represents the
+          {{#t}}Each bar is an assignment. The green layer represents the
           percentage of students that turned in the assignment
           <span class='onTime'>on time</span>. Assignments that are
           <span class='late'>late</span> are yellow, and
-          <span class='missing'>missing</span> assignments are red.
+          <span class='missing'>missing</span> assignments are red.{{/t}}
         </p>
       </td>
       <td><div class="graph" id="finishing-assignments-graph"/></td>
     </tr>
     <tr>
       <td>
-        <h3><span class="graph_name">Grades</span></h3>
+        <h3><span class="graph_name">{{t "Grades"}}</span></h3>
 
         <p class="description">
-          Each bar is one assignment. The <span class='whisker'>thin vertical
+          {{#t}}Each bar is one assignment. The <span class='whisker'>thin vertical
           whisker</span> extends from the lowest score for any student in the
           course to the highest score. The <span class='thickbar'>thicker
           bar</span> extends from the 25th percentile to the 75th, with the
-          <span class='median'>median marked</span>.
+          <span class='median'>median marked</span>.{{/t}}
         </p>
       </td>
       <td><div class="graph" id="grades-graph"/></td>
@@ -54,11 +54,11 @@
       </caption>
       <thead>
         <tr>
-          <th class='student'><span class='sortable' data-sort_key='name'>Student</span></th>
-          <th class='page_views'><span class='sortable' data-sort_key='page_views'>Page Views</span></th>
-          <th class='participations'><span class='sortable' data-sort_key='participations'>Participations</span></th>
-          <th class='assignments'><span>Assignments</span></th>
-          <th class='current_score'><span class='sortable' data-sort_key='score'>Current Score</span></th>
+          <th class='student'><span class='sortable' data-sort_key='name'>{{t "Student"}}</span></th>
+          <th class='page_views'><span class='sortable' data-sort_key='page_views'>{{t "Page Views"}}</span></th>
+          <th class='participations'><span class='sortable' data-sort_key='participations'>{{t "Participations"}}</span></th>
+          <th class='assignments'><span>{{t "Assignments"}}</span></th>
+          <th class='current_score'><span class='sortable' data-sort_key='score'>{{t "Current Score"}}</span></th>
         </tr>
       </thead>
 

@@ -2,13 +2,13 @@
   <tr>
     <td>
       <h4>
-        <span class="graph_name">Activity by Date</span>
+        <span class="graph_name">{{t "Activity by Date"}}</span>
       </h4>
       <p class="description">
-        Each bar represents the number of <span class='pageview'>page
+        {{#t}}Each bar represents the number of <span class='pageview'>page
         views</span> on that day. An orange bar indicates that some user
         <span class='participation'>took an action</span> within a course on
-        that day.
+        that day.{{/t}}
       </p>
     </td>
     <td><div class="graph" id="participating-date-graph"/></td>
@@ -16,10 +16,10 @@
   <tr>
     <td>
       <h4>
-        <span class="graph_name">Activity by Category</span>
+        <span class="graph_name">{{t "Activity by Category"}}</span>
       </h4>
       <p class="description">
-        Each bar represents the number of page views related to that category.
+        {{t "Each bar represents the number of page views related to that category."}}
       </p>
     </td>
     <td><div class="graph" id="participating-category-graph"/></td>
@@ -27,11 +27,11 @@
   <tr>
     <td>
       <h4>
-        <span class="graph_name">Grade Distribution</span>
+        <span class="graph_name">{{t "Grade Distribution"}}</span>
       </h4>
       <p class="description">
-        Distribution of current grades in courses across all students enrolled
-        in department courses.
+        {{t "Distribution of current grades in courses across all students enrolled
+        in department courses."}}
       </p>
     </td>
     <td><div class="graph" id="grade-distribution-graph"/></td>
