@@ -44,6 +44,15 @@ describe "analytics course view" do
     @course.enroll_student(@student).accept!
   end
 
+  context "course home page" do
+
+    it 'should show the analytics button on the course home page' do
+      get "/courses/#{@course.id}"
+      wait_for_ajaximations
+      expect(f('div.course-options').text).to include("Analytics")
+    end
+  end
+
   context "course graphs" do
 
     context "participation graph" do
