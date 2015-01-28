@@ -293,8 +293,7 @@ describe Analytics::Course do
   describe "#start_date" do
     it "should be the earliest effective_start_at of any of Analytics::Course#enrollments" do
       dates = [ 1.day.ago, 5.days.ago, 3.days.ago ]
-      dates.each{ active_student }
-      @teacher_analytics.enrollments.zip(dates).each{ |e,date| e.stubs(:effective_start_at).returns(date) }
+      dates.each{ |d| e = active_student; e.update_attribute(:start_at, d) }
 
       expect(@teacher_analytics.start_date).to eq dates.min
     end
@@ -302,7 +301,6 @@ describe Analytics::Course do
     it "should not be nil even if none of the enrollments have an effective_start_at" do
       dates = [nil, nil, nil]
       dates.each{ active_student }
-      @teacher_analytics.enrollments.zip(dates).each{ |e,date| e.stubs(:effective_start_at).returns(date) }
 
       expect(@teacher_analytics.start_date).not_to be_nil
     end
@@ -311,8 +309,7 @@ describe Analytics::Course do
   describe "#end_date" do
     it "should be the latest effective_end_at of any of Analytics::Course#enrollments" do
       dates = [ 1.day.from_now, 5.days.from_now, 3.days.from_now ]
-      dates.each{ active_student }
-      @teacher_analytics.enrollments.zip(dates).each{ |e,date| e.stubs(:effective_end_at).returns(date) }
+      dates.each{ |d| e = active_student; e.update_attribute(:end_at, d) }
 
       expect(@teacher_analytics.end_date).to eq dates.max
     end

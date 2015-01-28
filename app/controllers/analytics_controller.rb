@@ -111,7 +111,7 @@ class AnalyticsController < ApplicationController
 
   def students_json(analytics)
     students = analytics.students
-    ActiveRecord::Associations::Preloader.new(students, :pseudonyms => :account).run
+    ActiveRecord::Associations::Preloader.new(students, :communication_channels, :pseudonyms => :account).run
     students.map{ |student| student_json(student) }
   end
 

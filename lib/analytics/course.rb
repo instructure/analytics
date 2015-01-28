@@ -42,7 +42,7 @@ module Analytics
 
     def enrollments
       @enrollments ||= slaved do
-        rows = enrollment_scope.all
+        rows = enrollment_scope.to_a
         ActiveRecord::Associations::Preloader.new(rows, [ :course_section, {:course => :enrollment_term} ]).run
         rows
       end
@@ -53,7 +53,16 @@ module Analytics
       # sensible default. using "now" for the time being, but there's gotta be
       # something better
       slaved(:cache_as => :start_date) do
-        enrollments.map{ |e| e.effective_start_at }.compact.min || Time.zone.now
+        [
+            enrollment_scope.minimum(:start_at),
+            @course.sections_visible_to(@current_user).minimum(:start_at),
+            @course.start_at,
+            @course.enrollment_term.start_at,
+            @course.enrollment_term.enrollment_dates_overrides.where(enrollment_type: 'StudentEnrollment').minimum(:start_at),
+        ].compact.min ||
+            @course.sections_visible_to(@current_user).minimum(:created_at) ||
+            @course.created_at ||
+            Time.zone.now
       end
     end
 
@@ -62,12 +71,18 @@ module Analytics
       # sense to go past "now" if the course has assignments due in the future,
       # for instance.
       slaved(:cache_as => :end_date) do
-        enrollments.map{ |e| e.effective_end_at }.compact.max || Time.zone.now
+        [
+            enrollment_scope.maximum(:end_at),
+            @course.sections_visible_to(@current_user).maximum(:end_at),
+            @course.conclude_at,
+            @course.enrollment_term.end_at,
+            @course.enrollment_term.enrollment_dates_overrides.where(enrollment_type: 'StudentEnrollment').maximum(:end_at),
+        ].compact.max || Time.zone.now
       end
     end
 
     def students
-      slaved(:cache_as => :students) { student_scope.order_by_sortable_name.all }
+      slaved(:cache_as => :students) { student_scope.order_by_sortable_name.to_a }
     end
 
     def student_ids
