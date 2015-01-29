@@ -47,7 +47,7 @@ describe AnalyticsApiController do
 
     describe 'when the user can manage_grades' do
       before do
-        controller.expects(:is_authorized_action?).with(course, user, includes(:manage_grades)).returns(true)
+        course.expects(:grants_any_right?).with(user, nil, :manage_grades, :view_all_grades).returns(true)
       end
 
       it 'renders the json' do
@@ -63,16 +63,6 @@ describe AnalyticsApiController do
       it 'paginates the summaries' do
         Api.expects(:paginate).with(['summary1'], controller, '/')
         controller.course_student_summaries
-      end
-    end
-
-    describe 'when the user can view_all_grades' do
-      before do
-        controller.expects(:is_authorized_action?).with(course, user, includes(:view_all_grades)).returns(true)
-      end
-
-      it 'renders the json' do
-        expect(controller.course_student_summaries).to eq "RENDERED!"
       end
     end
 
