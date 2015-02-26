@@ -28,7 +28,7 @@ module Rollups
         :max_score => 100,
         :min_score => 0,
         :first_quartile_score => 25,
-        :median_score => 50,
+        :median_score => 48.0,
         :third_quartile_score => 75,
         :points_possible => 100,
         :score_buckets => [1,0,0,0,0,0,1,1,0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0,1],
@@ -53,9 +53,9 @@ module Rollups
         end
 
         it 'gets the quartiles from the buckets' do
-          expect(data[:first_quartile]).to eq 26
+          expect(data[:first_quartile]).to eq 24.0
           expect(data[:median]).to eq rollup.median_score
-          expect(data[:third_quartile]).to eq 74
+          expect(data[:third_quartile]).to eq 72.0
         end
       end
 
@@ -97,9 +97,9 @@ module Rollups
         end
 
         it 'gets the quartiles from the buckets' do
-          expect(data[:first_quartile]).to eq 29
-          expect(data[:median]).to eq 38
-          expect(data[:third_quartile]).to eq 47
+          expect(data[:first_quartile]).to eq 27.0
+          expect(data[:median]).to eq 36.0
+          expect(data[:third_quartile]).to eq 45.0
         end
       end
 

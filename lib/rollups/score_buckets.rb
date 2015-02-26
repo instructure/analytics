@@ -18,7 +18,8 @@
 
 module Rollups
   class ScoreBuckets
-    BUCKET_COUNT = 25
+    # A bucket count of twenty six will cutoff stats buckets in twenty-fifths.
+    BUCKET_COUNT = 26
     attr_reader :bucket_size
 
     def initialize(points_possible)
@@ -27,20 +28,21 @@ module Rollups
       end
 
       @points_possible = points_possible
-      if bucket_count <= 0
+
+      if bucket_count <= 1
         @bucket_size = 0
       else
-        @bucket_size = points_possible / bucket_count
+        @bucket_size = points_possible.to_f / (bucket_count - 1)
       end
 
-      @buckets = Array.new([bucket_count,1].max, 0)
+      @buckets = Array.new([bucket_count, 1].max, 0)
       @counter = ::Stats::Counter.new
     end
 
     def self.parse(points, bucket_list)
       buckets = self.new(points)
-      bucket_list.each_with_index do |count, idx|
-        value = (buckets.bucket_size * idx) + (buckets.bucket_size / 2)
+      bucket_list.each_with_index do |count, index|
+        value = buckets.bucket_size * index
         count.times { buckets << value }
       end
       buckets
@@ -59,7 +61,9 @@ module Rollups
     def index_for(value)
       return 0 if @bucket_size == 0 || value <= 0
       return bucket_count - 1 if value >= @points_possible
-      (value / @bucket_size).floor
+      # Add 0.5 to "center" the bucket,
+      # ie multiples of bucket size should fall on midpoints.
+      ((value / @bucket_size) + 0.5).floor
     end
 
     def max; @counter.max; end
@@ -70,8 +74,8 @@ module Rollups
 
     private
     def bucket_count
-      @_bucket_count ||= if @points_possible <= BUCKET_COUNT
-        @points_possible.floor
+      @_bucket_count ||= if @points_possible < BUCKET_COUNT
+        @points_possible.floor + 1
       else
         BUCKET_COUNT
       end
