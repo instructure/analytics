@@ -16,8 +16,9 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative '../../../../../../spec/spec_helper'
+require_relative '../../../../../../../spec/spec_helper'
 
+module Analytics
 module Rollups
 
   describe AssignmentRollupAggregate do
@@ -112,4 +113,5 @@ module Rollups
     end
   end
 
+end
 end

@@ -20,7 +20,7 @@ class AnalyticsController < ApplicationController
   include Api::V1::Account
   include Api::V1::Course
   include Api::V1::User
-  include AnalyticsPermissions
+  include Analytics::Permissions
 
   def department
     return unless require_analytics_for_department

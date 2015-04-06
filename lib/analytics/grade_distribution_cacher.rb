@@ -16,7 +16,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-module GradeDistributionCacher
+module Analytics::GradeDistributionCacher
   def self.recache_grade_distributions
     Course.find_ids_in_batches do |ids|
       Course.select(:id).where(:id => ids).each do |course|

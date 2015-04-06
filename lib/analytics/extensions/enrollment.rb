@@ -16,8 +16,10 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-Enrollment.class_eval do
-  after_save :recache_course_grade_distribution
+module Analytics::Extensions::Enrollment
+  def self.included(klass)
+    klass.after_save :recache_course_grade_distribution
+  end
 
   def recache_course_grade_distribution
     # workflow_state_changed? will be true for records that were new, so this

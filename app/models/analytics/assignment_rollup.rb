@@ -16,9 +16,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require 'rollups/score_buckets'
-
-class AssignmentRollup
+class Analytics::AssignmentRollup
   attr_accessor :title, :points_possible, :due_at, :muted
   attr_accessor :total_submissions, :late_submissions, :missing_submissions, :on_time_submissions
   attr_accessor :max_score, :min_score, :first_quartile_score, :median_score, :third_quartile_score, :score_buckets, :non_digital_submission
@@ -43,7 +41,7 @@ class AssignmentRollup
       rollup.on_time_submissions = 0
       rollup.tardiness_breakdown = Analytics::TardinessBreakdown.new()
       if assignment.points_possible
-        rollup.buckets = Rollups::ScoreBuckets.new(assignment.points_possible)
+        rollup.buckets = Analytics::Rollups::ScoreBuckets.new(assignment.points_possible)
       end
     end
   end

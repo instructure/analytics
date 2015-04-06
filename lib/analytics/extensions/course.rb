@@ -16,16 +16,18 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-Course.class_eval do
-  has_one :cached_grade_distribution
-  has_many :page_views_rollups
+module Analytics::Extensions::Course
+  def self.included(klass)
+    klass.has_one :cached_grade_distribution
+    klass.has_many :page_views_rollups
+
+    klass.handle_asynchronously_if_production :recache_grade_distribution,
+                                              :singleton => proc { |c| "recache_grade_distribution:#{ c.global_id }" }
+  end
 
   def recache_grade_distribution
     Course.unique_constraint_retry do
       (cached_grade_distribution || build_cached_grade_distribution).recalculate!
     end
   end
-
-  handle_asynchronously_if_production :recache_grade_distribution,
-    :singleton => proc { |c| "recache_grade_distribution:#{ c.global_id }" }
 end

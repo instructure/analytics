@@ -16,8 +16,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_dependency 'analytics/slave'
-
 module Analytics
   class Base
     def initialize(current_user)
