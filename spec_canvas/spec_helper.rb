@@ -27,7 +27,7 @@ def page_view(opts={})
     :user => user,
     :controller => controller)
 
-  page_view.request_id = UUIDSingleton.instance.generate
+  page_view.request_id = SecureRandom.uuid
 
   if opts[:participated]
     page_view.participated = true
