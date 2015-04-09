@@ -20,7 +20,7 @@ module Analytics
   class Engine < ::Rails::Engine
     # runs once on process startup, both development and production
     initializer "analytics.canvas_plugin" do
-      Account.register_service :analytics,
+      AccountServices.register_service :analytics,
         :name => "Analytics",
         :description => "",
         :expose_to_ui => :setting,
