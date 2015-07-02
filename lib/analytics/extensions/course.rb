@@ -21,7 +21,9 @@ Course.class_eval do
   has_many :page_views_rollups
 
   def recache_grade_distribution
-    (cached_grade_distribution || build_cached_grade_distribution).recalculate!
+    Course.unique_constraint_retry do
+      (cached_grade_distribution || build_cached_grade_distribution).recalculate!
+    end
   end
 
   handle_asynchronously_if_production :recache_grade_distribution,
