@@ -44,3 +44,17 @@ def page_view(opts={})
   page_view.store
   page_view
 end
+
+module CourseShim
+  def course_shim(*args)
+    if respond_to?(:course_factory)
+      course_factory(*args)
+    else
+      course(*args)
+    end
+  end
+end
+
+RSpec.configure do |config|
+  config.include CourseShim
+end

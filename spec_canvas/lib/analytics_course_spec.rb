@@ -23,7 +23,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../cassandra_spec_helper')
 describe Analytics::Course do
   before :each do
     # set @course, @teacher, @teacher_enrollment
-    course(:active_course => true)
+    course_shim(:active_course => true)
     @teacher_enrollment = course_with_teacher(:course => @course, :name => 'Teacher', :active_all => true)
     @teacher_analytics = Analytics::Course.new(@teacher, @course)
     Setting.set('enable_page_views', 'db')
@@ -147,7 +147,7 @@ describe Analytics::Course do
       end
 
       it "should not include student's page views from outside the course" do
-        @other_course = course(:active_course => true)
+        @other_course = course_shim(:active_course => true)
         page_view(:user => @student, :course => @other_course)
         expect(@teacher_analytics.participation).to be_empty
       end
@@ -379,7 +379,7 @@ describe Analytics::Course do
         active_student
 
         # enroll the student in another course and create a submission there
-        @other_course = course(:active_course => true)
+        @other_course = course_shim(:active_course => true)
         course_with_student(:course => @other_course, :user => @student, :active_enrollment => true)
         @other_assignment = @other_course.assignments.active.create!
         @other_assignment.submissions.create!(:user => @student, :score => 1)

@@ -111,7 +111,7 @@ module Analytics
     end
 
     describe '#assignment_rollups_for' do
-      let(:this_course) { course }
+      let(:this_course) { course_shim }
       let(:sections) { this_course.course_sections }
       let(:section_ids) { sections.map(&:id) }
       let!(:assignment) { this_course.assignments.create!(:points_possible=>100, :due_at => Date.today) }
