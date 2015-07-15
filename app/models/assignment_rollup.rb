@@ -80,7 +80,7 @@ class AssignmentRollup
 
   def self.enrollments_with_submissions_scope(assignment, enrollments_scope)
     enrollments_scope
-      .joins("LEFT JOIN submissions ON submissions.user_id = enrollments.user_id
+      .joins("LEFT JOIN #{Submission.quoted_table_name} ON submissions.user_id = enrollments.user_id
               AND submissions.assignment_id = #{assignment.id}")
       .select("enrollments.id,
                enrollments.user_id,
