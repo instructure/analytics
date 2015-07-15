@@ -47,7 +47,7 @@ end
 
 module CourseShim
   def course_shim(*args)
-    if respond_to?(:course_factory)
+    if defined?(course_factory)
       course_factory(*args)
     else
       course(*args)
