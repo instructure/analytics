@@ -70,7 +70,7 @@ module Analytics
           scope = scope.visible_to_students_in_course_with_da(user.id, this_course.id)
         end
 
-        scope.includes(:versions). # Optimizes AssignmentOverrideApplicator
+        scope.preload(:versions). # Optimizes AssignmentOverrideApplicator
               reorder("assignments.due_at, assignments.id")
       end
     end
