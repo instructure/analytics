@@ -36,7 +36,7 @@ module Analytics
             active: stub('active_course_sections',
               pluck: ['SECTION_ID1', 'SECTION_ID2'])))
       end
-      let(:permitted_course) { PermittedCourse.new(user, course) }
+      let(:permitted_course) { PermittedCourse.new(user, course_shim) }
 
       before do
         Analytics::Course.stubs(:new).returns(analytics)
@@ -72,7 +72,7 @@ module Analytics
     end
 
     describe "async" do
-      let(:permitted_course) { PermittedCourse.new(user, course) }
+      let(:permitted_course) { PermittedCourse.new(user, course_shim) }
 
       it "reads and saves the data if available in cache" do
         permitted_course.expects(:assignments_uncached).never
