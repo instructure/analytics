@@ -78,7 +78,7 @@ module Analytics
       slaved(:cache_as => :grade_distribution) do
         result = {}
         distribution = cached_grade_distribution
-        (0..100).each{ |i| result[i] = distribution.send("s#{i}".to_sym) }
+        (0..100).each{ |i| result[i] = distribution["s#{i}"] }
         result
       end
     end
@@ -170,7 +170,8 @@ module Analytics
     def cached_grade_distribution
       # need to select a value for course_id here, or we get complaints about primary key missing_attribute
       selects = ["NULL AS course_id"] + (0..100).map{ |i| "SUM(s#{i}) AS s#{i}" }
-      CachedGradeDistribution.select(selects).where(course_id: courses_subselect).first
+      CachedGradeDistribution.connection.select_all(
+        CachedGradeDistribution.select(selects).where(course_id: courses_subselect)).to_a.first
     end
 
     def enrollments
@@ -228,9 +229,9 @@ module Analytics
       select << 'MIN(courses.created_at) AS created_at' unless start_at
       select << 'MAX(courses.conclude_at) AS conclude_at' unless end_at
       unless select.empty?
-        if dates = slaved{ courses.select(select).first }
-          start_at ||= parse_utc_time(dates.created_at)
-          end_at ||= parse_utc_time(dates.conclude_at)
+        if dates = slaved{ ActiveRecord::Base.connection.select_all(courses.select(select)).to_a.first }
+          start_at ||= parse_utc_time(dates['created_at'])
+          end_at ||= parse_utc_time(dates['conclude_at'])
         end
       end
 
