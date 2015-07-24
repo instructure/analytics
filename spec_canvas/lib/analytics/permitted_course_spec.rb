@@ -17,6 +17,8 @@
 #
 
 require File.expand_path('../../../../../../spec/spec_helper', File.dirname(__FILE__))
+
+require_dependency 'analytics/permitted_course'
 module Analytics
   describe PermittedCourse do
     describe '#assignments' do
