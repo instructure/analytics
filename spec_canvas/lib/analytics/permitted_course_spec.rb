@@ -38,7 +38,7 @@ module Analytics
             active: stub('active_course_sections',
               pluck: ['SECTION_ID1', 'SECTION_ID2'])))
       end
-      let(:permitted_course) { PermittedCourse.new(user, course_shim) }
+      let(:permitted_course) { PermittedCourse.new(user, course) }
 
       before do
         Analytics::Course.stubs(:new).returns(analytics)
