@@ -21,7 +21,7 @@ ContextController.class_eval do
     return unless roster_without_analytics
     if analytics_enabled_course?
       js_bundle :inject_roster_analytics, :plugin => :analytics
-      jammit_css :analytics_buttons, :plugin => :analytics
+      css_bundle :analytics_buttons, :plugin => :analytics
     end
     render :action => 'roster'
   end
@@ -37,7 +37,7 @@ ContextController.class_eval do
         'student_name' => @user.short_name || @user.name
       }
       js_bundle :inject_roster_user_analytics, :plugin => :analytics
-      jammit_css :analytics_buttons, :plugin => :analytics
+      css_bundle :analytics_buttons, :plugin => :analytics
     end
 
     # continue rendering the page
