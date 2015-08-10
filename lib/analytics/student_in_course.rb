@@ -165,8 +165,7 @@ module Analytics
       @course.shard.activate do
         Submission.
           select(Analytics::Assignments::SUBMISSION_COLUMNS_SELECT).
-          where(:assignment_id => assignments).
-          all
+          where(:assignment_id => assignments).to_a
       end
     end
 

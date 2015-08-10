@@ -97,7 +97,7 @@ class AnalyticsController < ApplicationController
     if @course.grants_right?(@current_user, session, :read_as_admin)
       @course_json[:analytics_url] = analytics_course_path(:course_id => @course.id)
     end
-    @course_json[:students] = 
+    @course_json[:students] =
       if @course_analytics.allow_student_details?
         students_json(@course_analytics)
       else
@@ -111,7 +111,8 @@ class AnalyticsController < ApplicationController
 
   def students_json(analytics)
     students = analytics.students
-    ActiveRecord::Associations::Preloader.new(students, :communication_channels, :pseudonyms => :account).run
+    User.preload_shard_associations(students)
+    ActiveRecord::Associations::Preloader.new(students, [:communication_channels, pseudonyms: :account]).run
     students.map{ |student| student_json(student) }
   end
 

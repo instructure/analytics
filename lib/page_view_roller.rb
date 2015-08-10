@@ -172,7 +172,7 @@ module PageViewRoller
       SUM(CAST(participated AND asset_user_access_id IS NOT NULL AS INTEGER)) AS participations
     SQL
 
-    rows = slaved { scope.all }
+    rows = slaved { scope.to_a }
     rows.each do |row|
       # unpack the selected values
       course_id = row.context_id

@@ -39,7 +39,7 @@ module Rollups
       }
     }
 
-    let(:the_course) { course }
+    let(:the_course) { course_shim }
     let(:rollup) { AssignmentRollup.new(rollup_attrs) }
 
     describe 'data from a single rollup' do

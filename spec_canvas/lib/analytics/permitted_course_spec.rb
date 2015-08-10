@@ -17,6 +17,8 @@
 #
 
 require File.expand_path('../../../../../../spec/spec_helper', File.dirname(__FILE__))
+
+require_dependency 'analytics/permitted_course'
 module Analytics
   describe PermittedCourse do
     describe '#assignments' do
@@ -72,7 +74,7 @@ module Analytics
     end
 
     describe "async" do
-      let(:permitted_course) { PermittedCourse.new(user, course) }
+      let(:permitted_course) { PermittedCourse.new(user, course_shim) }
 
       it "reads and saves the data if available in cache" do
         permitted_course.expects(:assignments_uncached).never

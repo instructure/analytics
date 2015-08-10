@@ -23,13 +23,13 @@ module Analytics
     # required of host: submissions(assignments)
 
     SUBMISSION_COLUMNS_SELECT = [:id, :assignment_id, :score, :user_id, :submission_type,
-            :submitted_at, :grade, :graded_at, :updated_at, :workflow_state, :cached_due_date]
+            :submitted_at, :grade, :graded_at, :updated_at, :workflow_state, :cached_due_date, :excused]
 
     def assignments
       cache_array = [:assignments, allow_student_details?]
       cache_array << @current_user if differentiated_assignments_applies?
       slaved(:cache_as => cache_array) do
-        assignments = assignment_scope.all
+        assignments = assignment_scope.to_a
         submissions = submissions(assignments).group_by{ |s| s.assignment_id }
         assignments.map do |assignment|
           assignment_data(assignment, submissions[assignment.id])
@@ -38,7 +38,7 @@ module Analytics
     end
 
     def assignment_rollups_for(section_ids)
-      assignments = assignment_scope.all
+      assignments = assignment_scope.to_a
 
       @course.shard.activate do
         assignments.map do |assignment|
@@ -70,7 +70,7 @@ module Analytics
           scope = scope.visible_to_students_in_course_with_da(user.id, this_course.id)
         end
 
-        scope.includes(:versions). # Optimizes AssignmentOverrideApplicator
+        scope.preload(:versions). # Optimizes AssignmentOverrideApplicator
               reorder("assignments.due_at, assignments.id")
       end
     end

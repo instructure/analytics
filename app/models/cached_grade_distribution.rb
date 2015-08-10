@@ -26,8 +26,8 @@ class CachedGradeDistribution < ActiveRecord::Base
   belongs_to :course
 
   def recalculate!
-    Enrollment.send :with_exclusive_scope do
-      reset_score_counts 
+    Enrollment.unscoped do
+      reset_score_counts
       grade_distribution_rows.each do |row|
         update_score( row[1].to_i, row[0].to_i )
       end

@@ -20,7 +20,7 @@ require File.expand_path('../../../../../../spec/spec_helper', File.dirname(__FI
 
 module Analytics
   describe AssignmentSubmission do
-    let(:assignment) { ::Assignment.create!({ :context => course }) }
+    let(:assignment) { ::Assignment.create!({ :context => course_shim }) }
     let(:date) { Time.now.change(usec: 0) }
 
     context "with submission" do

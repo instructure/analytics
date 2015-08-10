@@ -29,7 +29,7 @@ AccountsController.class_eval do
       # inject a button to the analytics page for the account
       js_env :ANALYTICS => { 'link' => analytics_department_path(:account_id => @account.id) }
       js_bundle :inject_department_analytics, :plugin => :analytics
-      jammit_css :analytics_buttons, :plugin => :analytics
+      css_bundle :analytics_buttons, :plugin => :analytics
     end
 
     # continue rendering the page
@@ -48,7 +48,7 @@ AccountsController.class_eval do
       # inject a button to the analytics page for the account
       js_env :ANALYTICS => { 'link' => analytics_department_path(:account_id => @account.id) }
       js_bundle :inject_department_statistics_analytics, :plugin => :analytics
-      jammit_css :analytics_buttons, :plugin => :analytics
+      css_bundle :analytics_buttons, :plugin => :analytics
     end
 
     # continue rendering the page

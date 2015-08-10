@@ -16,26 +16,26 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+module GraphColors
+  FRAME = "#959595".freeze
+  GRID = "#cccccc".freeze
+  BLUE = "#33acdf".freeze
+  ORANGE = "#f59331".freeze
+  LIGHT_BLUE = "#c1e6f5".freeze
+  LIGHT_GREEN = "#95ee86".freeze
+  DARK_GREEN = "#2fa23e".freeze
+  SHARP_GREEN = "#8cd20d".freeze
+  LIGHT_YELLOW = "#efe33e".freeze
+  DARK_YELLOW = "#b3a700".freeze
+  SHARP_YELLOW = "#f6bd00".freeze
+  LIGHT_RED = "#dea8a9".freeze
+  DARK_RED = "#da181d".freeze
+  SHARP_RED = "#d21d1a".freeze
+  NONE = "#cccccc".freeze
+end
+
 shared_examples_for "analytics tests" do
   include_examples "in-process server selenium tests"
-
-  module GraphColors
-    FRAME = "#959595"
-    GRID = "#cccccc"
-    BLUE = "#33acdf"
-    ORANGE = "#f59331"
-    LIGHT_BLUE = "#c1e6f5"
-    LIGHT_GREEN = "#95ee86"
-    DARK_GREEN = "#2fa23e"
-    SHARP_GREEN = "#8cd20d"
-    LIGHT_YELLOW = "#efe33e"
-    DARK_YELLOW = "#b3a700"
-    SHARP_YELLOW = "#f6bd00"
-    LIGHT_RED = "#dea8a9"
-    DARK_RED = "#da181d"
-    SHARP_RED = "#d21d1a"
-    NONE = "#cccccc"
-  end
 
   def enable_analytics
     @account = Account.default
