@@ -74,7 +74,7 @@ class AssignmentRollup
   def self.build(course, assignment)
     # explicitly give the :type here, because student_enrollments scope also
     # includes StudentViewEnrollment which we want to exclude
-    enrollments_scope = course.enrollments.where(workflow_state: %w[active completed], type: 'StudentEnrollment').except(:includes)
+    enrollments_scope = course.enrollments.where(workflow_state: %w[active completed], type: 'StudentEnrollment').except(:preload)
     self.init(assignment, enrollments_scope)
   end
 
