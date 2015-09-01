@@ -155,6 +155,7 @@ describe "Analytics API", :type => :request do
         "first_quartile" => 9,
         "median" => 9,
         "third_quartile" => 9,
+        "module_ids" => [],
         "unlock_at" => nil,
         "min_score" => 9,
         "due_at" => nil,
@@ -195,6 +196,15 @@ describe "Analytics API", :type => :request do
           :context => @course,
           :points_possible => 10 * (i+1),
           :due_at => @due_time)}
+
+      @module = ContextModule.create!(name: "unnamed module", context: @course)
+      content_tag_params = {
+          content_type: 'Assignment',
+          context: @course,
+          content: @assignments[0],
+          tag_type: 'context_module'
+      }
+      @module.content_tags.create!(content_tag_params)
 
       for s_index in 0..(num_students - 1)
         student = @students[s_index]
@@ -293,6 +303,11 @@ describe "Analytics API", :type => :request do
     it "should track due dates" do
       json = analytics_api_call(:assignments, @course, @students[1])
       expect(response_assignment(json, @assignments[3])["due_at"]).to eq @due_time.iso8601
+    end
+
+    it "should have the module ids the assignment belongs to" do
+      json = analytics_api_call(:assignments, @course, @students[1])
+      expect(response_assignment(json, @assignments[0])["module_ids"]).to eq [@module.id]
     end
   end
 

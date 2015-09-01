@@ -434,6 +434,10 @@ class AnalyticsApiController < ApplicationController
   #       "median": 7,
   #       "first_quartile": 4,
   #       "third_quartile": 8,
+  #       "module_ids": [
+  #           1,
+  #           2
+  #       ],
   #       "submission": {
   #         "submitted_at": "2012-01-22T22:00:00-07:00",
   #         "score": 10
@@ -451,6 +455,9 @@ class AnalyticsApiController < ApplicationController
   #       "median": 8,
   #       "first_quartile": 8,
   #       "third_quartile": 8,
+  #       "module_ids": [
+  #           1
+  #       ],
   #       "submission": {
   #         "submitted_at": "2012-01-22T22:00:00-07:00"
   #       }

@@ -30,9 +30,20 @@ module Analytics
       cache_array << @current_user if differentiated_assignments_applies?
       slaved(:cache_as => cache_array) do
         assignments = assignment_scope.to_a
-        submissions = submissions(assignments).group_by{ |s| s.assignment_id }
+        submissions = submissions(assignments).group_by { |s| s.assignment_id }
+        assignment_ids = assignments.map(&:id)
+        course_module_tags = @course.context_module_tags.where(
+            content_type: 'Assignment',
+            content_id: assignment_ids,
+            tag_type: 'context_module').select([:content_id, :context_module_id]).reorder(:context_module_id).uniq
+        course_module_tags_hash = {}
+        course_module_tags.each do |t|
+          array = course_module_tags_hash[t.content_id] ||= []
+          array << t.context_module_id
+        end
+
         assignments.map do |assignment|
-          assignment_data(assignment, submissions[assignment.id])
+          assignment_data(assignment, submissions[assignment.id], course_module_tags_hash)
         end
       end
     end
@@ -79,9 +90,14 @@ module Analytics
       course.feature_enabled?(:differentiated_assignments) && !course.grants_any_right?(user, :read_as_admin, :manage_grades, :manage_assignments)
     end
 
-    def assignment_data(assignment, submissions)
+    def assignment_data(assignment, submissions, course_module_tags_hash=nil)
       submissions ||= []
       real_submissions = submissions.reject{|s| fake_student_ids.include?(s.user_id)}
+
+      module_ids = []
+      if course_module_tags_hash
+        module_ids = course_module_tags_hash[assignment.id] || []
+      end
 
       hash = basic_assignment_data(assignment, submissions).
         merge(:muted => muted(assignment))
@@ -98,7 +114,8 @@ module Analytics
           :min_score => scores.min,
           :first_quartile => quartiles[0],
           :median => quartiles[1],
-          :third_quartile => quartiles[2]
+          :third_quartile => quartiles[2],
+          :module_ids => module_ids
         )
       end
 
