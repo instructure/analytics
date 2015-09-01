@@ -167,7 +167,7 @@ module Analytics
     end
 
     def submissions(assignments, student_ids=self.student_ids)
-      @course.shard.activate{ submission_scope(assignments, student_ids).all }
+      @course.shard.activate{ submission_scope(assignments, student_ids).to_a }
     end
 
     def submission_scope(assignments, student_ids=self.student_ids)
@@ -194,7 +194,7 @@ module Analytics
       cache_array = [:raw_assignments]
       cache_array << @current_user if differentiated_assignments_applies?
       slaved(:cache_as => cache_array) do
-        assignment_scope.all
+        assignment_scope.to_a
       end
     end
 
