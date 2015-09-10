@@ -16,8 +16,8 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/selenium/common')
-require File.expand_path(File.dirname(__FILE__) + '/analytics_common')
+require_relative '../../../../../spec/selenium/common'
+require_relative 'analytics_common'
 
 describe "analytics course view" do
   include_examples "analytics tests"

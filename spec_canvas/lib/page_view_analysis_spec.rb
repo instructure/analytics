@@ -18,7 +18,7 @@
 
 require 'mocha/api'
 require 'mocha_rspec_adapter'
-require File.expand_path('../../lib/analytics/page_view_analysis', File.dirname(__FILE__))
+require_relative '../../lib/analytics/page_view_analysis'
 
 module Analytics
   describe PageViewAnalysis do

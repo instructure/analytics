@@ -18,7 +18,7 @@
 
 # This file is part of the analytics engine
 
-require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/spec_helper')
+require_relative '../../../../../spec/spec_helper'
 
 describe ContextController, :type => :controller do
   before :each do
