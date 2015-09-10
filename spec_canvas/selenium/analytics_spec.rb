@@ -126,7 +126,7 @@ describe "analytics" do
       randomly_grade_assignments(5)
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
-      expect(f('.student_summary')).to include_text(current_student_score)
+      expect(find('.student_summary')).to include_text(current_student_score)
     end
 
     context 'participation view' do
@@ -200,7 +200,7 @@ describe "analytics" do
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
       driver.execute_script("$('#grades-graph .assignment_#{first_assignment.id}.cover').mouseover()")
-      tooltip = f(".analytics-tooltip")
+      tooltip = find(".analytics-tooltip")
       expect(tooltip.text).to eq first_assignment.title
     end
 
@@ -208,9 +208,9 @@ describe "analytics" do
 
       def validate_combobox_presence(is_present = true)
         if is_present
-          expect(f('.ui-combobox')).to be_displayed
+          expect(find('.ui-combobox')).to be_displayed
         else
-          expect(f('.ui-combobox')).to be_nil
+          expect(not_found('.ui-combobox')).to be
         end
       end
 
@@ -233,7 +233,7 @@ describe "analytics" do
         end
 
         def validate_combobox_name(student_name)
-          expect(f('.ui-selectmenu-status')).to include_text(student_name)
+          expect(find('.ui-selectmenu-status')).to include_text(student_name)
         end
 
         def validate_first_students_grade_graph
@@ -246,8 +246,8 @@ describe "analytics" do
         added_students = add_students_to_course(1)
         graded_assignments = randomly_grade_assignments(5)
         go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
-        next_button = f('.ui-combobox-next')
-        prev_button = f('.ui-combobox-prev')
+        next_button = find('.ui-combobox-next')
+        prev_button = find('.ui-combobox-prev')
 
         #check that first student in course is selected
         expect(driver.current_url).to include(@student.id.to_s)
