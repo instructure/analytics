@@ -24,7 +24,11 @@ module Analytics
     let(:date) { Time.now.change(usec: 0) }
 
     context "with submission" do
-      let(:submission) { assignment.submissions.create!(:user => user) }
+      let(:submission) do
+        submission = FakeSubmission.new(assignment_id: assignment.id, user_id: user.id)
+        submission.assignment = assignment
+        submission
+      end
 
       it "should return recorded" do
         assignment_submission = AssignmentSubmission.new(assignment, submission)
@@ -123,7 +127,7 @@ module Analytics
       end
 
       it "should return cached due_date" do
-        submission.cached_due_date = Time.now
+        submission.stubs(:cached_due_date).returns(Time.now)
 
         assignment_submission = AssignmentSubmission.new(assignment, submission)
         expect(assignment_submission.due_at).to eq submission.cached_due_date
@@ -188,7 +192,7 @@ module Analytics
       end
 
       it "should return graded_at" do
-        submission.graded_at = date
+        submission.stubs(:graded_at).returns(date)
 
         assignment_submission = AssignmentSubmission.new(assignment, submission)
 
