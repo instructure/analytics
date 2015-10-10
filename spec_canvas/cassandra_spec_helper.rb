@@ -16,7 +16,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require File.expand_path(File.dirname(__FILE__) + '/../../../../spec/cassandra_spec_helper')
+require_relative '../../../../spec/cassandra_spec_helper'
 
 shared_examples_for "analytics cassandra page views" do
   include_examples "cassandra page views"

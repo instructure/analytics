@@ -16,8 +16,8 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/selenium/common')
-require File.expand_path(File.dirname(__FILE__) + '/analytics_common')
+require_relative '../../../../../spec/selenium/common'
+require_relative 'analytics_common'
 
 describe "analytics course view" do
   include_examples "analytics tests"
@@ -49,7 +49,7 @@ describe "analytics course view" do
     it 'should show the analytics button on the course home page' do
       get "/courses/#{@course.id}"
       wait_for_ajaximations
-      expect(f('div.course-options').text).to include("Analytics")
+      expect(find('div.course-options').text).to include("Analytics")
     end
   end
 
@@ -99,7 +99,7 @@ describe "analytics course view" do
       RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'manage_grades', :override => false)
       RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_all_grades', :override => false)
       go_to_analytics("/courses/#{@course.id}/analytics")
-      expect(f('#students')).to be_nil
+      expect(not_found('#students')).to be
     end
 
     it "should validate correct number of students are showing up" do
@@ -119,7 +119,7 @@ describe "analytics course view" do
     it "should validate current score display for students" do
       randomly_grade_assignments(5)
       go_to_analytics("/courses/#{@course.id}/analytics")
-      expect(f('div.current_score')).to include_text(current_student_score)
+      expect(find('div.current_score')).to include_text(current_student_score)
     end
 
     it "should display student activity for tomorrow" do

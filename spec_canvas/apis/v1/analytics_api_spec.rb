@@ -18,9 +18,9 @@
 
 # This file is part of the analytics engine
 
-require File.expand_path(File.dirname(__FILE__) + '/../../../../../../spec/apis/api_spec_helper')
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
-require File.expand_path(File.dirname(__FILE__) + '/../../cassandra_spec_helper')
+require_relative '../../../../../../spec/apis/api_spec_helper'
+require_relative '../../spec_helper'
+require_relative '../../cassandra_spec_helper'
 
 describe "Analytics API", :type => :request do
 

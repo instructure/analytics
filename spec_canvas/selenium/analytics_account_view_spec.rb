@@ -16,8 +16,8 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/selenium/common')
-require File.expand_path(File.dirname(__FILE__) + '/analytics_common')
+require_relative '../../../../../spec/selenium/common'
+require_relative 'analytics_common'
 
 describe "analytics account view" do
   include_examples "analytics tests"
@@ -25,7 +25,7 @@ describe "analytics account view" do
   ACCOUNT_ID = Account.default.id
 
   def validate_data_point(data_point, expected_count = "1")
-    expect(f(".#{data_point}_count").text).to eq expected_count
+    expect(find(".#{data_point}_count").text).to eq expected_count
   end
 
   before (:each) do
@@ -47,7 +47,7 @@ describe "analytics account view" do
     data_points = %w(courses students)
     validate_data_point(data_points[0], '1')
     validate_data_point(data_points[1], '0')
-    f('.ui-combobox-next').click
+    find('.ui-combobox-next').click
     wait_for_ajaximations
     validate_data_point(data_points[0], '1')
     validate_data_point(data_points[1], '10')

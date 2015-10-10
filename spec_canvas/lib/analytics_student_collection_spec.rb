@@ -16,8 +16,8 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require File.expand_path(File.dirname(__FILE__) + '/../../../../../spec/spec_helper')
-require File.expand_path(File.dirname(__FILE__) + '/../cassandra_spec_helper')
+require_relative '../../../../../spec/spec_helper'
+require_relative '../cassandra_spec_helper'
 
 describe Analytics::StudentCollection do
   it "should default sort_strategy to Default" do

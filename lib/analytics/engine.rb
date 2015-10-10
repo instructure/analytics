@@ -18,6 +18,8 @@
 
 module Analytics
   class Engine < ::Rails::Engine
+    config.autoload_paths << File.expand_path(File.join(__FILE__, "../.."))
+
     # runs once on process startup, both development and production
     initializer "analytics.canvas_plugin" do
       AccountServices.register_service :analytics,

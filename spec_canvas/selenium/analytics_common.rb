@@ -115,7 +115,7 @@ shared_examples_for "analytics tests" do
 
   def validate_tooltip_text(css_selector, text)
     driver.execute_script("$('#{css_selector}').mouseover()")
-    tooltip = f('.analytics-tooltip')
+    tooltip = find('.analytics-tooltip')
     expect(tooltip).to include_text(text)
     tooltip
   end
@@ -187,7 +187,7 @@ shared_examples_for "analytics tests" do
   end
 
   def validate_student_display(student_name)
-    expect(f('.student_summary')).to include_text(student_name)
+    expect(find('.student_summary')).to include_text(student_name)
   end
 
   shared_examples_for "analytics permissions specs" do

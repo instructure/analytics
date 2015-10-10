@@ -18,7 +18,7 @@
 
 # This file is part of the analytics engine
 
-require File.expand_path(File.dirname(__FILE__) + '/../../../../../../spec/apis/api_spec_helper')
+require_relative '../../../../../../spec/apis/api_spec_helper'
 
 describe "Courses API Extensions", :type => :request do
   before :each do
