@@ -15,6 +15,6 @@ define [
     populate: (data) ->
       cumulative = 0
       for i in [0..100]
-        cumulative += data[i]
+        cumulative += parseInt(data[i], 10)
       cumulative = 1 if cumulative is 0
       @values = _.map [0..100], (i) -> data[i] / cumulative
