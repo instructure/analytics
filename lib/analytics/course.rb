@@ -162,7 +162,7 @@ module Analytics
     end
 
     def enrollment_scope
-      @enrollment_scope ||= @course.enrollments_visible_to(@current_user, :include_priors => true).
+      @enrollment_scope ||= @course.apply_enrollment_visibility(@course.all_student_enrollments, @current_user).
         where(:enrollments => { :workflow_state => ['active', 'completed'] })
     end
 
