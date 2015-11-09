@@ -23,7 +23,6 @@ define [
             date: date
             views: 0
             participations: 0
-            participation_events: []
           @bins.push binMap[date]
         binMap[date]
 
@@ -34,10 +33,7 @@ define [
         bin.views += views
 
       # sort the participation date to the appropriate bins
-      for event in data.participations
-        event.createdAt = Date.parse event.created_at
-        # bin to the hour corresponding to event.createdAt, so that all
-        # participations fall in the same bin as their respective page views.
-        bin = binFor(tz.parse(tz.format(event.createdAt, '%F %H:00:00')))
-        bin.participation_events.push event
-        bin.participations += 1
+      for date, events of data.participation_counts
+        # this date is the hour for the bin
+        bin = binFor(Date.parse date)
+        bin.participations += events

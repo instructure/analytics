@@ -110,12 +110,16 @@ describe PageView do
     end
 
     it "should return a object for each participation" do
-      page_view(:user => @user, :context => @course, :participated => true)
-      page_view(:user => @user, :context => @course, :participated => true)
-      page_view(:user => @user, :context => @course)
+      Timecop.freeze(Time.utc(2015, 11, 10, 13, 05, 17)) do
+        page_view(user: @user, context: @course, participated: true, created_at: 2.hours.ago)
+        page_view(user: @user, context: @course, created_at: 2.hours.ago)
+        page_view(user: @user, context: @course, participated: true, created_at: 123.minutes.ago)
+        page_view(user: @user, context: @course, participated: true, created_at: 36.minutes.ago)
+        page_view(user: @user, context: @course)
+      end
       parts = PageView.participations_for_context(@course, @user)
       expect(parts.size).to eq 2
-      parts.each { |p| expect(p.key?(:created_at)).to be_truthy }
+      expect(parts.values.sum).to eq 3
     end
   end
 
