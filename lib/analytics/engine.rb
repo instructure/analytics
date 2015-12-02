@@ -34,10 +34,22 @@ module Analytics
         :true_for => %w(AccountAdmin TaEnrollment TeacherEnrollment)
     end
 
+    Autoextend.hook(:PageView, :"Analytics::Extensions::PageView",
+                    method: :prepend)
+    Autoextend.hook(:"PageView::Pv4Client",
+                    :"Analytics::Extensions::PageView::Pv4Client")
+
     # runs once in production, but on each request (to match class reloading)
     # in development with class_caching off
     config.to_prepare do
-      require_dependency 'analytics/extensions'
+      require 'analytics/extensions/accounts_controller'
+      require 'analytics/extensions/courses_controller'
+      require 'analytics/extensions/context_controller'
+      require 'analytics/extensions/course'
+      require 'analytics/extensions/enrollment'
+      require 'analytics/extensions/grade_calculator'
+      require 'analytics/extensions/permissions'
+      require 'analytics/extensions/user'
     end
   end
 end

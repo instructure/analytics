@@ -136,9 +136,9 @@ module Analytics
       collection.format do |student|
         {
           :id => student.id,
-          :page_views => page_view_counts[student.id][:page_views],
+          :page_views => page_view_counts[student.id].try(:[], :page_views),
           :max_page_views => analysis.max_page_views,
-          :participations => page_view_counts[student.id][:participations],
+          :participations => page_view_counts[student.id].try(:[], :participations),
           :max_participations => analysis.max_participations,
           :tardiness_breakdown => tardiness_breakdowns[:students][student.id].as_hash
         }

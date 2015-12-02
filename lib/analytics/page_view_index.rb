@@ -18,7 +18,9 @@
 
 module Analytics::PageViewIndex
   def analytics_index_backing
-    if PageView.cassandra?
+    if PageView.pv4?
+      PageView.pv4_client
+    elsif PageView.cassandra?
       Analytics::PageViewIndex::EventStream
     else
       Analytics::PageViewIndex::DB

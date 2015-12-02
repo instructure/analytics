@@ -17,8 +17,6 @@
 #
 
 class AnalyticsController < ApplicationController
-  unloadable
-
   include Api::V1::Account
   include Api::V1::Course
   include Api::V1::User
