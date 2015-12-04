@@ -372,10 +372,11 @@ class AnalyticsApiController < ApplicationController
 
   # @API Get user-in-a-course-level participation data
   #
-  # Returns page view hits and participation numbers grouped by day through the
-  # entire history of the course. Two hashes are returned, one for page views
-  # and one for participations, where the hash keys are dates in the format
-  # "YYYY-MM-DD".
+  # Returns page view hits grouped by hour, and participation details through the
+  # entire history of the course.
+  #
+  # `page_views` are returned as a hash, where the keys are iso8601 dates, bucketed by the hour.
+  # `participations` are returned as an array of hashes, sorted oldest to newest.
   #
   # @example_request
   #
@@ -385,8 +386,9 @@ class AnalyticsApiController < ApplicationController
   # @example_response
   #   {
   #     "page_views": {
-  #       "2012-01-24": 19,
-  #       "2012-01-27": 23,
+  #       "2012-01-24T13:00:00-00:00": 19,
+  #       "2012-01-24T14:00:00-00:00": 13,
+  #       "2012-01-27T09:00:00-00:00": 23
   #     },
   #     "participations": [
   #       {
@@ -396,7 +398,6 @@ class AnalyticsApiController < ApplicationController
   #       {
   #         "created_at": "2012-01-27T22:00:00-06:00",
   #         "url": "/path/to/canvas",
-  #
   #       }
   #     ]
   #   }
