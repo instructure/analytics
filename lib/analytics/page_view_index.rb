@@ -86,13 +86,11 @@ module Analytics::PageViewIndex
     end
 
     def self.participations_for_context(context, user)
-      counts = ::ActiveSupport::OrderedHash.new(0)
-      database.execute("SELECT created_at FROM participations_by_context %CONSISTENCY% WHERE context = ?", "#{context.global_asset_string}/#{user.global_asset_string}", consistency: read_consistency_level).fetch do |row|
-        # truncate to the hour by setting minutes to 0
-        time = row['created_at'].change(min: 0)
-        counts[time] += 1
+      participations = []
+      database.execute("SELECT created_at, url, asset_code, asset_category FROM participations_by_context %CONSISTENCY% WHERE context = ?", "#{context.global_asset_string}/#{user.global_asset_string}", consistency: read_consistency_level).fetch do |row|
+        participations << row.to_hash.with_indifferent_access
       end
-      counts
+      participations
     end
 
     def self.counters_by_context_and_hour(context, user)
@@ -131,15 +129,17 @@ module Analytics::PageViewIndex
 
   module DB
     def self.participations_for_context(context, user)
-      counts = ::ActiveSupport::OrderedHash.new(0)
       PageView.for_context(context).for_users([user]).
-        select("page_views.created_at").
-        where("page_views.participated AND page_views.asset_user_access_id IS NOT NULL").each do |participation|
-          # truncate to the hour by setting minutes to 0
-          time = participation.created_at.change(min: 0)
-          counts[time] += 1
+        select("page_views.created_at, page_views.url, asset_user_accesses.asset_code AS asset_code, asset_user_accesses.asset_category AS asset_category").
+        joins(:asset_user_access).
+        where("page_views.participated AND page_views.asset_user_access_id IS NOT NULL").map do |participation|
+          {
+            :created_at => participation.created_at,
+            :url => participation.url,
+            :asset_code => participation.asset_code,
+            :asset_category => participation.asset_category
+          }.with_indifferent_access
       end
-      counts
     end
 
     def self.counters_by_context_and_hour(context, user)

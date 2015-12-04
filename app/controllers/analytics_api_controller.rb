@@ -372,34 +372,39 @@ class AnalyticsApiController < ApplicationController
 
   # @API Get user-in-a-course-level participation data
   #
-  # Returns page view hits and participation numbers grouped by hour through the
+  # Returns page view hits and participation numbers grouped by day through the
   # entire history of the course. Two hashes are returned, one for page views
-  # and one for participations, where the hash keys are iso8601 dates, bucketed
-  # by the hour.
+  # and one for participations, where the hash keys are dates in the format
+  # "YYYY-MM-DD".
   #
   # @example_request
   #
-  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/users/<user_id>/activity \
+  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/users/<user_id>/activity \ 
   #         -H 'Authorization: Bearer <token>'
   #
   # @example_response
   #   {
   #     "page_views": {
-  #       "2012-01-24T13:00:00-00:00": 19,
-  #       "2012-01-24T14:00:00-00:00": 13,
-  #       "2012-01-27T09:00:00-00:00": 23,
+  #       "2012-01-24": 19,
+  #       "2012-01-27": 23,
   #     },
-  #     "participation_counts": {
-  #       "2012-01-24T14:00:00-00:00": 2,
-  #     }
+  #     "participations": [
+  #       {
+  #         "created_at": "2012-01-21T22:00:00-06:00",
+  #         "url": "/path/to/canvas",
+  #       },
+  #       {
+  #         "created_at": "2012-01-27T22:00:00-06:00",
+  #         "url": "/path/to/canvas",
+  #
+  #       }
+  #     ]
   #   }
   def student_in_course_participation
     return unless require_analytics_for_student_in_course
     render :json => {
-      page_views: @student_analytics.page_views,
-      # this empty array is for backwards compatibility of the response shape
-      participations: [],
-      participation_counts: @student_analytics.participations
+      :page_views => @student_analytics.page_views,
+      :participations => @student_analytics.participations
     }
   end
 
