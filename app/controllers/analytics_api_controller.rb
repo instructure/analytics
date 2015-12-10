@@ -393,11 +393,11 @@ class AnalyticsApiController < ApplicationController
   #     "participations": [
   #       {
   #         "created_at": "2012-01-21T22:00:00-06:00",
-  #         "url": "/path/to/canvas",
+  #         "url": "https://canvas.example.com/path/to/canvas",
   #       },
   #       {
   #         "created_at": "2012-01-27T22:00:00-06:00",
-  #         "url": "/path/to/canvas",
+  #         "url": "https://canvas.example.com/path/to/canvas",
   #       }
   #     ]
   #   }
