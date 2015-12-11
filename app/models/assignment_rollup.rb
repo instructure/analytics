@@ -95,22 +95,14 @@ class AssignmentRollup
                submissions.workflow_state")
   end
 
-  def submission_from(assignment, enrollment_and_submission)
-    # convert submission columns from Enrollment into FakeSubmission so we can
-    # use it for an AssignmentSubmission
-    if enrollment_and_submission.submission_id
-      submission = Analytics::FakeSubmission.new(enrollment_and_submission.attributes)
-      submission.assignment = assignment
-      submission
-    else
-      nil
-    end
-  end
-
-  def update_stats(assignment, enrollment_and_submission)
+  def update_stats(assignment, submission)
     self.total_submissions += 1
 
-    submission = submission_from(assignment, enrollment_and_submission)
+    # convert submission portion into actual Submission so we can use methods
+    submission = submission.submission_id && Submission.send(:instantiate,
+      submission.attributes.slice("score", "cached_due_date", "submitted_at", "submission_type", "graded_at", "workflow_state"))
+    submission.assignment = assignment if submission
+
     assignment_submission = Analytics::AssignmentSubmission.new(assignment, submission)
     self.tardiness_breakdown.tally!(assignment_submission)
 
