@@ -16,7 +16,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require File.expand_path('../../../../../../spec/spec_helper', File.dirname(__FILE__))
+require_relative '../../../../../../spec/spec_helper'
 
 module Analytics
   describe TardinessBreakdown do

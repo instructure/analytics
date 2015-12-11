@@ -16,8 +16,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require File.expand_path('../../../../../../lib/stats', File.dirname(__FILE__))
-require File.expand_path('../../../lib/rollups/score_buckets', File.dirname(__FILE__))
 module Rollups
   describe ScoreBuckets do
     let(:points) { 100 }

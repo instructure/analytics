@@ -16,9 +16,10 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require File.expand_path('../../../../../../spec/spec_helper', File.dirname(__FILE__))
+require_relative '../../../../../../spec/spec_helper'
 
 require_dependency 'analytics/permitted_course'
+
 module Analytics
   describe PermittedCourse do
     describe '#assignments' do
