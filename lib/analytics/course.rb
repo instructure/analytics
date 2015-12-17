@@ -37,7 +37,7 @@ module Analytics
     def available?
       # not slaved because it's pretty lightweight and we don't want it to
       # depend on the slave being present
-      cache(:available) { enrollment_scope.first.present? }
+      cache(:available) { enrollment_scope.exists? }
     end
 
     def enrollments
