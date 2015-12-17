@@ -2,11 +2,9 @@ class CachedGradeDistributions < ActiveRecord::Migration
   tag :predeploy
 
   def self.up
-    opts = CANVAS_RAILS3 ? {:primary_key => 'course_id'} : {:id => false}
-
-    create_table :cached_grade_distributions, opts do |t|
+    create_table :cached_grade_distributions, {:id => false} do |t|
       t.integer :course_id, :limit => 8, :null => false
-      t.primary_key(:course_id) unless CANVAS_RAILS3
+      t.primary_key(:course_id)
       (0..100).each do |i|
         t.integer "s#{i}".to_sym, :default => 0, :null => false
       end
