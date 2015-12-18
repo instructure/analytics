@@ -42,11 +42,11 @@ module Analytics
     # while pulling this data. The analytics web UI only shows a spinner right now.
     def assignments(progress = nil)
       @assignments_cache ||=
-        Rails.cache.fetch(assignments_cache_key, :expires_in => Analytics::Base.cache_expiry, :rails3 => true) { assignments_uncached }
+        Rails.cache.fetch(assignments_cache_key, :expires_in => Analytics::Base.cache_expiry, :use_new_rails => false) { assignments_uncached }
     end
 
     def async_data_available?
-      @assignments_cache ||= Rails.cache.read(assignments_cache_key, rails3: true)
+      @assignments_cache ||= Rails.cache.read(assignments_cache_key, :use_new_rails => false)
       !!@assignments_cache
     end
 
