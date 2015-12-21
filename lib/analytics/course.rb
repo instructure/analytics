@@ -43,7 +43,7 @@ module Analytics
     def enrollments
       @enrollments ||= slaved do
         rows = enrollment_scope.to_a
-        ActiveRecord::Associations::Preloader.new(rows, [ :course_section, {:course => :enrollment_term} ]).run
+        ActiveRecord::Associations::Preloader.new.preload(rows, [ :course_section, {:course => :enrollment_term} ])
         rows
       end
     end

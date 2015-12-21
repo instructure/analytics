@@ -112,7 +112,7 @@ class AnalyticsController < ApplicationController
   def students_json(analytics)
     students = analytics.students
     User.preload_shard_associations(students)
-    ActiveRecord::Associations::Preloader.new(students, [:communication_channels, pseudonyms: :account]).run
+    ActiveRecord::Associations::Preloader.new.preload(students, [:communication_channels, pseudonyms: :account])
     students.map{ |student| student_json(student) }
   end
 
