@@ -25,7 +25,7 @@ describe "analytics account view" do
   let(:account_id) { Account.default.id }
 
   def validate_data_point(data_point, expected_count = "1")
-    expect(find(".#{data_point}_count").text).to eq expected_count
+    expect(find(".AnalyticsStats__#{data_point}").find(".AnalyticsStats__Count").text).to eq expected_count
   end
 
   before (:each) do
@@ -44,7 +44,7 @@ describe "analytics account view" do
     end
     concluded_course.complete
     go_to_analytics("/accounts/#{account_id}/analytics")
-    data_points = %w(courses students)
+    data_points = %w(Courses Students)
     validate_data_point(data_points[0], '1')
     validate_data_point(data_points[1], '0')
     find('.ui-combobox-next').click
@@ -110,8 +110,8 @@ describe "analytics account view" do
       go_to_analytics("/accounts/#{account_id}/analytics")
     end
 
-    %w(courses teachers students assignments topics attachments media).each do |data_point|
-      it "should validate #{data_point} data point" do
+    it "should validate data points" do
+      %w(Courses Teachers Students Assignments Topics Attachments Media).each do |data_point|
         validate_data_point(data_point)
       end
     end

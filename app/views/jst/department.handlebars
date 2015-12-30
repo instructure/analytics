@@ -1,6 +1,10 @@
 <div class='department_summary'>
-  <h2 class='department_name'>{{account.name}}</h2>
+  <h1 class='department_name h2'>
+    {{#t}}{{account.name}} Analytics{{/t}}
+  </h1>
   <div id='filter_box' />
 </div>
+<h2 class="screenreader-only">{{t "Summary Statistics"}}</h2>
 <div class="department_statistics" />
+<h2 class="screenreader-only">{{t "Graphs"}}</h2>
 <div class="department_graphs" />
