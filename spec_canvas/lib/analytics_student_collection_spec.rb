@@ -56,7 +56,7 @@ describe Analytics::StudentCollection do
       @enrollments = Array.new(3) { student_in_course(:active_all => true) }
       @users = @enrollments.map(&:user)
       # hide fixtures
-      User.update_all({workflow_state: 'deleted'}, ["id NOT IN (?)", @users.map(&:id)])
+      User.where.not(:id => @users).update_all(workflow_state: 'deleted')
     end
 
     it "should paginate values from the initial scope" do
@@ -91,7 +91,7 @@ describe Analytics::StudentCollection do
       @enrollments = Array.new(enrollment_count) { student_in_course(:active_all => true) }
       @users = @enrollments.map(&:user)
       # hide fixtures
-      User.update_all({workflow_state: 'deleted'}, ["id NOT IN (?)", @users.map(&:id)])
+      User.where.not(:id => @users).update_all(workflow_state: 'deleted')
       @pager = PaginatedCollection::Collection.new
       @pager.current_page = 1
       @pager.per_page = 10
