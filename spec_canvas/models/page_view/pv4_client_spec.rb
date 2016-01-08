@@ -37,4 +37,21 @@ describe PageView::Pv4Client do
       expect(client.counters_by_context_and_hour(course, user)).to eq({})
     end
   end
+
+  describe "#counters_by_context_for_users" do
+    it "transforms the response to a hash" do
+      stub = stub(body: {
+          'users' => [
+              { 'user_id' => 1, 'page_views' => [], 'participations' => [] },
+              { 'user_id' => 2, 'page_views' => [], 'participations' => [] }
+          ]
+      }.to_json)
+      CanvasHttp.expects(:get).once.returns(stub)
+      course = Course.create!
+      expect(client.counters_by_context_for_users(course, [])).to eq(
+          { 1 => { page_views: [], participations: [] },
+            2 => { page_views: [], participations: [] } }
+      )
+    end
+  end
 end
