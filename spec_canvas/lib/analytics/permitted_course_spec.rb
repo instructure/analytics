@@ -106,7 +106,7 @@ module Analytics
       it "unifies cache check between rails3 and rails4" do
         enable_cache do
           assignments = [{id: 1}]
-          Rails.cache.write(permitted_course.assignments_cache_key, assignments, rails3: true)
+          Rails.cache.write(permitted_course.assignments_cache_key, assignments, :use_new_rails => false)
           expect(permitted_course.async_data_available?).to be_truthy
         end
       end
@@ -114,7 +114,7 @@ module Analytics
       it "unifies cache lookup between rails3 and rails4" do
         enable_cache do
           assignments = [{id: 1}]
-          Rails.cache.write(permitted_course.assignments_cache_key, assignments, rails3: true)
+          Rails.cache.write(permitted_course.assignments_cache_key, assignments, :use_new_rails => false)
           expect(permitted_course.assignments).to eq assignments
         end
       end
