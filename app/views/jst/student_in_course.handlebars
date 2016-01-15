@@ -25,64 +25,45 @@
 </div>
 
 <div class="student_graphs">
-<table>
-  <tr>
-    <td>
-      <h4>
-        <span class="graph_name">{{t "Activity"}}</span>
-      </h4>
-      <p class="description">
-        {{#t}}Each bar represents the number of <span class='pageview'>page
-        views</span> on that day. An orange bar indicates that the student
-        <span class='participation'>took some action</span> within the course
-        on that day.{{/t}}
-      </p>
-    </td>
-    <td><div class="graph" id="participating-graph"/></td>
-  </tr>
-  <tr>
-    <td>
-      <h4>
-        <span class="graph_name">{{t "Communication"}}</span>
-      </h4>
-      <p class="description">
-        {{#t}}The top track represents days on which the
-        <span class='student'>student sent messages</span> to course
-        instructors. The bottom track is for <span class='instructor'>messages
-        from the instructors</span> to the student.{{/t}}
-      </p>
-    </td>
-    <td><div class="graph" id="responsiveness-graph"/></td>
-  </tr>
-  <tr>
-    <td>
-      <h4>
-        <span class="graph_name">{{t "Submissions"}}</span>
-      </h4>
-      <p class="description">
-        {{#t}}Each row is one assignment. The diamond is the due date and the bar
-        extends to the submission date. Green indicates an
-        <span class='onTime'>on time submission</span>, yellow a
-        <span class='late'>late submission</span>, and red a
-        <span class='missing'>missed assignment</span>. Gray diamonds are
-        assignments without due dates, placed at the time of submission.{{/t}}
-      </p>
-    </td>
-    <td><div class="graph" id="assignment-finishing-graph"/></td>
-  </tr>
-  <tr>
-    <td>
-      <h4>
-        <span class="graph_name">{{t "Grades"}}</span>
-      </h4>
-      <p class="description">
-        {{#t}}Each bar is one assignment. The thin whisker extends from the lowest
-        score for any student in the course to the highest score. The thicker
-        bar extends from the 25th percentile to the 75th, with the median
-        marked. The student's score is marked with a dot.{{/t}}
-      </p>
-    </td>
-    <td><div class="graph" id="grades-graph"/></td>
-  </tr>
-</table>
+  <div class="legend_row">
+    <h4>{{t "Activity by Date"}}</h4>
+    <div class="graph_legend">
+      <span class="legend_entry"><span class="legend_swatch page_views"></span>{{t "Page Views Only"}}</span>
+      <span class="legend_entry"><span class="legend_swatch participation"></span>{{t "Participation"}}</span>
+    </div>
+  </div>
+  <div class="graph" id="participating-graph"/>
+
+  <div class="legend_row">
+    <h4>{{t "Communication"}}</h4>
+    <div class="graph_legend">
+      <span class="legend_entry"><span class="legend_swatch student"></span>{{t "Student"}}</span>
+      <span class="legend_entry"><span class="legend_swatch instructors"></span>{{t "Instructors"}}</span>
+    </div>
+  </div>
+  <div class="graph" id="responsiveness-graph"/>
+
+  <div class="legend_row">
+    <h4>{{t "Submissions"}}</h4>
+    <div class="graph_legend">
+      <span class="legend_entry"><span class="legend_swatch onTime"></span>{{t "On Time"}}</span>
+      <span class="legend_entry"><span class="legend_swatch late"></span>{{t "Late"}}</span>
+      <span class="legend_entry"><span class="legend_swatch missing"></span>{{t "Missing"}}</span>
+    </div>
+  </div>
+  <div class="graph" id="assignment-finishing-graph"/>
+
+  <div class="legend_row">
+    <h4>{{t "Grades"}}</h4>
+    <div class="graph_legend">
+      <span class="legend_entry"><span class="legend_swatch sa totalRange outlined"><span></span></span>{{t "Total Range"}}</span>
+      <span class="legend_entry"><span class="legend_swatch sa pc25-75"></span>{{t "25th-75th Percentile"}}</span>
+      <span class="legend_entry"><span class="legend_swatch sa median outlined"><span></span></span>{{t "Median"}}</span>
+      <span class="legend_entry"><span class="legend_swatch sa dot goodScore"><span></span></span>{{t "Good Score"}}</span>
+      <span class="legend_entry"><span class="legend_swatch sa dot fairScore"><span></span></span>{{t "Fair Score"}}</span>
+      <span class="legend_entry"><span class="legend_swatch sa dot poorScore"><span></span></span>{{t "Poor Score"}}</span>
+    </div>
+  </div>
+  <div class="graph" id="grades-graph"/>
+
 </div>

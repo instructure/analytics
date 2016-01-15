@@ -35,8 +35,21 @@ define [
         # remove student summary framework
         @$('#students').remove()
 
+      # redraw graphs on resize
+      $(window).on 'resize', _.debounce =>
+        newWidth = @computeWidth()
+        @pageViews.resize(width: newWidth)
+        @finishing.resize(width: newWidth)
+        @grades.resize(width: newWidth)
+        @render()
+      ,
+        200
+
       # initial render
       @render()
+
+    computeWidth: ->
+      Math.max(window.innerWidth - 100, 400)
 
     render: =>
       @$course_link.text @model.get('name')
@@ -53,8 +66,8 @@ define [
 
     setupGraphs: ->
       graphOpts =
-        width: 800
-        height: 100
+        width: @computeWidth()
+        height: 150
         frameColor: colors.frame
         gridColor: colors.grid
         topMargin: 15

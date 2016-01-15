@@ -1,6 +1,6 @@
 define ->
   # colors for the graphs
-  frame: "#959595"
+  frame: "#555555"
   grid: "#cccccc"
   blue: "#33acdf"
   lightblue: "#c1e6f5"

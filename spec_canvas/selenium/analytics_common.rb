@@ -17,7 +17,7 @@
 #
 
 module GraphColors
-  FRAME = "#959595".freeze
+  FRAME = "#555555".freeze
   GRID = "#cccccc".freeze
   BLUE = "#33acdf".freeze
   ORANGE = "#f59331".freeze

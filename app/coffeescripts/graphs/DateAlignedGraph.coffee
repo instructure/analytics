@@ -50,6 +50,11 @@ define [
       for key, defaultValue of defaultOptions
         @[key] = options[key] ? defaultValue
 
+      @initScale()
+
+    ##
+    # Set up X-axis scale
+    initScale: ->
       interior = @width - @leftPadding - @rightPadding
 
       # mixin for the appropriate bin size
@@ -65,6 +70,7 @@ define [
     # Mondays) labels.
     reset: ->
       super
+      @initScale() if @startDate
       @drawDateAxis()
 
     ##

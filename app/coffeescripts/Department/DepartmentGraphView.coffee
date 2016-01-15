@@ -1,20 +1,25 @@
 define [
   'Backbone'
+  'underscore'
   'analytics/jst/department_graphs'
   'analytics/compiled/graphs/page_views'
   'analytics/compiled/graphs/CategorizedPageViews'
   'analytics/compiled/graphs/GradeDistribution'
   'analytics/compiled/graphs/colors'
-], (Backbone, template, PageViews, CategorizedPageViews, GradeDistribution, colors) ->
+], (Backbone, _, template, PageViews, CategorizedPageViews, GradeDistribution, colors) ->
 
   ##
   # Aggregate view for the Department Analytics page.
   class DepartmentGraphView extends Backbone.View
     initialize: ->
       super
-      # render now and any time the model changes
+      # render now and any time the model changes or the window resizes
       @render()
       @model.on 'change:filter', @render
+      $(window).on 'resize', _.debounce =>
+        @render()
+      ,
+        200
 
     render: =>
       @$el.html template()
@@ -23,8 +28,8 @@ define [
       participations = filter.get 'participation'
 
       @graphOpts =
-        width: 800
-        height: 100
+        width: Math.max(window.innerWidth - 100, 400)
+        height: 150
         frameColor: colors.frame
         gridColor: colors.grid
         topMargin: 15

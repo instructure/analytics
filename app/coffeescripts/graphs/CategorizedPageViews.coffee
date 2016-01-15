@@ -70,7 +70,7 @@ define [
     # being graphed.
     scaleToData: (bins) ->
       # scale the x-axis for the number of bins
-      @scaleByBins bins.length
+      @scaleByBins bins.length, false
 
       # top of max bar = @topMargin + @topPadding
       views = (bin.views for bin in bins)

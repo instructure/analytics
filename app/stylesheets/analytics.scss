@@ -91,74 +91,8 @@ div#analytics_body {
       }
     }
   }
-  .student_graphs, .course_graphs, .department_graphs {
-    table {
-      width: 100%;
-      tr {
-        // colors.grid
-        border-top: 1px solid #cccccc;
-      }
-      td {
-        padding: 20px 0;
-        vertical-align: top;
-        h4, .h4 {
-          position: relative;
-          font-size: 1.3em;
-          margin-bottom: 0;
-          padding-right: 150px;
-          span.qualifier {
-            padding-left: 1em;
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 150px;
-          }
-        }
-        p.description {
-          padding-top: 1em;
-          font-style: italic;
-          font-size: 90%;
-          // colors.frame
-          color: #959595;
-          .whisker {
-            // colors.blue
-            color: #33acdf;
-          }
-          .pageview, .thickbar, .instructor {
-            // colors.blue
-            color: #33acdf;
-          }
-          .participation, .student {
-            // colors.orange
-            color: #f59331;
-          }
-          .median {
-            // colors.darkblue
-            color: #114055;
-          }
-          .onTime {
-            // colors.sharpgreen
-            color: #8cd20d;
-          }
-          .late {
-            // colors.sharpyellow
-            color: #f6bd00;
-          }
-          .missing {
-            // colors.sharpred
-            color: #d21d1a;
-          }
-        }
-      }
-      div.graph {
-        width: 880px;
-        margin-left: 20px;
-      }
-    }
-  }
   .department_statistics {
     // colors.grid
-    border-top: 1px solid #cccccc;
     margin-top: 10px;
     table {
       width: 100%;
@@ -177,13 +111,13 @@ div#analytics_body {
       }
       .AnalyticsStats__Label {
         // colors.frame
-        color: #959595;
+        color: #555555;
         font-weight: bold;
       }
       .AnalyticsStats__Count {
         font-size: 1.5em;
-        // colors.blue
-        color: #33acdf;
+        // colors.darkblue
+        color: #114055;
       }
     }
   }
@@ -244,6 +178,106 @@ div#analytics_body {
 #grades-graph, #assignment-finishing-graph, #responsiveness-graph,
 #participating-graph, #finishing-assignments-graph {
   position: relative;
+}
+
+.legend_row {
+  display: flex;
+  align-items: baseline;
+  margin-top: 40px;
+  margin-left: 40px;
+}
+
+.legend_entry {
+  white-space: nowrap;
+}
+
+.graph {
+  margin-bottom: 40px;
+}
+
+.graph_legend {
+  margin-left: auto;
+  margin-right: 35px;
+  .legend_swatch {
+    display: inline-block;
+    margin-left: 20px;
+    margin-right: 5px;
+    border: 1px solid white;
+    border-radius: 5px;
+    width: 16px;
+    height: 16px;
+    vertical-align: sub;
+    &.page_views, &.instructors {
+      background-color: #33acdf;
+    }
+    &.participation, &.student {
+      background-color: #f59331;
+    }
+    &.onTime {
+      background-color: #8cd20d;
+    }
+    &.late {
+      background-color: #f6bd00;
+    }
+    &.missing {
+      background-color: #d21d1a;
+    }
+    &.totalRange {
+      background-color: white;
+      color: #33acdf;
+      span {
+        width: 2px;
+        height: 16px;
+        background-color: #33acdf;
+        display: inline-block;
+        margin: 0 7px 0 7px;
+      }
+      &.sa span {
+        background-color: #555555;
+      }
+    }
+    &.pc25-75 {
+      background-color: #33acdf;
+      &.sa {
+        background-color: #cccccc;
+      }
+    }
+    &.median {
+      background-color: white;
+      color: black;
+      span {
+        width: 16px;
+        height: 1px;
+        background-color: black;
+        display: inline-block;
+        margin: 7px 0 7px 0;
+      }
+    }
+    &.outlined {
+      border: 1px solid #cccccc;
+    }
+    &.dot {
+      span {
+        display: inline-block;
+        border: 5px solid;
+        border-radius: 8px;
+        width: 6px;
+        height: 6px;
+      }
+    }
+    &.goodScore span {
+      border-color: #95ee86;
+      background-color: #2fa23e;
+    }
+    &.fairScore span {
+      border-color: #efe33e;
+      background-color: #b3a700;
+    }
+    &.poorScore span {
+      border-color: #dea8a9;
+      background-color: #da181d;
+    }
+  }
 }
 
 #students {

@@ -40,9 +40,21 @@ define [
       # setup the graph objects
       @setupGraphs()
 
-      # render now and any time the model changes
+      # render now and any time the model changes or the window resizes
       @render()
       @model.on 'change:student', @render
+      $(window).on 'resize', _.debounce =>
+        newWidth = @computeWidth()
+        @pageViews.resize(width: newWidth)
+        @responsiveness.resize(width: newWidth)
+        @assignmentTardiness.resize(width: newWidth)
+        @grades.resize(width: newWidth)
+        @render()
+      ,
+        200
+
+    computeWidth: ->
+      Math.max(window.innerWidth - 100, 400)
 
     ##
     # TODO: I18n
@@ -85,8 +97,7 @@ define [
     setupGraphs: ->
       # setup the graphs
       graphOpts =
-        width: 800
-        height: 100
+        width: @computeWidth()
         frameColor: colors.frame
         gridColor: colors.grid
         topMargin: 15
@@ -100,11 +111,13 @@ define [
         rightPadding: 15 # responsiveness bubbles
 
       @pageViews = new PageViews @$("#participating-graph"), $.extend {}, dateGraphOpts,
+        height: 150
         verticalPadding: 9
         barColor: colors.blue
         participationColor: colors.orange
 
       @responsiveness = new Responsiveness @$("#responsiveness-graph"), $.extend {}, dateGraphOpts,
+        height: 100
         verticalPadding: 14
         gutterHeight: 22
         markerWidth: 31
@@ -114,6 +127,7 @@ define [
         instructorColor: colors.blue
 
       @assignmentTardiness = new AssignmentTardiness @$("#assignment-finishing-graph"), $.extend {}, dateGraphOpts,
+        height: 250
         verticalPadding: 10
         barColorOnTime: colors.lightgreen
         diamondColorOnTime: colors.darkgreen
@@ -123,7 +137,7 @@ define [
         diamondColorUndated: colors.frame
 
       @grades = new Grades @$("#grades-graph"), $.extend {}, graphOpts,
-        height: 200
+        height: 250
         padding: 15
         whiskerColor: colors.frame
         boxColor: colors.grid

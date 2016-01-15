@@ -69,7 +69,7 @@ define [
       return unless super
 
       assignments = _.reject(assignments.assignments, (a) -> a.non_digital_submission)
-      @scaleByBins assignments.length
+      @scaleByBins assignments.length, false
       @drawXLabel I18n.t "Assignments"
       _.each assignments, @graphAssignment
 

@@ -25,13 +25,17 @@ define ->
     #   the coverWidth regions around each bar are exclusive
     #   barWidth <= @maxBarWidth
     #   barWidth is otherwise maximized
-    #   binSpacing spreads the bars over the full interior
-    scaleByBins: (count) ->
+    #   binSpacing spreads the bars over the full interior unless spread is false
+    scaleByBins: (count, spread = true) ->
       interior = @width - @leftPadding - @rightPadding
       @coverWidth = Math.min((if count > 0 then interior / count else interior), @maxBarWidth * (1 + @gutterPercent))
       @barWidth = @coverWidth / (1 + @gutterPercent)
-      @binSpacing = if count > 1 then (interior - @barWidth) / (count - 1) else interior - @barWidth
-      @x0 = @leftMargin + @leftPadding + @barWidth / 2
+      if spread
+        @binSpacing = if count > 1 then (interior - @barWidth) / (count - 1) else interior - @barWidth
+        @x0 = @leftMargin + @leftPadding + @barWidth / 2
+      else
+        @binSpacing = @coverWidth
+        @x0 = @leftMargin + @leftPadding + @coverWidth / 2
 
     ##
     # Calculate the x-coordinate, in pixels, for a bin.

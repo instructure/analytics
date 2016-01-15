@@ -48,6 +48,7 @@ define [
     ##
     # Max width of a bar, in pixels. (Overrides default from ScaleByBins)
     maxBarWidth: 30
+    gutterPercent: 1.0
 
   class Grades extends Base
     ##
@@ -91,7 +92,7 @@ define [
     # assignments and maximum score being graphed.
     scaleToAssignments: (assignments) ->
       # scale the x-axis for the number of bins
-      @scaleByBins assignments.length
+      @scaleByBins assignments.length, false
 
       # top of max bar = @topMargin + @topPadding
       # base of bars = @topMargin + @height - @bottomPadding
