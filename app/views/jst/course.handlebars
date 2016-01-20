@@ -34,19 +34,19 @@
 
   <div id='students'>
     <table class='ic-Table ic-Table--hover-row'>
-      <caption id="student_table_caption" class="screenreader-only" role="alert" aria-live="polite">
-        {{#t "student_summary.not_sorted"}}Student summary table not sorted{{/t}}
+      <caption id="student_table_caption" class="screenreader-only">
+        {{#t "student_summary.not_sorted"}}Student summary table{{/t}}
       </caption>
       <thead>
         <tr>
-          <th scope='col' class='student'><span class='sortable' data-sort_key='name'>{{t "Student"}}</span></th>
-          <th scope='col'><span class='sortable' data-sort_key='page_views'>{{t "Page Views"}}</span></th>
-          <th scope='col'><span class='sortable' data-sort_key='participations'>{{t "Participations"}}</span></th>
-          <th scope='col'><span>{{t "Submissions"}}</span></th>
-          <th scope='col'><span>{{t "On Time"}}</span></th>
-          <th scope='col'><span>{{t "Late"}}</span></th>
-          <th scope='col'><span>{{t "Missing"}}</span></th>
-          <th scope='col'><span class='sortable' data-sort_key='score'>{{t "Current Score"}}</span></th>
+          <th scope='col' role='columnheader' class='student'><span class='sortable' data-sort_key='name'>{{t "Student"}}<span class="screenreader-only sort_text"> {{t "Sorted Ascending"}}</span></th>
+          <th scope='col' role='columnheader'><span class='sortable' data-sort_key='page_views'>{{t "Page Views"}}</span></th>
+          <th scope='col' role='columnheader'><span class='sortable' data-sort_key='participations'>{{t "Participations"}}</span></th>
+          <th scope='col' role='columnheader'><span>{{t "Submissions"}}</span></th>
+          <th scope='col' role='columnheader'><span>{{t "On Time"}}</span></th>
+          <th scope='col' role='columnheader'><span>{{t "Late"}}</span></th>
+          <th scope='col' role='columnheader'><span>{{t "Missing"}}</span></th>
+          <th scope='col' role='columnheader'><span class='sortable' data-sort_key='score'>{{t "Current Score"}}</span></th>
         </tr>
       </thead>
 
