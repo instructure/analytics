@@ -281,21 +281,8 @@ div#analytics_body {
 }
 
 #students {
-  th {
-    font-weight: normal;
-    font-size: 17px;
-    // 5px from table-condensed padding, 50px from the rule below
-    &.student {
-      padding-left: 55px;
-    }
-  }
-  td {
-    > div {
-      margin: 0;
-      padding: 2px 10px;
-      height: 30px;
-      line-height: 30px;
-    }
+  th, td {
+    text-align: right;
   }
   th > span.sortable {
     padding-right: 20px;
@@ -311,84 +298,19 @@ div#analytics_body {
       background-image: url(/images/tablesorter/desc.gif);
     }
   }
-  th.page_views, th.participations {
-    > span.sortable {
-      padding-left: 20px;
-    }
-  }
-  // it would be nice to have these determined by the presence of the
-  // sortable class on the related span, but I don't know how to do that
-  th.current_score {
-    padding-right: 0;
-  }
-  td .current_score {
+  td .sortable {
     padding-right: 20px;
   }
   .student {
     text-align: left;
   }
-  .page_views, .participations, .submissions {
-    text-align: center;
-    position: relative;
-    .paper {
-      display: inline-block;
-      position: relative;
-      border-width: 1px;
-      border-style: solid;
-      height: 16px;
-      width: 100px;
-      margin: 7px 0;
-      span {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-      }
-    }
-  }
-  .page_views .paper {
-    // colors.blue
-    border-color: #33acdf;
-    span {
-      background-color: #33acdf;
-    }
-  }
-  .participations .paper {
-    // colors.orange
-    border-color: #f59331;
-    span {
-      background-color: #f59331;
-    }
-  }
-  .submissions .paper {
-    // colors.frame
-    border-color: #959595;
-    span.onTime {
-      // colors.sharpgreen
-      background-color: #8cd20d;
-    }
-    span.late {
-      // colors.sharpyellow
-      background-color: #f6bd00;
-    }
-    span.missing {
-      // colors.sharpred
-      background-color: #d21d1a;
-    }
-  }
-  .current_score {
-    text-align: right;
-  }
-  .student {
-    padding-left: 50px;
-    position: relative;
+  td .student {
     .avatar {
-      position: absolute;
-      margin-top: -2px;
-      left: 10px;
       width: 30px;
       height: 30px;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 5px;
     }
   }
   .loading {
