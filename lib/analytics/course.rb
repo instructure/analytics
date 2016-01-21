@@ -88,7 +88,7 @@ module Analytics
     def student_ids
       slaved(:cache_as => :student_ids) do
         # id of any user with an enrollment, order unimportant
-        enrollment_scope.uniq.pluck(:user_id)
+        enrollment_scope.distinct.pluck(:user_id)
       end
     end
 
@@ -183,7 +183,7 @@ module Analytics
     def student_scope
       @student_scope ||= begin
         # any user with an enrollment, ordered by name
-        subselect = enrollment_scope.select([:user_id, :computed_current_score]).uniq.to_sql
+        subselect = enrollment_scope.select([:user_id, :computed_current_score]).distinct.to_sql
         User.
           select("users.*, enrollments.computed_current_score").
           joins("INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id=users.id")
