@@ -87,6 +87,17 @@ describe "analytics course view" do
 
       validation_text.each { |text| validate_tooltip_text("#grades-graph .assignment_#{@first_assignment.id}.cover", text) }
     end
+
+    describe "graph toggle switch" do
+      it "should hide the graphs and show table when selected" do
+        go_to_analytics("/courses/#{@course.id}/analytics")
+        expect(f('#activities-table')).not_to be_displayed
+        expect(f('.graph')).to be_displayed
+        f('#graph_table_toggle').click
+        expect(f('#activities-table')).to be_displayed
+        expect(f('.graph')).not_to be_displayed
+      end
+    end
   end
 
   context "students display" do
