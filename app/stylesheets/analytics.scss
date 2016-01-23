@@ -52,26 +52,18 @@ div#analytics_body {
         line-height: 19px;
         margin-top: 0px;
       }
-      .ui-combobox {
-        margin-right: 0;
-        float: right;
-      }
     }
   }
   div.department_summary {
-    .department_name {
-      display: inline-block;
-    }
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     #filter_box {
-      display: inline-block;
-      position: absolute;
-      right: 0;
+      margin-left: auto;
     }
   }
-  // TODO: the -1000px in the canvas-lms combobox css isn't enough when the
-  // window is wide and the combobox is right-aligned
-  .ui-combobox .ui-combobox-prev, .ui-combobox .ui-combobox-next {
-    text-indent: -9999px;
+  .ui-combobox {
+    min-width: 230px;
   }
   // Done here rather than converting the h4 below so that actual h4's don't
   // get affected, while still having the course h4's become h3's and maintain
@@ -116,8 +108,7 @@ div#analytics_body {
       }
       .AnalyticsStats__Count {
         font-size: 1.5em;
-        // colors.darkblue
-        color: #114055;
+        color: black;
       }
     }
   }
@@ -328,4 +319,3 @@ div#analytics_body {
   }
 }
 
-@import "./ComboBox";
