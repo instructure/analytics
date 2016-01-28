@@ -69,6 +69,8 @@ define [
       @yAxis.draw()
       _.each bins, @graphBin
 
+      @finish()
+
     ##
     # Choose appropriate sizes for the graph elements based on maximum value
     # being graphed.

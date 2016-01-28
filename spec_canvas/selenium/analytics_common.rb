@@ -32,6 +32,7 @@ module GraphColors
   DARK_RED = "#da181d".freeze
   SHARP_RED = "#d21d1a".freeze
   NONE = "#cccccc".freeze
+  BACKGROUND = "#ffffff".freeze
 end
 
 shared_examples_for "analytics tests" do

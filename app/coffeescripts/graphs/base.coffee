@@ -75,8 +75,8 @@ define [
 
     ##
     # Padding, in pixels, between the bottom of the frame and the graph
-    # contents. Defaults to verticalPadding if unset.
-    bottomPadding: null
+    # contents. Must be large enough to accomodate X-axis labels.
+    bottomPadding: 10
 
     ##
     # Padding, in pixels, between the left and right of the frame and the graph
@@ -150,17 +150,19 @@ define [
       @reset()
 
     ##
-    # Draw the graph's frame on the margins.
-    drawFrame: ->
-      border = @paper.rect @leftMargin, @topMargin, @width, @height
-      border.attr stroke: @frameColor, fill: "none"
+    # Draw the graph's baseline.
+    drawBaseline: ->
+      @paper.path([
+        "M", @leftMargin, @topMargin + @height - @bottomPadding,
+        "l", @width, 0
+      ]).attr stroke: @frameColor
 
     ##
     # Draw a label describing the x-axis. Centered left-to-right. opts.offset
     # informs it of the height of the x value labels, if any, so it can be
     # placed below of those.
     drawXLabel: (label, opts={}) ->
-      y = @topMargin + @height + 10
+      y = @topMargin + @height
       y += opts.offset + 5 if opts.offset && opts.offset > 0
       @paper.text(@leftMargin + @width / 2, y, label).attr fill: @frameColor
 
@@ -181,10 +183,53 @@ define [
         fill: @warningColor
 
     ##
+    # Draw a shape centered on the given coordinates.
+    # attrs is an object:
+    #   shape: one of 'square', 'triangle', 'circle'
+    #   radius: maximum extent of shape from the given coordinates, along either axis
+    #   color: outline color of the shape
+    #   fill: fill color of the shape (defaults to outline color)
+    #   outline: width of the outline in pixels, default 2
+    drawShape: (x, y, radius, attrs) ->
+      fill = attrs.fill || attrs.color
+      outline = attrs.outline || 2
+      if attrs.shape is 'square'
+        @drawSquare(x, y, radius, attrs.color, fill, outline)
+      else if attrs.shape is 'triangle'
+        @drawTriangle(x, y, radius, attrs.color, fill, outline)
+      else
+        @drawCircle(x, y, radius, attrs.color, fill, outline)
+
+    drawSquare: (x, y, radius, color, fill, outline) ->
+      path = ["M", x - radius, y - radius,
+              "L", x + radius, y - radius,
+              "L", x + radius, y + radius,
+              "L", x - radius, y + radius,
+              "z"]
+      square = @paper.path path
+      square.attr stroke: color, fill: fill, 'stroke-width': outline
+
+    drawTriangle: (x, y, radius, color, fill, outline) ->
+      path = ["M", x, y - radius,
+              "L", x + radius, y + radius,
+              "L", x - radius, y + radius,
+              "z"]
+      triangle = @paper.path path
+      triangle.attr stroke: color, fill: fill, 'stroke-width': outline
+
+    drawCircle: (x, y, radius, color, fill, outline) ->
+      circle = @paper.circle x, y, radius
+      circle.attr stroke: color, fill: fill, 'stroke-width': outline
+
+    ##
     # Resets the graph.
     reset: ->
       @paper.clear()
-      @drawFrame()
+
+    ##
+    # Puts finishing touches on the graph. Call at the end of your derived graph()
+    finish: ->
+      @drawBaseline()
 
     ##
     # Draw the graph. Each graph should override this. Each override should

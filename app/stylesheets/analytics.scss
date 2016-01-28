@@ -70,17 +70,8 @@ div#analytics_body {
   // the same style.
   .course_graphs, .department_graphs {
     h3, .h3 {
-      position: relative;
-      font-size: 1.3em;
       margin-bottom: 0;
-      padding-right: 150px;
-      span.qualifier {
-        padding-left: 1em;
-        position: absolute;
-        right: 0;
-        top: 0;
-        width: 150px;
-      }
+      padding-right: 50px;
     }
   }
   .department_statistics {
@@ -174,8 +165,7 @@ div#analytics_body {
 .legend_row {
   display: flex;
   align-items: baseline;
-  margin-top: 40px;
-  margin-left: 40px;
+  margin-left: 10px;
 }
 
 .legend_entry {
@@ -247,26 +237,31 @@ div#analytics_body {
     &.outlined {
       border: 1px solid #cccccc;
     }
-    &.dot {
-      span {
-        display: inline-block;
-        border: 5px solid;
-        border-radius: 8px;
-        width: 6px;
-        height: 6px;
+    &.shape {
+      vertical-align: top;
+      &.circle {
+        border-radius: 10px;
+        background-color: #8cd20d;
       }
-    }
-    &.goodScore span {
-      border-color: #95ee86;
-      background-color: #2fa23e;
-    }
-    &.fairScore span {
-      border-color: #efe33e;
-      background-color: #b3a700;
-    }
-    &.poorScore span {
-      border-color: #dea8a9;
-      background-color: #da181d;
+      &.opencircle {
+        width: 12px;
+        height: 12px;
+        border-radius: 8px;
+        background-color: white;
+        border: 2px solid #555555;
+      }
+      &.triangle {
+        width: 0px;
+        height: 0px;
+        border-radius: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 16px solid #f6bd00;
+      }
+      &.square {
+        border-radius: 0;
+        background-color: #d21d1a;
+      }
     }
   }
 }

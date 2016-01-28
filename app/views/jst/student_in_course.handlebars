@@ -46,9 +46,10 @@
   <div class="legend_row">
     <h4>{{t "Submissions"}}</h4>
     <div class="graph_legend" aria-hidden="true">
-      <span class="legend_entry"><span class="legend_swatch onTime"></span>{{t "On Time"}}</span>
-      <span class="legend_entry"><span class="legend_swatch late"></span>{{t "Late"}}</span>
-      <span class="legend_entry"><span class="legend_swatch missing"></span>{{t "Missing"}}</span>
+      <span class="legend_entry"><span class="legend_swatch shape circle"></span>{{t "On Time"}}</span>
+      <span class="legend_entry"><span class="legend_swatch shape triangle"></span>{{t "Late"}}</span>
+      <span class="legend_entry"><span class="legend_swatch shape square"></span>{{t "Missing"}}</span>
+      <span class="legend_entry"><span class="legend_swatch shape opencircle"></span>{{t "Future"}}</span>
     </div>
   </div>
   <div class="graph" id="assignment-finishing-graph" aria-hidden="true"/>
@@ -59,9 +60,9 @@
       <span class="legend_entry"><span class="legend_swatch sa totalRange outlined"><span></span></span>{{t "Total Range"}}</span>
       <span class="legend_entry"><span class="legend_swatch sa pc25-75"></span>{{t "25th-75th Percentile"}}</span>
       <span class="legend_entry"><span class="legend_swatch sa median outlined"><span></span></span>{{t "Median"}}</span>
-      <span class="legend_entry"><span class="legend_swatch sa dot goodScore"><span></span></span>{{t "Good Score"}}</span>
-      <span class="legend_entry"><span class="legend_swatch sa dot fairScore"><span></span></span>{{t "Fair Score"}}</span>
-      <span class="legend_entry"><span class="legend_swatch sa dot poorScore"><span></span></span>{{t "Poor Score"}}</span>
+      <span class="legend_entry"><span class="legend_swatch shape circle"></span>{{t "Good Score"}}</span>
+      <span class="legend_entry"><span class="legend_swatch shape triangle"></span>{{t "Fair Score"}}</span>
+      <span class="legend_entry"><span class="legend_swatch shape square"></span>{{t "Poor Score"}}</span>
     </div>
   </div>
   <div class="graph" id="grades-graph" aria-hidden="true"/>

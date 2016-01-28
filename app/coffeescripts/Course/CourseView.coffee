@@ -68,8 +68,6 @@ define [
         height: 150
         frameColor: colors.frame
         gridColor: colors.grid
-        topMargin: 15
-        verticalMargin: 15
         horizontalMargin: 40
 
       dateGraphOpts = $.extend {}, graphOpts,
@@ -78,19 +76,16 @@ define [
         horizontalPadding: 15
 
       @pageViews = new PageViews $("#participating-graph", @$el), $.extend {}, dateGraphOpts,
-        verticalPadding: 9
         barColor: colors.blue
         participationColor: colors.orange
 
       @finishing = new FinishingAssignmentsCourse $("#finishing-assignments-graph", @$el), $.extend {}, graphOpts,
-        padding: 15
         onTimeColor: colors.sharpgreen
         lateColor: colors.sharpyellow
         missingColor: colors.sharpred
 
       @grades = new Grades $("#grades-graph", @$el), $.extend {}, graphOpts,
         height: 200
-        padding: 15
         whiskerColor: colors.blue
         boxColor: colors.blue
         medianColor: colors.darkblue

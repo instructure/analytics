@@ -177,6 +177,7 @@ define ['jquery', 'analytics/compiled/graphs/assignment_tardiness'], ($, Assignm
       onTime:  "onTime"
       late:    "late"
       missing: "missing"
+      empty:   "empty"
       none:    "none"
 
     # create graph instance
@@ -185,66 +186,65 @@ define ['jquery', 'analytics/compiled/graphs/assignment_tardiness'], ($, Assignm
       height: 100
       startDate: dates.start
       endDate: dates.end
-      diamondColorUndated: colors.undated
-      diamondColorOnTime: colors.onTime
-      diamondColorLate: colors.late
-      diamondColorMissing: colors.missing
-      barColorOnTime: colors.onTime
-      barColorLate: colors.late
+      colorUndated: colors.undated
+      colorOnTime: colors.onTime
+      colorLate: colors.late
+      colorMissing: colors.missing
+      colorEmpty: colors.empty
 
-    # exercise colors method for combinations of dueAt/submittedAt (onTime
+    # exercise shape_attrs method for combinations of dueAt/submittedAt (onTime
     # matches what it would be in real assignments given dueAt/submittedAt)
-    deepEqual graph.colors(dueAt: null, submittedAt: null, onTime: true),
-      barColor: colors.none
-      diamondColor: colors.undated
-      diamondFill: false
+    deepEqual graph.shape_attrs(dueAt: null, submittedAt: null, onTime: true),
+      shape: 'circle'
+      color: colors.undated
+      fill: colors.empty
 
-    deepEqual graph.colors(dueAt: null, submittedAt: dates.past, onTime: true),
-      barColor: colors.none
-      diamondColor: colors.undated
-      diamondFill: true
+    deepEqual graph.shape_attrs(dueAt: null, submittedAt: dates.past, onTime: true),
+      shape: 'circle'
+      color: colors.undated
+      fill: colors.undated
 
-    deepEqual graph.colors(dueAt: null, submittedAt: dates.future, onTime: true),
-      barColor: colors.none
-      diamondColor: colors.undated
-      diamondFill: true
+    deepEqual graph.shape_attrs(dueAt: null, submittedAt: dates.future, onTime: true),
+      shape: 'circle'
+      color: colors.undated
+      fill: colors.undated
 
-    deepEqual graph.colors(dueAt: dates.past, submittedAt: null, onTime: null),
-      barColor: colors.none
-      diamondColor: colors.missing
-      diamondFill: true
+    deepEqual graph.shape_attrs(dueAt: dates.past, submittedAt: null, onTime: null),
+      shape: 'square'
+      color: colors.missing
+      fill: colors.missing
 
-    deepEqual graph.colors(dueAt: dates.future, submittedAt: null, onTime: null),
-      barColor: colors.none
-      diamondColor: colors.undated
-      diamondFill: false
+    deepEqual graph.shape_attrs(dueAt: dates.future, submittedAt: null, onTime: null),
+      shape: 'circle'
+      color: colors.undated
+      fill: colors.empty
 
-    deepEqual graph.colors(dueAt: dates.past, submittedAt: dates.past, onTime: true),
-      barColor: colors.onTime
-      diamondColor: colors.onTime
-      diamondFill: true
+    deepEqual graph.shape_attrs(dueAt: dates.past, submittedAt: dates.past, onTime: true),
+      shape: 'circle'
+      color: colors.onTime
+      fill: colors.onTime
 
-    deepEqual graph.colors(dueAt: dates.past, submittedAt: dates.now, onTime: false),
-      barColor: colors.late
-      diamondColor: colors.late
-      diamondFill: true
+    deepEqual graph.shape_attrs(dueAt: dates.past, submittedAt: dates.now, onTime: false),
+      shape: 'triangle'
+      color: colors.late
+      fill: colors.late
 
-    deepEqual graph.colors(dueAt: dates.now, submittedAt: dates.now, onTime: true),
-      barColor: colors.onTime
-      diamondColor: colors.onTime
-      diamondFill: true
+    deepEqual graph.shape_attrs(dueAt: dates.now, submittedAt: dates.now, onTime: true),
+      shape: 'circle'
+      color: colors.onTime
+      fill: colors.onTime
 
-    deepEqual graph.colors(dueAt: dates.now, submittedAt: dates.future, onTime: false),
-      barColor: colors.late
-      diamondColor: colors.late
-      diamondFill: true
+    deepEqual graph.shape_attrs(dueAt: dates.now, submittedAt: dates.future, onTime: false),
+      shape: 'triangle'
+      color: colors.late
+      fill: colors.late
 
-    deepEqual graph.colors(dueAt: dates.future, submittedAt: dates.past, onTime: true),
-      barColor: colors.onTime
-      diamondColor: colors.onTime
-      diamondFill: true
+    deepEqual graph.shape_attrs(dueAt: dates.future, submittedAt: dates.past, onTime: true),
+      shape: 'circle'
+      color: colors.onTime
+      fill: colors.onTime
 
-    deepEqual graph.colors(dueAt: dates.future, submittedAt: dates.future, onTime: true),
-      barColor: colors.onTime
-      diamondColor: colors.onTime
-      diamondFill: true
+    deepEqual graph.shape_attrs(dueAt: dates.future, submittedAt: dates.future, onTime: true),
+      shape: 'circle'
+      color: colors.onTime
+      fill: colors.onTime

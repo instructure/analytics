@@ -177,10 +177,10 @@ describe "analytics" do
       late_submission_diamond = get_diamond(@late_assignment.id)
       on_time_diamond = get_diamond(@on_time_assignment.id)
 
-      validate_element_fill(missed_diamond, GraphColors::DARK_RED)
-      validate_element_fill(late_submission_diamond, GraphColors::DARK_YELLOW)
-      validate_element_fill(on_time_diamond, GraphColors::DARK_GREEN)
-      validate_element_fill(no_due_date_diamond, 'none')
+      validate_element_fill(missed_diamond, GraphColors::SHARP_RED)
+      validate_element_fill(late_submission_diamond, GraphColors::SHARP_YELLOW)
+      validate_element_fill(on_time_diamond, GraphColors::SHARP_GREEN)
+      validate_element_fill(no_due_date_diamond, GraphColors::BACKGROUND)
       validate_element_stroke(no_due_date_diamond, GraphColors::FRAME)
     end
 
@@ -260,7 +260,7 @@ describe "analytics" do
         select_next_student(next_button, added_students[0])
         validate_combobox_name(added_students[0].name)
         assignment_diamond = get_diamond(graded_assignments[0].id)
-        validate_element_fill(assignment_diamond, GraphColors::DARK_RED)
+        validate_element_fill(assignment_diamond, GraphColors::SHARP_RED)
 
         #change back to the first student
         select_next_student(prev_button, @student)
