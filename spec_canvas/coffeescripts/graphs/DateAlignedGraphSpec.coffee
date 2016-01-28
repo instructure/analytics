@@ -56,8 +56,8 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
     equal true, graph.clippedDate
 
   test 'drawDateAxis', ->
-    startDate = new Date(2012, 0, 1) # Sunday
-    endDate = startDate.clone().addDays(15) # Monday
+    startDate = new Date(2016, 1, 28) # Sunday, Feb 28, 2016 (0-based month)
+    endDate = startDate.clone().addDays(4)
     graph = new DateAlignedGraph @$el,
       margin: 0
       padding: 0
@@ -67,42 +67,25 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
       endDate: endDate
 
     # draw the axis
-    tickSpy = sinon.spy(graph, 'drawDayTick')
-    weekSpy = sinon.spy(graph, 'drawWeekLine')
     labelSpy = sinon.spy(graph, 'dateLabel')
     graph.drawDateAxis()
 
-    # should draw week lines at each monday
-    mondays = [
-      expectedX(1, 15)
-      expectedX(8, 15)
-      expectedX(15, 15)
-    ]
-    equal weekSpy.callCount, mondays.length
-    for i in [0...mondays.length]
-      equal weekSpy.args[i], mondays[i]
-
-    # should draw day labels on each monday, but month labels only on the first
-    # monday
+    # should draw day labels on each day, but month labels only
+    # if it doesn't match the previous month
     labels = [
-      [ expectedX(1, 15), 110, 2 ]
-      [ expectedX(1, 15), -10, 'Jan 2012' ]
-      [ expectedX(8, 15), 110, 9 ]
-      [ expectedX(15, 15), 110, 16 ]
+      [ expectedX(0, 4), 100, 'Feb 28' ]
+      [ expectedX(1, 4), 100, 29 ]
+      [ expectedX(2, 4), 100, 'Mar 1' ]
+      [ expectedX(3, 4), 100, 2 ]
+      [ expectedX(4, 4), 100, 3 ]
     ]
     equal labelSpy.callCount, labels.length
     for i in [0...labels.length]
       deepEqual labelSpy.args[i], labels[i]
 
-    # should draw ticks on each day
-    ticks = $.map [0..15], (i) -> expectedX(i, 15)
-    equal tickSpy.callCount, ticks.length
-    for i in [0...ticks.length]
-      equal tickSpy.args[i], ticks[i]
-
   test 'drawDateAxis: spanning months', ->
-    startDate = new Date(2012, 0, 29) # Sunday
-    endDate = startDate.clone().addDays(15) # Monday
+    startDate = new Date(2016, 1, 28)
+    endDate = startDate.clone().addDays(45)
     graph = new DateAlignedGraph @$el,
       margin: 0
       padding: 0
@@ -115,22 +98,18 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
     labelSpy = sinon.spy(graph, 'dateLabel')
     graph.drawDateAxis()
 
-    # both mondays should have month labels, but the second should not include
-    # the year
+    # both months should have labels, but the second should not include the year
     labels = [
-      [ expectedX(1, 15), 110, 30 ]
-      [ expectedX(1, 15), -10, 'Jan 2012' ]
-      [ expectedX(8, 15), 110, 6 ]
-      [ expectedX(8, 15), -10, 'Feb' ]
-      [ expectedX(15, 15), 110, 13 ]
+      [ expectedX(2, 7), 100, 'Mar 2016' ]
+      [ expectedX(6, 7), 100, 'Apr' ]
     ]
     equal labelSpy.callCount, labels.length
     for i in [0...labels.length]
       deepEqual labelSpy.args[i], labels[i]
 
   test 'drawDateAxis: spanning years', ->
-    startDate = new Date(2011, 11, 25) # Sunday
-    endDate = startDate.clone().addDays(15) # Monday
+    startDate = new Date(2015, 10, 25)
+    endDate = startDate.clone().addDays(45)
     graph = new DateAlignedGraph @$el,
       margin: 0
       padding: 0
@@ -143,13 +122,10 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
     labelSpy = sinon.spy(graph, 'dateLabel')
     graph.drawDateAxis()
 
-    # both mondays should have month labels with years
+    # both months should have month labels with years
     labels = [
-      [ expectedX(1, 15), 110, 26 ]
-      [ expectedX(1, 15), -10, 'Dec 2011' ]
-      [ expectedX(8, 15), 110, 2 ]
-      [ expectedX(8, 15), -10, 'Jan 2012' ]
-      [ expectedX(15, 15), 110, 9 ]
+      [ expectedX(2, 6), 100, 'Dec 2015' ]
+      [ expectedX(6, 6), 100, 'Jan 2016' ]
     ]
     equal labelSpy.callCount, labels.length
     for i in [0...labels.length]

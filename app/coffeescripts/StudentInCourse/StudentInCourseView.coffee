@@ -98,8 +98,6 @@ define [
         width: util.computeGraphWidth()
         frameColor: colors.frame
         gridColor: colors.grid
-        topMargin: 15
-        verticalMargin: 15
         horizontalMargin: 40
 
       dateGraphOpts = $.extend {}, graphOpts,
@@ -110,14 +108,13 @@ define [
 
       @pageViews = new PageViews @$("#participating-graph"), $.extend {}, dateGraphOpts,
         height: 150
-        verticalPadding: 9
         barColor: colors.blue
         participationColor: colors.orange
 
       @responsiveness = new Responsiveness @$("#responsiveness-graph"), $.extend {}, dateGraphOpts,
-        height: 100
-        verticalPadding: 14
-        gutterHeight: 22
+        height: 110
+        verticalPadding: 4
+        gutterHeight: 32
         markerWidth: 31
         caratOffset: 7
         caratSize: 10
@@ -126,23 +123,16 @@ define [
 
       @assignmentTardiness = new AssignmentTardiness @$("#assignment-finishing-graph"), $.extend {}, dateGraphOpts,
         height: 250
-        verticalPadding: 10
-        barColorOnTime: colors.lightgreen
-        diamondColorOnTime: colors.darkgreen
-        barColorLate: colors.lightyellow
-        diamondColorLate: colors.darkyellow
-        diamondColorMissing: colors.darkred
-        diamondColorUndated: colors.frame
+        colorOnTime: colors.sharpgreen
+        colorLate: colors.sharpyellow
+        colorMissing: colors.sharpred
+        colorUndated: colors.frame
 
       @grades = new Grades @$("#grades-graph"), $.extend {}, graphOpts,
         height: 250
-        padding: 15
         whiskerColor: colors.frame
         boxColor: colors.grid
         medianColor: colors.frame
-        goodRingColor: colors.lightgreen
-        goodCenterColor: colors.darkgreen
-        fairRingColor: colors.lightyellow
-        fairCenterColor: colors.darkyellow
-        poorRingColor: colors.lightred
-        poorCenterColor: colors.darkred
+        colorGood: colors.sharpgreen
+        colorFair: colors.sharpyellow
+        colorPoor: colors.sharpred

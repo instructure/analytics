@@ -73,6 +73,8 @@ define [
       @drawXLabel I18n.t "Assignments"
       _.each assignments, @graphAssignment
 
+      @finish()
+
     ##
     # Graph a single assignment. Fat arrowed because it's called by _.each
     graphAssignment: (assignment, i) =>

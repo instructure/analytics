@@ -20,10 +20,6 @@ define [
     # The fill color of the area under the line graph
     areaColor: "lightblue"
 
-    ##
-    # The size of the score tick marks, in pixels.
-    tickSize: 5
-
   class GradeDistribution extends Base
     ##
     # Takes an element and options, same as for Base. Recognizes the options
@@ -90,6 +86,8 @@ define [
       _.each distribution.values, (value, score) =>
         @cover score, value
 
+      @finish()
+
     ##
     # Calculate the x-coordinate of a score, in pixels.
     scoreX: (score) ->
@@ -116,24 +114,13 @@ define [
       i = 0
       while i <= 100
         x = @scoreX i
-        @drawTicks x
         @labelTick x, i
         i += 5
 
     ##
-    # Draw the tick marks for x.
-    drawTicks: (x) ->
-      ticks = @paper.path [
-        "M", x, @topMargin,
-        "l", 0, @tickSize,
-        "M", x, @topMargin + @height,
-        "l", 0, -@tickSize ]
-      ticks.attr stroke: @frameColor
-
-    ##
     # Draw label text at (x, y).
     labelTick: (x, text) ->
-      y = @topMargin + @height + 10
+      y = @topMargin + @height
       label = @paper.text x, y, text
       label.attr fill: @frameColor
       @labelHeight = label.getBBox().height

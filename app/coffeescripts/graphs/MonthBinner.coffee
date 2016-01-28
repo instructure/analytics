@@ -18,15 +18,11 @@ define [
       (date2.getMonth() - date1.getMonth()) + (date2.getFullYear() - date1.getFullYear()) * 12
 
     ##
-    # Include tick chrome on January of each year. Draw a grid line and bottom
-    # label on each of those ticks, with the year as the bottom label. Never
-    # draw a top label.
+    # Label each year on January's tick.
     tickChrome: (tick, last) ->
       return {} unless tick.getMonth() is 0
 
-      grid: true
-      bottomLabel: tick.getFullYear()
-      topLabel: null
+      label: tick.getFullYear()
 
     ##
     # Advance by one month

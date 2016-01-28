@@ -127,28 +127,7 @@ define [
       return unless @startDate? && @endDate?
       @binner.eachTick (tick, chrome) =>
         x = @binnedDateX tick
-        @drawDayTick x
-        @drawWeekLine x if chrome.grid
-        @dateLabel x, @topMargin + @height + 10, chrome.bottomLabel if chrome.bottomLabel
-        @dateLabel x, @topMargin - 10, chrome.topLabel if chrome.topLabel
-
-    ##
-    # Draw the tick marks for a day at x.
-    drawDayTick: (x) ->
-      ticks = @paper.path [
-        "M", x, @topMargin,
-        "l", 0, @tickSize,
-        "M", x, @topMargin + @height,
-        "l", 0, -@tickSize ]
-      ticks.attr stroke: @frameColor
-
-    ##
-    # Draw the grid line for a week at x.
-    drawWeekLine: (x) ->
-      gridLine = @paper.path [
-        "M", x, @topMargin,
-        "l", 0, @height ]
-      gridLine.attr stroke: @gridColor ? @frameColor
+        @dateLabel x, @topMargin + @height, chrome.label if chrome.label
 
     ##
     # Draw label text at (x, y).
