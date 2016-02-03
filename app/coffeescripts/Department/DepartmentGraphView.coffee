@@ -6,7 +6,8 @@ define [
   'analytics/compiled/graphs/CategorizedPageViews'
   'analytics/compiled/graphs/GradeDistribution'
   'analytics/compiled/graphs/colors'
-], (Backbone, _, template, PageViews, CategorizedPageViews, GradeDistribution, colors) ->
+  'analytics/compiled/graphs/util'
+], (Backbone, _, template, PageViews, CategorizedPageViews, GradeDistribution, colors, util) ->
 
   ##
   # Aggregate view for the Department Analytics page.
@@ -28,7 +29,7 @@ define [
       participations = filter.get 'participation'
 
       @graphOpts =
-        width: Math.max(window.innerWidth - 100, 400)
+        width: util.computeGraphWidth()
         height: 150
         frameColor: colors.frame
         gridColor: colors.grid

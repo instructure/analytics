@@ -8,7 +8,8 @@ define [
   'analytics/compiled/graphs/grades'
   'analytics/compiled/graphs/finishing_assignments_course'
   'analytics/compiled/graphs/colors'
-], ($, _, Backbone, template, StudentSummariesView, PageViews, Grades, FinishingAssignmentsCourse, colors) ->
+  'analytics/compiled/graphs/util'
+], ($, _, Backbone, template, StudentSummariesView, PageViews, Grades, FinishingAssignmentsCourse, colors, util) ->
 
   class CourseView extends Backbone.View
     initialize: ->
@@ -37,7 +38,7 @@ define [
 
       # redraw graphs on resize
       $(window).on 'resize', _.debounce =>
-        newWidth = @computeWidth()
+        newWidth = util.computeGraphWidth()
         @pageViews.resize(width: newWidth)
         @finishing.resize(width: newWidth)
         @grades.resize(width: newWidth)
@@ -47,9 +48,6 @@ define [
 
       # initial render
       @render()
-
-    computeWidth: ->
-      Math.max(window.innerWidth - 100, 400)
 
     render: =>
       @$course_link.text @model.get('name')
@@ -66,7 +64,7 @@ define [
 
     setupGraphs: ->
       graphOpts =
-        width: @computeWidth()
+        width: util.computeGraphWidth()
         height: 150
         frameColor: colors.frame
         gridColor: colors.grid

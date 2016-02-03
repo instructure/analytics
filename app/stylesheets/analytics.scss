@@ -68,7 +68,7 @@ div#analytics_body {
   // Done here rather than converting the h4 below so that actual h4's don't
   // get affected, while still having the course h4's become h3's and maintain
   // the same style.
-  .course_graphs {
+  .course_graphs, .department_graphs {
     h3, .h3 {
       position: relative;
       font-size: 1.3em;
@@ -296,6 +296,7 @@ div#analytics_body {
     text-align: left;
   }
   td .student {
+    display: flex;
     .avatar {
       width: 30px;
       height: 30px;
