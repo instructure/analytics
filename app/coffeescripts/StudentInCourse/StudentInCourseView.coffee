@@ -9,9 +9,10 @@ define [
   'analytics/compiled/graphs/assignment_tardiness'
   'analytics/compiled/graphs/grades'
   'analytics/compiled/graphs/colors'
+  'analytics/compiled/graphs/util'
   'analytics/compiled/StudentInCourse/StudentComboBox'
   'i18n!student_in_course_view'
-], ($, _, Backbone, template, avatarPartial, PageViews, Responsiveness, AssignmentTardiness, Grades, colors, StudentComboBox, I18n) ->
+], ($, _, Backbone, template, avatarPartial, PageViews, Responsiveness, AssignmentTardiness, Grades, colors, util, StudentComboBox, I18n) ->
 
   class StudentInCourseView extends Backbone.View
     initialize: ->
@@ -44,7 +45,7 @@ define [
       @render()
       @model.on 'change:student', @render
       $(window).on 'resize', _.debounce =>
-        newWidth = @computeWidth()
+        newWidth = util.computeGraphWidth()
         @pageViews.resize(width: newWidth)
         @responsiveness.resize(width: newWidth)
         @assignmentTardiness.resize(width: newWidth)
@@ -52,9 +53,6 @@ define [
         @render()
       ,
         200
-
-    computeWidth: ->
-      Math.max(window.innerWidth - 100, 400)
 
     ##
     # TODO: I18n
@@ -97,7 +95,7 @@ define [
     setupGraphs: ->
       # setup the graphs
       graphOpts =
-        width: @computeWidth()
+        width: util.computeGraphWidth()
         frameColor: colors.frame
         gridColor: colors.grid
         topMargin: 15
