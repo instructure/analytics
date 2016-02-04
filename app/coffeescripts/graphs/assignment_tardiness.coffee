@@ -26,7 +26,7 @@ define [
     barHeight: 4
 
     ##
-    # The height of the due date diamonds, in pixels. Defaults to laneHeight - 2
+    # The height of the due date diamonds, in pixels. Defaults to laneHeight
     # if unset.
     shapeHeight: null
 
@@ -71,7 +71,7 @@ define [
       for key, defaultValue of defaultOptions
         @[key] = options[key] ? defaultValue
 
-      @shapeHeight ?= @laneHeight - 2
+      @shapeHeight ?= @laneHeight
       @gutterHeight = @gutterPercent * @laneHeight
       @barSpacing = @laneHeight + @gutterHeight
 
@@ -132,9 +132,16 @@ define [
     shape_attrs: (assignment) ->
       if !assignment.dueAt?
         # no due date
-        color: @colorUndated
-        shape: 'circle'
-        fill:  if assignment.submittedAt? then @colorUndated else @colorEmpty
+        if assignment.submittedAt?
+          # if it's submitted, it's "on time"
+          color: @colorOnTime
+          shape: 'circle'
+          fill: @colorOnTime
+        else
+          # otherwise it's "future"
+          color: @colorUndated
+          shape: 'circle'
+          fill: @colorEmpty
       else if assignment.onTime is true
         # has due date, turned in on time
         color: @colorOnTime

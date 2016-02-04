@@ -39,8 +39,8 @@ define [
         startDate: filter.get 'startDate'
         endDate: filter.get 'endDate'
         horizontalPadding: 15
-        barColor: colors.blue
-        participationColor: colors.orange
+        barColor: colors.lightblue
+        participationColor: colors.darkblue
       @pageViews.graph participations
 
       @categorizedPageViews = new CategorizedPageViews @$("#participating-category-graph"), $.extend {}, @graphOpts,

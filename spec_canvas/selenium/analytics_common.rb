@@ -18,19 +18,12 @@
 
 module GraphColors
   FRAME = "#555555".freeze
-  GRID = "#cccccc".freeze
-  BLUE = "#33acdf".freeze
-  ORANGE = "#f59331".freeze
-  LIGHT_BLUE = "#c1e6f5".freeze
-  LIGHT_GREEN = "#95ee86".freeze
-  DARK_GREEN = "#2fa23e".freeze
-  SHARP_GREEN = "#8cd20d".freeze
-  LIGHT_YELLOW = "#efe33e".freeze
-  DARK_YELLOW = "#b3a700".freeze
-  SHARP_YELLOW = "#f6bd00".freeze
-  LIGHT_RED = "#dea8a9".freeze
-  DARK_RED = "#da181d".freeze
-  SHARP_RED = "#d21d1a".freeze
+  BLUE = "#7eb5ce".freeze
+  LIGHT_BLUE = "#a9c8d6".freeze
+  DARK_BLUE = "#114055".freeze
+  SHARP_GREEN = "#70a80b".freeze
+  SHARP_YELLOW = "#e6bb00".freeze
+  SHARP_RED = "#ba1a17".freeze
   NONE = "#cccccc".freeze
   BACKGROUND = "#ffffff".freeze
 end
@@ -228,7 +221,7 @@ shared_examples_for "analytics tests" do
     it "should validate the graph color when a student took action on that day" do
       page_view(:user => @student, :course => @course, :participated => true)
       go_to_analytics(analytics_url)
-      validate_element_fill(get_rectangle(Time.now), GraphColors::ORANGE)
+      validate_element_fill(get_rectangle(Time.now), GraphColors::DARK_BLUE)
       validate_tooltip_text(date_selector(Time.now), '1 participation')
     end
 
@@ -243,8 +236,8 @@ shared_examples_for "analytics tests" do
         rect = get_rectangle(date)
         rectangles.push(rect)
       end
-      validate_element_fill(rectangles[0], GraphColors::ORANGE)
-      validate_element_fill(rectangles[1], GraphColors::BLUE)
+      validate_element_fill(rectangles[0], GraphColors::DARK_BLUE)
+      validate_element_fill(rectangles[1], GraphColors::LIGHT_BLUE)
     end
   end
 end

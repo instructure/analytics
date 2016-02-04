@@ -108,8 +108,8 @@ define [
 
       @pageViews = new PageViews @$("#participating-graph"), $.extend {}, dateGraphOpts,
         height: 150
-        barColor: colors.blue
-        participationColor: colors.orange
+        barColor: colors.lightblue
+        participationColor: colors.darkblue
 
       @responsiveness = new Responsiveness @$("#responsiveness-graph"), $.extend {}, dateGraphOpts,
         height: 110

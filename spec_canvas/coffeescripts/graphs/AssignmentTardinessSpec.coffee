@@ -201,13 +201,13 @@ define ['jquery', 'analytics/compiled/graphs/assignment_tardiness'], ($, Assignm
 
     deepEqual graph.shape_attrs(dueAt: null, submittedAt: dates.past, onTime: true),
       shape: 'circle'
-      color: colors.undated
-      fill: colors.undated
+      color: colors.onTime
+      fill: colors.onTime
 
     deepEqual graph.shape_attrs(dueAt: null, submittedAt: dates.future, onTime: true),
       shape: 'circle'
-      color: colors.undated
-      fill: colors.undated
+      color: colors.onTime
+      fill: colors.onTime
 
     deepEqual graph.shape_attrs(dueAt: dates.past, submittedAt: null, onTime: null),
       shape: 'square'
