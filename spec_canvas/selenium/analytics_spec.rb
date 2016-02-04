@@ -233,7 +233,8 @@ describe "analytics" do
         end
 
         def validate_combobox_name(student_name)
-          expect(find('.ui-selectmenu-status')).to include_text(student_name)
+          select = Selenium::WebDriver::Support::Select.new(find('.students_box select'))
+          expect(select.first_selected_option).to include_text(student_name)
         end
 
         def validate_first_students_grade_graph
