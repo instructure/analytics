@@ -76,8 +76,8 @@ define [
         horizontalPadding: 15
 
       @pageViews = new PageViews $("#participating-graph", @$el), $.extend {}, dateGraphOpts,
-        barColor: colors.blue
-        participationColor: colors.orange
+        barColor: colors.lightblue
+        participationColor: colors.darkblue
 
       @finishing = new FinishingAssignmentsCourse $("#finishing-assignments-graph", @$el), $.extend {}, graphOpts,
         onTimeColor: colors.sharpgreen

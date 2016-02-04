@@ -187,29 +187,38 @@ div#analytics_body {
     border-radius: 5px;
     width: 16px;
     height: 16px;
-    vertical-align: sub;
-    &.page_views, &.instructors {
-      background-color: #33acdf;
+    vertical-align: text-bottom;
+    &.page_views {
+      background-color: #a9c8d6;
     }
-    &.participation, &.student {
-      background-color: #f59331;
+    &.participation {
+      background-color: #114055;
+    }
+    &.instructors {
+      background-color: #7eb5ce;
+    }
+    &.student {
+      background-color: #ef9337;
     }
     &.onTime {
-      background-color: #8cd20d;
+      background-color: #70a80b;
+      border-radius: 0 0 8px 8px;
     }
     &.late {
-      background-color: #f6bd00;
+      background-color: #e6b000;
+      border-radius: 0;
     }
     &.missing {
-      background-color: #d21d1a;
+      background-color: #ba1a17;
+      border-radius: 8px 8px 0 0;
     }
     &.totalRange {
       background-color: white;
-      color: #33acdf;
+      color: #7eb5ce;
       span {
         width: 2px;
         height: 16px;
-        background-color: #33acdf;
+        background-color: #7eb5ce;
         display: inline-block;
         margin: 0 7px 0 7px;
       }
@@ -218,18 +227,18 @@ div#analytics_body {
       }
     }
     &.pc25-75 {
-      background-color: #33acdf;
+      background-color: #7eb5ce;
       &.sa {
         background-color: #cccccc;
       }
     }
     &.median {
       background-color: white;
-      color: black;
+      color: #114055;
       span {
         width: 16px;
         height: 1px;
-        background-color: black;
+        background-color: #114055;
         display: inline-block;
         margin: 7px 0 7px 0;
       }
@@ -238,10 +247,9 @@ div#analytics_body {
       border: 1px solid #cccccc;
     }
     &.shape {
-      vertical-align: top;
       &.circle {
         border-radius: 10px;
-        background-color: #8cd20d;
+        background-color: #70a80b;
       }
       &.opencircle {
         width: 12px;
@@ -256,11 +264,11 @@ div#analytics_body {
         border-radius: 0;
         border-left: 8px solid transparent;
         border-right: 8px solid transparent;
-        border-bottom: 16px solid #f6bd00;
+        border-bottom: 16px solid #e6bb00;
       }
       &.square {
         border-radius: 0;
-        background-color: #d21d1a;
+        background-color: #ba1a17;
       }
     }
   }
@@ -292,6 +300,7 @@ div#analytics_body {
   }
   td .student {
     display: flex;
+    align-items: center;
     .avatar {
       width: 30px;
       height: 30px;

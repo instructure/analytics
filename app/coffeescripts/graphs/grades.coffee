@@ -148,12 +148,13 @@ define [
       median.attr stroke: "none", fill: @medianColor
 
     ##
-    # Draw the dot for the student's score in an assignment
+    # Draw the shape for the student's score in an assignment
     drawStudentScore: (x, assignment) ->
       scoreY = @valueY assignment.studentScore
       attrs = @scoreAttrs assignment
+      attrs.color = 'white'
       attrs.outline = 1
-      @drawShape x, scoreY, @barWidth / 4, attrs
+      @drawShape x, scoreY, @barWidth / 4 + 2, attrs
 
     ##
     # Returns colors to use for the value dot of an assignment. If this is
@@ -161,19 +162,15 @@ define [
     scoreAttrs: (assignment) ->
       if assignment.scoreDistribution?
         if assignment.studentScore >= assignment.scoreDistribution.median
-          color: 'white'
           fill: @colorGood
           shape: 'circle'
         else if assignment.studentScore >= assignment.scoreDistribution.firstQuartile
-          color: 'white'
           fill: @colorFair
           shape: 'triangle'
         else
-          color: 'white'
           fill: @colorPoor
           shape: 'square'
       else
-        color: 'white'
         fill: @colorGood
         shape: 'circle'
 
