@@ -1,4 +1,5 @@
 define [
+  'react'
   'jquery'
   'underscore'
   'Backbone'
@@ -9,10 +10,15 @@ define [
   'analytics/compiled/graphs/assignment_tardiness'
   'analytics/compiled/graphs/grades'
   'analytics/compiled/graphs/colors'
-  'analytics/compiled/graphs/util'
   'analytics/compiled/StudentInCourse/StudentComboBox'
   'i18n!student_in_course_view'
-], ($, _, Backbone, template, avatarPartial, PageViews, Responsiveness, AssignmentTardiness, Grades, colors, util, StudentComboBox, I18n) ->
+  'analytics/compiled/graphs/util'
+  'analytics/compiled/jsx/components/ActivitiesTable'
+  'analytics/compiled/jsx/components/StudentSubmissionsTable'
+  'analytics/compiled/jsx/components/GradesTable'
+  'analytics/compiled/jsx/components/ResponsivenessTable'
+  'analytics/compiled/helpers'
+], (React, $, _, Backbone, template, avatarPartial, PageViews, Responsiveness, AssignmentTardiness, Grades, colors, StudentComboBox, I18n, util, ActivitiesTable, StudentSubmissionsTable, GradesTable, ResponsivenessTable, helpers) ->
 
   class StudentInCourseView extends Backbone.View
     initialize: ->
@@ -43,6 +49,7 @@ define [
 
       # render now and any time the model changes or the window resizes
       @render()
+      @afterRender()
       @model.on 'change:student', @render
       $(window).on 'resize', _.debounce =>
         newWidth = util.computeGraphWidth()
@@ -51,8 +58,122 @@ define [
         @assignmentTardiness.resize(width: newWidth)
         @grades.resize(width: newWidth)
         @render()
+        @afterRender()
       ,
         200
+
+    formatTableData: (table) ->
+      data = table.data
+
+      if data.bins? or data.assignments?
+        data = if data.bins then data.bins else data.assignments
+
+      if typeof table.format is "function"
+        data = data.map (item) ->
+          table.format(item)
+
+      if (table.div == "#responsiveness-table")
+        data = @formatResponsivenessData(data)
+
+      if typeof table.sort is "function"
+        data = data.sort(table.sort)
+
+      data
+
+    renderTable: (table) ->
+      React.render(React.createFactory(table.component)({ data: @formatTableData(table), student: true }), $(table.div)[0], helpers.makePaginationAccessible.bind(null, table.div))
+
+    renderTables: (tables = []) ->
+      _.each tables, (table) =>
+        if table.data.loading?
+          table.data.loading.done =>
+            @renderTable(table)
+        else
+          @renderTable(table)
+
+    ##
+    # This will get things into the proper format we need
+    # for the responsiveness table. It produces an array
+    # of objects in this format:
+    # {
+    #   date: Date
+    #   instructorMessages: Number
+    #   studentMessages: Number
+    # }
+    formatResponsivenessData: (data) ->
+      groups = _.groupBy(data, 'date')
+      Object.keys(groups).map((key) ->
+        date: new Date(key),
+        instructorMessages: groups[key].filter((obj) -> obj.track == 'instructor').length,
+        studentMessages: groups[key].filter((obj) -> obj.track == 'student').length
+      )
+
+
+
+    afterRender: ->
+      # render the table versions of the graphs for a11y/KO
+      @renderTables([
+        {
+          div: "#participating-table"
+          component: ActivitiesTable
+          data: @model.get('student').get('participation')
+          sort: (a, b) ->
+            b.date - a.date
+        },
+        {
+          div: "#responsiveness-table",
+          component: ResponsivenessTable,
+          data: @model.get('student').get('messaging')
+          sort: (a, b) ->
+            b.date - a.date
+        },
+        {
+          div: "#assignment-finishing-table"
+          component: StudentSubmissionsTable
+          data: @model.get('student').get('assignments')
+          format: (assignment) ->
+
+            formattedStatus = switch assignment.original.status
+              when "late" then I18n.t("Late")
+              when "missing" then I18n.t("Missing")
+              when "on_time" then I18n.t("On Time")
+              when "floating" then I18n.t("Future")
+
+            title: assignment.title
+            dueAt: assignment.dueAt,
+            submittedAt: assignment.submittedAt,
+            status: formattedStatus,
+            score: assignment.studentScore || I18n.t("N/A")
+        },
+        {
+          div: "#grades-table"
+          component: GradesTable
+          data: @model.get('student').get('assignments')
+          format: (assignment) ->
+            scoreType = if assignment.scoreDistribution?
+                          if assignment.studentScore >= assignment.scoreDistribution.median
+                            I18n.t("Good")
+                          else if assignment.studentScore >= assignment.scoreDistribution.firstQuartile
+                            I18n.t("Fair")
+                          else
+                            I18n.t("Poor")
+                        else
+                          I18n.t("Good")
+
+            naString = I18n.t("N/A")
+
+            title:            assignment.title
+            min_score:        assignment.scoreDistribution?.minScore || naString
+            median:           assignment.scoreDistribution?.median || naString
+            max_score:        assignment.scoreDistribution?.maxScore || naString
+            points_possible:  assignment.pointsPossible
+            student_score:    assignment.studentScore || naString
+            score_type:       scoreType
+            percentile:
+              min: assignment.scoreDistribution?.firstQuartile || naString
+              max: assignment.scoreDistribution?.thirdQuartile || naString
+        }
+      ])
 
     ##
     # TODO: I18n
