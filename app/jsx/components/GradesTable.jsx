@@ -26,18 +26,35 @@ define([
         },
 
         render () {
-            return (
-                <div>
-                    <BootstrapTable data={this.props.data} pagination={true} options={tableOptions}>
-                        <TableHeaderColumn dataField="title" isKey={true}>{I18n.t("Assignment")}</TableHeaderColumn>
-                        <TableHeaderColumn dataField="min_score">{I18n.t("Low")}</TableHeaderColumn>
-                        <TableHeaderColumn dataField="median">{I18n.t("Median")}</TableHeaderColumn>
-                        <TableHeaderColumn dataField="max_score">{I18n.t("High")}</TableHeaderColumn>
-                        <TableHeaderColumn dataField="percentile" dataFormat={this.formatPercentile}>{I18n.t("25th-75th %ile")}</TableHeaderColumn>
-                        <TableHeaderColumn dataField="points_possible">{I18n.t("Points Possible")}</TableHeaderColumn>
-                    </BootstrapTable>
-                </div>
-            );
+            if (this.props.student) {
+                return (
+                    <div>
+                        <BootstrapTable data={this.props.data} pagination={true} options={tableOptions}>
+                            <TableHeaderColumn dataField="title" isKey={true}>{I18n.t("Assignment")}</TableHeaderColumn>
+                            <TableHeaderColumn dataField="student_score">{I18n.t("Score")}</TableHeaderColumn>
+                            <TableHeaderColumn dataField="score_type">{I18n.t("Performance")}</TableHeaderColumn>
+                            <TableHeaderColumn dataField="min_score">{I18n.t("Low")}</TableHeaderColumn>
+                            <TableHeaderColumn dataField="median">{I18n.t("Median")}</TableHeaderColumn>
+                            <TableHeaderColumn dataField="max_score">{I18n.t("High")}</TableHeaderColumn>
+                            <TableHeaderColumn dataField="percentile" dataFormat={this.formatPercentile}>{I18n.t("25th-75th %ile")}</TableHeaderColumn>
+                            <TableHeaderColumn dataField="points_possible">{I18n.t("Points Possible")}</TableHeaderColumn>
+                        </BootstrapTable>
+                    </div>
+                );
+            } else {
+                return (
+                    <div>
+                        <BootstrapTable data={this.props.data} pagination={true} options={tableOptions}>
+                            <TableHeaderColumn dataField="title" isKey={true}>{I18n.t("Assignment")}</TableHeaderColumn>
+                            <TableHeaderColumn dataField="min_score">{I18n.t("Low")}</TableHeaderColumn>
+                            <TableHeaderColumn dataField="median">{I18n.t("Median")}</TableHeaderColumn>
+                            <TableHeaderColumn dataField="max_score">{I18n.t("High")}</TableHeaderColumn>
+                            <TableHeaderColumn dataField="percentile" dataFormat={this.formatPercentile}>{I18n.t("25th-75th %ile")}</TableHeaderColumn>
+                            <TableHeaderColumn dataField="points_possible">{I18n.t("Points Possible")}</TableHeaderColumn>
+                        </BootstrapTable>
+                    </div>
+                );
+            }
         }
     });
 });
