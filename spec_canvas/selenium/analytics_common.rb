@@ -88,12 +88,14 @@ shared_examples_for "analytics tests" do
   end
 
   def add_students_to_course(number_to_add)
+    @already_added_students ||= 0
     added_students = []
     number_to_add.times do |i|
-      student = User.create!(:name => "analytics_student_#{i}")
+      student = User.create!(:name => "analytics_student_#{i + @already_added_students}")
       @course.enroll_student(student).accept!
       added_students.push(student)
     end
+    @already_added_students += number_to_add
     added_students
   end
 
