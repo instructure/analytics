@@ -7,4 +7,23 @@
 <h2 class="screenreader-only">{{t "Summary Statistics"}}</h2>
 <div class="department_statistics" />
 <h2 class="screenreader-only">{{t "Graphs"}}</h2>
+<div class="grid-row end-xs">
+  <div class="col-xs-2">
+   <div class="AnalyticsToggle ic-Form-control">
+     <label class="ic-Super-toggle--ui-switch" for="graph_table_toggle">
+       <span class="screenreader-only">Toggle graph view or table view</span>
+       <input type="checkbox" id="graph_table_toggle" class="ic-Super-toggle__input" aria-label="{{t "Switch to table view"}}">
+       <div class="ic-Super-toggle__container" aria-hidden="true">
+         <div class="ic-Super-toggle__option--LEFT">
+           <i class="icon-stats"></i>
+         </div>
+         <div class="ic-Super-toggle__switch"></div>
+         <div class="ic-Super-toggle__option--RIGHT">
+           <i class="icon-table"></i>
+         </div>
+        </div>
+      </label>
+   </div>
+  </div>
+</div>
 <div class="department_graphs" />
