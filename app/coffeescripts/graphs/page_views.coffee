@@ -121,7 +121,7 @@ define [
     ##
     # Build the text for the bin's tooltip.
     tooltip: (bin) ->
-      tooltip = htmlEscape I18n.l 'date.formats.medium', bin.date
+      tooltip = htmlEscape @binDateText(bin)
       if bin.participations > 0
         count = bin.participations
         tooltip += "<br/>" + htmlEscape I18n.t({one: "1 participation", other: "%{num} participations"}, {count: count, num: delimit count})
