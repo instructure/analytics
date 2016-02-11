@@ -21,12 +21,12 @@ define ['jquery', 'analytics/compiled/graphs/assignment_tardiness'], ($, Assignm
 
   test 'dateX: on startDate or endDate', ->
     startDate = new Date(2012, 0, 1)
-    endDate = startDate.clone().addDays(10)
+    endDate = startDate.clone().addDays(5)
     examples = [
-      { date: startDate, expected: expectedX(0, 10) }
-      { date: startDate.clone().addDays(3), expected: expectedX(3, 10) }
-      { date: startDate.clone().addDays(7), expected: expectedX(7, 10) }
-      { date: endDate, expected: expectedX(10, 10) }
+      { date: startDate, expected: expectedX(0, 5) }
+      { date: startDate.clone().addDays(1), expected: expectedX(1, 5) }
+      { date: startDate.clone().addDays(4), expected: expectedX(4, 5) }
+      { date: endDate, expected: expectedX(5, 5) }
     ]
 
     graph = new AssignmentTardiness @$el,
@@ -72,7 +72,7 @@ define ['jquery', 'analytics/compiled/graphs/assignment_tardiness'], ($, Assignm
     graph = new AssignmentTardiness @$el,
       margin: 0
       padding: 0
-      width: 100
+      width: width
       height: 100
       startDate: startDate
       endDate: endDate

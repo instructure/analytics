@@ -8,7 +8,7 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
     message ?= "expected #{actual} to be within #{tolerance} of #{expected}"
     ok Math.abs(actual - expected) < tolerance, message
 
-  width = 100
+  width = 200
   expectedX = (index, days) ->
     indent = width / (days + 1) / 1.2 / 2
     spacing = (width - 2 * indent) / days
@@ -52,7 +52,7 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
     equal true, graph.clippedDate
     graph.clippedDate = false
 
-    equal 110, graph.dateX(rightOutOfBoundsDate)
+    equal 210, graph.dateX(rightOutOfBoundsDate)
     equal true, graph.clippedDate
 
   test 'drawDateAxis', ->
@@ -130,3 +130,55 @@ define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_c
     equal labelSpy.callCount, labels.length
     for i in [0...labels.length]
       deepEqual labelSpy.args[i], labels[i]
+
+  test 'binDateText, day binner', ->
+    startDate = new Date(2015, 0, 1)
+    endDate = startDate.clone().addDays(5)
+    graph = new DateAlignedGraph @$el,
+      margin: 0
+      padding: 0
+      width: width
+      height: 100
+      startDate: startDate
+      endDate: endDate
+    equal graph.binDateText(date: startDate), 'Jan 1, 2015'
+    equal graph.binDateText(date: graph.binner.nextTick(startDate)), 'Jan 2, 2015'
+
+  test "binDateText, week binner", ->
+    startDate = new Date(2015, 0, 1)
+    endDate = startDate.clone().addDays(30)
+    graph = new DateAlignedGraph @$el,
+      margin: 0
+      padding: 0
+      width: width
+      height: 100
+      startDate: startDate
+      endDate: endDate
+    equal graph.binDateText(date: startDate), 'Jan 1 - Jan 7, 2015'
+    equal graph.binDateText(date: graph.binner.nextTick(startDate)), 'Jan 8 - Jan 14, 2015'
+
+  test "binDateText, week binner, spanning years", ->
+    startDate = new Date(2015, 11, 28)
+    endDate = startDate.clone().addDays(30)
+    graph = new DateAlignedGraph @$el,
+      margin: 0
+      padding: 0
+      width: width
+      height: 100
+      startDate: startDate
+      endDate: endDate
+    equal graph.binDateText(date: startDate), 'Dec 28, 2015 - Jan 3, 2016'
+    equal graph.binDateText(date: graph.binner.nextTick(startDate)), 'Jan 4 - Jan 10, 2016'
+
+  test "binDateText, month binner", ->
+    startDate = new Date(2015, 3, 15)
+    endDate = startDate.clone().addDays(500)
+    graph = new DateAlignedGraph @$el,
+      margin: 0
+      padding: 0
+      width: width
+      height: 100
+      startDate: startDate
+      endDate: endDate
+    equal graph.binDateText(date: startDate), 'Apr 2015'
+    equal graph.binDateText(date: graph.binner.nextTick(startDate)), 'May 2015'
