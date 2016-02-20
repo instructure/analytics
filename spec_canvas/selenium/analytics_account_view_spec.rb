@@ -25,7 +25,7 @@ describe "analytics account view" do
   let(:account_id) { Account.default.id }
 
   def validate_data_point(data_point, expected_count = "1")
-    expect(find(".#{data_point}_count").text).to eq expected_count
+    expect(find(".AnalyticsStats__#{data_point}").find(".AnalyticsStats__Count").text).to eq expected_count
   end
 
   before (:each) do
@@ -44,7 +44,7 @@ describe "analytics account view" do
     end
     concluded_course.complete
     go_to_analytics("/accounts/#{account_id}/analytics")
-    data_points = %w(courses students)
+    data_points = %w(Courses Students)
     validate_data_point(data_points[0], '1')
     validate_data_point(data_points[1], '0')
     find('.ui-combobox-next').click
@@ -60,7 +60,7 @@ describe "analytics account view" do
       page_view_count.times { page_view(:user => @student, :course => @course) }
       go_to_analytics("/accounts/#{account_id}/analytics")
       validate_tooltip_text(date_selector(Time.now, '#participating-date-graph'), page_view_count.to_s + ' page views')
-      validate_element_fill(get_rectangle(Time.now, '#participating-date-graph'), GraphColors::BLUE)
+      validate_element_fill(get_rectangle(Time.now, '#participating-date-graph'), GraphColors::LIGHT_BLUE)
     end
 
     it "should validate activity by date graph with action taken" do
@@ -68,7 +68,7 @@ describe "analytics account view" do
       expected_text = %w(1 page view 1 participation)
       go_to_analytics("/accounts/#{account_id}/analytics")
       expected_text.each { |text| validate_tooltip_text(date_selector(Time.now, '#participating-date-graph'), text) }
-      validate_element_fill(get_rectangle(Time.now, '#participating-date-graph'), GraphColors::ORANGE)
+      validate_element_fill(get_rectangle(Time.now, '#participating-date-graph'), GraphColors::DARK_BLUE)
     end
 
     it "should validate activity by category graph" do
@@ -110,8 +110,8 @@ describe "analytics account view" do
       go_to_analytics("/accounts/#{account_id}/analytics")
     end
 
-    %w(courses teachers students assignments topics attachments media).each do |data_point|
-      it "should validate #{data_point} data point" do
+    it "should validate data points" do
+      %w(Courses Teachers Students Assignments Topics Attachments Media).each do |data_point|
         validate_data_point(data_point)
       end
     end

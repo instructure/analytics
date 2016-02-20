@@ -29,7 +29,7 @@ define ->
       while tick <= @endDate
         chrome = @tickChrome tick, previousTick
         callback tick, chrome
-        previousTick = tick.clone() if chrome.bottomLabel
+        previousTick = tick.clone() if chrome.label
         tick = @nextTick tick
 
     ##
@@ -47,9 +47,7 @@ define ->
     # To be implemented by subclasses. Given a tick and the date of the last
     # tick with chrome, determine the chrome for the tick. Chrome includes:
     #
-    # - grid: whether or not to draw a grid line at this tick
-    # - bottomLabel: what text, if any, to draw below the bottom tick
-    # - topLabel: what text, if any, to draw above the top tick
+    # - label: the text, if any, to display along the X axis
     tickChrome: (tick, last) ->
 
     ##

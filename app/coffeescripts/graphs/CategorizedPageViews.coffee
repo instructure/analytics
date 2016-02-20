@@ -64,13 +64,14 @@ define [
       @drawXAxis bins
       @yAxis.draw()
       _.each bins, @graphBin
+      @finish()
 
     ##
     # Choose appropriate sizes for the graph elements based on maximum value
     # being graphed.
     scaleToData: (bins) ->
       # scale the x-axis for the number of bins
-      @scaleByBins bins.length
+      @scaleByBins bins.length, false
 
       # top of max bar = @topMargin + @topPadding
       views = (bin.views for bin in bins)
@@ -86,19 +87,8 @@ define [
     drawXAxis: (bins) ->
       for i, bin of bins
         x = @binX i
-        y = @topMargin + @height + 10 + (i % 2) * 10
-        @drawTicks x
+        y = @topMargin + @height + (i % 2) * 10
         @labelBin x, y, bin.category
-
-    ##
-    # Draw the tick marks for a bin at x.
-    drawTicks: (x) ->
-      ticks = @paper.path [
-        "M", x, @topMargin,
-        "l", 0, @tickSize,
-        "M", x, @topMargin + @height,
-        "l", 0, -@tickSize ]
-      ticks.attr stroke: @frameColor
 
     ##
     # Draw label text at (x, y).

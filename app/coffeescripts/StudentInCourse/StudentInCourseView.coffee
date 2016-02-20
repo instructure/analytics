@@ -9,9 +9,10 @@ define [
   'analytics/compiled/graphs/assignment_tardiness'
   'analytics/compiled/graphs/grades'
   'analytics/compiled/graphs/colors'
+  'analytics/compiled/graphs/util'
   'analytics/compiled/StudentInCourse/StudentComboBox'
   'i18n!student_in_course_view'
-], ($, _, Backbone, template, avatarPartial, PageViews, Responsiveness, AssignmentTardiness, Grades, colors, StudentComboBox, I18n) ->
+], ($, _, Backbone, template, avatarPartial, PageViews, Responsiveness, AssignmentTardiness, Grades, colors, util, StudentComboBox, I18n) ->
 
   class StudentInCourseView extends Backbone.View
     initialize: ->
@@ -40,9 +41,18 @@ define [
       # setup the graph objects
       @setupGraphs()
 
-      # render now and any time the model changes
+      # render now and any time the model changes or the window resizes
       @render()
       @model.on 'change:student', @render
+      $(window).on 'resize', _.debounce =>
+        newWidth = util.computeGraphWidth()
+        @pageViews.resize(width: newWidth)
+        @responsiveness.resize(width: newWidth)
+        @assignmentTardiness.resize(width: newWidth)
+        @grades.resize(width: newWidth)
+        @render()
+      ,
+        200
 
     ##
     # TODO: I18n
@@ -85,12 +95,9 @@ define [
     setupGraphs: ->
       # setup the graphs
       graphOpts =
-        width: 800
-        height: 100
+        width: util.computeGraphWidth()
         frameColor: colors.frame
         gridColor: colors.grid
-        topMargin: 15
-        verticalMargin: 15
         horizontalMargin: 40
 
       dateGraphOpts = $.extend {}, graphOpts,
@@ -100,13 +107,14 @@ define [
         rightPadding: 15 # responsiveness bubbles
 
       @pageViews = new PageViews @$("#participating-graph"), $.extend {}, dateGraphOpts,
-        verticalPadding: 9
-        barColor: colors.blue
-        participationColor: colors.orange
+        height: 150
+        barColor: colors.lightblue
+        participationColor: colors.darkblue
 
       @responsiveness = new Responsiveness @$("#responsiveness-graph"), $.extend {}, dateGraphOpts,
-        verticalPadding: 14
-        gutterHeight: 22
+        height: 110
+        verticalPadding: 4
+        gutterHeight: 32
         markerWidth: 31
         caratOffset: 7
         caratSize: 10
@@ -114,23 +122,17 @@ define [
         instructorColor: colors.blue
 
       @assignmentTardiness = new AssignmentTardiness @$("#assignment-finishing-graph"), $.extend {}, dateGraphOpts,
-        verticalPadding: 10
-        barColorOnTime: colors.lightgreen
-        diamondColorOnTime: colors.darkgreen
-        barColorLate: colors.lightyellow
-        diamondColorLate: colors.darkyellow
-        diamondColorMissing: colors.darkred
-        diamondColorUndated: colors.frame
+        height: 250
+        colorOnTime: colors.sharpgreen
+        colorLate: colors.sharpyellow
+        colorMissing: colors.sharpred
+        colorUndated: colors.frame
 
       @grades = new Grades @$("#grades-graph"), $.extend {}, graphOpts,
-        height: 200
-        padding: 15
+        height: 250
         whiskerColor: colors.frame
         boxColor: colors.grid
         medianColor: colors.frame
-        goodRingColor: colors.lightgreen
-        goodCenterColor: colors.darkgreen
-        fairRingColor: colors.lightyellow
-        fairCenterColor: colors.darkyellow
-        poorRingColor: colors.lightred
-        poorCenterColor: colors.darkred
+        colorGood: colors.sharpgreen
+        colorFair: colors.sharpyellow
+        colorPoor: colors.sharpred

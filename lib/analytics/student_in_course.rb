@@ -105,7 +105,7 @@ module Analytics
             group("DATE(created_at), author_id").each do |row|
 
             day = row.day
-            type = ActiveRecord::ConnectionAdapters::Column.value_to_boolean(row.student) ?
+            type = Canvas::Plugin.value_to_boolean(row.student) ?
               :studentMessages :
               :instructorMessages
             count = row.ct.to_i
@@ -180,7 +180,7 @@ module Analytics
         tagged("course_#{@course.id}").
         where(:user_id => @student).
         select(:conversation_id).
-        uniq.
+        distinct.
         map(&:conversation_id)
     end
 
@@ -193,7 +193,7 @@ module Analytics
         where(:user_id => instructors).
         where(:conversation_id => student_conversation_ids).
         select(:conversation_id).
-        uniq.
+        distinct.
         map(&:conversation_id)
     end
   end

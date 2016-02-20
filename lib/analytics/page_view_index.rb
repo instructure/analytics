@@ -18,7 +18,9 @@
 
 module Analytics::PageViewIndex
   def analytics_index_backing
-    if PageView.cassandra?
+    if PageView.pv4?
+      PageView.pv4_client
+    elsif PageView.cassandra?
       Analytics::PageViewIndex::EventStream
     else
       Analytics::PageViewIndex::DB
@@ -163,13 +165,13 @@ module Analytics::PageViewIndex
       id_map = user_ids.index_by{ |id| Shard.relative_id_for(id, Shard.current, context.shard) }
 
       context.shard.activate do
-        PageView.for_context(context).for_users(id_map.keys).count(:group => :user_id).each do |relative_user_id,count|
+        PageView.for_context(context).for_users(id_map.keys).group(:user_id).count.each do |relative_user_id,count|
           if id = id_map[relative_user_id]
             counters[id][:page_views] = count
           end
         end
 
-        context.asset_user_accesses.participations.for_user(id_map.keys).count(:group => :user_id).each do |relative_user_id, count|
+        context.asset_user_accesses.participations.for_user(id_map.keys).group(:user_id).count.each do |relative_user_id, count|
           if id = id_map[relative_user_id]
             counters[id][:participations] = count
           end

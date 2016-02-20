@@ -8,6 +8,7 @@ define ['jquery', 'analytics/compiled/graphs/grades'], ($, Grades) ->
       height: 100
       margin: 0
       padding: 0
+      bottomPadding: 0
 
     gradesGraph.scaleToAssignments [
       scoreDistribution:

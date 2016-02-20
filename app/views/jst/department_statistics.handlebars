@@ -1,20 +1,55 @@
-<table class='statistics'>
+<table class='AnalyticsStats' role='presentation'>
   <tr>
-    <td class='courses_count'>{{courses}}</td>
-    <td class='teachers_count'>{{teachers}}</td>
-    <td class='students_count'>{{students}}</td>
-    <td class='assignments_count'>{{assignments}}</td>
-    <td class='topics_count'>{{discussion_topics}}</td>
-    <td class='attachments_count'>{{attachments}}</td>
-    <td class='media_count'>{{media_objects}}</td>
+    <td class='AnalyticsStats__Courses'>
+      <div>
+        <span class='AnalyticsStats__Count'>{{courses}}</span>
+        <br />
+        <span class='AnalyticsStats__Label'>{{t "Courses"}}</span>
+      </div>
+    </td>
+    <td class='AnalyticsStats__Teachers'>
+      <div>
+        <span class='AnalyticsStats__Count'>{{teachers}}</span>
+        <br />
+        <span class='AnalyticsStats__Label'>{{t "Teachers"}}</span>
+      </div>
+    </td>
+    <td class='AnalyticsStats__Students'>
+      <div>
+        <span class='AnalyticsStats__Count'>{{students}}</span>
+        <br />
+        <span class='AnalyticsStats__Label'>{{t "Students"}}</span>
+      </div>
+    </td>
+    <td class='AnalyticsStats__Assignments'>
+      <div>
+        <span class='AnalyticsStats__Count'>{{assignments}}</span>
+        <br />
+        <span class='AnalyticsStats__Label'>{{t "Assignments"}}</span>
+      </div>
+    </td>
+    <td class='AnalyticsStats__Topics'>
+      <div>
+        <span class='AnalyticsStats__Count'>{{discussion_topics}}</span>
+        <br />
+        <span class='AnalyticsStats__Label'>{{t "Discussion Topics"}}</span>
+      </div>
+    </td>
+    <td class='AnalyticsStats__Attachments'>
+      <div>
+        <span class='AnalyticsStats__Count'>{{attachments}}</span>
+        <br />
+        <span class='AnalyticsStats__Label'>{{t "Files Uploaded"}}</span>
+      </div>
+    </td>
+    <td class='AnalyticsStats__Media'>
+      <div>
+        <span class='AnalyticsStats__Count'>{{media_objects}}</span>
+        <br />
+        <span class='AnalyticsStats__Label'>{{t "Media Recordings"}}</span>
+      </div>
+    </td>
   </tr>
   <tr>
-    <th>{{t "Courses"}}</th>
-    <th>{{t "Teachers"}}</th>
-    <th>{{t "Students"}}</th>
-    <th>{{t "Assignments"}}</th>
-    <th>{{t "Discussion Topics"}}</th>
-    <th>{{t "Files Uploaded"}}</th>
-    <th>{{t "Media Recordings"}}</th>
   </tr>
 </table>

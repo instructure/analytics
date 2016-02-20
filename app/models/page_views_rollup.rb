@@ -38,30 +38,32 @@ class PageViewsRollup < ActiveRecord::Base
     self.participations += participations
   end
 
-  def self.bin_for(course, date, category)
-    category = category.to_s
-
+  def self.bin_scope_for(course)
     if course.instance_of?(Course)
-      scope = course.page_views_rollups
+      course.page_views_rollups
     else
       course_id, shard = Shard.local_id_for(course)
       shard ||= Shard.current
-      scope = self.shard(shard).where(:course_id => course_id)
+      self.shard(shard).where(:course_id => course_id)
+    end
+  end
+
+  def self.bin_for(scope, date, category)
+    category = category.to_s
+
+    # they passed a course
+    unless scope.is_a?(ActiveRecord::Relation)
+      scope = bin_scope_for(scope)
     end
 
     bin = scope.
       for_dates(date).
       for_category(category).
+      lock(:no_key_update).
       first
 
     unless bin
-      if course.instance_of?(Course)
-        bin = scope.build
-      else
-        bin = self.new
-        bin.shard = shard
-        bin.course_id = course
-      end
+      bin = scope.new
       bin.date = date
       bin.category = category
       bin.views = 0
@@ -72,9 +74,24 @@ class PageViewsRollup < ActiveRecord::Base
   end
 
   def self.augment!(course, date, category, views, participations)
-    bin = bin_for(course, date, category)
-    bin.augment(views, participations)
-    bin.save
+    scope = bin_scope_for(course)
+    scope.transaction do
+      bin = bin_for(scope, date, category)
+      bin.augment(views, participations)
+      if bin.new_record?
+        begin
+          bin.transaction(requires_new: true) do
+            bin.save!
+            return
+          end
+        rescue ActiveRecord::RecordNotUnique
+          bin = bin_for(scope, date, category)
+          raise if bin.new_record?
+          bin.augment(views, participations)
+        end
+      end
+      bin.save!
+    end
   end
 
   def self.increment!(course, date, category, participated)

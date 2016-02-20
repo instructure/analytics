@@ -89,7 +89,7 @@ module Analytics
     def statistics
       slaved(:cache_as => :statistics) do
         {
-          :courses => courses.count("courses.id", :distinct => true),
+          :courses => courses.distinct.count("courses.id"),
           :subaccounts => subaccounts.count,
           :teachers => count_users_for_enrollments(teacher_enrollments),
           :students => count_users_for_enrollments(student_enrollments),
@@ -108,7 +108,7 @@ module Analytics
           {
             :name => a.name,
             :id => a.id,
-            :courses => courses_for_subaccount(a).count("courses.id", :distinct => true),
+            :courses => courses_for_subaccount(a).distinct.count("courses.id"),
             :teachers => count_users_for_enrollments(teacher_enrollments_for_subaccount(a)),
             :students => count_users_for_enrollments(student_enrollments_for_subaccount(a)),
             :discussion_topics => 0,
@@ -160,7 +160,7 @@ module Analytics
     end
 
     def courses_subselect
-      courses.select("courses.id").uniq
+      courses.select("courses.id").distinct
     end
 
     def page_views_rollups
@@ -199,7 +199,7 @@ module Analytics
     end
 
     def count_users_for_enrollments(enrollments_scope)
-      enrollments_scope.count(:user_id, :distinct => true)
+      enrollments_scope.distinct.count(:all)
     end
 
     def discussion_topics

@@ -1,20 +1,23 @@
-<tr>
+<tr id="student_{{id}}">
   <td>
     <div class='student'>
       {{>avatar}}
       <a href="{{analytics_url}}">{{name}}</a>
     </div>
   </td>
-  <td><div class='page_views' /></td>
-  <td><div class='participations' /></td>
-  <td><div class='submissions' /></td>
+  <td><span class='sortable page_views'>{{pageViews}}</span></td>
+  <td><span class='sortable participations'>{{participations}}</span></td>
+  <td><span class='submissions'>{{submissions}}</span></td>
+  <td><span class='on_time'>{{onTime}}</span></td>
+  <td><span class='late'>{{late}}</span></td>
+  <td><span class='missing'>{{missing}}</span></td>
   <td>
-    <div class='current_score'>
+    <span class="sortable current_score">
       {{#if current_score}}
         {{current_score}}%
       {{else}}
         --
       {{/if}}
-    </div>
+    </span>
   </td>
 </tr>

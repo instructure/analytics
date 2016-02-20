@@ -8,7 +8,8 @@ define [
   'analytics/compiled/graphs/grades'
   'analytics/compiled/graphs/finishing_assignments_course'
   'analytics/compiled/graphs/colors'
-], ($, _, Backbone, template, StudentSummariesView, PageViews, Grades, FinishingAssignmentsCourse, colors) ->
+  'analytics/compiled/graphs/util'
+], ($, _, Backbone, template, StudentSummariesView, PageViews, Grades, FinishingAssignmentsCourse, colors, util) ->
 
   class CourseView extends Backbone.View
     initialize: ->
@@ -35,6 +36,16 @@ define [
         # remove student summary framework
         @$('#students').remove()
 
+      # redraw graphs on resize
+      $(window).on 'resize', _.debounce =>
+        newWidth = util.computeGraphWidth()
+        @pageViews.resize(width: newWidth)
+        @finishing.resize(width: newWidth)
+        @grades.resize(width: newWidth)
+        @render()
+      ,
+        200
+
       # initial render
       @render()
 
@@ -53,12 +64,10 @@ define [
 
     setupGraphs: ->
       graphOpts =
-        width: 800
-        height: 100
+        width: util.computeGraphWidth()
+        height: 150
         frameColor: colors.frame
         gridColor: colors.grid
-        topMargin: 15
-        verticalMargin: 15
         horizontalMargin: 40
 
       dateGraphOpts = $.extend {}, graphOpts,
@@ -67,19 +76,16 @@ define [
         horizontalPadding: 15
 
       @pageViews = new PageViews $("#participating-graph", @$el), $.extend {}, dateGraphOpts,
-        verticalPadding: 9
-        barColor: colors.blue
-        participationColor: colors.orange
+        barColor: colors.lightblue
+        participationColor: colors.darkblue
 
       @finishing = new FinishingAssignmentsCourse $("#finishing-assignments-graph", @$el), $.extend {}, graphOpts,
-        padding: 15
         onTimeColor: colors.sharpgreen
         lateColor: colors.sharpyellow
         missingColor: colors.sharpred
 
       @grades = new Grades $("#grades-graph", @$el), $.extend {}, graphOpts,
         height: 200
-        padding: 15
         whiskerColor: colors.blue
         boxColor: colors.blue
         medianColor: colors.darkblue

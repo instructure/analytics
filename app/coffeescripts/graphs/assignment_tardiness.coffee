@@ -18,13 +18,17 @@ define [
   defaultOptions =
 
     ##
-    # The height of the submission bars, in pixels.
-    barHeight: 8
+    # The height of the assignment lanes, in pixels
+    laneHeight: 16
 
     ##
-    # The height of the due date diamonds, in pixels. Defaults to barHeight + 2
+    # The height of the submission bars, in pixels.
+    barHeight: 4
+
+    ##
+    # The height of the due date diamonds, in pixels. Defaults to laneHeight
     # if unset.
-    diamondHeight: null
+    shapeHeight: null
 
     ##
     # The size of the vertical gutter between elements as a percent of the
@@ -32,28 +36,24 @@ define [
     gutterPercent: 0.25
 
     ##
-    # Bar color for on time assignments.
-    barColorOnTime: "lightgreen"
+    # Color for on time assignments.
+    colorOnTime: "green"
 
     ##
-    # Diamond color for on time assignments.
-    diamondColorOnTime: "darkgreen"
+    # Color for late assignments.
+    colorLate: "gold"
 
     ##
-    # Bar color for late assignments.
-    barColorLate: "lightyellow"
+    # Color for missing assignments.
+    colorMissing: "red"
 
     ##
-    # Diamond color for late assignments.
-    diamondColorLate: "darkyellow"
+    # Color for undated assignments.
+    colorUndated: "darkgray"
 
     ##
-    # Diamond color for missing assignments.
-    diamondColorMissing: "red"
-
-    ##
-    # Diamond color for undated assignments.
-    diamondColorUndated: "darkgray"
+    # Color for unfilled shapes
+    colorEmpty: "white"
 
     ##
     # Message when dates fall outside bounds of graph
@@ -71,12 +71,12 @@ define [
       for key, defaultValue of defaultOptions
         @[key] = options[key] ? defaultValue
 
-      @diamondHeight ?= @barHeight + 2
-      @gutterHeight = @gutterPercent * @barHeight
-      @barSpacing = @barHeight + @gutterHeight
+      @shapeHeight ?= @laneHeight
+      @gutterHeight = @gutterPercent * @laneHeight
+      @barSpacing = @laneHeight + @gutterHeight
 
       # middle of first bar
-      @y0 = @topMargin + @topPadding + @diamondHeight / 2
+      @y0 = @topMargin + @topPadding + @shapeHeight / 2
 
     ##
     # Graph the assignments.
@@ -84,29 +84,28 @@ define [
       return unless super
 
       assignments = _.reject(assignments.assignments, (a) -> a.non_digital_submission)
-      if !assignments? || assignments.length == 0
-        # no data
-        return
+      if assignments? && assignments.length > 0
+        @scaleToAssignments assignments
+        @drawGrid assignments if @gridColor
+        @drawYLabel I18n.t "Assignments"
+        _.each assignments, @graphAssignment
 
-      @scaleToAssignments assignments
-      @drawGrid assignments if @gridColor
-      @drawYLabel I18n.t "Assignments"
-      _.each assignments, @graphAssignment
+        if @clippedDate
+          label = @clippedWarningLabel
+          @drawWarning label
 
-      if @clippedDate
-        label = @clippedWarningLabel
-        @drawWarning label
+      @finish()
 
     ##
     # Resize the graph vertically to accomodate the number of assigments.
     scaleToAssignments: (assignments) ->
       @resize height:
-        @topPadding + (assignments.length - 1) * @barSpacing + @diamondHeight + @bottomPadding
+        @topPadding + (assignments.length - 1) * @barSpacing + @shapeHeight + @laneHeight / 2 + @bottomPadding
 
     ##
     # Draws the gutters between the assignments.
     drawGrid: (assignments) ->
-      for i in [0..assignments.length]
+      for i in [0..assignments.length - 1]
         @drawGridLine @gridY i
 
     drawGridLine: (y) ->
@@ -114,7 +113,7 @@ define [
       gridline.attr stroke: @gridColor
 
     gridY: (index) ->
-      (@indexY index) - @barSpacing / 2
+      (@indexY index)
 
     ##
     # Graph a single assignment. Fat arrowed because it's called by _.each
@@ -122,40 +121,47 @@ define [
       dueX = @dueX assignment
       submittedX = @submittedX assignment
       y = @indexY index
-      colors = @colors assignment
+      attrs = @shape_attrs assignment
       if submittedX? && submittedX != dueX
-        @drawSubmittedBar dueX, submittedX, y, colors.barColor
-      @drawDiamond dueX, y, colors.diamondColor, colors.diamondFill
+        @drawSubmittedBar dueX, submittedX, y, attrs.color
+      @drawShape dueX, y, @shapeHeight / 2, attrs
       @cover dueX, y, assignment
 
     ##
     # Determine the colors to use for an assignment.
-    colors: (assignment) ->
+    shape_attrs: (assignment) ->
       if !assignment.dueAt?
         # no due date
-        barColor: "none"
-        diamondColor: @diamondColorUndated
-        diamondFill: assignment.submittedAt?
+        if assignment.submittedAt?
+          # if it's submitted, it's "on time"
+          color: @colorOnTime
+          shape: 'circle'
+          fill: @colorOnTime
+        else
+          # otherwise it's "future"
+          color: @colorUndated
+          shape: 'circle'
+          fill: @colorEmpty
       else if assignment.onTime is true
         # has due date, turned in on time
-        barColor: @barColorOnTime
-        diamondColor: @diamondColorOnTime
-        diamondFill: true
+        color: @colorOnTime
+        shape: 'circle'
+        fill: @colorOnTime
       else if assignment.onTime is false
         # has due date, turned in late
-        barColor: @barColorLate
-        diamondColor: @diamondColorLate
-        diamondFill: true
+        color: @colorLate
+        shape: 'triangle'
+        fill: @colorLate
       else if assignment.dueAt > new Date
         # due in the future, not turned in
-        barColor: "none"
-        diamondColor: @diamondColorUndated
-        diamondFill: false
+        color: @colorUndated
+        shape: 'circle'
+        fill: @colorEmpty
       else
         # due in the past, not turned in
-        barColor: "none"
-        diamondColor: @diamondColorMissing
-        diamondFill: true
+        color: @colorMissing
+        shape: 'square'
+        fill: @colorMissing
 
     ##
     # Convert an assignment's due date to an x-coordinate. If no due date, use
@@ -185,22 +191,6 @@ define [
       bar.attr fill: color, stroke: color
 
     ##
-    # Draw the diamond representing the due date.
-    drawDiamond: (x, y, color, fill) ->
-      diamondTop = y - @diamondHeight / 2
-      diamondBottom = y + @diamondHeight / 2
-      diamondLeft = x - @diamondHeight / 2
-      diamondRight = x + @diamondHeight / 2
-      path = ["M", x, diamondTop,
-              "L", diamondLeft, y,
-              "L", x, diamondBottom,
-              "L", diamondRight, y,
-              "L", x, diamondTop,
-              "z"]
-      diamond = @paper.path path
-      diamond.attr stroke: color, fill: (if fill then color else "none")
-
-    ##
     # Create a tooltip for the assignment.
     cover: (x, y, assignment) ->
       new Cover this,
@@ -209,7 +199,7 @@ define [
         tooltip:
           contents: @tooltip assignment
           x: x
-          y: y + @diamondHeight / 2
+          y: y + @shapeHeight / 2
           direction: 'down'
 
     ##

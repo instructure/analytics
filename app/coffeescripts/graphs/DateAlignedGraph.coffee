@@ -5,7 +5,9 @@ define [
   'analytics/compiled/graphs/WeekBinner'
   'analytics/compiled/graphs/MonthBinner'
   'analytics/compiled/graphs/ScaleByBins'
-], (_, Base, DayBinner, WeekBinner, MonthBinner, ScaleByBins) ->
+  'analytics/compiled/helpers'
+  'i18n!page_views'
+], (_, Base, DayBinner, WeekBinner, MonthBinner, ScaleByBins, helpers, I18n) ->
 
   ##
   # Parent class for all graphs that have a date-aligned x-axis. Note: Left
@@ -50,12 +52,18 @@ define [
       for key, defaultValue of defaultOptions
         @[key] = options[key] ? defaultValue
 
+      @initScale()
+
+    ##
+    # Set up X-axis scale
+    initScale: ->
       interior = @width - @leftPadding - @rightPadding
 
       # mixin for the appropriate bin size
+      # use a minimum of 10 pixels for bar width plus spacing before consolidating
       @binner = new DayBinner(@startDate, @endDate)
-      @binner = new WeekBinner(@startDate, @endDate) if @binner.count() * 5 > interior
-      @binner = new MonthBinner(@startDate, @endDate) if @binner.count() * 5 > interior
+      @binner = new WeekBinner(@startDate, @endDate) if @binner.count() * 10 > interior
+      @binner = new MonthBinner(@startDate, @endDate) if @binner.count() * 10 > interior
 
       # scale the x-axis for the number of bins
       @scaleByBins @binner.count()
@@ -65,6 +73,7 @@ define [
     # Mondays) labels.
     reset: ->
       super
+      @initScale() if @startDate
       @drawDateAxis()
 
     ##
@@ -121,31 +130,25 @@ define [
       return unless @startDate? && @endDate?
       @binner.eachTick (tick, chrome) =>
         x = @binnedDateX tick
-        @drawDayTick x
-        @drawWeekLine x if chrome.grid
-        @dateLabel x, @topMargin + @height + 10, chrome.bottomLabel if chrome.bottomLabel
-        @dateLabel x, @topMargin - 10, chrome.topLabel if chrome.topLabel
-
-    ##
-    # Draw the tick marks for a day at x.
-    drawDayTick: (x) ->
-      ticks = @paper.path [
-        "M", x, @topMargin,
-        "l", 0, @tickSize,
-        "M", x, @topMargin + @height,
-        "l", 0, -@tickSize ]
-      ticks.attr stroke: @frameColor
-
-    ##
-    # Draw the grid line for a week at x.
-    drawWeekLine: (x) ->
-      gridLine = @paper.path [
-        "M", x, @topMargin,
-        "l", 0, @height ]
-      gridLine.attr stroke: @gridColor ? @frameColor
+        @dateLabel x, @topMargin + @height, chrome.label if chrome.label
 
     ##
     # Draw label text at (x, y).
     dateLabel: (x, y, text) ->
       label = @paper.text x, y, text
       label.attr fill: @frameColor
+
+    ##
+    # Get date text for a bin
+    binDateText: (bin) ->
+      lastDay = @binner.nextTick(bin.date).addDays(-1)
+      daysBetween = helpers.daysBetween(bin.date, lastDay)
+      if daysBetween < 1 # single-day bucket: label the date
+        I18n.l 'date.formats.medium', bin.date
+      else if daysBetween < 7 # one-week bucket: label the start and end days; include the year only with the end day unless they're different
+        I18n.t "%{start_date} - %{end_date}",
+          start_date: I18n.l((if bin.date.getFullYear() == lastDay.getFullYear() then 'date.formats.short' else 'date.formats.medium'), bin.date)
+          end_date: I18n.l('date.formats.medium', lastDay)
+      else # one-month bucket; label the month and year
+        I18n.l 'date.formats.medium_month', bin.date
+

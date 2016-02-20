@@ -10,8 +10,11 @@ define [
       @$rows = @$('tbody.rows')
       @collection.on 'reset', @render
       @collection.on 'add', @addOne
-      @$('.student .sortable').addClass 'headerSortDown'
-      @$('.sortable').click @sort
+      @$('.student .sortable').addClass 'headerSortUp'
+      @$('.sortable').attr('tabindex', '0').attr('role', 'button').click(@sort).on 'keydown', (e) =>
+        if e.keyCode == 13 || e.keyCode == 32
+          e.preventDefault()
+          @sort(e)
 
     render: =>
       @$rows.empty()
@@ -23,25 +26,24 @@ define [
       @$rows.append view.$el
 
     sort: (event) =>
-      $tableCaption = $('#student_table_caption')
       $target = $(event.currentTarget)
       $targetHeader = $target.parents('th')
       sortKey = $target.data('sort_key')
-      sortText = $target.text()
-      if $target.hasClass('headerSortDown')
+      if $target.hasClass('headerSortUp')
         sortKey = "#{sortKey}_descending"
-        sortClass = 'headerSortUp'
-        $tableCaption.text I18n.t('student_summary_table_descending', "Student Summary Table sorted descending by %{sortText}", {sortText: sortText})
+        sortClass = 'headerSortDown'
         $targetHeader.attr 'aria-sort', 'descending'
-        $targetHeader.siblings().each (k,v) ->
-          $(v).attr 'aria-sort', 'none'
+        $targetHeader.siblings().removeAttr('aria-sort')
+        sortText = I18n.t "Sorted Descending"
       else
         sortKey = "#{sortKey}_ascending"
-        sortClass = 'headerSortDown'
-        $tableCaption.text I18n.t('student_summary_table_ascending', "Student Summary Table sorted ascending by %{sortText}", {sortText: sortText})
-        $target.parents('th').attr 'aria-sort', 'descending'
-        $targetHeader.siblings().each (k,v) ->
-          $(v).attr 'aria-sort', 'none'
+        sortClass = 'headerSortUp'
+        $target.parents('th').attr 'aria-sort', 'ascending'
+        $targetHeader.siblings().removeAttr('aria-sort')
+        sortText = I18n.t "Sorted Ascending"
       @$('.sortable').removeClass('headerSortUp').removeClass('headerSortDown')
       $target.addClass(sortClass)
       @collection.setSortKey sortKey
+      $('#students thead .sort_text').remove()
+      $target.append $("<span class='screenreader-only sort_text'></span>").text(' ' + sortText)
+

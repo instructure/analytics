@@ -35,7 +35,7 @@ module Analytics
         course_module_tags = @course.context_module_tags.where(
             content_type: 'Assignment',
             content_id: assignment_ids,
-            tag_type: 'context_module').select([:content_id, :context_module_id]).reorder(:context_module_id).uniq
+            tag_type: 'context_module').select([:content_id, :context_module_id]).reorder(:context_module_id).distinct
         course_module_tags_hash = {}
         course_module_tags.each do |t|
           array = course_module_tags_hash[t.content_id] ||= []

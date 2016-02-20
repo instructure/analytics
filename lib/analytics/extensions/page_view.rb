@@ -16,9 +16,11 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_dependency 'analytics/page_view_index'
+module Analytics::Extensions::PageView
+  def self.prepended(klass)
+    klass.extend Analytics::PageViewIndex
+  end
 
-PageView.class_eval do
   def category
     category = read_attribute(:category)
     if !category && read_attribute(:controller)
@@ -27,25 +29,33 @@ PageView.class_eval do
     category || :other
   end
 
-  def store_with_rollup
+  def store
     self.summarized = true
-    result = store_without_rollup
+    result = super
     if context_id && context_type == 'Course'
       PageViewsRollup.increment!(context_id, created_at, category, participated && asset_user_access)
     end
     result
   end
-  alias_method_chain :store, :rollup
 
-  extend Analytics::PageViewIndex
+  # this is kind of terrible, but PageView::EventStream isn't assigned yet,
+  # and there's no direct hook to capture the later constant assignment
+  # so hook the creation of the stream, and add our hooks then
+  module EventStreamExtension
+    def initialize(&block)
+      super(&block)
+      if table == 'page_views'
+        on_insert do |page_view|
+          Analytics::PageViewIndex::EventStream.update(page_view, true)
+        end
 
-  PageView::EventStream.on_insert do |page_view|
-    Analytics::PageViewIndex::EventStream.update(page_view, true)
+        on_update do |page_view|
+          Analytics::PageViewIndex::EventStream.update(page_view, false)
+        end
+      end
+    end
   end
-
-  PageView::EventStream.on_update do |page_view|
-    Analytics::PageViewIndex::EventStream.update(page_view, false)
-  end
+  ::EventStream::Stream.prepend(EventStreamExtension)
 
   CONTROLLER_TO_ACTION = {
     :assignments              => :assignments,

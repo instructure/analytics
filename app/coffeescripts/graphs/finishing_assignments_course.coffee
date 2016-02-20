@@ -69,9 +69,11 @@ define [
       return unless super
 
       assignments = _.reject(assignments.assignments, (a) -> a.non_digital_submission)
-      @scaleByBins assignments.length
+      @scaleByBins assignments.length, false
       @drawXLabel I18n.t "Assignments"
       _.each assignments, @graphAssignment
+
+      @finish()
 
     ##
     # Graph a single assignment. Fat arrowed because it's called by _.each
@@ -79,26 +81,46 @@ define [
       x = @binX i
       if (breakdown = assignment.tardinessBreakdown)?
         base = 0
-        base = @drawLayer x, base, breakdown.onTime, @onTimeColor
-        base = @drawLayer x, base, breakdown.late, @lateColor
-        base = @drawLayer x, base, breakdown.missing, @missingColor
+        base = @drawLayer x, base, breakdown.onTime, @onTimeColor, 0, 15
+        base = @drawLayer x, base, breakdown.late, @lateColor, 0, 0
+        base = @drawLayer x, base, breakdown.missing, @missingColor, 15, 0
 
       @cover x, assignment
 
     ##
     # Draws the next layer at x, starting at base% and increasing by delta% in
     # color.
-    drawLayer: (x, base, delta, color) ->
+    drawLayer: (x, base, delta, color, top_radius, bottom_radius) ->
       if delta > 0
         summit = base + delta
         bottom = @valueY base
         top = @valueY summit
         height = bottom - top
-        box = @paper.rect x - @barWidth / 2, top, @barWidth, height
-        box.attr stroke: "white", fill: color
+        box = @roundedRect(x - @barWidth / 2, top, @barWidth, height, top_radius, bottom_radius)
+        box.attr stroke: "white", fill: color, 'stroke-width': 2
         summit
       else
         base
+
+    ##
+    # Draw a rectangle with independent top/bottom rounding radii
+    roundedRect: (x, y, w, h, tr, br) ->
+      # clip radius to fit within bar
+      sm = Math.min w, h
+      tr = Math.min tr, sm / 2
+      br = Math.min br, sm / 2
+      # draw bar
+      path = ["M", x + tr, y]
+      path.push 'l', w - tr * 2, 0 # top
+      path.push 'q', tr, 0, tr, tr # tr
+      path.push 'l', 0, h - tr - br # r
+      path.push 'q', 0, br, -br, br # br
+      path.push 'l', -(w - br * 2), 0 # b
+      path.push 'q', -br, 0, -br, -br # bl
+      path.push 'l', 0, -(h - br - tr) # l
+      path.push 'q', 0, -tr, tr, -tr # tl
+      path.push 'z'
+      @paper.path path
 
     ##
     # Convert a score to a y-coordinate.

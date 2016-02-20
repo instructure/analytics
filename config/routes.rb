@@ -12,43 +12,43 @@ CanvasRails::Application.routes.draw do
     #  - analytics_department_term :term_id => account.default_enrollment_term_id
     #  - analytics_department_current
     # depending on the number of terms in the account
-    get department_path, to: :department, as: :department
+    get department_path, action: :department, as: :department
     # department: specific term
-    get department_term_path, to: :department, as: :department_term
+    get department_term_path, action: :department, as: :department_term
     # department: default term, current courses
-    get department_current_path, to: :department, :filter => 'current', as: :department_current
+    get department_current_path, action: :department, :filter => 'current', as: :department_current
     # department: default term, concluded courses
-    get department_completed_path, to: :department, :filter => 'completed', as: :department_completed
+    get department_completed_path, action: :department, :filter => 'completed', as: :department_completed
     # course
-    get course_path, to: :course, as: :course
+    get course_path, action: :course, as: :course
     # student in course
-    get student_in_course_path, to: :student_in_course, as: :student_in_course
+    get student_in_course_path, action: :student_in_course, as: :student_in_course
   end
 
   ApiRouteSet::V1.draw(self) do
     scope controller: :analytics_api do
-      get department_term_path + '/statistics', :to => :department_statistics
-      get department_term_path + '/statistics_by_subaccount', :to => :department_statistics_by_subaccount
-      get department_term_path + '/activity', :to => :department_participation
-      get department_term_path + '/grades', :to => :department_grades
+      get department_term_path + '/statistics', :action => :department_statistics
+      get department_term_path + '/statistics_by_subaccount', :action => :department_statistics_by_subaccount
+      get department_term_path + '/activity', :action => :department_participation
+      get department_term_path + '/grades', :action => :department_grades
 
-      get department_current_path + '/statistics', :to => :department_statistics, :filter => 'current'
-      get department_current_path + '/statistics_by_subaccount', :to => :department_statistics_by_subaccount, :filter => 'current'
-      get department_current_path + '/activity', :to => :department_participation, :filter => 'current'
-      get department_current_path + '/grades', :to => :department_grades, :filter => 'current'
+      get department_current_path + '/statistics', :action => :department_statistics, :filter => 'current'
+      get department_current_path + '/statistics_by_subaccount', :action => :department_statistics_by_subaccount, :filter => 'current'
+      get department_current_path + '/activity', :action => :department_participation, :filter => 'current'
+      get department_current_path + '/grades', :action => :department_grades, :filter => 'current'
 
-      get department_completed_path + '/statistics', :to => :department_statistics, :filter => 'completed'
-      get department_completed_path + '/statistics_by_subaccount', :to => :department_statistics_by_subaccount, :filter => 'completed'
-      get department_completed_path + '/activity', :to => :department_participation, :filter => 'completed'
-      get department_completed_path + '/grades', :to => :department_grades, :filter => 'completed'
+      get department_completed_path + '/statistics', :action => :department_statistics, :filter => 'completed'
+      get department_completed_path + '/statistics_by_subaccount', :action => :department_statistics_by_subaccount, :filter => 'completed'
+      get department_completed_path + '/activity', :action => :department_participation, :filter => 'completed'
+      get department_completed_path + '/grades', :action => :department_grades, :filter => 'completed'
 
-      get course_path + '/activity', :to => :course_participation
-      get course_path + '/assignments', :to => :course_assignments
-      get course_path + '/student_summaries', :to => :course_student_summaries, :path_name => 'course_student_summaries'
+      get course_path + '/activity', :action => :course_participation
+      get course_path + '/assignments', :action => :course_assignments
+      get course_path + '/student_summaries', :action => :course_student_summaries, :path_name => 'course_student_summaries'
 
-      get student_in_course_path + '/activity', :to => :student_in_course_participation
-      get student_in_course_path + '/assignments', :to => :student_in_course_assignments
-      get student_in_course_path + '/communication', :to => :student_in_course_messaging
+      get student_in_course_path + '/activity', :action => :student_in_course_participation
+      get student_in_course_path + '/assignments', :action => :student_in_course_assignments
+      get student_in_course_path + '/communication', :action => :student_in_course_messaging
     end
   end
 end

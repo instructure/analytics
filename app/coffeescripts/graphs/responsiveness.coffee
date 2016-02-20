@@ -53,7 +53,7 @@ define [
         @[key] = options[key] ? defaultValue
 
       # placement of tracks of markers
-      @markerHeight = (@height - @topPadding - @bottomPadding - @gutterHeight) / 2
+      @markerHeight = (@height - @topPadding - @bottomPadding - @gutterHeight) / 2 - @verticalMargin
       @studentTrack = @topMargin + @topPadding
       @instructorTrack = @studentTrack + @markerHeight + @gutterHeight
       @center = @instructorTrack - @gutterHeight / 2
@@ -67,20 +67,10 @@ define [
         transform: 'r-90'
         'text-anchor': 'end'
 
-      @paper.text(@leftMargin + @width + 10, @topMargin, I18n.t("student")).attr
-        fill: @frameColor
-        transform: 'r90'
-        'text-anchor': 'start'
-
-      @paper.text(@leftMargin - 10, @topMargin + @height, I18n.t("instructors")).attr
+      @paper.text(@leftMargin - 10, @topMargin + @height - @bottomPadding, I18n.t("instructors")).attr
         fill: @frameColor
         transform: 'r-90'
         'text-anchor': 'start'
-
-      @paper.text(@leftMargin + @width + 10, @topMargin + @height, I18n.t("instructors")).attr
-        fill: @frameColor,
-        transform: 'r90',
-        'text-anchor': 'end'
 
     ##
     # Graph the data.
@@ -92,6 +82,8 @@ define [
         bin.messages > 0
 
       _.each bins, @graphBin
+
+      @finish()
 
     ##
     # Graph a single bin; i.e. a (day, track) pair. Fat arrowed because
