@@ -159,26 +159,37 @@ shared_examples_for "analytics tests" do
   end
 
   def student_roster
-    ff('.student_roster .user')
+    ff('.roster .StudentEnrollment')
   end
 
   def right_nav_buttons
     ff('#right_nav a')
   end
 
+  def analytics_nav_button
+    right_nav_buttons.detect do |button|
+      button.text.strip.include? 'Analytics'
+    end
+  end
+
   def validate_analytics_button_exists(exists = true)
     student = StudentEnrollment.last.user
     get "/courses/#{@course.id}/users/#{student.id}"
-    exists ? (expect(right_nav_buttons[0].text.strip).to eq "Analytics") : right_nav_buttons.each { |right_nav_button| expect(right_nav_button).not_to include_text(ANALYTICS_BUTTON_TEXT) }
+    buttons = right_nav_buttons.map { |button| button.text.strip }
+    if exists
+      expect(buttons).to include "Analytics"
+    else
+      expect(buttons).not_to include "Analytics"
+    end
   end
 
   def validate_analytics_icons_exist(exist = true)
     get "/courses/#{@course.id}/users"
     wait_for_ajaximations
     if !exist
-      expect(ff(ANALYTICS_BUTTON_CSS)).to be_empty
+      expect(ff(ANALYTICS_ICON_CSS)).to be_empty
     else
-      expect(ff(ANALYTICS_BUTTON_CSS).count).to eq student_roster.count
+      expect(ff(ANALYTICS_ICON_CSS).count).to eq student_roster.count
     end
   end
 

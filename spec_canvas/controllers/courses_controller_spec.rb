@@ -31,23 +31,25 @@ describe CoursesController, :type => :controller do
   end
 
   context "permissions" do
-    before :each do
+    before :once do
       course_with_teacher(:active_all => true)
       student_in_course(:active_all => true)
+    end
+
+    before :each do
       user_session(@teacher)
     end
 
     def expect_injection(opts={})
       course = opts[:course] || @course
       get 'show', :id => course.id
-      expect(assigns(:js_env).has_key?(:ANALYTICS)).to be_truthy
-      expect(assigns(:js_env)[:ANALYTICS]).to eq({ 'link' => "/courses/#{course.id}/analytics" })
+      expect(controller.course_custom_links.map { |link| link[:url] }).to include "/courses/#{course.id}/analytics"
     end
 
     def forbid_injection(opts={})
       course = opts[:course] || @course
       get 'show', :id => course.id
-      expect(assigns(:js_env).try(:has_key?, :ANALYTICS)).to be_falsey
+      expect(controller.course_custom_links.map { |link| link[:url] }).not_to include "/courses/#{course.id}/analytics"
     end
 
     it "should inject an analytics button under nominal conditions" do

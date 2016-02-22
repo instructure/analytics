@@ -22,8 +22,7 @@ require_relative 'analytics_common'
 describe "analytics" do
   include_examples "analytics tests"
 
-  ANALYTICS_BUTTON_CSS = '.analytics-grid-button'
-  ANALYTICS_BUTTON_TEXT = 'Analytics'
+  ANALYTICS_ICON_CSS = '.roster .icon-analytics'
 
   describe "course view" do
 
@@ -37,17 +36,27 @@ describe "analytics" do
       end
 
       it "should validate analytics icon link works" do
-        skip("new course users page doesn't have this link yet, known issue")
         get "/courses/#{@course.id}/users"
-
-        expect_new_page_load { student_roster[0].find_element(:css, ANALYTICS_BUTTON_CSS).click }
+        expect_new_page_load do
+          student_roster[0].find_element(:css, ".al-trigger").click
+          f('.al-options .ui-menu-item .icon-analytics').find_element(:xpath, '..').click
+        end
         validate_student_display(@student.name)
       end
 
       it "should validate analytics button link works" do
         get "/courses/#{@course.id}/users/#{@student.id}"
 
-        expect_new_page_load { right_nav_buttons[0].click }
+        expect_new_page_load { analytics_nav_button.click }
+        validate_student_display(@student.name)
+      end
+
+      it "should validate analytics button link works with profiles enabled" do
+        @course.root_account.settings[:enable_profiles] = true
+        @course.root_account.save!
+        get "/courses/#{@course.id}/users/#{@student.id}"
+
+        expect_new_page_load { analytics_nav_button.click }
         validate_student_display(@student.name)
       end
     end
