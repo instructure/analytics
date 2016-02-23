@@ -52,8 +52,9 @@ describe Analytics::Department do
     it "should return the number of teachers and students, across all subaccounts" do
       c1 = course_shim(account: @account, active_all: true)
       c2 = course_shim(account: @account.sub_accounts.first, active_all: true)
-      student_in_course(course: c1, active_all: true)
+      s1 = student_in_course(course: c1, active_all: true).user
       student_in_course(course: c2, active_all: true)
+      student_in_course(course: c2, user: s1, active_all: true) # enroll student in both courses
       hsh = @acct_statistics.statistics
       expect(hsh[:teachers]).to eq 2
       expect(hsh[:students]).to eq 2
