@@ -117,6 +117,14 @@ describe PageView do
       expect(parts.size).to eq 2
       parts.each { |p| expect(p.key?(:created_at)).to be_truthy }
     end
+
+    it "should update when participating on a group context" do
+      group_model(:context => @course)
+      @group.add_user(@user, 'accepted')
+      page_view(:user => @user, :context => @group, :participated => true)
+      parts = PageView.participations_for_context(@course, @user)
+      expect(parts.count).to eq 1
+    end
   end
 
   describe ".participations_for_context db" do
@@ -141,6 +149,23 @@ describe PageView do
       page_view(:user => @user, :context => @course, :created_at => 3.hours.ago)
       page_view(:user => @user, :context => @course, :created_at => 1.hour.ago)
       page_view(:user => @user, :context => @course, :created_at => 1.hour.ago)
+      counts = PageView.counters_by_context_and_hour(@course, @user)
+      expect(counts.size).to eq 2
+      expect(counts.values.sum).to eq 5
+    end
+
+    it "should return user page view counts in course groups" do
+      timewarp = Time.parse('2012-12-26T19:15:00Z')
+      Time.stubs(:now).returns(timewarp)
+
+      group_model(:context => @course)
+      @group.add_user(@user, 'accepted')
+
+      page_view(:user => @user, :context => @group, :created_at => 2.days.ago)
+      page_view(:user => @user, :context => @group, :created_at => 2.days.ago)
+      page_view(:user => @user, :context => @group, :created_at => 3.hours.ago)
+      page_view(:user => @user, :context => @group, :created_at => 1.hour.ago)
+      page_view(:user => @user, :context => @group, :created_at => 1.hour.ago)
       counts = PageView.counters_by_context_and_hour(@course, @user)
       expect(counts.size).to eq 2
       expect(counts.values.sum).to eq 5
@@ -170,6 +195,23 @@ describe PageView do
       expect(counts.size).to eq 3
       expect(counts.values.sum).to eq 5
     end
+
+    it "should return user page view counts in course groups" do
+      timewarp = Time.parse('2012-12-26T19:15:00Z')
+      Time.stubs(:now).returns(timewarp)
+
+      group_model(:context => @course)
+      @group.add_user(@user, 'accepted')
+
+      page_view(:user => @user, :context => @group, :created_at => 2.days.ago)
+      page_view(:user => @user, :context => @group, :created_at => 2.days.ago)
+      page_view(:user => @user, :context => @group, :created_at => 3.hours.ago)
+      page_view(:user => @user, :context => @group, :created_at => 1.hour.ago)
+      page_view(:user => @user, :context => @group, :created_at => 1.hour.ago)
+      counts = PageView.counters_by_context_and_hour(@course, @user)
+      expect(counts.size).to eq 3
+      expect(counts.values.sum).to eq 5
+    end
   end
 
   shared_examples_for ".counters_by_context_for_users" do
@@ -193,6 +235,27 @@ describe PageView do
       counts = PageView.counters_by_context_for_users(@course, [@user1.id, @user2.id])
       expect(counts).to eq({ @user1.id => { :page_views => 4, :participations => 3 },
                          @user2.id => { :page_views => 5, :participations => 1 },
+      })
+
+      # partial retrieval
+      expect(PageView.counters_by_context_for_users(@course, [@user2.id])).to eq({ @user2.id => counts[@user2.id] })
+    end
+
+    it "should return user total page views and participants counts with groups" do
+      group_model(:context => @course)
+      @group.add_user(@user, 'accepted')
+
+      page_view(:user => @user1, :context => @group, :participated => true,  :created_at => 2.days.ago)
+      page_view(:user => @user1, :context => @group, :participated => false, :created_at => 11.months.ago)
+      page_view(:user => @user1, :context => @group, :participated => true,  :created_at => 1.hour.ago)
+
+      page_view(:user => @user2, :context => @group, :participated => true,  :created_at => 1.day.ago)
+      page_view(:user => @user2, :context => @group, :participated => false, :created_at => 1.hour.ago)
+
+
+      counts = PageView.counters_by_context_for_users(@course, [@user1.id, @user2.id])
+      expect(counts).to eq({ @user1.id => { :page_views => 3, :participations => 2 },
+        @user2.id => { :page_views => 2, :participations => 1 },
       })
 
       # partial retrieval
