@@ -251,7 +251,6 @@ describe PageViewsRollup do
     context "with redis" do
       before(:each) do
         Setting.set("page_view_rollups_method", "redis")
-        Canvas.redis.flushdb
       end
 
       describe ".increment_cached!" do
