@@ -196,7 +196,7 @@ describe "analytics" do
     it "should validate grades graph" do
       randomly_grade_assignments(10)
       first_assignment = @course.active_assignments.first
-      first_submission_score = first_assignment.submissions.first.score.to_s
+      first_submission_score = first_assignment.submissions.first.score.to_i.to_s
       validation_text = ['Score: ' + first_submission_score + ' / 100', first_assignment.title]
       setup_for_grades_graph
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
@@ -251,7 +251,7 @@ describe "analytics" do
 
         def validate_first_students_grade_graph
           first_assignment = @course.active_assignments.first
-          first_submission_score = first_assignment.submissions.first.score.to_s
+          first_submission_score = first_assignment.submissions.first.score.to_i.to_s
           validation_text = ['Score: ' + first_submission_score + ' / 100', first_assignment.title]
           validation_text.each { |text| validate_tooltip_text("#grades-graph .assignment_#{first_assignment.id}.cover", text) }
         end
