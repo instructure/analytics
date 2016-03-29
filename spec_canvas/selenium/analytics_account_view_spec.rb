@@ -22,10 +22,10 @@ require_relative 'analytics_common'
 describe "analytics account view" do
   include_examples "analytics tests"
 
-  ACCOUNT_ID = Account.default.id
+  let(:account_id) { Account.default.id }
 
   def validate_data_point(data_point, expected_count = "1")
-    expect(find(".#{data_point}_count").text).to eq expected_count
+    expect(find(".AnalyticsStats__#{data_point}").find(".AnalyticsStats__Count").text).to eq expected_count
   end
 
   before (:each) do
@@ -43,8 +43,8 @@ describe "analytics account view" do
       concluded_course.enroll_user(student, 'StudentEnrollment').accept!
     end
     concluded_course.complete
-    go_to_analytics("/accounts/#{ACCOUNT_ID}/analytics")
-    data_points = %w(courses students)
+    go_to_analytics("/accounts/#{account_id}/analytics")
+    data_points = %w(Courses Students)
     validate_data_point(data_points[0], '1')
     validate_data_point(data_points[1], '0')
     find('.ui-combobox-next').click
@@ -58,23 +58,23 @@ describe "analytics account view" do
     it "should validate activity by date graph with no action taken" do
       page_view_count = 10
       page_view_count.times { page_view(:user => @student, :course => @course) }
-      go_to_analytics("/accounts/#{ACCOUNT_ID}/analytics")
+      go_to_analytics("/accounts/#{account_id}/analytics")
       validate_tooltip_text(date_selector(Time.now, '#participating-date-graph'), page_view_count.to_s + ' page views')
-      validate_element_fill(get_rectangle(Time.now, '#participating-date-graph'), GraphColors::BLUE)
+      validate_element_fill(get_rectangle(Time.now, '#participating-date-graph'), GraphColors::LIGHT_BLUE)
     end
 
     it "should validate activity by date graph with action taken" do
       page_view(:user => @student, :course => @course, :participated => true)
       expected_text = %w(1 page view 1 participation)
-      go_to_analytics("/accounts/#{ACCOUNT_ID}/analytics")
+      go_to_analytics("/accounts/#{account_id}/analytics")
       expected_text.each { |text| validate_tooltip_text(date_selector(Time.now, '#participating-date-graph'), text) }
-      validate_element_fill(get_rectangle(Time.now, '#participating-date-graph'), GraphColors::ORANGE)
+      validate_element_fill(get_rectangle(Time.now, '#participating-date-graph'), GraphColors::DARK_BLUE)
     end
 
     it "should validate activity by category graph" do
       controllers = %w(files gradebook2 groups assignments)
       controllers.each { |controller| page_view(:user => @student, :course => @course, :controller => controller) }
-      go_to_analytics("/accounts/#{ACCOUNT_ID}/analytics")
+      go_to_analytics("/accounts/#{account_id}/analytics")
       controllers.each { |controller| validate_tooltip_text("#participating-category-graph .#{controller}", '1 page view') }
 
     end
@@ -83,7 +83,7 @@ describe "analytics account view" do
       skip('figure out how to validate this graph')
       added_students = add_students_to_course(5)
       added_students.each { |student| randomly_grade_assignments(5, student) }
-      go_to_analytics("/accounts/#{ACCOUNT_ID}/analytics")
+      go_to_analytics("/accounts/#{account_id}/analytics")
       #TODO: figure out how to validate this graph
     end
   end
@@ -107,11 +107,11 @@ describe "analytics account view" do
           :extension => 'mp4'
       }}}
       media_object.save!
-      go_to_analytics("/accounts/#{ACCOUNT_ID}/analytics")
+      go_to_analytics("/accounts/#{account_id}/analytics")
     end
 
-    %w(courses teachers students assignments topics attachments media).each do |data_point|
-      it "should validate #{data_point} data point" do
+    it "should validate data points" do
+      %w(Courses Teachers Students Assignments Topics Attachments Media).each do |data_point|
         validate_data_point(data_point)
       end
     end

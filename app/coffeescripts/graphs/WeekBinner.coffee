@@ -21,19 +21,15 @@ define [
       helpers.daysBetween(date1, date2) / 7
 
     ##
-    # Include tick chrome on first Monday of each month. Draw a grid line
-    # and bottom label on each of those ticks, with the month as the bottom
-    # label. Draw a top label only for chromed ticks that have a different
-    # year than the last.
+    # Label the first tick in a month. If the year has changed,
+    # include it in the label
     tickChrome: (tick, last) ->
       return {} unless tick.getDate() <= 7
 
-      unless last? && tick.getFullYear() is last.getFullYear()
-        topLabel = tick.getFullYear()
-
-      grid: true
-      bottomLabel: I18n.l("date.formats.short_month", tick)
-      topLabel: topLabel
+      label: if !last? or tick.getFullYear() isnt last.getFullYear()
+        I18n.l("date.formats.medium_month", tick)
+      else
+        I18n.l("date.formats.short_month", tick)
 
     ##
     # Advance by one week

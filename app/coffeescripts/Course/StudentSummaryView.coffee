@@ -3,10 +3,7 @@ define [
   'underscore'
   'Backbone'
   'analytics/jst/course_student_summary'
-  'analytics/compiled/Course/PageViewsBar'
-  'analytics/compiled/Course/ParticipationsBar'
-  'analytics/compiled/Course/TardinessBar'
-], ($, _, Backbone, template, PageViewsBar, ParticipationsBar, TardinessBar) ->
+], ($, _, Backbone, template) ->
 
   class StudentSummaryView extends Backbone.View
     tagName: 'tr'
@@ -16,18 +13,18 @@ define [
       @render()
 
     render: =>
+      json = _.omit(@model.get('student').toJSON(), 'html_url')
+      json.pageViews = @model.get('pageViews').count
+      json.participations = @model.get('participations').count
+      subs = @model.get('tardinessBreakdown')
+      json.submissions = subs.total
+      json.onTime = subs.onTime
+      json.late = subs.late
+      json.missing = subs.missing
+
       # replace $el with new rendering of template
       oldEl = @$el
-      @$el = $ template _.omit(@model.get('student').toJSON(), 'html_url')
+      @$el = $ template json
       oldEl.replaceWith @$el
-
-      # update activity and assignments graphs from student summary
-      @pageViews = new PageViewsBar @$('.page_views')
-      @participations = new ParticipationsBar @$('.participations')
-      @tardiness = new TardinessBar @$('.submissions')
-
-      @pageViews.show @model.get 'pageViews'
-      @participations.show @model.get 'participations'
-      @tardiness.show @model.get 'tardinessBreakdown'
 
       this

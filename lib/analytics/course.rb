@@ -43,7 +43,7 @@ module Analytics
     def enrollments
       @enrollments ||= slaved do
         rows = enrollment_scope.to_a
-        ActiveRecord::Associations::Preloader.new(rows, [ :course_section, {:course => :enrollment_term} ]).run
+        ActiveRecord::Associations::Preloader.new.preload(rows, [ :course_section, {:course => :enrollment_term} ])
         rows
       end
     end
@@ -88,7 +88,7 @@ module Analytics
     def student_ids
       slaved(:cache_as => :student_ids) do
         # id of any user with an enrollment, order unimportant
-        enrollment_scope.uniq.pluck(:user_id)
+        enrollment_scope.distinct.pluck(:user_id)
       end
     end
 
@@ -136,9 +136,9 @@ module Analytics
       collection.format do |student|
         {
           :id => student.id,
-          :page_views => page_view_counts[student.id][:page_views],
+          :page_views => page_view_counts[student.id].try(:[], :page_views),
           :max_page_views => analysis.max_page_views,
-          :participations => page_view_counts[student.id][:participations],
+          :participations => page_view_counts[student.id].try(:[], :participations),
           :max_participations => analysis.max_participations,
           :tardiness_breakdown => tardiness_breakdowns[:students][student.id].as_hash
         }
@@ -183,7 +183,7 @@ module Analytics
     def student_scope
       @student_scope ||= begin
         # any user with an enrollment, ordered by name
-        subselect = enrollment_scope.select([:user_id, :computed_current_score]).uniq.to_sql
+        subselect = enrollment_scope.select([:user_id, :computed_current_score]).distinct.to_sql
         User.
           select("users.*, enrollments.computed_current_score").
           joins("INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id=users.id")

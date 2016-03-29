@@ -199,11 +199,31 @@ describe PageViewsRollup do
       @category = 'other'
 
       bin = mock('bin')
-      PageViewsRollup.stubs(:bin_for).with(@course, @today, @category).returns(bin)
+      scope = mock('scope')
+      scope.stubs(:transaction).yields
+      PageViewsRollup.stubs(:bin_scope_for).with(@course).returns(scope)
+      PageViewsRollup.stubs(:bin_for).with(scope, @today, @category).returns(bin)
+      bin.expects(:new_record?).returns(false)
       bin.expects(:augment).with(5, 2).once
-      bin.expects(:save).once
+      bin.expects(:save!).once
 
       PageViewsRollup.augment!(@course, @today, @category, 5, 2)
+    end
+
+    it 'handles creation race condition' do
+      course = course_model
+      today = Date.today
+      category = 'other'
+
+      scope = PageViewsRollup.bin_scope_for(course)
+      bin1 = PageViewsRollup.bin_for(scope, today, category)
+      bin2 = PageViewsRollup.bin_for(scope, today, category)
+      bin2.save!
+      PageViewsRollup.expects(:bin_scope_for).returns(scope)
+      PageViewsRollup.expects(:bin_for).twice.with(scope, today, category).returns(bin1).
+          then.returns(bin2)
+
+      PageViewsRollup.augment!(course, today, category, 5, 2)
     end
   end
 

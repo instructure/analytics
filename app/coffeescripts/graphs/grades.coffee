@@ -35,19 +35,14 @@ define [
 
     ##
     # The colors of the outer rings of value dots, by performance level.
-    goodRingColor: "lightgreen"
-    fairRingColor: "lightyellow"
-    poorRingColor: "lightred"
-
-    ##
-    # The colors of the centers of value dots, by performance level.
-    goodCenterColor: "darkgreen"
-    fairCenterColor: "darkyellow"
-    poorCenterColor: "darkred"
+    colorGood: "green"
+    colorFair: "gold"
+    colorPoor: "red"
 
     ##
     # Max width of a bar, in pixels. (Overrides default from ScaleByBins)
     maxBarWidth: 30
+    gutterPercent: 1.0
 
   class Grades extends Base
     ##
@@ -76,6 +71,8 @@ define [
       @drawXLabel I18n.t "Assignments"
       _.each assignments, @graphAssignment
 
+      @finish()
+
     ##
     # given an assignment, what's the max score possible/achieved so far?
     maxAssignmentScore: (assignment) ->
@@ -91,7 +88,7 @@ define [
     # assignments and maximum score being graphed.
     scaleToAssignments: (assignments) ->
       # scale the x-axis for the number of bins
-      @scaleByBins assignments.length
+      @scaleByBins assignments.length, false
 
       # top of max bar = @topMargin + @topPadding
       # base of bars = @topMargin + @height - @bottomPadding
@@ -151,32 +148,31 @@ define [
       median.attr stroke: "none", fill: @medianColor
 
     ##
-    # Draw the dot for the student's score in an assignment
+    # Draw the shape for the student's score in an assignment
     drawStudentScore: (x, assignment) ->
       scoreY = @valueY assignment.studentScore
-      colors = @valueColors assignment
-      ring = @paper.circle x, scoreY, @barWidth / 4
-      ring.attr stroke: colors.ring, fill: colors.ring
-      center = @paper.circle x, scoreY, @barWidth / 12
-      center.attr stroke: colors.center, fill: colors.center
+      attrs = @scoreAttrs assignment
+      attrs.color = 'white'
+      attrs.outline = 1
+      @drawShape x, scoreY, @barWidth / 4 + 2, attrs
 
     ##
     # Returns colors to use for the value dot of an assignment. If this is
     # being called, it's implied there is a student score for the assignment.
-    valueColors: (assignment) ->
+    scoreAttrs: (assignment) ->
       if assignment.scoreDistribution?
         if assignment.studentScore >= assignment.scoreDistribution.median
-          ring: @goodRingColor
-          center: @goodCenterColor
+          fill: @colorGood
+          shape: 'circle'
         else if assignment.studentScore >= assignment.scoreDistribution.firstQuartile
-          ring: @fairRingColor
-          center: @fairCenterColor
+          fill: @colorFair
+          shape: 'triangle'
         else
-          ring: @poorRingColor
-          center: @poorCenterColor
+          fill: @colorPoor
+          shape: 'square'
       else
-        ring: @goodRingColor
-        center: @goodCenterColor
+        fill: @colorGood
+        shape: 'circle'
 
     ##
     # Draw a muted assignment indicator

@@ -22,8 +22,6 @@ require_dependency 'analytics/permitted_course'
 #
 # API for retrieving the data exposed in Canvas Analytics
 class AnalyticsApiController < ApplicationController
-  unloadable
-
   require 'analytics/extensions/permissions'
   include AnalyticsPermissions
 

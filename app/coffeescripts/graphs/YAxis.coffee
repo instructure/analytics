@@ -40,8 +40,7 @@ define ->
       tick * @tickStep
 
     ##
-    # Place a tick every @tickStep between @min and @max, inclusive. Augment
-    # every @labelFrequency-th tick with a label and grid line.
+    # Label every @labelFrequency-th tick with a label and grid line.
     draw: ->
       @width = 0
 
@@ -51,21 +50,10 @@ define ->
         if j % @labelFrequency is 0
           @line y
           @label y, @labelText value
-        @tick y
         j += 1
 
       if @title
         @host.drawYLabel @title, offset: @width
-
-    ##
-    # Draw tick marks at y on the host, just inside the left and right margins.
-    tick: (y) ->
-      @host.paper.path([
-        "M", @host.leftMargin, y,
-        "l", @tickSize, 0,
-        "M", @host.leftMargin + @host.width, y,
-        "l", -@tickSize, 0
-      ]).attr stroke: @host.frameColor
 
     ##
     # Draw a grid line at y on the host, form left to right margin.
@@ -101,15 +89,10 @@ define ->
         (value / Math.pow(1000, power)) + suffix
 
     ##
-    # Draw a y-axis label at y on the host, just outside the left and right
-    # margins.
+    # Draw a y-axis label at y on the host, just outside the left margin.
     label: (y, text) ->
       label = @host.paper.text(@host.leftMargin - 5, y, text)
       label.attr
         fill: @host.frameColor
         'text-anchor': 'end'
       @width = Math.max(@width, label.getBBox().width)
-
-      @host.paper.text(@host.leftMargin + @host.width + 5, y, text).attr
-        fill: @host.frameColor
-        'text-anchor': 'start'

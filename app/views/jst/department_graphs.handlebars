@@ -1,39 +1,22 @@
-<table>
-  <tr>
-    <td>
-      <h4>
-        <span class="graph_name">{{t "Activity by Date"}}</span>
-      </h4>
-      <p class="description">
-        {{#t}}Each bar represents the number of <span class='pageview'>page
-        views</span> on that day. An orange bar indicates that some user
-        <span class='participation'>took an action</span> within a course on
-        that day.{{/t}}
-      </p>
-    </td>
-    <td><div class="graph" id="participating-date-graph"/></td>
-  </tr>
-  <tr>
-    <td>
-      <h4>
-        <span class="graph_name">{{t "Activity by Category"}}</span>
-      </h4>
-      <p class="description">
-        {{t "Each bar represents the number of page views related to that category."}}
-      </p>
-    </td>
-    <td><div class="graph" id="participating-category-graph"/></td>
-  </tr>
-  <tr>
-    <td>
-      <h4>
-        <span class="graph_name">{{t "Grade Distribution"}}</span>
-      </h4>
-      <p class="description">
-        {{t "Distribution of current grades in courses across all students enrolled
-        in department courses."}}
-      </p>
-    </td>
-    <td><div class="graph" id="grade-distribution-graph"/></td>
-  </tr>
-</table>
+<div class="legend_row">
+  <h3 class="h4">{{t "Activity by Date"}}</h3>
+  <div class="graph_legend" aria-hidden="true">
+    <span class="legend_entry"><span class="legend_swatch page_views"></span>{{t "Page Views Only"}}</span>
+    <span class="legend_entry"><span class="legend_swatch participation"></span>{{t "Participation"}}</span>
+  </div>
+</div>
+<div class="graph" id="participating-date-graph" aria-hidden="true"/>
+<div id="participating-date-table" style="display:none;"/>
+
+
+<div class="legend_row">
+  <h3 class="h4">{{t "Activity by Category"}}</h3>
+</div>
+<div class="graph" id="participating-category-graph" aria-hidden="true"/>
+<div id="participating-category-table" style="display:none;"/>
+
+<div class="legend_row">
+  <h3 class="h4">{{t "Grade Distribution"}}</h3>
+</div>
+<div class="graph" id="grade-distribution-graph" aria-hidden="true"/>
+<div id="grade-distribution-table" style="display:none;"/>
