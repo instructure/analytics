@@ -199,7 +199,7 @@ module Analytics
     end
 
     def count_users_for_enrollments(enrollments_scope)
-      enrollments_scope.distinct.count(:all)
+      enrollments_scope.distinct.count('user_id')
     end
 
     def discussion_topics
