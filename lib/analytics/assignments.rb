@@ -77,7 +77,7 @@ module Analytics
       this_course.shard.activate do
         scope = this_course.assignments.published
 
-        if differentiated_assignments_applies?(this_course, user)
+        if user && differentiated_assignments_applies?(this_course, user)
           scope = scope.visible_to_students_in_course_with_da(user.id, this_course.id)
         end
 
@@ -87,7 +87,7 @@ module Analytics
     end
 
     def self.differentiated_assignments_applies?(course, user)
-      course.feature_enabled?(:differentiated_assignments) && !course.grants_any_right?(user, :read_as_admin, :manage_grades, :manage_assignments)
+      !course.grants_any_right?(user, :read_as_admin, :manage_grades, :manage_assignments)
     end
 
     def assignment_data(assignment, submissions, course_module_tags_hash=nil)

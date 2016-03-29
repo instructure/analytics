@@ -21,7 +21,7 @@
 require_relative '../../../../../spec/spec_helper'
 
 describe ContextController, :type => :controller do
-  before :each do
+  before :once do
     @account = Account.default
     @account.allowed_services = '+analytics'
     @account.save!
@@ -31,30 +31,33 @@ describe ContextController, :type => :controller do
   end
 
   context "permissions" do
-    before :each do
+    before :once do
       @student1 = user(:active_all => true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
       @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
       @enrollment = @course.enroll_user(@student1, 'StudentEnrollment', :section => @section)
       @enrollment.accept!
+    end
+
+    before :each do
       user_session(@teacher)
     end
 
     def expect_injection(course, student)
       expected_link = "/courses/#{course.id}/analytics/users/#{student.id}"
       get 'roster_user', :course_id => course.id, :id => student.id
-      expect(assigns(:js_env).has_key?(:ANALYTICS)).to be_truthy
-      expect(assigns(:js_env)[:ANALYTICS]).to eq({ 'link' => expected_link, 'student_name' => student.short_name })
+      expect(controller.roster_user_custom_links(student).map { |link| link[:url] }).to include expected_link
     end
 
     def forbid_injection(course, student)
+      analytics_link = "/courses/#{course.id}/analytics/users/#{student.id}"
       get 'roster_user', :course_id => course.id, :id => student.id
-      expect(assigns(:js_env).try(:has_key?, :ANALYTICS)).to be_falsey
+      expect(controller.roster_user_custom_links(student).map { |link| link[:url] }).not_to include analytics_link
     end
 
     context "nominal conditions" do
-      before :each do
+      before :once do
         @student2 = student_in_course(:active_all => true).user
       end
 
@@ -68,7 +71,7 @@ describe ContextController, :type => :controller do
     end
 
     context "analytics disabled" do
-      before :each do
+      before :once do
         @account.allowed_services = '-analytics'
         @account.save!
       end
@@ -79,7 +82,7 @@ describe ContextController, :type => :controller do
     end
 
     context "unpublished course" do
-      before :each do
+      before :once do
         @course.workflow_state = 'created'
         @course.save!
       end
@@ -90,11 +93,14 @@ describe ContextController, :type => :controller do
     end
 
     context "concluded course" do
+      before :once do
+        @course.complete!
+      end
+
       before :each do
         # teachers viewing analytics for a concluded course is currently
         # broken. so let an admin try it.
         user_session(account_admin_user)
-        @course.complete!
       end
 
       it "should still inject an analytics button on the roster_user page" do
@@ -103,7 +109,7 @@ describe ContextController, :type => :controller do
     end
 
     context "no analytics permission" do
-      before :each do
+      before :once do
         RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => false)
       end
 
@@ -113,7 +119,7 @@ describe ContextController, :type => :controller do
     end
 
     context "no manage_grades or view_all_grades permission" do
-      before :each do
+      before :once do
         RoleOverride.manage_role_override(@account, 'StudentEnrollment', 'view_analytics', :override => true)
         @student2 = student_in_course(:active_all => true).user
       end
@@ -130,7 +136,7 @@ describe ContextController, :type => :controller do
     end
 
     context "invited-only enrollments" do
-      before :each do
+      before :once do
         @enrollment.workflow_state = 'invited'
         @enrollment.save!
       end
@@ -141,7 +147,7 @@ describe ContextController, :type => :controller do
     end
 
     context "unreadable student" do
-      before :each do
+      before :once do
         # section limited ta in section other than student1
         @ta = user(:active_all => true)
         @enrollment = @course.enroll_ta(@ta)
@@ -150,9 +156,12 @@ describe ContextController, :type => :controller do
         @enrollment.limit_privileges_to_course_section = true
         @enrollment.course_section = @default_section
         @enrollment.save!
-        user_session(@ta)
 
         RoleOverride.manage_role_override(@account, 'TaEnrollment', 'view_analytics', :override => true)
+      end
+
+      before :each do
+        user_session(@ta)
       end
 
       it "should not inject an analytics button on the roster_user page" do
