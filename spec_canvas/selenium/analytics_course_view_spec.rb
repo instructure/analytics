@@ -93,7 +93,7 @@ describe "analytics course view" do
         go_to_analytics("/courses/#{@course.id}/analytics")
         expect(f('#activities-table')).not_to be_displayed
         expect(f('.graph')).to be_displayed
-        f('#graph_table_toggle').click
+        move_to_click('#graph_table_toggle')
         expect(f('#activities-table')).to be_displayed
         expect(f('.graph')).not_to be_displayed
       end
