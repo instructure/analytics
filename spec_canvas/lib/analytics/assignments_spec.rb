@@ -166,13 +166,7 @@ module Analytics
         @course.reload
       end
 
-      it "returns all assignments without differentiated assignments" do
-        harness = AssignmentsHarness.new(@course, @student)
-        expect(harness.assignment_scope.length).to eq @course.assignments.length
-      end
-
       it "returns only visible assignments with differentiated assignments" do
-        @course.enable_feature!(:differentiated_assignments)
         harness = AssignmentsHarness.new(@course, @student)
         expect(harness.assignment_scope.length).to eq 1
       end

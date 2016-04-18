@@ -23,7 +23,7 @@ require_relative '../../../../../spec/spec_helper'
 describe AccountsController, :type => :controller do
   ROLE = 'TestAdmin'
 
-  before :each do
+  before :once do
     @account = Account.default
     @account.allowed_services = '+analytics'
     @account.save!
@@ -33,22 +33,21 @@ describe AccountsController, :type => :controller do
     RoleOverride.manage_role_override(@account, role, 'view_analytics', :override => true)
 
     @admin = account_admin_user(:account => @account, :role => role, :active_all => true)
+  end
+
+  before :each do
     user_session(@admin)
   end
 
   context "permissions" do
     def expect_injection
-      call_parameters = []
-      AccountsController.any_instance.expects(:js_env).at_least_once.with{ |*parameters| call_parameters << parameters }
       get 'show', :id => @account.id, :format => 'html'
-      expect(call_parameters).to include([{:ANALYTICS => { 'link' => "/accounts/#{@account.id}/analytics" }}])
+      expect(controller.account_custom_links.map { |link| link[:url] }).to include "/accounts/#{@account.id}/analytics"
     end
 
     def forbid_injection
-      call_parameters = []
-      AccountsController.any_instance.expects(:js_env).at_least(0).yields{ |*parameters| call_parameters << parameters }
       get 'show', :id => @account.id, :format => 'html'
-      expect(call_parameters).not_to include([{:ANALYTICS => { 'link' => "/accounts/#{@account.id}/analytics" }}])
+      expect(controller.account_custom_links.map { |link| link[:url] }).not_to include "/accounts/#{@account.id}/analytics"
     end
 
     it "should inject an analytics button on the account page under nominal conditions" do

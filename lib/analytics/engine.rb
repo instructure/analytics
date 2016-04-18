@@ -42,9 +42,8 @@ module Analytics
     # runs once in production, but on each request (to match class reloading)
     # in development with class_caching off
     config.to_prepare do
-      require 'analytics/extensions/accounts_controller'
       require 'analytics/extensions/courses_controller'
-      require 'analytics/extensions/context_controller'
+      require 'analytics/extensions/custom_sidebar_links_helper'
       require 'analytics/extensions/course'
       require 'analytics/extensions/enrollment'
       require 'analytics/extensions/grade_calculator'
