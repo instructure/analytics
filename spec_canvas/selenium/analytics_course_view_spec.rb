@@ -82,7 +82,7 @@ describe "analytics course view" do
 
     it "should validate grades graph" do
       setup_for_grades_graph
-      validation_text = ['High: ' + @first_submission_score, @first_assignment.title]
+      validation_text = ['High: ' + @first_submission_score.to_i.to_s, @first_assignment.title]
       go_to_analytics("/courses/#{@course.id}/analytics")
 
       validation_text.each { |text| validate_tooltip_text("#grades-graph .assignment_#{@first_assignment.id}.cover", text) }
@@ -93,7 +93,7 @@ describe "analytics course view" do
         go_to_analytics("/courses/#{@course.id}/analytics")
         expect(f('#activities-table')).not_to be_displayed
         expect(f('.graph')).to be_displayed
-        f('#graph_table_toggle').click
+        move_to_click('#graph_table_toggle')
         expect(f('#activities-table')).to be_displayed
         expect(f('.graph')).not_to be_displayed
       end

@@ -55,9 +55,17 @@ module Analytics::PageViewIndex
     end
 
     def self.update(page_view, new_record)
-      return unless page_view.user && page_view.context_type == 'Course' && page_view.context
+      context = case page_view.context_type
+                when 'Course'
+                  page_view.context
+                when 'Group'
+                  if page_view.context.context_type == 'Course'
+                    page_view.context.context
+                  end
+                end
+      return unless page_view.user && context
 
-      user, context = page_view.user, page_view.context
+      user = page_view.user
       participation = (new_record || page_view.participated_changed? || page_view.asset_user_access_id_changed?) &&
         page_view.participated &&
         page_view.asset_user_access
@@ -130,8 +138,13 @@ module Analytics::PageViewIndex
   end
 
   module DB
+    def self.scope_for_context_and_user(context, user)
+      contexts = [context] + user.group_memberships_for(context).to_a
+      PageView.for_users([user]).polymorphic_where(:context => contexts)
+    end
+
     def self.participations_for_context(context, user)
-      PageView.for_context(context).for_users([user]).
+      scope_for_context_and_user(context, user).
         select("created_at, url").
         where("participated AND asset_user_access_id IS NOT NULL").map do |participation|
           {
@@ -142,7 +155,7 @@ module Analytics::PageViewIndex
     end
 
     def self.counters_by_context_and_hour(context, user)
-      PageView.for_context(context).for_users([user]).
+      scope_for_context_and_user(context, user).
         group("DATE(created_at)").
         count(:all)
     end
@@ -165,13 +178,14 @@ module Analytics::PageViewIndex
       id_map = user_ids.index_by{ |id| Shard.relative_id_for(id, Shard.current, context.shard) }
 
       context.shard.activate do
-        PageView.for_context(context).for_users(id_map.keys).group(:user_id).count.each do |relative_user_id,count|
+        contexts = [context] + context.groups.to_a
+        PageView.for_users(id_map.keys).polymorphic_where(:context => contexts).group(:user_id).count.each do |relative_user_id,count|
           if id = id_map[relative_user_id]
             counters[id][:page_views] = count
           end
         end
 
-        context.asset_user_accesses.participations.for_user(id_map.keys).group(:user_id).count.each do |relative_user_id, count|
+        AssetUserAccess.participations.polymorphic_where(:context => contexts).for_user(id_map.keys).group(:user_id).count.each do |relative_user_id, count|
           if id = id_map[relative_user_id]
             counters[id][:participations] = count
           end
