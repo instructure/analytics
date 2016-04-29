@@ -108,8 +108,6 @@ define [
         studentMessages: groups[key].filter((obj) -> obj.track == 'student').length
       )
 
-
-
     afterRender: ->
       # render the table versions of the graphs for a11y/KO
       @renderTables([
@@ -143,7 +141,7 @@ define [
             dueAt: assignment.dueAt,
             submittedAt: assignment.submittedAt,
             status: formattedStatus,
-            score: assignment.studentScore || I18n.t("N/A")
+            score: helpers.formatNull(assignment.studentScore)
         },
         {
           div: "#grades-table"
@@ -160,18 +158,16 @@ define [
                         else
                           I18n.t("Good")
 
-            naString = I18n.t("N/A")
-
             title:            assignment.title
-            min_score:        assignment.scoreDistribution?.minScore || naString
-            median:           assignment.scoreDistribution?.median || naString
-            max_score:        assignment.scoreDistribution?.maxScore || naString
+            min_score:        helpers.formatNull(assignment.scoreDistribution?.minScore)
+            median:           helpers.formatNull(assignment.scoreDistribution?.median)
+            max_score:        helpers.formatNull(assignment.scoreDistribution?.maxScore)
             points_possible:  assignment.pointsPossible
-            student_score:    assignment.studentScore || naString
+            student_score:    helpers.formatNull(assignment.studentScore)
             score_type:       scoreType
             percentile:
-              min: assignment.scoreDistribution?.firstQuartile || naString
-              max: assignment.scoreDistribution?.thirdQuartile || naString
+              min: helpers.formatNull(assignment.scoreDistribution?.firstQuartile)
+              max: helpers.formatNull(assignment.scoreDistribution?.thirdQuartile)
         }
       ])
 
@@ -197,7 +193,8 @@ define [
       else
         @$('.message_student_link').hide()
 
-      if current_score = student.get 'current_score'
+      current_score = student.get 'current_score'
+      if current_score != null
         @$current_score.text "#{current_score}%"
       else
         @$current_score.text 'N/A'
