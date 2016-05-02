@@ -187,7 +187,7 @@ shared_examples_for "analytics tests" do
     get "/courses/#{@course.id}/users"
     wait_for_ajaximations
     if !exist
-      expect(ff(ANALYTICS_ICON_CSS)).to be_empty
+      expect((ff(ANALYTICS_ICON_CSS) rescue [])).to be_empty # TODO: fixme post https://gerrit.instructure.com/78420
     else
       expect(ff(ANALYTICS_ICON_CSS).count).to eq student_roster.count
     end
