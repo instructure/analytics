@@ -126,7 +126,7 @@ shared_examples_for "analytics tests" do
   end
 
   def current_student_score
-    StudentEnrollment.last.computed_current_score.to_s
+    "%g" % StudentEnrollment.last.computed_current_score
   end
 
   def setup_for_grades_graph
