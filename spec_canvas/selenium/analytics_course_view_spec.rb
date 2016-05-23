@@ -106,7 +106,7 @@ describe "analytics course view" do
       RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'manage_grades', :override => false)
       RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_all_grades', :override => false)
       go_to_analytics("/courses/#{@course.id}/analytics")
-      expect(not_found('#students')).to be
+      expect(f('#content')).not_to contain_css('#students')
     end
 
     it "should validate correct number of students are showing up" do
