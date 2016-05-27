@@ -3,9 +3,9 @@
   <div class="grid-row end-xs">
     <div class="col-xs-2">
       <div class="AnalyticsToggle ic-Form-control">
-        <label class="ic-Super-toggle--ui-switch" for="graph_table_toggle">
-          <span class="screenreader-only">Toggle graph view or table view</span>
-          <input type="checkbox" id="graph_table_toggle" class="ic-Super-toggle__input" aria-label="{{t "Switch to table view"}}">
+        <label class="ic-Super-toggle--ui-switch">
+          <span class="screenreader-only">{{t "View analytics data in tables instead of graphs" }}</span>
+          <input type="checkbox" id="graph_table_toggle" class="ic-Super-toggle__input">
           <div class="ic-Super-toggle__container" aria-hidden="true">
             <div class="ic-Super-toggle__option--LEFT">
               <i class="icon-stats"></i>
@@ -28,7 +28,12 @@
         <span class="legend_entry"><span class="legend_swatch participation"></span>{{t "Participation"}}</span>
       </div>
     </div>
-    <div class="graph" id="participating-graph" aria-hidden="true"/>
+    <div class="graph_container">
+      <span id="participating-graph-label" class="screenreader-only">{{t "Graph of student page views and participation over time"}}</span>
+      <div role="img" aria-labelledby="participating-graph-label">
+        <div class="graph" id="participating-graph" aria-hidden="true"/>
+      </div>
+    </div>
     <div id="activities-table" style="display:none"/>
 
     <div class="legend_row">
@@ -39,7 +44,12 @@
         <span class="legend_entry"><span class="legend_swatch onTime"></span>{{t "On Time"}}</span>
       </div>
     </div>
-    <div class="graph" id="finishing-assignments-graph" aria-hidden="true"/>
+    <div class="graph_container">
+      <span id="finishing-assignments-graph-label" class="screenreader-only">{{t "Graph showing the fraction of on-time submissions for each assignment"}}</span>
+      <div role="img" aria-labelledby="finishing-assignments-graph-label">
+        <div class="graph" id="finishing-assignments-graph" aria-hidden="true"/>
+      </div>
+    </div>
     <div id="submissions-table" style="display:none"/>
 
     <div class="legend_row">
@@ -50,7 +60,12 @@
         <span class="legend_entry"><span class="legend_swatch median outlined"><span></span></span>{{t "Median"}}</span>
       </div>
     </div>
-    <div class="graph" id="grades-graph" aria-hidden="true"/>
+    <div class="graph_container">
+      <span id="grades-graph-label" class="screenreader-only">{{t "Graph of grades for each assignment"}}</span>
+      <div role="img" aria-labelledby="grades-graph-label">
+        <div class="graph" id="grades-graph" aria-hidden="true"/>
+      </div>
+    </div>
     <div id="grades-table" style="display:none"/>
   </div>
 
