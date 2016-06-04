@@ -134,7 +134,6 @@ describe "analytics course view" do
       page_view(:user => @student, :course => @course, :participated => true, :created_at => tomorrow)
 
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
-      expect(fj("rect.#{Time.now.utc.strftime("%Y-%m-%d")}")).to be_nil
       expect(fj("rect.#{tomorrow.strftime("%Y-%m-%d")}")).to be_displayed
     end
 
