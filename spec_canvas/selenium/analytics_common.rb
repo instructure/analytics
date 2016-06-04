@@ -126,7 +126,7 @@ shared_examples_for "analytics tests" do
   end
 
   def current_student_score
-    StudentEnrollment.last.computed_current_score.to_s
+    "%g" % StudentEnrollment.last.computed_current_score
   end
 
   def setup_for_grades_graph
@@ -187,7 +187,7 @@ shared_examples_for "analytics tests" do
     get "/courses/#{@course.id}/users"
     wait_for_ajaximations
     if !exist
-      expect(ff(ANALYTICS_ICON_CSS)).to be_empty
+      expect(f("#content")).not_to contain_css(ANALYTICS_ICON_CSS)
     else
       expect(ff(ANALYTICS_ICON_CSS).count).to eq student_roster.count
     end

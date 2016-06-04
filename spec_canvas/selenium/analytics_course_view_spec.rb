@@ -93,7 +93,7 @@ describe "analytics course view" do
         go_to_analytics("/courses/#{@course.id}/analytics")
         expect(f('#activities-table')).not_to be_displayed
         expect(f('.graph')).to be_displayed
-        move_to_click('#graph_table_toggle')
+        move_to_click('label[for=graph_table_toggle]')
         expect(f('#activities-table')).to be_displayed
         expect(f('.graph')).not_to be_displayed
       end
@@ -134,7 +134,6 @@ describe "analytics course view" do
       page_view(:user => @student, :course => @course, :participated => true, :created_at => tomorrow)
 
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
-      expect(fj("rect.#{Time.now.utc.strftime("%Y-%m-%d")}")).to be_nil
       expect(fj("rect.#{tomorrow.strftime("%Y-%m-%d")}")).to be_displayed
     end
 

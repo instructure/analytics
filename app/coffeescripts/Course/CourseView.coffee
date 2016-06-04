@@ -96,16 +96,14 @@ define [
           component: GradesTable
           data: @assignments
           format: (assignment) ->
-            naString = I18n.t("N/A")
-
             title:            assignment.title
-            min_score:        assignment.scoreDistribution?.minScore || naString
-            median:           assignment.scoreDistribution?.median || naString
-            max_score:        assignment.scoreDistribution?.maxScore || naString
+            min_score:        helpers.formatNull(assignment.scoreDistribution?.minScore)
+            median:           helpers.formatNull(assignment.scoreDistribution?.median)
+            max_score:        helpers.formatNull(assignment.scoreDistribution?.maxScore)
             points_possible:  assignment.pointsPossible
             percentile:
-              min: assignment.scoreDistribution?.firstQuartile || naString
-              max: assignment.scoreDistribution?.thirdQuartile || naString
+              min: helpers.formatNull(assignment.scoreDistribution?.firstQuartile)
+              max: helpers.formatNull(assignment.scoreDistribution?.thirdQuartile)
         }
       ])
 
