@@ -243,6 +243,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var columns = childrens.map(function (column, i) {
 	        return {
 	          name: column.props.dataField,
+	          friendlyName: column.props.children,
 	          align: column.props.dataAlign,
 	          sort: column.props.dataSort,
 	          format: column.props.dataFormat,
@@ -1181,7 +1182,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return _react2['default'].createElement(
 	          'th',
 	          { style: style, key: i, className: column.className },
-	          column.name
+	          column.friendlyName
 	        );
 	      });
 	
