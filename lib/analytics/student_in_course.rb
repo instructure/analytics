@@ -177,7 +177,8 @@ module Analytics
       # conversations related to this course in which the student has a hook
       # TODO: sharding
       @student_conversation_ids ||= ConversationParticipant.
-        tagged("course_#{@course.id}").
+        joins(:conversation).
+        where(Conversation.wildcard('conversations.tags', "course_#{@course.id}", :delimiter => ',')).
         where(:user_id => @student).
         select(:conversation_id).
         distinct.
