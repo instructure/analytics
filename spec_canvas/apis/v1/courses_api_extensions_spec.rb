@@ -171,4 +171,24 @@ describe "Courses API Extensions", :type => :request do
       end
     end
   end
+
+  context "includes" do
+    before :each do
+      course_with_teacher(:active_all => true)
+      @student = student_in_course(:active_all => true)
+      @user = @teacher
+    end
+
+    it "doesn't duplicate the include param" do
+      raw_api_call(:get, "/api/v1/courses/#{@course.id}/users?include[]=enrollments&include[]=analytics_url",
+                   :controller => "courses",
+                   :action => "users",
+                   :course_id => @course.id.to_s,
+                   :include => ['enrollments', 'analytics_url'],
+                   :format => "json")
+
+      # one each for first/last/next
+      expect(response.headers["Link"].scan("analytics_url").count).to eq 3
+    end
+  end
 end
