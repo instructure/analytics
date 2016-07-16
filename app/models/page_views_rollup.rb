@@ -51,6 +51,11 @@ class PageViewsRollup < ActiveRecord::Base
   def self.bin_for(scope, date, category)
     category = category.to_s
 
+    # ensure just the date portion, and that relative to UTC
+    if date.is_a?(ActiveSupport::TimeWithZone)
+      date = date.in_time_zone('UTC').to_date
+    end
+
     # they passed a course
     unless scope.is_a?(ActiveRecord::Relation)
       scope = bin_scope_for(scope)

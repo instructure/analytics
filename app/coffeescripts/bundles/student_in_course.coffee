@@ -28,18 +28,9 @@ require [
 
   toggleGraphs = ->
     $(".graph_legend").toggle()
-    $(".graph").toggle()
-
-  updateToggle = ->
-    $toggle = $("#graph_table_toggle")
-    if $toggle.is(':checked')
-      $toggle.attr('aria-label', I18n.t('Switch to graph view'))
-    else
-      $toggle.attr('aria-label', I18n.t('Switch to table view'))
-
+    $(".graph_container").toggle()
 
   $("#graph_table_toggle").on('change', (event) ->
-    updateToggle()
     toggleTables()
     toggleGraphs()
   )

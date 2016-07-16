@@ -168,6 +168,27 @@ describe PageViewsRollup do
         end
       end
     end
+
+    context "non-Date dates" do
+      before :each do
+        @expected_date = Date.new(2016, 6, 21)
+        # Jun 21, 2016 at 3am UTC
+        as_timestamp = @expected_date.in_time_zone('UTC') + 3.hours
+        # Jun 20, 2016 at 9pm MDT
+        @input_timestamp = as_timestamp.in_time_zone('America/Denver')
+        @scope = PageViewsRollup.bin_scope_for(@course)
+      end
+
+      it "should cast to the corresponding UTC date on query" do
+        @scope.expects(:for_dates).with(@expected_date).returns(@scope)
+        PageViewsRollup.bin_for(@scope, @input_timestamp, @category)
+      end
+
+      it "should cast to same corresponding UTC date in new bin" do
+        bin = PageViewsRollup.bin_for(@scope, @input_timestamp, @category)
+        expect(bin.date).to eq @expected_date
+      end
+    end
   end
 
   describe "#augment" do

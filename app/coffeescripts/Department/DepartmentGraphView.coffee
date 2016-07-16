@@ -34,7 +34,7 @@ define [
       if data.bins? or data.assignments?
         data = if data.bins then data.bins else data.assignments
 
-      if data.values?
+      if data.values? and typeof data.values isnt "function"
         data = data.values
 
       if (table.div == "#participating-category-table")
