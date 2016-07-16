@@ -219,7 +219,7 @@ describe "analytics" do
         if is_present
           expect(find('.ui-combobox')).to be_displayed
         else
-          expect(not_found('.ui-combobox')).to be
+          expect(f('body')).not_to contain_css('.ui-combobox')
         end
       end
 
