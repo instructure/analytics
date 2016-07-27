@@ -184,9 +184,11 @@ module Analytics
       @student_scope ||= begin
         # any user with an enrollment, ordered by name
         subselect = enrollment_scope.select([:user_id, :computed_current_score]).distinct.to_sql
-        User.
-          select("users.*, enrollments.computed_current_score").
-          joins("INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id=users.id")
+        @course.shard.activate do
+          User.
+            select("users.*, enrollments.computed_current_score").
+            joins("INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id=users.id")
+        end
       end
     end
 
