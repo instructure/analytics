@@ -161,9 +161,12 @@ describe "analytics" do
       end
 
       @teacher_conversation = @teacher.initiate_conversation([@student])
-      @student_conversation = @student.initiate_conversation([@teacher])
+      cp = @student_conversation = @student.initiate_conversation([@teacher])
       add_message(@teacher_conversation, 1)
       add_message(@student_conversation, 1)
+
+      ConversationParticipant.where(:id => cp).update_all(:tags => "") # don't use the participants, their tags are unreliable
+
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
       users_css.each { |user_css| validate_tooltip_text(user_css, single_message) }

@@ -16,7 +16,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative '../../../../../spec/spec_helper'
+require_relative '../../../../../spec/sharding_spec_helper'
 require_relative '../spec_helper'
 require_relative '../cassandra_spec_helper'
 
@@ -348,6 +348,19 @@ describe Analytics::Course do
       # should see both enrollments, but the student only once
       expect(@teacher_analytics.enrollments.size).to eq 2
       expect(@teacher_analytics.students.map{ |s| s.id }).to eq [ @student.id ]
+    end
+
+    context "sharding" do
+      specs_require_sharding
+
+      it "should work with the correct shard" do
+        ActiveRecord::Base.connection.stubs(:use_qualified_names?).returns(true)
+        active_student
+
+        @shard1.activate do
+          expect(@teacher_analytics.students.map{ |s| s.id }).to eq [@student.id]
+        end
+      end
     end
   end
 
