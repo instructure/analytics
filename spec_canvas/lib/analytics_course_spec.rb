@@ -359,7 +359,11 @@ describe Analytics::Course do
 
         @shard1.activate do
           expect(@teacher_analytics.students.map{ |s| s.id }).to eq [@student.id]
+
+          @other_student = User.create!
+          @course.enroll_student(@other_student).accept!
         end
+        expect(@teacher_analytics.student_scope.where(:id => [@student.id, @other_student.id]).to_a).to match_array([@student, @other_student])
       end
     end
   end
