@@ -21,7 +21,9 @@ define [
       # render now and any time the model changes or the window resizes
       @render()
       @afterRender()
-      @model.on 'change:filter', @render
+      @model.on 'change:filter', =>
+        @render()
+        @afterRender()
       $(window).on 'resize', _.debounce =>
         @render()
         @afterRender()
@@ -84,6 +86,9 @@ define [
             percent: percent
         }
       ])
+      $toggle = $("#graph_table_toggle")
+      if $toggle.is(':checked')
+        $toggle.trigger('change')
 
 
     render: =>
