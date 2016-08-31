@@ -46,9 +46,11 @@ describe PageView::Pv4Client do
               { 'user_id' => 2, 'page_views' => [], 'participations' => [] }
           ]
       }.to_json)
-      CanvasHttp.expects(:get).once.returns(stub)
+      CanvasHttp.expects(:get).returns(stub).at_least_once
       course = Course.create!
-      expect(client.counters_by_context_for_users(course, [])).to eq(
+      expect(client.counters_by_context_for_users(course, [])).to eq({})
+      expect(client.counters_by_context_for_users(course, [1])).to eq( { 1 => { page_views: [], participations: [] }} )
+      expect(client.counters_by_context_for_users(course, [1, 2])).to eq(
           { 1 => { page_views: [], participations: [] },
             2 => { page_views: [], participations: [] } }
       )

@@ -89,7 +89,7 @@ module Analytics
           raise Folio::InvalidPage if pager.current_page > 1 && offset >= @sorted_ids.size
           paged_ids = @sorted_ids[offset, pager.per_page]
           student_map = scope.where(:id => paged_ids).index_by(&:id)
-          pager.replace paged_ids.map{ |id| student_map[id] }
+          pager.replace paged_ids.map{ |id| student_map[id] }.compact
         end
 
         def set_pages(pager)
