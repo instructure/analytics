@@ -41,9 +41,10 @@ module Analytics
 
       it "has a :submission field" do
         assignment = stub('assignment')
-        subm = stub('subm', :user_id => @student.id, :score => 10, :submitted_at => time1, :missing? => false)
+        subm = stub('subm', :user_id => @student.id, :score => 10, :submitted_at => time1, :missing? => false, :excused? => false)
         data = analytics.extended_assignment_data(assignment, [subm])
         expect(data).to eq({
+          :excused => false,
           :submission => {
             :score => 10,
             :submitted_at => time1
