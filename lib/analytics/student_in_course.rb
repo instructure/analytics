@@ -135,12 +135,17 @@ module Analytics
     def extended_assignment_data(assignment, submissions)
       if s = my_submission(submissions)
         assignment_submission = AssignmentSubmission.new(assignment, s)
-        return {
-          :submission => {
-            :score => muted(assignment) ? nil : s.score,
-            :submitted_at => assignment_submission.recorded_at
+        if s.excused?
+          return {:excused => true}
+        else
+          return {
+            :excused => false,
+            :submission => {
+              :score => muted(assignment) ? nil : s.score,
+              :submitted_at => assignment_submission.recorded_at
+            }
           }
-        }
+        end
       else
         return {}
       end

@@ -216,6 +216,21 @@ describe "analytics" do
       expect(tooltip.text).to eq first_assignment.title
     end
 
+    it "should show assignments on submissions graph" do
+      assmt = @course.assignments.create!(:title => 'new assignment', :points_possible => 10, :submission_types => 'online_url')
+      go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
+
+      expect(f('#assignment-finishing-graph')).to contain_css(".assignment_#{assmt.id}.cover")
+    end
+
+    it "should not show an excused assignment on submissions graph" do
+      assmt = @course.assignments.create!(:title => 'new assignment', :points_possible => 10, :submission_types => 'online_url')
+      assmt.grade_student(@student, :excuse => true)
+      go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
+
+      expect(f('#assignment-finishing-graph')).to_not  contain_css(".assignment_#{assmt.id}.cover")
+    end
+
     describe "student combo box" do
 
       def validate_combobox_presence(is_present = true)
