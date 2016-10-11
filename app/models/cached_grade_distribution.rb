@@ -17,7 +17,7 @@
 #
 
 class CachedGradeDistribution < ActiveRecord::Base
-  attr_accessible
+  strong_params
 
   def self.primary_key
     :course_id
