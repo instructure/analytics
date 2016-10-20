@@ -423,11 +423,21 @@ describe Analytics::Course do
           expect(student_summary[:participations]).to eq 1
         end
 
+        it "can return results for a single student" do
+          student1 = @student
+          student2 = active_student(name: "Student2").user
+          summaries = @teacher_analytics.
+            student_summaries(student_id: student2.id).
+            paginate(per_page: 100)
+          expect(summaries.size).to eq 1
+          expect(summaries.first[:id]).to eq student2.id
+        end
+
         it "should be able to sort by page view even with superfluous counts" do
           old_page_view_counts = @teacher_analytics.page_views_by_student
           @teacher_analytics.stubs(:page_views_by_student).
             returns(old_page_view_counts.merge(user.id => {:page_views => 0, :participations => 0}))
-          result = @teacher_analytics.student_summaries("page_views_ascending").paginate(:page => 1, :per_page => 2).first
+          result = @teacher_analytics.student_summaries(sort_column: "page_views_ascending").paginate(:page => 1, :per_page => 2).first
           expect(result[:id]).to eq @student.id
         end
       end
