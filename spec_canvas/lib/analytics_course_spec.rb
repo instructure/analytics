@@ -423,7 +423,7 @@ describe Analytics::Course do
           expect(student_summary[:participations]).to eq 1
         end
 
-        it "can return results for a single student" do
+        it "can return results for a single student", priority: "1", test_id: 2989898 do
           student1 = @student
           student2 = active_student(name: "Student2").user
           summaries = @teacher_analytics.
