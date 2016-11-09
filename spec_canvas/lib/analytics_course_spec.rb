@@ -423,6 +423,30 @@ describe Analytics::Course do
           expect(student_summary[:participations]).to eq 1
         end
 
+        context "levels" do
+          before :each do
+            @student1 = @student
+            @student2 = active_student.user
+            @student3 = active_student.user
+          end
+
+          it "returns 'level' for page_views / participation" do
+            page_view(:user => @student1, :course => @course, :participated => true)
+            3.times { page_view(user: @student2, course: @course, participated: true) }
+            2.times { page_view(user: @student2, course: @course, participated: false) }
+            summaries = @teacher_analytics.student_summaries.paginate(per_page: 100)
+            levels = summaries.index_by { |x| x[:id] }
+
+            expect(levels[@student1.id][:page_views_level]).to eq 2
+            expect(levels[@student2.id][:page_views_level]).to eq 3
+            expect(levels[@student3.id][:page_views_level]).to eq 0
+
+            expect(levels[@student1.id][:participations_level]).to eq 2
+            expect(levels[@student2.id][:participations_level]).to eq 3
+            expect(levels[@student3.id][:participations_level]).to eq 0
+          end
+        end
+
         it "can return results for a single student", priority: "1", test_id: 2997780 do
           student1 = @student
           student2 = active_student(name: "Student2").user

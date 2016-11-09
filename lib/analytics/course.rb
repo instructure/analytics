@@ -130,7 +130,7 @@ module Analytics
       # the max over the whole course not just the students the pagination is
       # returning.
       page_view_counts = self.page_views_by_student
-      analysis = PageViewAnalysis.new( page_view_counts )
+      analysis = self.page_view_analysis(page_view_counts)
 
       # wrap up the students for pagination, and then tell it how to sort them
       # and format them
@@ -141,12 +141,22 @@ module Analytics
       )
       collection.sort_by(sort_column, :page_view_counts => page_view_counts)
       collection.format do |student|
+        student_counts = page_view_counts[student.id] || {}
+        page_views = student_counts[:page_views]
+        page_views_quartiles = analysis[:page_views_quartiles]
+        page_views_level = level(page_views, page_views_quartiles)
+        participations = student_counts[:participations]
+        participations_quartiles = analysis[:participations_quartiles]
+        participations_level = level(participations, participations_quartiles)
+
         {
           :id => student.id,
-          :page_views => page_view_counts[student.id].try(:[], :page_views),
-          :max_page_views => analysis.max_page_views,
-          :participations => page_view_counts[student.id].try(:[], :participations),
-          :max_participations => analysis.max_participations,
+          :page_views => page_views,
+          :max_page_views => analysis[:max_page_views],
+          :page_views_level => page_views_level,
+          :participations => participations,
+          :max_participations => analysis[:max_participations],
+          :participations_level => participations_level,
           :tardiness_breakdown => tardiness_breakdowns[:students][student.id].as_hash
         }
       end
@@ -154,9 +164,29 @@ module Analytics
       collection
     end
 
+    def level(n, quartiles)
+      first, mean, third = quartiles
+
+      if n.nil? || n.zero?
+        0
+      elsif n < first
+        1
+      elsif n < third
+        2
+      else
+        3
+      end
+    end
+
     def page_views_by_student
       slaved(:cache_as => :page_views_by_student) do
         PageView.counters_by_context_for_users(@course, student_ids)
+      end
+    end
+
+    def page_view_analysis(page_view_counts)
+      slaved(:cache_as => :page_view_analysis) do
+        PageViewAnalysis.new( page_view_counts ).hash
       end
     end
 

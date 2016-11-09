@@ -342,8 +342,10 @@ class AnalyticsApiController < ApplicationController
   #     {
   #       "id": 2346,
   #       "page_views": 351,
+  #       "page_views_level": "1"
   #       "max_page_view": 415,
   #       "participations": 1,
+  #       "participations_level": "3",
   #       "max_participations": 10,
   #       "tardiness_breakdown": {
   #         "total": 5,
