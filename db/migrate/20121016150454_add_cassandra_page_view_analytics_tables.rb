@@ -1,4 +1,4 @@
-class AddCassandraPageViewAnalyticsTables < ActiveRecord::Migration
+class AddCassandraPageViewAnalyticsTables < ActiveRecord::Migration[4.2]
   tag :predeploy
 
   include Canvas::Cassandra::Migration

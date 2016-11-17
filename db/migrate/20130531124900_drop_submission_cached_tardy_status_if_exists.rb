@@ -1,4 +1,4 @@
-class DropSubmissionCachedTardyStatusIfExists < ActiveRecord::Migration
+class DropSubmissionCachedTardyStatusIfExists < ActiveRecord::Migration[4.2]
   tag :postdeploy
 
   def self.up
