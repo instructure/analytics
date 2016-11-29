@@ -100,10 +100,17 @@ shared_examples_for "analytics tests" do
 
   def randomly_grade_assignments(number_of_assignments, student = @student)
     graded_assignments = []
+
+    if @course.teacher_enrollments.any?
+      teacher = @course.teacher_enrollments.last.user
+    else
+      teacher = User.create!
+      @course.enroll_teacher(teacher)
+    end
     number_of_assignments.times do |i|
       assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100, :due_at => Time.now.utc, :submission_types => "online")
       assignment.submit_homework(student)
-      assignment.grade_student(student, :grade => rand(100) + 1)
+      assignment.grade_student(student, grade: rand(100) + 1, grader: teacher)
       graded_assignments.push(assignment)
     end
     graded_assignments

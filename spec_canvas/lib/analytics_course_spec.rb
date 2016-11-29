@@ -456,6 +456,8 @@ describe Analytics::Course do
   describe ":tardiness_breakdown" do
     before :each do
       active_student(:name => 'Student1')
+      @teacher = User.create!
+      @course.enroll_teacher(@teacher)
     end
 
     it "should include the number of assignments" do
@@ -661,6 +663,7 @@ describe Analytics::Course do
 
   def grade_submission
     @submission.grade = 'A'
+    @submission.grader = @teacher
     @submission.score = '1'
     @submission.grade_matches_current_submission = true
     @submission.save!
