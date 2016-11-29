@@ -1,4 +1,4 @@
-class AddBackDefaultStringLimits < ActiveRecord::Migration[4.2]
+class AddBackDefaultStringLimitsAnalytics < ActiveRecord::Migration[4.2]
   tag :postdeploy
 
   def up
