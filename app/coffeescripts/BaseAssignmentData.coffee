@@ -10,6 +10,9 @@ define [ 'analytics/compiled/BaseData' ], (BaseData) ->
     populate: (data) ->
       @assignments = []
       for original in data
+        if original.excused
+          continue
+
         assignment =
           id: original.assignment_id
           title: original.title

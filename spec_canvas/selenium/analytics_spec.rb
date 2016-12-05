@@ -161,9 +161,12 @@ describe "analytics" do
       end
 
       @teacher_conversation = @teacher.initiate_conversation([@student])
-      @student_conversation = @student.initiate_conversation([@teacher])
+      cp = @student_conversation = @student.initiate_conversation([@teacher])
       add_message(@teacher_conversation, 1)
       add_message(@student_conversation, 1)
+
+      ConversationParticipant.where(:id => cp).update_all(:tags => "") # don't use the participants, their tags are unreliable
+
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
       users_css.each { |user_css| validate_tooltip_text(user_css, single_message) }
@@ -211,6 +214,21 @@ describe "analytics" do
       driver.execute_script("$('#grades-graph .assignment_#{first_assignment.id}.cover').mouseover()")
       tooltip = find(".analytics-tooltip")
       expect(tooltip.text).to eq first_assignment.title
+    end
+
+    it "should show assignments on submissions graph" do
+      assmt = @course.assignments.create!(:title => 'new assignment', :points_possible => 10, :submission_types => 'online_url')
+      go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
+
+      expect(f('#assignment-finishing-graph')).to contain_css(".assignment_#{assmt.id}.cover")
+    end
+
+    it "should not show an excused assignment on submissions graph" do
+      assmt = @course.assignments.create!(:title => 'new assignment', :points_possible => 10, :submission_types => 'online_url')
+      assmt.grade_student(@student, :excuse => true)
+      go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
+
+      expect(f('#assignment-finishing-graph')).to_not  contain_css(".assignment_#{assmt.id}.cover")
     end
 
     describe "student combo box" do

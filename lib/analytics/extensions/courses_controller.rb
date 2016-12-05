@@ -47,7 +47,7 @@ CoursesController.class_eval do
     # "", [], or nil => []. if it's not one of those, it
     # should already be a non-empty array
     params[:include] = [] if params[:include].blank?
-    params[:include] << 'analytics_url'
+    params[:include] << 'analytics_url' unless params[:include].include? 'analytics_url'
     users_without_analytics
   end
   alias_method_chain :users, :analytics

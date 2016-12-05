@@ -121,7 +121,10 @@ module Analytics
       { tardiness_breakdown: tardiness_breakdowns[:assignments][assignment.id].as_hash_scaled }
     end
 
-    def student_summaries(sort_column=nil)
+    def student_summaries(opts = {})
+      sort_column = opts[:sort_column]
+      student_id  = opts[:student_id]
+
       # course global counts (by student) and maxima
       # we have to select the entire course here, because we need to calculate
       # the max over the whole course not just the students the pagination is
@@ -131,7 +134,11 @@ module Analytics
 
       # wrap up the students for pagination, and then tell it how to sort them
       # and format them
-      collection = Analytics::StudentCollection.new(student_scope)
+      collection = Analytics::StudentCollection.new(
+        student_id ?
+          student_scope.where(users: {id: student_id}) :
+          student_scope
+      )
       collection.sort_by(sort_column, :page_view_counts => page_view_counts)
       collection.format do |student|
         {
@@ -184,7 +191,7 @@ module Analytics
       @student_scope ||= begin
         # any user with an enrollment, ordered by name
         subselect = enrollment_scope.select([:user_id, :computed_current_score]).distinct.to_sql
-        User.
+        User.shard(@course.shard).
           select("users.*, enrollments.computed_current_score").
           joins("INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id=users.id")
       end

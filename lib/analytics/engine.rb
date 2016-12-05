@@ -31,7 +31,8 @@ module Analytics
       Permissions.register :view_analytics,
         :label => lambda { I18n.t('#role_override.permissions.view_analytics', "View analytics pages") },
         :available_to => %w(AccountAdmin TaEnrollment TeacherEnrollment StudentEnrollment AccountMembership),
-        :true_for => %w(AccountAdmin TaEnrollment TeacherEnrollment)
+        :true_for => %w(AccountAdmin TaEnrollment TeacherEnrollment),
+        :applies_to_concluded => true
     end
 
     Autoextend.hook(:PageView, :"Analytics::Extensions::PageView",

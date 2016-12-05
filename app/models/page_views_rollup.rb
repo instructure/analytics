@@ -21,7 +21,7 @@
 # future workflow state of course will be. so we have to keep rollup data for
 # all courses.
 class PageViewsRollup < ActiveRecord::Base
-  attr_accessible
+  strong_params
 
   belongs_to :course
 

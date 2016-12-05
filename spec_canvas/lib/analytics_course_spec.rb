@@ -16,7 +16,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative '../../../../../spec/spec_helper'
+require_relative '../../../../../spec/sharding_spec_helper'
 require_relative '../spec_helper'
 require_relative '../cassandra_spec_helper'
 
@@ -349,6 +349,23 @@ describe Analytics::Course do
       expect(@teacher_analytics.enrollments.size).to eq 2
       expect(@teacher_analytics.students.map{ |s| s.id }).to eq [ @student.id ]
     end
+
+    context "sharding" do
+      specs_require_sharding
+
+      it "should work with the correct shard" do
+        ActiveRecord::Base.connection.stubs(:use_qualified_names?).returns(true)
+        active_student
+
+        @shard1.activate do
+          expect(@teacher_analytics.students.map{ |s| s.id }).to eq [@student.id]
+
+          @other_student = User.create!
+          @course.enroll_student(@other_student).accept!
+        end
+        expect(@teacher_analytics.student_scope.where(:id => [@student.id, @other_student.id]).to_a).to match_array([@student, @other_student])
+      end
+    end
   end
 
   describe "#assignments" do
@@ -404,6 +421,24 @@ describe Analytics::Course do
         it "should count participations for that student" do
           view = page_view(:user => @student, :course => @course, :participated => true)
           expect(student_summary[:participations]).to eq 1
+        end
+
+        it "can return results for a single student", priority: "1", test_id: 2997780 do
+          student1 = @student
+          student2 = active_student(name: "Student2").user
+          summaries = @teacher_analytics.
+            student_summaries(student_id: student2.id).
+            paginate(per_page: 100)
+          expect(summaries.size).to eq 1
+          expect(summaries.first[:id]).to eq student2.id
+        end
+
+        it "should be able to sort by page view even with superfluous counts" do
+          old_page_view_counts = @teacher_analytics.page_views_by_student
+          @teacher_analytics.stubs(:page_views_by_student).
+            returns(old_page_view_counts.merge(user.id => {:page_views => 0, :participations => 0}))
+          result = @teacher_analytics.student_summaries(sort_column: "page_views_ascending").paginate(:page => 1, :per_page => 2).first
+          expect(result[:id]).to eq @student.id
         end
       end
     end

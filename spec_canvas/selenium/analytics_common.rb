@@ -48,7 +48,7 @@ shared_examples_for "analytics tests" do
   def page_view(opts={})
     Setting.set('enable_page_views', 'db')
     course = opts[:course] || @course
-    user = opts[:user] || @student
+    user = opts[:user] || @student || User.create!
     controller = opts[:controller] || 'assignments'
     summarized = opts[:summarized] || nil
 

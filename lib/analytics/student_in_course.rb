@@ -135,12 +135,17 @@ module Analytics
     def extended_assignment_data(assignment, submissions)
       if s = my_submission(submissions)
         assignment_submission = AssignmentSubmission.new(assignment, s)
-        return {
-          :submission => {
-            :score => muted(assignment) ? nil : s.score,
-            :submitted_at => assignment_submission.recorded_at
+        if s.excused?
+          return {:excused => true}
+        else
+          return {
+            :excused => false,
+            :submission => {
+              :score => muted(assignment) ? nil : s.score,
+              :submitted_at => assignment_submission.recorded_at
+            }
           }
-        }
+        end
       else
         return {}
       end
@@ -177,7 +182,8 @@ module Analytics
       # conversations related to this course in which the student has a hook
       # TODO: sharding
       @student_conversation_ids ||= ConversationParticipant.
-        tagged("course_#{@course.id}").
+        joins(:conversation).
+        where(Conversation.wildcard('conversations.tags', "course_#{@course.id}", :delimiter => ',')).
         where(:user_id => @student).
         select(:conversation_id).
         distinct.

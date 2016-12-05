@@ -1,4 +1,4 @@
-class CachedGradeDistributions < ActiveRecord::Migration
+class CachedGradeDistributions < ActiveRecord::Migration[4.2]
   tag :predeploy
 
   def self.up

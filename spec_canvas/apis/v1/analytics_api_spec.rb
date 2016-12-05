@@ -164,11 +164,18 @@ describe "Analytics API", :type => :request do
         "status" => "on_time",
         "multiple_due_dates" => false,
         "non_digital_submission" => false,
+        "excused" => false,
         "submission" => {
           "submitted_at" => @submitted_at.iso8601,
           "score" => 9
         }
       }]
+    end
+
+    it "should mark excused assignments" do
+      @a1.grade_student(@student1, :excuse => true)
+      json = analytics_api_call(:assignments, @course, @student1)
+      expect(json.first["excused"]).to be_truthy
     end
   end
 

@@ -1,6 +1,7 @@
 define [
   'Backbone'
   'underscore'
+  'react'
   'analytics/jst/department_graphs'
   'analytics/compiled/graphs/page_views'
   'analytics/compiled/graphs/CategorizedPageViews'
@@ -11,7 +12,7 @@ define [
   'analytics/compiled/jsx/components/ActivitiesByCategory'
   'analytics/compiled/jsx/components/GradeDistributionTable'
   'analytics/compiled/helpers'
-], (Backbone, _, template, PageViews, CategorizedPageViews, GradeDistribution, colors, util, ActivitiesTable, ActivitiesByCategory, GradeDistributionTable, helpers) ->
+], (Backbone, _, React, template, PageViews, CategorizedPageViews, GradeDistribution, colors, util, ActivitiesTable, ActivitiesByCategory, GradeDistributionTable, helpers) ->
 
   ##
   # Aggregate view for the Department Analytics page.
@@ -21,7 +22,9 @@ define [
       # render now and any time the model changes or the window resizes
       @render()
       @afterRender()
-      @model.on 'change:filter', @render
+      @model.on 'change:filter', =>
+        @render()
+        @afterRender()
       $(window).on 'resize', _.debounce =>
         @render()
         @afterRender()
@@ -84,6 +87,9 @@ define [
             percent: percent
         }
       ])
+      $toggle = $("#graph_table_toggle")
+      if $toggle.is(':checked')
+        $toggle.trigger('change')
 
 
     render: =>
