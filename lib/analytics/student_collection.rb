@@ -63,9 +63,21 @@ module Analytics
 
       class ByScore < Default
         def order
-          @direction == :descending ?
-            "enrollments.computed_current_score DESC NULLS LAST, users.id DESC" :
-            "enrollments.computed_current_score ASC NULLS FIRST, users.id ASC"
+          if Object.const_defined?('Score')
+            @direction == :descending ?
+              "CASE
+                WHEN scores.id IS NOT NULL THEN scores.current_score
+                ELSE enrollments.computed_current_score
+              END DESC NULLS LAST, users.id DESC" :
+              "CASE
+                WHEN scores.id IS NOT NULL THEN scores.current_score
+                ELSE enrollments.computed_current_score
+              END ASC NULLS FIRST, users.id ASC"
+          else
+            @direction == :descending ?
+              "enrollments.computed_current_score DESC NULLS LAST, users.id DESC" :
+              "enrollments.computed_current_score ASC NULLS FIRST, users.id ASC"
+          end
         end
 
         def paginate(scope, pager)
