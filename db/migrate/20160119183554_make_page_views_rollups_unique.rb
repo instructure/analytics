@@ -1,4 +1,4 @@
-class MakePageViewsRollupsUnique < ActiveRecord::Migration
+class MakePageViewsRollupsUnique < ActiveRecord::Migration[4.2]
   tag :predeploy
   disable_ddl_transaction!
 

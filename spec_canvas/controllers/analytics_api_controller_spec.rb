@@ -54,9 +54,15 @@ describe AnalyticsApiController do
         expect(controller.course_student_summaries).to eq "RENDERED!"
       end
 
-      it 'passes a sort_column down to the analytics engine if one is present' do
+      it 'passes a sort_column down to the analytics engine' do
         params[:sort_column] = 'score'
-        analytics.expects(:student_summaries).with('score')
+        analytics.expects(:student_summaries).with(sort_column: 'score', student_id: nil)
+        controller.course_student_summaries
+      end
+
+      it 'passes a student_id down to the analytics engine' do
+        params[:student_id] = '123'
+        analytics.expects(:student_summaries).with(sort_column: nil, student_id: '123')
         controller.course_student_summaries
       end
 

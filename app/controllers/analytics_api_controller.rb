@@ -322,12 +322,15 @@ class AnalyticsApiController < ApplicationController
   # Returns a summary of per-user access information for all students in
   # a course. This includes total page views, total participations, and a
   # breakdown of on-time/late status for all homework submissions in the course.
-  # The data is returned as a list in lexical order on the student name.
   #
   # Each student's summary also includes the maximum number of page views and
   # participations by any student in the course, which may be useful for some
   # visualizations (since determining maximums client side can be tricky with
   # pagination).
+  #
+  # @argument sort_column [String, "name"|"name_descending,"score|"score_descending"|"participations|"participations_descending"|"page_views"|"page_views_descending"]
+  #   The order results in which results are returned.  Defaults to "name".
+  # @argument student_id If set, returns only the specified student.
   #
   # @example_request
   #
@@ -339,7 +342,9 @@ class AnalyticsApiController < ApplicationController
   #     {
   #       "id": 2346,
   #       "page_views": 351,
+  #       "max_page_view": 415,
   #       "participations": 1,
+  #       "max_participations": 10,
   #       "tardiness_breakdown": {
   #         "total": 5,
   #         "on_time": 3,
@@ -364,7 +369,7 @@ class AnalyticsApiController < ApplicationController
   def course_student_summaries
     return unless require_analytics_for_course
     return unless authorized_action(@course, @current_user, [:manage_grades, :view_all_grades])
-    summaries = @course_analytics.student_summaries( params[:sort_column] )
+    summaries = @course_analytics.student_summaries(sort_column: params[:sort_column], student_id: params[:student_id])
     render :json => Api.paginate(summaries, self, api_v1_course_student_summaries_url(@course))
   end
 
