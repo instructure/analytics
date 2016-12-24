@@ -460,7 +460,7 @@ describe Analytics::Course do
         it "should be able to sort by page view even with superfluous counts" do
           old_page_view_counts = @teacher_analytics.page_views_by_student
           @teacher_analytics.stubs(:page_views_by_student).
-            returns(old_page_view_counts.merge(user.id => {:page_views => 0, :participations => 0}))
+            returns(old_page_view_counts.merge(user_factory.id => {:page_views => 0, :participations => 0}))
           result = @teacher_analytics.student_summaries(sort_column: "page_views_ascending").paginate(:page => 1, :per_page => 2).first
           expect(result[:id]).to eq @student.id
         end

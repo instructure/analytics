@@ -59,7 +59,7 @@ describe "Analytics API", :type => :request do
 
   context "permissions" do
     before :each do
-      @student1 = user(:active_all => true)
+      @student1 = user_factory(active_all: true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
       @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
@@ -101,7 +101,7 @@ describe "Analytics API", :type => :request do
 
     it "should 404 with unreadable student" do
       # section limited ta in section other than student1
-      @ta = user(:active_all => true)
+      @ta = user_factory(active_all: true)
       @enrollment = @course.enroll_ta(@ta)
       @enrollment.course = @course # set the reverse association
       @enrollment.workflow_state = 'active'
@@ -128,7 +128,7 @@ describe "Analytics API", :type => :request do
     end
 
     before do
-      @student1 = user(:active_all => true)
+      @student1 = user_factory(active_all: true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
       @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
@@ -188,7 +188,7 @@ describe "Analytics API", :type => :request do
       @assignments = []
       @outcomes = []
 
-      num_students.times {|u| @students << user(:active_all => true)}
+      num_students.times {|u| @students << user_factory(active_all: true)}
 
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
