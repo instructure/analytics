@@ -18,6 +18,7 @@
 
 require_relative '../../../../../../spec/spec_helper'
 require_relative '../../spec_helper'
+require_dependency "analytics/assignments"
 
 module Analytics
 

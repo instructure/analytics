@@ -19,6 +19,7 @@
 require 'mocha/api'
 require 'mocha_rspec_adapter'
 require_relative '../../lib/analytics/page_view_analysis'
+require_dependency "analytics/page_view_analysis"
 
 module Analytics
   describe PageViewAnalysis do

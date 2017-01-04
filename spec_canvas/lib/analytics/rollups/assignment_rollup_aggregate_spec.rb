@@ -17,6 +17,7 @@
 #
 
 require_relative '../../../../../../../spec/spec_helper'
+require_dependency "analytics/rollups/assignment_rollup_aggregate"
 
 module Analytics
 module Rollups

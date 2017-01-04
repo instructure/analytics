@@ -17,6 +17,7 @@
 #
 
 require_relative '../../../../../../spec/spec_helper'
+require_dependency "analytics/assignment_submission"
 
 module Analytics
   describe AssignmentSubmission do

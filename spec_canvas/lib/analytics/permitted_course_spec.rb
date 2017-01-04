@@ -17,6 +17,7 @@
 #
 
 require_relative '../../../../../../spec/spec_helper'
+require_dependency "analytics/permitted_course"
 
 module Analytics
   describe PermittedCourse do

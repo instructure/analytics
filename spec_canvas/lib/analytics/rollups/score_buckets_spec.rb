@@ -16,6 +16,9 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+require_relative '../../../../../../../spec/spec_helper'
+require_dependency "analytics/rollups/score_buckets"
+
 module Analytics::Rollups
   describe ScoreBuckets do
     let(:points) { 100 }

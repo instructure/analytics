@@ -17,6 +17,7 @@
 #
 
 require_relative '../../../../../../spec/spec_helper'
+require_dependency "analytics/page_view_roller"
 
 module Analytics
   describe PageViewRoller do
