@@ -21,8 +21,11 @@ module Analytics::Extensions::Course
     klass.has_one :cached_grade_distribution
     klass.has_many :page_views_rollups
 
-    klass.handle_asynchronously_if_production :recache_grade_distribution,
-                                              :singleton => proc { |c| "recache_grade_distribution:#{ c.global_id }" }
+    unless klass.instance_methods.include?(:recache_grade_distribution_without_send_later)
+      klass.handle_asynchronously_if_production :recache_grade_distribution,
+                                                singleton: proc { |c| "recache_grade_distribution:#{ c.global_id }" },
+                                                priority: Delayed::LOW_PRIORITY
+    end
   end
 
   def recache_grade_distribution
