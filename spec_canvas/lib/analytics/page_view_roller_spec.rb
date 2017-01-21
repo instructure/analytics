@@ -184,7 +184,7 @@ module Analytics
         allow(PageViewRoller).to receive(:start_day).and_return(start_day)
         allow(PageViewRoller).to receive(:end_day).and_return(end_day)
         (start_day..end_day).reverse_each do |day|
-          expect(PageViewRoller).to receive(:rollup_one).with(day, rspec_anything).ordered
+          expect(PageViewRoller).to receive(:rollup_one).with(day, anything).ordered
         end
         PageViewRoller.rollup_all
       end
