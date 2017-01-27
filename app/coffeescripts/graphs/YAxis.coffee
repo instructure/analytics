@@ -1,4 +1,6 @@
-define ->
+define [
+  'i18n!analytics'
+], (I18n) ->
   class YAxis
     tickSize: 5
 
@@ -68,7 +70,7 @@ define ->
     labelText: (value) ->
       if @style is 'percent'
         # scale up to percentage and add % character
-        (value * 100) + '%'
+        I18n.n(value * 100, { percentage: true })
 
       else
         # find power of 1000 to replace with suffix. we really shouldn't need
@@ -86,7 +88,7 @@ define ->
 
         # take out the power that'll be represented by the suffix and add the
         # suffix
-        (value / Math.pow(1000, power)) + suffix
+        I18n.n(value / Math.pow(1000, power)) + suffix
 
     ##
     # Draw a y-axis label at y on the host, just outside the left margin.

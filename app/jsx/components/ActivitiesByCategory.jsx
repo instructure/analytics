@@ -29,17 +29,21 @@ define([
             }
         },
 
+        formatNumber (styles = {}) {
+            return function (cell, row) {
+                return <span style={styles}>{I18n.n(cell)}</span>;
+            }
+        },
+
         render () {
             return (
                 <div>
                     <BootstrapTable data={this.props.data} pagination={true} options={tableOptions}>
                         <TableHeaderColumn dataField="category" isKey={true} dataFormat={this.formatStyle()}>{I18n.t("Category")}</TableHeaderColumn>
-                        <TableHeaderColumn dataField="views" dataFormat={this.formatStyle()}>{I18n.t("Page Views")}</TableHeaderColumn>
+                        <TableHeaderColumn dataField="views" dataFormat={this.formatNumber()}>{I18n.t("Page Views")}</TableHeaderColumn>
                     </BootstrapTable>
                 </div>
             );
         }
     });
 });
-
-
