@@ -16,7 +16,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-module Rollups
+module Analytics::Rollups
   class ScoreBuckets
     # A bucket count of twenty six will cutoff stats buckets in twenty-fifths.
     BUCKET_COUNT = 26

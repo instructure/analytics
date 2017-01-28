@@ -59,7 +59,7 @@ describe "Analytics API", :type => :request do
 
   context "permissions" do
     before :each do
-      @student1 = user(:active_all => true)
+      @student1 = user_factory(active_all: true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
       @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
@@ -101,7 +101,7 @@ describe "Analytics API", :type => :request do
 
     it "should 404 with unreadable student" do
       # section limited ta in section other than student1
-      @ta = user(:active_all => true)
+      @ta = user_factory(active_all: true)
       @enrollment = @course.enroll_ta(@ta)
       @enrollment.course = @course # set the reverse association
       @enrollment.workflow_state = 'active'
@@ -128,7 +128,7 @@ describe "Analytics API", :type => :request do
     end
 
     before do
-      @student1 = user(:active_all => true)
+      @student1 = user_factory(active_all: true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
       @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
@@ -173,7 +173,7 @@ describe "Analytics API", :type => :request do
     end
 
     it "should mark excused assignments" do
-      @a1.grade_student(@student1, :excuse => true)
+      @a1.grade_student(@student1, excuse: true, grader: @teacher)
       json = analytics_api_call(:assignments, @course, @student1)
       expect(json.first["excused"]).to be_truthy
     end
@@ -188,7 +188,7 @@ describe "Analytics API", :type => :request do
       @assignments = []
       @outcomes = []
 
-      num_students.times {|u| @students << user(:active_all => true)}
+      num_students.times {|u| @students << user_factory(active_all: true)}
 
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
@@ -221,7 +221,7 @@ describe "Analytics API", :type => :request do
           @tag = @outcomes[a_index].align(assignment, @course, :mastery_type => "points")
           assignment.reload
           grade = (10 * (a_index + 1)) - s_index * (a_index+1)
-          sub = assignment.grade_student(student, :grade => grade).first
+          sub = assignment.grade_student(student, grade: grade, grader: @teacher).first
           sub.submission_type = 'online_text_entry'
           if a_index > 0
             sub.submitted_at = @due_time - 3.hours + s_index.hours
@@ -389,12 +389,13 @@ describe "Analytics API", :type => :request do
 
   context "#student_in_course_participation" do
     before :each do
-      course_with_student(:active_all => true)
+      course_with_teacher(active_all: true)
+      course_with_student(course: @course, active_all: true)
     end
-
+s
     it "should return submission data when graded but not submitted" do
       assignment = assignment_model course: @course
-      assignment.grade_student(@student, grade: 1)
+      assignment.grade_student(@student, grade: 1, grader: @teacher)
 
       json = analytics_api_call(:assignments, @course, @student, user: @teacher)
       expect(json.first['submission']['score']).to eq 1

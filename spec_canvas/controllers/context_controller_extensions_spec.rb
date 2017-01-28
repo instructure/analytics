@@ -32,7 +32,7 @@ describe ContextController, :type => :controller do
 
   context "permissions" do
     before :once do
-      @student1 = user(:active_all => true)
+      @student1 = user_factory(active_all: true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
       @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
@@ -149,7 +149,7 @@ describe ContextController, :type => :controller do
     context "unreadable student" do
       before :once do
         # section limited ta in section other than student1
-        @ta = user(:active_all => true)
+        @ta = user_factory(active_all: true)
         @enrollment = @course.enroll_ta(@ta)
         @enrollment.course = @course # set the reverse association
         @enrollment.workflow_state = 'active'

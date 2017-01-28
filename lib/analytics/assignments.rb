@@ -16,8 +16,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require 'rollups/assignment_rollup_aggregate'
-
 module Analytics
   module Assignments
     # required of host: submissions(assignments)

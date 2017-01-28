@@ -83,7 +83,7 @@ module Analytics
     end
 
     def score
-      @submission.score.to_f if @submission && @submission.try(:score)
+      @submission.score.to_f if @submission && @submission&.score
     end
 
     def graded?

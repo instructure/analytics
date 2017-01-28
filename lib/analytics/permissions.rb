@@ -16,13 +16,9 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_dependency 'analytics/department'
-require_dependency 'analytics/course'
-require_dependency 'analytics/student_in_course'
-
 # intended for inclusion in analytics' various controllers for shared
 # functionality around permissions
-module AnalyticsPermissions
+module Analytics::Permissions
   module ClassMethods
   end
 

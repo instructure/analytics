@@ -224,8 +224,14 @@ describe "analytics" do
     end
 
     it "should not show an excused assignment on submissions graph" do
+      if @course.teacher_enrollments.any?
+        teacher = @course.teacher_enrollments.last.user
+      else
+        teacher = User.create!
+        @course.enroll_teacher(teacher)
+      end
       assmt = @course.assignments.create!(:title => 'new assignment', :points_possible => 10, :submission_types => 'online_url')
-      assmt.grade_student(@student, :excuse => true)
+      assmt.grade_student(@student, excuse: true, grader: teacher)
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
       expect(f('#assignment-finishing-graph')).to_not  contain_css(".assignment_#{assmt.id}.cover")

@@ -170,8 +170,8 @@ class PageViewsRollup < ActiveRecord::Base
           # (or handled) as part of the views update.
           next unless date
 
-          views = data[dk].try(:to_i) || 0
-          participations = data["#{dk}:participation"].try(:to_i) || 0
+          views = data[dk]&.to_i || 0
+          participations = data["#{dk}:participation"]&.to_i || 0
 
           augment!(course, date, category, views, participations)
         end

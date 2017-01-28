@@ -17,6 +17,7 @@
 #
 
 require_relative '../../../../../../spec/spec_helper'
+require_dependency "analytics/assignment_submission"
 
 module Analytics
   describe AssignmentSubmission do
@@ -25,7 +26,7 @@ module Analytics
 
     context "with submission" do
       let(:submission) do
-        submission = FakeSubmission.new(assignment_id: assignment.id, user_id: user.id)
+        submission = FakeSubmission.new(assignment_id: assignment.id, user_id: user_factory.id)
         submission.assignment = assignment
         submission
       end

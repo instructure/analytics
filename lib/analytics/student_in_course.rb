@@ -16,9 +16,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_dependency 'analytics/assignments'
-require_dependency 'analytics/assignment_submission'
-
 module Analytics
   class StudentInCourse < Analytics::Base
     def self.available_for?(current_user, course, student)

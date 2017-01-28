@@ -17,6 +17,7 @@
 #
 
 require_relative '../../../../../../spec/spec_helper'
+require_dependency "analytics/tardiness_breakdown"
 
 module Analytics
   describe TardinessBreakdown do

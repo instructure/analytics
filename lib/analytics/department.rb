@@ -16,8 +16,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_dependency 'analytics/base'
-
 module Analytics
   class Department < Analytics::Base
     def initialize(current_user, account, term, filter)

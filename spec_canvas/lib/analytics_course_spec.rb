@@ -423,6 +423,30 @@ describe Analytics::Course do
           expect(student_summary[:participations]).to eq 1
         end
 
+        context "levels" do
+          before :each do
+            @student1 = @student
+            @student2 = active_student.user
+            @student3 = active_student.user
+          end
+
+          it "returns 'level' for page_views / participation" do
+            page_view(:user => @student1, :course => @course, :participated => true)
+            3.times { page_view(user: @student2, course: @course, participated: true) }
+            2.times { page_view(user: @student2, course: @course, participated: false) }
+            summaries = @teacher_analytics.student_summaries.paginate(per_page: 100)
+            levels = summaries.index_by { |x| x[:id] }
+
+            expect(levels[@student1.id][:page_views_level]).to eq 2
+            expect(levels[@student2.id][:page_views_level]).to eq 3
+            expect(levels[@student3.id][:page_views_level]).to eq 0
+
+            expect(levels[@student1.id][:participations_level]).to eq 2
+            expect(levels[@student2.id][:participations_level]).to eq 3
+            expect(levels[@student3.id][:participations_level]).to eq 0
+          end
+        end
+
         it "can return results for a single student", priority: "1", test_id: 2997780 do
           student1 = @student
           student2 = active_student(name: "Student2").user
@@ -436,7 +460,7 @@ describe Analytics::Course do
         it "should be able to sort by page view even with superfluous counts" do
           old_page_view_counts = @teacher_analytics.page_views_by_student
           @teacher_analytics.stubs(:page_views_by_student).
-            returns(old_page_view_counts.merge(user.id => {:page_views => 0, :participations => 0}))
+            returns(old_page_view_counts.merge(user_factory.id => {:page_views => 0, :participations => 0}))
           result = @teacher_analytics.student_summaries(sort_column: "page_views_ascending").paginate(:page => 1, :per_page => 2).first
           expect(result[:id]).to eq @student.id
         end
@@ -456,6 +480,8 @@ describe Analytics::Course do
   describe ":tardiness_breakdown" do
     before :each do
       active_student(:name => 'Student1')
+      @teacher = User.create!
+      @course.enroll_teacher(@teacher)
     end
 
     it "should include the number of assignments" do
@@ -661,6 +687,7 @@ describe Analytics::Course do
 
   def grade_submission
     @submission.grade = 'A'
+    @submission.grader = @teacher
     @submission.score = '1'
     @submission.grade_matches_current_submission = true
     @submission.save!

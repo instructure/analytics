@@ -33,13 +33,14 @@ module Analytics
     end
 
     def hash
-      @hash ||= page_view_counts.inject({ :max_page_views => 0, :max_participations => 0 }) do |hsh, (id, counts)|
-        page_views = counts[:page_views]
-        participations = counts[:participations]
-        hsh[:max_page_views] = page_views if hsh[:max_page_views] < page_views
-        hsh[:max_participations] = participations if hsh[:max_participations] < participations
-        hsh
-      end
+      page_view_stats = ::Stats::Counter.new(page_view_counts.values.map { |x| x[:page_views] })
+      participation_stats = ::Stats::Counter.new(page_view_counts.values.map { |x| x[:participations] })
+      {
+        max_page_views: page_view_stats.max,
+        page_views_quartiles: page_view_stats.quartiles,
+        max_participations: participation_stats.max,
+        participations_quartiles: participation_stats.quartiles,
+      }
     end
   end
 end

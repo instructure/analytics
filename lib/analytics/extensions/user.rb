@@ -16,8 +16,10 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-User.class_eval do
-  attr_writer :computed_current_score
+module Analytics::Extensions::User
+  def self.included(klass)
+    klass.send(:attr_writer, :computed_current_score)
+  end
 
   def computed_current_score
     read_attribute(:computed_current_score) || @computed_current_score

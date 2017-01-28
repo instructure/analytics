@@ -16,7 +16,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-module PageViewRoller
+module Analytics::PageViewRoller
   # We ignore page views not related to a course. include "summarized IS NULL"
   # to ignore page views inserted since the rollup tables were introduced, also
   # to speed up query (index includes summarized)

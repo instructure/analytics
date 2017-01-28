@@ -16,14 +16,11 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_dependency 'analytics/permitted_course'
-
 # @API Analytics
 #
 # API for retrieving the data exposed in Canvas Analytics
 class AnalyticsApiController < ApplicationController
-  require 'analytics/extensions/permissions'
-  include AnalyticsPermissions
+  include Analytics::Permissions
 
   # @API Get department-level participation data
   #
@@ -53,13 +50,13 @@ class AnalyticsApiController < ApplicationController
   #
   # @example_request
   #
-  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/current/activity \ 
+  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/current/activity \
   #         -H 'Authorization: Bearer <token>'
   #
-  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/completed/activity \ 
+  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/completed/activity \
   #         -H 'Authorization: Bearer <token>'
   #
-  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/terms/<term_id>/activity \ 
+  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/terms/<term_id>/activity \
   #         -H 'Authorization: Bearer <token>'
   #
   # @example_response
@@ -108,13 +105,13 @@ class AnalyticsApiController < ApplicationController
   #
   # @example_request
   #
-  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/current/grades \ 
+  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/current/grades \
   #         -H 'Authorization: Bearer <token>'
   #
-  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/completed/grades \ 
+  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/completed/grades \
   #         -H 'Authorization: Bearer <token>'
   #
-  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/terms/<term_id>/grades \ 
+  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/terms/<term_id>/grades \
   #         -H 'Authorization: Bearer <token>'
   #
   # @example_response
@@ -146,13 +143,13 @@ class AnalyticsApiController < ApplicationController
   #
   # @example_request
   #
-  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/current/statistics \ 
+  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/current/statistics \
   #         -H 'Authorization: Bearer <token>'
   #
-  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/completed/statistics \ 
+  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/completed/statistics \
   #         -H 'Authorization: Bearer <token>'
   #
-  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/terms/<term_id>/statistics \ 
+  #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/terms/<term_id>/statistics \
   #         -H 'Authorization: Bearer <token>'
   #
   # @example_response
@@ -179,13 +176,13 @@ class AnalyticsApiController < ApplicationController
    #
    # @example_request
    #
-   #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/current/statistics_by_subaccount \ 
+   #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/current/statistics_by_subaccount \
    #         -H 'Authorization: Bearer <token>'
    #
-   #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/completed/statistics_by_subaccount \ 
+   #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/completed/statistics_by_subaccount \
    #         -H 'Authorization: Bearer <token>'
    #
-   #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/terms/<term_id>/statistics_by_subaccount \ 
+   #     curl https://<canvas>/api/v1/accounts/<account_id>/analytics/terms/<term_id>/statistics_by_subaccount \
    #         -H 'Authorization: Bearer <token>'
    #
    # @example_response
@@ -217,7 +214,7 @@ class AnalyticsApiController < ApplicationController
   #
   # @example_request
   #
-  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/activity \ 
+  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/activity \
   #         -H 'Authorization: Bearer <token>'
   #
   # @example_response
@@ -261,7 +258,7 @@ class AnalyticsApiController < ApplicationController
   #
   # @example_request
   #
-  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/assignments \ 
+  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/assignments \
   #         -H 'Authorization: Bearer <token>'
   #
   # @example_response
@@ -334,7 +331,7 @@ class AnalyticsApiController < ApplicationController
   #
   # @example_request
   #
-  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/student_summaries \ 
+  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/student_summaries \
   #         -H 'Authorization: Bearer <token>'
   #
   # @example_response
@@ -342,8 +339,10 @@ class AnalyticsApiController < ApplicationController
   #     {
   #       "id": 2346,
   #       "page_views": 351,
+  #       "page_views_level": "1"
   #       "max_page_view": 415,
   #       "participations": 1,
+  #       "participations_level": "3",
   #       "max_participations": 10,
   #       "tardiness_breakdown": {
   #         "total": 5,
@@ -383,7 +382,7 @@ class AnalyticsApiController < ApplicationController
   #
   # @example_request
   #
-  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/users/<user_id>/activity \ 
+  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/users/<user_id>/activity \
   #         -H 'Authorization: Bearer <token>'
   #
   # @example_response
@@ -421,7 +420,7 @@ class AnalyticsApiController < ApplicationController
   #
   # @example_request
   #
-  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/users/<user_id>/assignments \ 
+  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/users/<user_id>/assignments \
   #         -H 'Authorization: Bearer <token>'
   #
   # @example_response
@@ -482,7 +481,7 @@ class AnalyticsApiController < ApplicationController
   #
   # @example_request
   #
-  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/users/<user_id>/communication \ 
+  #     curl https://<canvas>/api/v1/courses/<course_id>/analytics/users/<user_id>/communication \
   #         -H 'Authorization: Bearer <token>'
   #
   # @example_response

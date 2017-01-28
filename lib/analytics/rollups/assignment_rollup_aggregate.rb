@@ -16,7 +16,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-module Rollups
+module Analytics::Rollups
   class AssignmentRollupAggregate
     def initialize(rollups)
       @rollups = rollups
