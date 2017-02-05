@@ -1,5 +1,5 @@
 define ['jquery', 'analytics/compiled/graphs/assignment_tardiness'], ($, AssignmentTardiness) ->
-  module 'Finishing Assignments graph',
+  QUnit.module 'Finishing Assignments graph',
     setup: ->
       @$el = $("<div id='tardiness-graph'/>")
 

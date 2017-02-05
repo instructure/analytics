@@ -2,7 +2,7 @@ define [
   'jquery',
   'i18n!analytics',
   'vendor/date'
-], ($, i18n) ->
+], ($, I18n) ->
 
   # returns midnight for the given datetime. with mode 'floor' (the default)
   # it's the nearest preceding (or equal) midnight. with mode 'ceil' it's the

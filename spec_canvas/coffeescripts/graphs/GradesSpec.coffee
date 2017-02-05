@@ -1,5 +1,5 @@
 define ['jquery', 'analytics/compiled/graphs/grades'], ($, Grades) ->
-  module 'Grades graph'
+  QUnit.module 'Grades graph'
 
   test 'scaleToAssignments with all zeroes: should not have Infinity as pointSpacing', ->
     $el = $("<div id='grades-graph'/>")
