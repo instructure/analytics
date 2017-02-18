@@ -17,8 +17,6 @@
 #
 
 class CachedGradeDistribution < ActiveRecord::Base
-  strong_params
-
   def self.primary_key
     :course_id
   end
@@ -58,7 +56,7 @@ class CachedGradeDistribution < ActiveRecord::Base
           select("COUNT(DISTINCT user_id) AS user_count,
             CASE
               WHEN scores.id IS NOT NULL THEN ROUND(scores.current_score)
-              ELSE ROUND(enrollments.computed_current_score) 
+              ELSE ROUND(enrollments.computed_current_score)
             END AS score").
           where(workflow_state: ['active', 'completed']).
           group('score').

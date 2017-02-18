@@ -41,7 +41,7 @@ module Analytics
                     :"Analytics::Extensions::GradeCalculator",
                     method: :prepend)
     Autoextend.hook(:Permissions, after_load: true) do
-      Permissions.register :view_analytics,
+      ::Permissions.register :view_analytics,
                            :label => lambda { I18n.t('#role_override.permissions.view_analytics', "View analytics pages") },
                            :available_to => %w(AccountAdmin TaEnrollment TeacherEnrollment StudentEnrollment AccountMembership),
                            :true_for => %w(AccountAdmin TaEnrollment TeacherEnrollment),

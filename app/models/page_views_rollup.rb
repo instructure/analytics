@@ -21,8 +21,6 @@
 # future workflow state of course will be. so we have to keep rollup data for
 # all courses.
 class PageViewsRollup < ActiveRecord::Base
-  strong_params
-
   belongs_to :course
 
   def self.for_dates(date_range)

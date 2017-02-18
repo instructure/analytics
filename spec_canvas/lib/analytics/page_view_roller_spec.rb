@@ -111,10 +111,10 @@ module Analytics
 
     describe "#rollup_one" do
       def mockbin(course, date, category, new_record=true)
-        mockbin = mock('fake bin')
-        PageViewsRollup.expects(:bin_for).with(course, date, category).once.returns(mockbin)
-        mockbin.stubs(:new_record?).returns(new_record)
-        mockbin.stubs(:save!)
+        mockbin = double('fake bin')
+        expect(PageViewsRollup).to receive(:bin_for).with(course, date, category).once.and_return(mockbin)
+        allow(mockbin).to receive(:new_record?).and_return(new_record)
+        allow(mockbin).to receive(:save!)
         yield mockbin if block_given?
         mockbin
       end
@@ -124,8 +124,8 @@ module Analytics
         build_page_view(:created_at => date)
         build_page_view(:created_at => date)
         mockbin(@course.id, date, 'other') do |bin|
-          bin.expects(:augment).with(2, 0).once
-          bin.expects(:save!).once
+          expect(bin).to receive(:augment).with(2, 0).once
+          expect(bin).to receive(:save!).once
         end
         PageViewRoller.rollup_one(date)
       end
@@ -133,7 +133,7 @@ module Analytics
       it "should only bin page views on that day" do
         date = Date.today
         build_page_view(:created_at => date)
-        PageViewsRollup.expects(:augment!).never
+        expect(PageViewsRollup).to receive(:augment!).never
         PageViewRoller.rollup_one(date - 1.day)
       end
 
@@ -163,8 +163,8 @@ module Analytics
         date = Date.today
         build_page_view(:created_at => date)
         mockbin(@course.id, date, 'other', false) do |bin|
-          bin.expects(:augment).never
-          bin.expects(:save!).never
+          expect(bin).to receive(:augment).never
+          expect(bin).to receive(:save!).never
         end
         PageViewRoller.rollup_one(date)
       end
@@ -181,11 +181,10 @@ module Analytics
       it "should rollup each day between start and end in reverse order" do
         start_day = Date.today - 4.days
         end_day = Date.today
-        PageViewRoller.stubs(:start_day).returns(start_day)
-        PageViewRoller.stubs(:end_day).returns(end_day)
-        seq = sequence('reverse chronological')
+        allow(PageViewRoller).to receive(:start_day).and_return(start_day)
+        allow(PageViewRoller).to receive(:end_day).and_return(end_day)
         (start_day..end_day).reverse_each do |day|
-          PageViewRoller.expects(:rollup_one).with(day, anything).in_sequence(seq)
+          expect(PageViewRoller).to receive(:rollup_one).with(day, anything).ordered
         end
         PageViewRoller.rollup_all
       end
