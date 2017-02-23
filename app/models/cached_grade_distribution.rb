@@ -47,27 +47,15 @@ class CachedGradeDistribution < ActiveRecord::Base
 
   def grade_distribution_rows
     self.shard.activate do
-      if Object.const_defined?('Score')
-        grade_distribution_sql = course.all_real_student_enrollments.
-          joins("LEFT JOIN #{Score.quoted_table_name} scores on
-              scores.enrollment_id = enrollments.id AND
-              scores.grading_period_id IS NULL AND
-              scores.workflow_state <> 'deleted'").
-          select("COUNT(DISTINCT user_id) AS user_count,
-            CASE
-              WHEN scores.id IS NOT NULL THEN ROUND(scores.current_score)
-              ELSE ROUND(enrollments.computed_current_score)
-            END AS score").
-          where(workflow_state: ['active', 'completed']).
-          group('score').
-          to_sql
-      else
-        grade_distribution_sql = course.all_real_student_enrollments.
-          select("COUNT(DISTINCT user_id) AS user_count, ROUND(computed_current_score) AS score").
-          where(workflow_state: ['active', 'completed']).
-          group("ROUND(computed_current_score)").
-          to_sql
-      end
+      grade_distribution_sql = course.all_real_student_enrollments.
+        joins("LEFT JOIN #{Score.quoted_table_name} scores on
+            scores.enrollment_id = enrollments.id AND
+            scores.grading_period_id IS NULL AND
+            scores.workflow_state <> 'deleted'").
+        select("COUNT(DISTINCT user_id) AS user_count, ROUND(scores.current_score) AS score").
+        where(workflow_state: [:active, :completed]).
+        group('score').
+        to_sql
 
       self.class.connection.select_rows(grade_distribution_sql)
     end
