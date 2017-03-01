@@ -80,8 +80,8 @@ describe CachedGradeDistribution do
         :enrollment_state => 'active',
         :section => other_section,
         :allow_multiple_enrollments => true)
-      @second_enrollment.scores.create!(current_score: 12)
-
+      score = @second_enrollment.scores.find_or_create_by!(grading_period_id: nil)
+      score.update!(current_score: 12)
       @dist.recalculate!
       expect(@dist.s12).to eq 1 # not 2
     end
