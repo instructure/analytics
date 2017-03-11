@@ -143,4 +143,4 @@ define [
       I18n.t("%{percent} of students scored %{score}", percent: @percentText(value), score: @percentText(score / 100))
 
     percentText: (percent) ->
-      String(Math.round(percent * 1000) / 10) + '%'
+      I18n.n(Math.round(percent * 1000) / 10, { percentage: true })

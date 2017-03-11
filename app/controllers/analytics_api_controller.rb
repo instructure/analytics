@@ -218,25 +218,13 @@ class AnalyticsApiController < ApplicationController
   #         -H 'Authorization: Bearer <token>'
   #
   # @example_response
-  #   {
-  #     "page_views": {
-  #       "2012-01-24": {
-  #         "general": 200,
-  #         "grades": 25,
-  #         "files": 5,
-  #         "other": 10
-  #       },
-  #       "2012-01-27": {
-  #         "general": 251,
-  #         "assignments": 55,
-  #         "pages": 6
-  #       }
-  #     },
-  #     "participations": [
-  #       "2012-01-21",
-  #       "2012-01-27"
-  #     ]
-  #   }
+  #   [
+  #     { 
+  #       "date": "2012-01-24",
+  #       "participations": 3,
+  #       "views": 10
+  #     }
+  #   ]
   def course_participation
     return unless require_analytics_for_course
     render :json => @course_analytics.participation

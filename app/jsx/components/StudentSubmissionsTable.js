@@ -25,6 +25,12 @@ define([
       };
     },
 
+    formatNumber (styles = {}) {
+        return function (cell, row) {
+            return <span style={styles}>{I18n.n(cell)}</span>;
+        }
+    },
+
     formatDate (cell, row) {
       if (!cell) return I18n.t('N/A');
       return I18n.l('date.formats.default', cell);
@@ -38,7 +44,7 @@ define([
             <TableHeaderColumn dataField='status'>{I18n.t('Status')}</TableHeaderColumn>
             <TableHeaderColumn dataField='dueAt' dataFormat={this.formatDate}>{I18n.t('Due At')}</TableHeaderColumn>
             <TableHeaderColumn dataField='submittedAt' dataFormat={this.formatDate}>{I18n.t('Submitted At')}</TableHeaderColumn>
-            <TableHeaderColumn dataField='score'>{I18n.t('Score')}</TableHeaderColumn>
+            <TableHeaderColumn dataField='score' dataFormat={this.formatNumber}>{I18n.t('Score')}</TableHeaderColumn>
           </BootstrapTable>
         </div>
 
@@ -46,4 +52,3 @@ define([
     }
   });
 });
-

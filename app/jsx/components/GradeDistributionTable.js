@@ -13,19 +13,21 @@ define([
     };
 
     return React.createClass({
-        displayName: 'ActivitiesTable',
+        displayName: 'GradeDistribution',
 
         propTypes: {
             data: React.PropTypes.object.isRequired
         },
 
-        formatDate (cell, row) {
-            return I18n.l("date.formats.default", cell);
+        formatNumber (styles = {}) {
+            return function (cell, row) {
+                return <span style={styles}>{I18n.n(cell)}</span>;
+            }
         },
 
-        formatStyle (styles = {}) {
+        formatPercent (styles = {}) {
             return function (cell, row) {
-                return <span style={styles}>{cell}</span>;
+                return <span style={styles}>{cell * 100}%</span>;
             }
         },
 
@@ -33,14 +35,11 @@ define([
             return (
                 <div>
                     <BootstrapTable data={this.props.data} pagination={true} options={tableOptions}>
-                        <TableHeaderColumn dataField="date" isKey={true} dataFormat={this.formatDate}>{I18n.t("Date")}</TableHeaderColumn>
-                        <TableHeaderColumn dataField="views" dataFormat={this.formatStyle()}>{I18n.t("Page Views")}</TableHeaderColumn>
-                        <TableHeaderColumn dataField="participations" dataFormat={this.formatStyle()}>{I18n.t("Actions Taken")}</TableHeaderColumn>
+                        <TableHeaderColumn dataField="score" isKey={true} dataFormat={this.formatNumber()}>{I18n.t("Score")}</TableHeaderColumn>
+                        <TableHeaderColumn dataField="percent" dataFormat={this.formatPercent()}>{I18n.t("Percent of Students Scoring")}</TableHeaderColumn>
                     </BootstrapTable>
                 </div>
             );
         }
     });
 });
-
-

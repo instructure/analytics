@@ -22,10 +22,10 @@ define([
         return I18n.l("date.formats.default", cell);
     },
 
-    formatStyle (styles = {}) {
+    formatNumber (styles = {}) {
       styles.fontWeight = 'bold';
       return function (cell, row) {
-        return <span style={styles}>{cell}</span>;
+        return <span style={styles}>{I18n.n(cell)}</span>;
       };
     },
 
@@ -34,8 +34,8 @@ define([
         <div>
           <BootstrapTable data={this.props.data} pagination={true} options={tableOptions}>
             <TableHeaderColumn dataField="date" isKey={true} dataFormat={this.formatDate}>{I18n.t("Date")}</TableHeaderColumn>
-            <TableHeaderColumn dataField="instructorMessages" dataFormat={this.formatStyle()}>{I18n.t("Instructor Messages")}</TableHeaderColumn>
-            <TableHeaderColumn dataField="studentMessages" dataFormat={this.formatStyle()}>{I18n.t("Student Messages")}</TableHeaderColumn>
+            <TableHeaderColumn dataField="instructorMessages" dataFormat={this.formatNumber()}>{I18n.t("Instructor Messages")}</TableHeaderColumn>
+            <TableHeaderColumn dataField="studentMessages" dataFormat={this.formatNumber()}>{I18n.t("Student Messages")}</TableHeaderColumn>
           </BootstrapTable>
         </div>
 
@@ -43,4 +43,3 @@ define([
     }
   });
 });
-

@@ -1,5 +1,5 @@
 define ['jquery', 'analytics/compiled/graphs/DateAlignedGraph', 'translations/_core_en'], ($, DateAlignedGraph) ->
-  module 'DateAlignedGraph',
+  QUnit.module 'DateAlignedGraph',
     setup: ->
       @$el = $("<div/>")
 
