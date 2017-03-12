@@ -4,10 +4,9 @@ define [
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/ScaleByBins'
   'analytics/compiled/graphs/YAxis'
-  'compiled/str/TextHelper'
   'i18n!page_views'
   'str/htmlEscape'
-], (_, Base, Cover, ScaleByBins, YAxis, {delimit}, I18n, htmlEscape) ->
+], (_, Base, Cover, ScaleByBins, YAxis, I18n, htmlEscape) ->
 
   ##
   # CategorizedPageViews visualizes the student's activity within the course by
@@ -126,4 +125,4 @@ define [
     # Build the text for the bin's tooltip.
     tooltip: (bin) ->
       count = bin.views
-      $.raw "#{htmlEscape(bin.category)}<br/>#{htmlEscape I18n.t {one: "1 page view", other: "%{num} page views"}, {num: delimit(count), count: count}}"
+      $.raw "#{htmlEscape(bin.category)}<br/>#{htmlEscape I18n.t {one: "1 page view", other: "%{count} page views"}, {count: count}}"

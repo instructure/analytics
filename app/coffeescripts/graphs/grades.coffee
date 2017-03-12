@@ -4,10 +4,9 @@ define [
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/ScaleByBins'
   'analytics/compiled/graphs/YAxis'
-  'compiled/str/TextHelper'
   'str/htmlEscape'
   'i18n!analytics_grades'
-], (_, Base, Cover, ScaleByBins, YAxis, {delimit}, htmlEscape, I18n) ->
+], (_, Base, Cover, ScaleByBins, YAxis, htmlEscape, I18n) ->
 
   ##
   # Grades visualizes the student's scores on assignments compared to the
@@ -199,20 +198,20 @@ define [
     tooltip: (assignment) ->
       tooltip = htmlEscape(assignment.title)
       if assignment.scoreDistribution?
-        tooltip += "<br/>" + htmlEscape I18n.t("High: %{score}", score: delimit assignment.scoreDistribution.maxScore)
-        tooltip += "<br/>" + htmlEscape I18n.t("Median: %{score}", score: delimit assignment.scoreDistribution.median)
-        tooltip += "<br/>" + htmlEscape I18n.t("Low: %{score}", score: delimit assignment.scoreDistribution.minScore)
+        tooltip += "<br/>" + htmlEscape I18n.t("High: %{score}", score: I18n.n assignment.scoreDistribution.maxScore)
+        tooltip += "<br/>" + htmlEscape I18n.t("Median: %{score}", score: I18n.n assignment.scoreDistribution.median)
+        tooltip += "<br/>" + htmlEscape I18n.t("Low: %{score}", score: I18n.n assignment.scoreDistribution.minScore)
         if assignment.studentScore? && assignment.pointsPossible?
-          score = "#{delimit assignment.studentScore} / #{delimit assignment.pointsPossible}"
+          score = "#{I18n.n assignment.studentScore} / #{I18n.n assignment.pointsPossible}"
           tooltip += "<br/>" + htmlEscape I18n.t("Score: %{score}", score: score)
         else if assignment.studentScore?
-          tooltip += "<br/>" + htmlEscape I18n.t("Score: %{score}", score: delimit assignment.studentScore)
+          tooltip += "<br/>" + htmlEscape I18n.t("Score: %{score}", score: I18n.n assignment.studentScore)
         else if assignment.pointsPossible?
-          tooltip += "<br/>" + htmlEscape I18n.t("Possible: %{score}", score: delimit assignment.pointsPossible)
+          tooltip += "<br/>" + htmlEscape I18n.t("Possible: %{score}", score: I18n.n assignment.pointsPossible)
       else if assignment.muted
         tooltip += "<br/>" + htmlEscape I18n.t("(muted)")
       else if assignment.studentScore? && assignment.pointsPossible?
-        score = "#{delimit assignment.studentScore} / #{delimit assignment.pointsPossible}"
+        score = "#{I18n.n assignment.studentScore} / #{I18n.n assignment.pointsPossible}"
         tooltip += "<br/>" + htmlEscape I18n.t("Score: %{score}", score: score)
 
       $.raw tooltip
