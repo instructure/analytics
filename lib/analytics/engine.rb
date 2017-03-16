@@ -18,7 +18,7 @@
 
 module Analytics
   class Engine < ::Rails::Engine
-    config.autoload_paths << File.expand_path(File.join(__FILE__, "../.."))
+    config.paths['lib'].eager_load!
 
     Autoextend.hook(:AccountServices, after_load: true) do
       AccountServices.register_service :analytics,
