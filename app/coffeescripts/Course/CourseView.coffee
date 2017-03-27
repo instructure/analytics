@@ -97,13 +97,13 @@ define [
           data: @assignments
           format: (assignment) ->
             title:            assignment.title
-            min_score:        helpers.formatNull(assignment.scoreDistribution?.minScore)
-            median:           helpers.formatNull(assignment.scoreDistribution?.median)
-            max_score:        helpers.formatNull(assignment.scoreDistribution?.maxScore)
+            min_score:        assignment.scoreDistribution?.minScore
+            median:           assignment.scoreDistribution?.median
+            max_score:        assignment.scoreDistribution?.maxScore
             points_possible:  assignment.pointsPossible
             percentile:
-              min: helpers.formatNull(assignment.scoreDistribution?.firstQuartile)
-              max: helpers.formatNull(assignment.scoreDistribution?.thirdQuartile)
+              min: assignment.scoreDistribution?.firstQuartile
+              max: assignment.scoreDistribution?.thirdQuartile
         }
       ])
 
