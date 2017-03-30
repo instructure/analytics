@@ -152,4 +152,17 @@ describe "analytics course view" do
       expect(find("#student_#{@student.id} .missing")).to include_text('1')
     end
   end
+
+  context "student tray" do
+
+    before(:each) do
+      @account.enable_feature!(:student_context_cards)
+    end
+
+    it "should display student name in tray", priority: "1", test_id: 3109484 do
+      get("/courses/#{@course.id}/gradebook")
+      f("a[data-student_id='#{@student.id}']").click
+      expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student")
+    end
+  end
 end
