@@ -63,20 +63,10 @@ module Analytics
 
       class ByScore < Default
         def order
-          if Object.const_defined?('Score')
-            @direction == :descending ?
-              "CASE
-                WHEN scores.id IS NOT NULL THEN scores.current_score
-                ELSE enrollments.computed_current_score
-              END DESC NULLS LAST, users.id DESC" :
-              "CASE
-                WHEN scores.id IS NOT NULL THEN scores.current_score
-                ELSE enrollments.computed_current_score
-              END ASC NULLS FIRST, users.id ASC"
+          if @direction == :descending
+            "scores.current_score DESC NULLS LAST, users.id DESC"
           else
-            @direction == :descending ?
-              "enrollments.computed_current_score DESC NULLS LAST, users.id DESC" :
-              "enrollments.computed_current_score ASC NULLS FIRST, users.id ASC"
+            "scores.current_score ASC NULLS FIRST, users.id ASC"
           end
         end
 

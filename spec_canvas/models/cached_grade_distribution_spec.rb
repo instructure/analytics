@@ -24,7 +24,7 @@ describe CachedGradeDistribution do
       @course = course_model
       @enrollment = student_in_course
       @enrollment.workflow_state = 'active'
-      @enrollment.computed_current_score = 12
+      @enrollment.scores.create!(current_score: 12)
       @enrollment.save!
       @dist = @course.cached_grade_distribution
     end
@@ -80,8 +80,8 @@ describe CachedGradeDistribution do
         :enrollment_state => 'active',
         :section => other_section,
         :allow_multiple_enrollments => true)
-      @second_enrollment.computed_current_score = 12
-
+      score = @second_enrollment.scores.find_or_create_by!(grading_period_id: nil)
+      score.update!(current_score: 12)
       @dist.recalculate!
       expect(@dist.s12).to eq 1 # not 2
     end
@@ -90,7 +90,7 @@ describe CachedGradeDistribution do
       @dist.recalculate!
       expect(@dist.s12).to eq 1
 
-      @enrollment.computed_current_score = 11
+      @enrollment.find_score.update!(current_score: 11)
       @enrollment.save!
 
       @dist.recalculate!
@@ -98,14 +98,14 @@ describe CachedGradeDistribution do
     end
 
     it "should round scores" do
-      @enrollment.computed_current_score = 11.4
+      @enrollment.find_score.update!(current_score: 11.4)
       @enrollment.save!
 
       @dist.recalculate!
       expect(@dist.s11).to eq 1
       expect(@dist.s12).to eq 0
 
-      @enrollment.computed_current_score = 11.6
+      @enrollment.find_score.update!(current_score: 11.6)
       @enrollment.save!
 
       @dist.recalculate!

@@ -213,24 +213,14 @@ module Analytics
     def student_scope
       @student_scope ||= begin
         # any user with an enrollment, ordered by name
-        subselect = enrollment_scope.select([:id, :user_id, :computed_current_score]).to_sql
-        if Object.const_defined?('Score')
-          User.shard(@course.shard).
-            select("DISTINCT (users.id), users.*,
-              CASE
-                WHEN scores.id IS NOT NULL THEN scores.current_score
-                ELSE enrollments.computed_current_score
-              END AS computed_current_score").
-            joins("INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id = users.id
-                   LEFT JOIN #{Score.quoted_table_name} scores ON
-                      scores.enrollment_id = enrollments.id AND
-                      scores.grading_period_id IS NULL AND
-                      scores.workflow_state <> 'deleted'")
-        else
-          User.shard(@course.shard).
-            select("DISTINCT (users.id), users.*, enrollments.computed_current_score").
-            joins("INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id = users.id")
-        end
+        subselect = enrollment_scope.select([:id, :user_id]).to_sql
+        User.shard(@course.shard).
+          select("DISTINCT (users.id), users.*, scores.current_score as computed_current_score").
+          joins("INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id = users.id
+                 LEFT JOIN #{Score.quoted_table_name} scores ON
+                    scores.enrollment_id = enrollments.id AND
+                    scores.grading_period_id IS NULL AND
+                    scores.workflow_state <> 'deleted'")
       end
     end
 
