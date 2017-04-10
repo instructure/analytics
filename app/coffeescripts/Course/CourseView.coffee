@@ -4,7 +4,7 @@ define [
   'underscore'
   'Backbone'
   'i18n!analytics'
-  'analytics/jst/course'
+  '../../views/jst/course.handlebars'
   'analytics/compiled/Course/StudentSummariesView'
   'analytics/compiled/graphs/page_views'
   'analytics/compiled/graphs/grades'

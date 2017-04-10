@@ -3,7 +3,7 @@ define [
   'jquery'
   'underscore'
   'Backbone'
-  'analytics/jst/student_in_course'
+  '../../views/jst/student_in_course.handlebars'
   'jst/_avatar'
   'analytics/compiled/graphs/page_views'
   'analytics/compiled/graphs/responsiveness'

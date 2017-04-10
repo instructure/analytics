@@ -1,6 +1,6 @@
 define [
   'Backbone',
-  'analytics/jst/department_statistics'
+  '../../views/jst/department_statistics.handlebars'
   'jquery.disableWhileLoading'
 ], (Backbone, template) ->
 
