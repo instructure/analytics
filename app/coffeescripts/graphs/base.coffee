@@ -1,5 +1,5 @@
 define [
-  'vendor/graphael'
+  'graphael'
   'jquery.disableWhileLoading'
 ], (graphael) ->
 
