@@ -1,4 +1,4 @@
-require [
+define [
   'jquery',
   'i18n!analytics'
   'analytics/compiled/Department/DepartmentModel'
