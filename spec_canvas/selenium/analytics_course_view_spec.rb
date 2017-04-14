@@ -157,12 +157,47 @@ describe "analytics course view" do
 
     before(:each) do
       @account.enable_feature!(:student_context_cards)
+      Timecop.freeze(1.day.ago) do
+        3.times { page_view(:user => @student, :course => @course, :participated => true) }
+      end
+      randomly_grade_assignments(8)
+      create_past_due(3, 2)
     end
 
     it "should display student name in tray", priority: "1", test_id: 3109484 do
       get("/courses/#{@course.id}/gradebook")
       f("a[data-student_id='#{@student.id}']").click
       expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student")
+    end
+
+    it "should display course name in tray", priority: "1", test_id: 3133722 do
+      get("/courses/#{@course.id}/gradebook")
+      f("a[data-student_id='#{@student.id}']").click
+      expect(f(".StudentContextTray-Header__CourseName")).to include_text("Unnamed Course")
+    end
+
+    it "should display mail icon in tray", priority: "1", test_id: 3133723 do
+      get("/courses/#{@course.id}/gradebook")
+      f("a[data-student_id='#{@student.id}']").click
+      expect(f(".StudentContextTray-Header__Actions")).to contain_css(".icon-email")
+    end
+
+    it "should display grades link button in tray", priority: "1", test_id: 3134107 do
+      get("/courses/#{@course.id}/gradebook")
+      f("a[data-student_id='#{@student.id}']").click
+      expect(f("body")).to contain_jqcss(".StudentContextTray-QuickLinks__Link:contains(Grades)")
+    end
+
+    it "should display analytics link button in tray", priority: "1", test_id: 3134125 do
+      get("/courses/#{@course.id}/gradebook")
+      f("a[data-student_id='#{@student.id}']").click
+      expect(f("body")).to contain_jqcss(".StudentContextTray-QuickLinks__Link:contains(Analytics)")
+    end
+
+    it "should display nine assignments graded", priority: "1", test_id: 3134125 do
+      get("/courses/#{@course.id}/gradebook")
+      f("a[data-student_id='#{@student.id}']").click
+      expect(ff(".StudentContextTray-Progress__Bar").length).to eq 10
     end
   end
 end
