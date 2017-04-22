@@ -1,8 +1,9 @@
 define([
     'react',
     'plugins/analytics/react-bootstrap-table',
-    'i18n!analytics'
-], function (React, ReactBootstrapTable, I18n) {
+    'i18n!analytics',
+    'analytics/compiled/helpers'
+], function (React, ReactBootstrapTable, I18n, helpers) {
 
     const { BootstrapTable, TableHeaderColumn } = ReactBootstrapTable;
 
@@ -27,7 +28,7 @@ define([
 
         formatNumber (styles = {}) {
             return function (cell, row) {
-                return <span style={styles}>{I18n.n(cell)}</span>;
+                return <span style={styles}>{helpers.formatNumber(cell)}</span>;
             }
         },
 

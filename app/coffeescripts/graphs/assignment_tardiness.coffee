@@ -3,10 +3,9 @@ define [
   'analytics/compiled/graphs/DateAlignedGraph'
   'analytics/compiled/graphs/cover'
   'analytics/compiled/helpers'
-  'compiled/str/TextHelper'
   'i18n!time'
   'str/htmlEscape'
-], (_, DateAlignedGraph, Cover, helpers, {delimit}, I18n, htmlEscape) ->
+], (_, DateAlignedGraph, Cover, helpers, I18n, htmlEscape) ->
 
   ##
   # AssignmentTardiness visualizes the student's ability to turn in assignments
@@ -222,5 +221,5 @@ define [
       if assignment.muted
         tooltip += "<br/>" + htmlEscape I18n.t("Score: (muted)")
       else if assignment.studentScore?
-        tooltip += "<br/>" + htmlEscape I18n.t("Score: %{score}", score: delimit assignment.studentScore)
+        tooltip += "<br/>" + htmlEscape I18n.t("Score: %{score}", score: I18n.n assignment.studentScore)
       $.raw tooltip

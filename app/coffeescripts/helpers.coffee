@@ -25,10 +25,9 @@ define [
   daysBetween: (startDate, endDate) ->
     Math.round((endDate.getTime() - startDate.getTime()) / 86400000)
 
-  # because js is terrible and thinks 0 is falsey
-  formatNull: (value) ->
-    if (value != null && value != undefined)
-      value
+  formatNumber: (value) ->
+    if typeof value is 'number'
+      I18n.n(value)
     else
       I18n.t("N/A")
 

@@ -204,4 +204,4 @@ define [
     ##
     # Build the text for a bin's tooltip.
     tooltip: (date, value) ->
-      $.raw "#{htmlEscape I18n.l 'date.formats.medium', date}<br/>#{htmlEscape I18n.t({one: "1 message", other: "%{num} messages"}, {count: value, num: delimit value})}"
+      $.raw "#{htmlEscape I18n.l 'date.formats.medium', date}<br/>#{htmlEscape I18n.t({one: "1 message", other: "%{count} messages"}, {count: value})}"

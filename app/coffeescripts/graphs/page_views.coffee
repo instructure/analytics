@@ -3,10 +3,9 @@ define [
   'analytics/compiled/graphs/DateAlignedGraph'
   'analytics/compiled/graphs/cover'
   'analytics/compiled/graphs/YAxis'
-  'compiled/str/TextHelper'
   'i18n!page_views'
   'str/htmlEscape'
-], (_, DateAlignedGraph, Cover, YAxis, {delimit}, I18n, htmlEscape) ->
+], (_, DateAlignedGraph, Cover, YAxis, I18n, htmlEscape) ->
 
   ##
   # PageViews visualizes the student's activity within the course. Each bar
@@ -124,8 +123,8 @@ define [
       tooltip = htmlEscape @binDateText(bin)
       if bin.participations > 0
         count = bin.participations
-        tooltip += "<br/>" + htmlEscape I18n.t({one: "1 participation", other: "%{num} participations"}, {count: count, num: delimit count})
+        tooltip += "<br/>" + htmlEscape I18n.t({one: "1 participation", other: "%{count} participations"}, {count: count})
       if bin.views > 0
         count = bin.views
-        tooltip += "<br/>" + htmlEscape I18n.t({one: "1 page view", other: "%{num} page views"}, {count: count, num: delimit count})
+        tooltip += "<br/>" + htmlEscape I18n.t({one: "1 page view", other: "%{count} page views"}, {count: count})
       $.raw tooltip
