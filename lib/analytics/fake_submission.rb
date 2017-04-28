@@ -29,7 +29,7 @@ module Analytics
     attr_accessor :assignment
     attr_reader   :assignment_id, :user_id, :score, :submission_type,
                   :workflow_state, :excused, :submitted_at, :cached_due_date,
-                  :graded_at
+                  :graded_at, :late_policy_status
 
     include Submission::Tardiness
 
@@ -42,6 +42,7 @@ module Analytics
       @workflow_state  = data['workflow_state']
       @graded_at       = data['graded_at']
       @cached_due_date = data['cached_due_date']
+      @late_policy_status = data['late_policy_status']
 
       # submissions without a submission_type do not have a meaningful
       # submitted_at; see Submission#submitted_at
