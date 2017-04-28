@@ -136,7 +136,7 @@ module Analytics
         user = User.create!
         enrollment = StudentEnrollment.create!(:user => user, :course => this_course, :course_section => sections.first)
         Enrollment.where(:id => enrollment).update_all(:workflow_state => 'active')
-        submission = assignment.submissions.create!(:user => user, :score => 95)
+        submission = assignment.submissions.find_or_create_by!(user: user).update! score: 95
         submission.submitted_at = 2.days.ago
         submission.graded_at = 2.days.ago
         submission.save!

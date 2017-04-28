@@ -274,14 +274,14 @@ describe "analytics" do
         end
 
         def validate_first_students_grade_graph
-          first_assignment = @course.active_assignments.first
-          first_submission_score = first_assignment.submissions.first.score.to_i.to_s
+          first_assignment = @graded_assignments.first
+          first_submission_score = first_assignment.submissions.find_by(user: @student).score.to_i.to_s
           validation_text = ['Score: ' + first_submission_score + ' / 100', first_assignment.title]
           validation_text.each { |text| validate_tooltip_text("#grades-graph .assignment_#{first_assignment.id}.cover", text) }
         end
 
         added_students = add_students_to_course(1)
-        graded_assignments = randomly_grade_assignments(5)
+        @graded_assignments = randomly_grade_assignments(5)
         go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
         next_button = find('.ui-combobox-next')
         prev_button = find('.ui-combobox-prev')
@@ -296,7 +296,7 @@ describe "analytics" do
         #change to the next student
         select_next_student(next_button, added_students[0])
         validate_combobox_name(added_students[0].name)
-        assignment_diamond = get_diamond(graded_assignments[0].id)
+        assignment_diamond = get_diamond(@graded_assignments[0].id)
         validate_element_fill(assignment_diamond, GraphColors::SHARP_RED)
 
         #change back to the first student

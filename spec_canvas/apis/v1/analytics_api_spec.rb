@@ -268,10 +268,6 @@ describe "Analytics API", :type => :request do
       expect(response_assignment(json, @assignments[2])["max_score"]).to be_nil
     end
 
-    it "should fetch data for a student in the course" do
-      json = analytics_api_call(:assignments, @course, @students[1])
-    end
-
     it "should calculate max score" do
       json = analytics_api_call(:assignments, @course, @students[1])
       expect(response_assignment(json, @assignments[3])["max_score"]).to eq 40
@@ -309,7 +305,7 @@ describe "Analytics API", :type => :request do
 
     it "should track due dates" do
       json = analytics_api_call(:assignments, @course, @students[1])
-      expect(response_assignment(json, @assignments[3])["due_at"]).to eq @due_time.iso8601
+      expect(response_assignment(json, @assignments[3])["due_at"]).to eq @due_time.change(sec: 0).iso8601
     end
 
     it "should have the module ids the assignment belongs to" do
