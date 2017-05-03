@@ -43,7 +43,6 @@ module Analytics
       @graded_at       = data['graded_at']
       @cached_due_date = data['cached_due_date']
       @late_policy_status = data['late_policy_status']
-      @accepted_at = data['accepted_at']
 
       # submissions without a submission_type do not have a meaningful
       # submitted_at; see Submission#submitted_at
@@ -60,6 +59,11 @@ module Analytics
       @submitted_at    = Time.parse(@submitted_at + 'Z')    if @submitted_at.is_a?(String)
       @graded_at       = Time.parse(@graded_at + 'Z')       if @graded_at.is_a?(String)
       @cached_due_date = Time.parse(@cached_due_date + 'Z') if @cached_due_date.is_a?(String)
+      @accepted_at = if data['accepted_at'].present?
+        data['accepted_at'].is_a?(String) ? Time.parse(data['accepted_at'] + 'Z') : data['accepted_at']
+      else
+        @submitted_at
+      end
     end
 
     def self.from_scope(scope)
