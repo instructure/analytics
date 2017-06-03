@@ -377,7 +377,7 @@ describe Analytics::Course do
       it "should include students submissions in the course" do
         5.times do |i|
           active_student
-          @assignment.submissions.create!(:user => @student, :score => i)
+          @assignment.submissions.find_or_create_by!(user: @student).update! score: i
         end
 
         expect(@teacher_analytics.assignments.first[:min_score]).to eq 0
@@ -388,7 +388,7 @@ describe Analytics::Course do
       end
 
       it "should not include non-student's submissions in the course" do
-        @assignment.submissions.create!(:user => @teacher)
+        @assignment.submissions.find_or_create_by!(user: @teacher)
         expect(@teacher_analytics.assignments.first[:min_score]).to be_nil
       end
 
@@ -399,7 +399,7 @@ describe Analytics::Course do
         @other_course = course_shim(:active_course => true)
         course_with_student(:course => @other_course, :user => @student, :active_enrollment => true)
         @other_assignment = @other_course.assignments.active.create!
-        @other_assignment.submissions.create!(:user => @student, :score => 1)
+        @other_assignment.submissions.find_or_create_by!(user: @student).update! score: 1
 
         expect(@teacher_analytics.assignments.first[:min_score]).to be_nil
       end
@@ -495,8 +495,8 @@ describe Analytics::Course do
       @student2 = @student
 
       @assignment = @course.assignments.active.create!(:due_at => 1.day.ago, :submission_types => "online", :grading_type => "percent")
-      @submission1 = @assignment.submissions.create!(:user => @student1)
-      @submission2 = @assignment.submissions.create!(:user => @student2)
+      @submission1 = @assignment.submissions.find_or_create_by!(user: @student1)
+      @submission2 = @assignment.submissions.find_or_create_by!(user: @student2)
 
       submit_submission(:submission => @submission1, :submitted_at => @assignment.due_at - 1.day)
       submit_submission(:submission => @submission2, :submitted_at => @assignment.due_at + 1.day)
@@ -509,7 +509,7 @@ describe Analytics::Course do
     context "an assignment that has a due date" do
       before :each do
         @assignment = @course.assignments.active.create!(:submission_types => "online", :grading_type => "percent")
-        @submission = @assignment.submissions.create!(:user => @student)
+        @submission = @assignment.submissions.find_or_create_by!(user: @student)
 
         @assignment.due_at = 1.day.ago
         @assignment.save!
@@ -603,7 +603,7 @@ describe Analytics::Course do
     context "an assignment that has no due date" do
       before :each do
         @assignment = @course.assignments.active.create!(:submission_types => "online", :grading_type => "percent")
-        @submission = @assignment.submissions.create!(:user => @student)
+        @submission = @assignment.submissions.find_or_create_by!(user: @student)
       end
 
       context "when the assignment expects a submission" do

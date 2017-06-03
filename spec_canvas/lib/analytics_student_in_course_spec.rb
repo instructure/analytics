@@ -73,7 +73,7 @@ module Analytics
       }
 
       it 'lets overridden_for determine the due_at value' do
-        expect(analytics.basic_assignment_data(assignment, [submission])[:due_at]).to eq due_at
+        expect(analytics.basic_assignment_data(assignment, [submission])[:due_at]).to eq due_at.change(sec: 0)
       end
     end
   end

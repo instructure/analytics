@@ -22,7 +22,7 @@ require_dependency "analytics/assignment_submission"
 module Analytics
   describe AssignmentSubmission do
     let(:assignment) { ::Assignment.create!({ :context => course_shim }) }
-    let(:date) { Time.now.change(usec: 0) }
+    let(:date) { Time.now.change(sec: 0) }
 
     context "with submission" do
       let(:submission) do
@@ -131,7 +131,7 @@ module Analytics
         submission.stubs(:cached_due_date).returns(Time.now)
 
         assignment_submission = AssignmentSubmission.new(assignment, submission)
-        expect(assignment_submission.due_at).to eq submission.cached_due_date
+        expect(assignment_submission.due_at).to eq submission.cached_due_date.change(sec: 0)
       end
 
       it "should return missing?" do
@@ -217,7 +217,7 @@ module Analytics
       end
 
       it "should return assignment due_at" do
-        expect(assignment_submission.due_at).to eq assignment.due_at
+        expect(assignment_submission.due_at).to eq assignment.due_at&.change(sec: 0)
       end
 
       it "should return missing?" do
