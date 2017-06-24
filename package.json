@@ -1,0 +1,6 @@
+{
+  "name": "analytics",
+  "dependencies": {
+    "graphael": "https://github.com/ryankshaw/graphael.git"
+  }
+}
