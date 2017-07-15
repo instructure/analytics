@@ -14,6 +14,6 @@ Gem::Specification.new do |spec|
   spec.files = Dir["{app,config,db,lib,public}/**/*"]
   spec.test_files = Dir["spec_canvas/**/*"]
 
-  spec.add_dependency "rails", ">= 3.2", "< 5.1"
+  spec.add_dependency "rails", ">= 3.2", "< 5.2"
   spec.add_dependency "autoextend", "~>1.0.0"
 end
