@@ -22,8 +22,8 @@ describe PageView::Pv4Client do
   let(:client) { PageView::Pv4Client.new('http://pv4/', 'token') }
 
   def stub_http_request(response)
-    stub = stub(body: response.to_json)
-    CanvasHttp.stubs(:get).returns(stub)
+    stub = double(body: response.to_json)
+    allow(CanvasHttp).to receive(:get).and_return(stub)
   end
 
   describe "#user_in_course_participations" do

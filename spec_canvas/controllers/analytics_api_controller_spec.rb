@@ -24,7 +24,7 @@ describe AnalyticsApiController do
   let(:controller) { AnalyticsApiController.new }
 
   before do
-    controller.stubs(:api_request? => true,
+    allow(controller).to receive_messages(:api_request? => true,
                      :require_analytics_for_course => true,
                      :render => "RENDERED!",
                      :params => params,
@@ -34,20 +34,20 @@ describe AnalyticsApiController do
 
   describe '#course_student_summaries' do
 
-    let(:course) { stub_everything() }
-    let(:user) { stub_everything() }
-    let(:analytics) { stub_everything(:student_summaries => ['summary1']) }
+    let(:course) { double(grants_any_right?: false).as_null_object }
+    let(:user) { double().as_null_object }
+    let(:analytics) { double(:student_summaries => ['summary1']).as_null_object }
 
     before do
       controller.instance_variable_set(:@current_user, user)
       controller.instance_variable_set(:@course_analytics, analytics)
       controller.instance_variable_set(:@course, course)
-      Api.stubs(:paginate)
+      allow(Api).to receive(:paginate)
     end
 
     describe 'when the user can manage_grades' do
       before do
-        course.expects(:grants_any_right?).with(user, nil, :manage_grades, :view_all_grades).returns(true)
+        expect(course).to receive(:grants_any_right?).with(user, nil, :manage_grades, :view_all_grades).and_return(true)
       end
 
       it 'renders the json' do
@@ -56,25 +56,25 @@ describe AnalyticsApiController do
 
       it 'passes a sort_column down to the analytics engine' do
         params[:sort_column] = 'score'
-        analytics.expects(:student_summaries).with(sort_column: 'score', student_id: nil)
+        expect(analytics).to receive(:student_summaries).with(sort_column: 'score', student_id: nil)
         controller.course_student_summaries
       end
 
       it 'passes a student_id down to the analytics engine' do
         params[:student_id] = '123'
-        analytics.expects(:student_summaries).with(sort_column: nil, student_id: '123')
+        expect(analytics).to receive(:student_summaries).with(sort_column: nil, student_id: '123')
         controller.course_student_summaries
       end
 
       it 'paginates the summaries' do
-        Api.expects(:paginate).with(['summary1'], controller, '/')
+        expect(Api).to receive(:paginate).with(['summary1'], controller, '/')
         controller.course_student_summaries
       end
     end
 
     describe 'when the user has no grades permissions' do
       it 'does not render the json' do
-        controller.expects(:render_unauthorized_action)
+        expect(controller).to receive(:render_unauthorized_action)
         expect(controller.course_student_summaries).not_to eq "RENDERED!"
       end
     end
