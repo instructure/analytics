@@ -567,7 +567,7 @@ describe Analytics::Course do
           end
         end
 
-        context "when the assignment expects a submission" do
+        context "when the assignment expects an online submission" do
           before :each do
             @assignment.submission_types = 'online_text_entry'
             @assignment.save!
