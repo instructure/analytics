@@ -35,7 +35,7 @@ describe AnalyticsController, :type => :controller do
   describe "department" do
     def department_analytics(opts={})
       account = opts[:account] || @account
-      get 'department', :account_id => account.id
+      get 'department', params: {:account_id => account.id}
     end
 
     it "should set @department_analytics on success" do
@@ -72,7 +72,7 @@ describe AnalyticsController, :type => :controller do
 
     def course_analytics(opts={})
       course = opts[:course] || @course
-      get 'course', :course_id => course.id
+      get 'course', params: {:course_id => course.id}
     end
 
     it "should set @course_analytics on success" do
@@ -153,7 +153,7 @@ describe AnalyticsController, :type => :controller do
     def student_in_course_analytics(opts={})
       course = opts[:course] || @course
       student = opts[:student] || @student
-      get 'student_in_course', :course_id => course.id, :student_id => student.id
+      get 'student_in_course', params: {:course_id => course.id, :student_id => student.id}
     end
 
     it "should set @course_analytics and @student_analytics on success" do
