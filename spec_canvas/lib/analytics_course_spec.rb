@@ -162,7 +162,7 @@ describe Analytics::Course do
       end
 
       it 'passes the course and students array to the page view' do
-        PageView.expects(:counters_by_context_for_users).with(@course, @teacher_analytics.students).returns {}
+        expect(PageView).to receive(:counters_by_context_for_users).with(@course, @teacher_analytics.students).and_return(nil)
         @teacher_analytics.page_views_by_student
       end
     end
