@@ -156,9 +156,12 @@ describe "analytics course view" do
   context "student tray" do
 
     before(:each) do
+      @student2 = User.create!(:name => 'initial test student2')
+      @course.enroll_student(@student2).accept!
       @account.enable_feature!(:student_context_cards)
       Timecop.freeze(1.day.ago) do
         3.times { page_view(:user => @student, :course => @course, :participated => true) }
+        3.times { page_view(:user => @student2, :course => @course, :participated => true) }
       end
       randomly_grade_assignments(8)
       create_past_due(3, 2)
@@ -225,6 +228,14 @@ describe "analytics course view" do
       f("a[data-student_id='#{@student.id}']").click
       expect(fj(".StudentContextTray-QuickLinks__Link:eq(1) a")).
         to have_attribute("href", "/courses/#{@course.id}/analytics/users/#{@student.id}")
+    end
+
+    it "should switch student displayed in tray", priority: "1", test_id: 3022079 do
+      get("/courses/#{@course.id}/gradebook")
+      f("a[data-student_id='#{@student.id}']").click
+      expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student")
+      f("a[data-student_id='#{@student2.id}']").click
+      expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student2")
     end
   end
 end
