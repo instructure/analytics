@@ -3,7 +3,7 @@ define [
   'jquery'
   'underscore'
   'Backbone'
-  'analytics/jst/student_in_course'
+  '../../views/jst/student_in_course.handlebars'
   'jst/_avatar'
   'analytics/compiled/graphs/page_views'
   'analytics/compiled/graphs/responsiveness'
@@ -143,7 +143,7 @@ define [
             dueAt: assignment.dueAt,
             submittedAt: assignment.submittedAt,
             status: formattedStatus,
-            score: helpers.formatNull(assignment.studentScore)
+            score: assignment.studentScore
         },
         {
           div: "#grades-table"
@@ -161,15 +161,15 @@ define [
                           I18n.t("Good")
 
             title:            assignment.title
-            min_score:        helpers.formatNull(assignment.scoreDistribution?.minScore)
-            median:           helpers.formatNull(assignment.scoreDistribution?.median)
-            max_score:        helpers.formatNull(assignment.scoreDistribution?.maxScore)
+            min_score:        assignment.scoreDistribution?.minScore
+            median:           assignment.scoreDistribution?.median
+            max_score:        assignment.scoreDistribution?.maxScore
             points_possible:  assignment.pointsPossible
-            student_score:    helpers.formatNull(assignment.studentScore)
+            student_score:    assignment.studentScore
             score_type:       scoreType
             percentile:
-              min: helpers.formatNull(assignment.scoreDistribution?.firstQuartile)
-              max: helpers.formatNull(assignment.scoreDistribution?.thirdQuartile)
+              min: assignment.scoreDistribution?.firstQuartile
+              max: assignment.scoreDistribution?.thirdQuartile
         }
       ])
 

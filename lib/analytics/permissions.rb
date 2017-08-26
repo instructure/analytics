@@ -16,13 +16,9 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_dependency 'analytics/department'
-require_dependency 'analytics/course'
-require_dependency 'analytics/student_in_course'
-
 # intended for inclusion in analytics' various controllers for shared
 # functionality around permissions
-module AnalyticsPermissions
+module Analytics::Permissions
   module ClassMethods
   end
 
@@ -106,7 +102,7 @@ module AnalyticsPermissions
     klass.send :include, InstanceMethods
     klass.extend ClassMethods
 
-    klass.before_filter :require_user # comes from ApplicationController
-    klass.before_filter :require_analytics_enabled
+    klass.before_action :require_user # comes from ApplicationController
+    klass.before_action :require_analytics_enabled
   end
 end

@@ -87,7 +87,7 @@ describe Analytics::Course do
     it "should use the same cache for users with the same visibility" do
       enable_cache do
         @ta_analytics.students
-        @teacher_analytics.expects(:student_scope).never
+        expect(@teacher_analytics).to receive(:student_scope).never
         @teacher_analytics.students
       end
     end
@@ -96,26 +96,28 @@ describe Analytics::Course do
       enable_cache do
         # while the permissions are ok, they should match
         @teacher_analytics.assignments
-        @ta_analytics.expects(:assignment_scope).never
+        assignment_scope_allowed = false
+        allow(@ta_analytics).to receive(:assignment_scope).and_wrap_original do |original|
+          raise "Should not be called" unless assignment_scope_allowed
+          original.call
+        end
         @ta_analytics.assignments
 
         # when permissions differ, the ta should get a different value
-        @course.stubs(:grants_any_right?).returns(false)
-        @ta_analytics.unstub(:assignment_scope)
+        allow(@course).to receive(:grants_any_right?).and_return(false)
+        assignment_scope_allowed = true
         scope = @ta_analytics.assignment_scope
-        @ta_analytics.expects(:assignment_scope).returns(scope)
+        expect(@ta_analytics).to receive(:assignment_scope).and_return(scope)
         @ta_analytics.assignments
 
         # when permissions are the same again, they should still be the same
         # original cache
-        @course.unstub(:rights_status)
-        @ta_analytics.expects(:assignment_scope).never
+        assignment_scope_allowed = false
         @ta_analytics.assignments
 
         # when permissions differ again, the previous different value should
         # have been cached and now reused
-        @course.stubs(:grants_any_right?).returns(false)
-        @ta_analytics.expects(:assignment_scope).never
+        allow(@course).to receive(:grants_any_right?).and_return(false)
         @ta_analytics.assignments
       end
     end
@@ -155,12 +157,12 @@ describe Analytics::Course do
 
     describe '#page_views_by_student' do
       it 'delegates to the PageView' do
-        PageView.stubs(:counters_by_context_for_users => { 1 => 2 } )
+        allow(PageView).to receive_messages(:counters_by_context_for_users => { 1 => 2 } )
         expect(@teacher_analytics.page_views_by_student).to eq({ 1 => 2 })
       end
 
       it 'passes the course and students array to the page view' do
-        PageView.expects(:counters_by_context_for_users).with(@course, @teacher_analytics.students).returns {}
+        expect(PageView).to receive(:counters_by_context_for_users).with(@course, @teacher_analytics.students).and_return(nil)
         @teacher_analytics.page_views_by_student
       end
     end
@@ -317,7 +319,7 @@ describe Analytics::Course do
     it "should be 'now' if none of the enrollments have an effective_end_at" do
       dates = [ nil, nil, nil ]
       dates.each{ active_student }
-      @teacher_analytics.enrollments.zip(dates).each{ |e,date| e.stubs(:effective_end_at).returns(date) }
+      @teacher_analytics.enrollments.zip(dates).each{ |e,date| allow(e).to receive(:effective_end_at).and_return(date) }
 
       expect(@teacher_analytics.end_date).not_to be_nil
     end
@@ -354,7 +356,7 @@ describe Analytics::Course do
       specs_require_sharding
 
       it "should work with the correct shard" do
-        ActiveRecord::Base.connection.stubs(:use_qualified_names?).returns(true)
+        allow(ActiveRecord::Base.connection).to receive(:use_qualified_names?).and_return(true)
         active_student
 
         @shard1.activate do
@@ -377,7 +379,7 @@ describe Analytics::Course do
       it "should include students submissions in the course" do
         5.times do |i|
           active_student
-          @assignment.submissions.create!(:user => @student, :score => i)
+          @assignment.submissions.find_or_create_by!(user: @student).update! score: i
         end
 
         expect(@teacher_analytics.assignments.first[:min_score]).to eq 0
@@ -388,7 +390,7 @@ describe Analytics::Course do
       end
 
       it "should not include non-student's submissions in the course" do
-        @assignment.submissions.create!(:user => @teacher)
+        @assignment.submissions.find_or_create_by!(user: @teacher)
         expect(@teacher_analytics.assignments.first[:min_score]).to be_nil
       end
 
@@ -399,7 +401,7 @@ describe Analytics::Course do
         @other_course = course_shim(:active_course => true)
         course_with_student(:course => @other_course, :user => @student, :active_enrollment => true)
         @other_assignment = @other_course.assignments.active.create!
-        @other_assignment.submissions.create!(:user => @student, :score => 1)
+        @other_assignment.submissions.find_or_create_by!(user: @student).update! score: 1
 
         expect(@teacher_analytics.assignments.first[:min_score]).to be_nil
       end
@@ -423,6 +425,30 @@ describe Analytics::Course do
           expect(student_summary[:participations]).to eq 1
         end
 
+        context "levels" do
+          before :each do
+            @student1 = @student
+            @student2 = active_student.user
+            @student3 = active_student.user
+          end
+
+          it "returns 'level' for page_views / participation" do
+            page_view(:user => @student1, :course => @course, :participated => true)
+            3.times { page_view(user: @student2, course: @course, participated: true) }
+            2.times { page_view(user: @student2, course: @course, participated: false) }
+            summaries = @teacher_analytics.student_summaries.paginate(per_page: 100)
+            levels = summaries.index_by { |x| x[:id] }
+
+            expect(levels[@student1.id][:page_views_level]).to eq 2
+            expect(levels[@student2.id][:page_views_level]).to eq 3
+            expect(levels[@student3.id][:page_views_level]).to eq 0
+
+            expect(levels[@student1.id][:participations_level]).to eq 2
+            expect(levels[@student2.id][:participations_level]).to eq 3
+            expect(levels[@student3.id][:participations_level]).to eq 0
+          end
+        end
+
         it "can return results for a single student", priority: "1", test_id: 2997780 do
           student1 = @student
           student2 = active_student(name: "Student2").user
@@ -435,8 +461,8 @@ describe Analytics::Course do
 
         it "should be able to sort by page view even with superfluous counts" do
           old_page_view_counts = @teacher_analytics.page_views_by_student
-          @teacher_analytics.stubs(:page_views_by_student).
-            returns(old_page_view_counts.merge(user.id => {:page_views => 0, :participations => 0}))
+          allow(@teacher_analytics).to receive(:page_views_by_student).
+            and_return(old_page_view_counts.merge(user_factory.id => {:page_views => 0, :participations => 0}))
           result = @teacher_analytics.student_summaries(sort_column: "page_views_ascending").paginate(:page => 1, :per_page => 2).first
           expect(result[:id]).to eq @student.id
         end
@@ -456,6 +482,8 @@ describe Analytics::Course do
   describe ":tardiness_breakdown" do
     before :each do
       active_student(:name => 'Student1')
+      @teacher = User.create!
+      @course.enroll_teacher(@teacher)
     end
 
     it "should include the number of assignments" do
@@ -469,8 +497,8 @@ describe Analytics::Course do
       @student2 = @student
 
       @assignment = @course.assignments.active.create!(:due_at => 1.day.ago, :submission_types => "online", :grading_type => "percent")
-      @submission1 = @assignment.submissions.create!(:user => @student1)
-      @submission2 = @assignment.submissions.create!(:user => @student2)
+      @submission1 = @assignment.submissions.find_or_create_by!(user: @student1)
+      @submission2 = @assignment.submissions.find_or_create_by!(user: @student2)
 
       submit_submission(:submission => @submission1, :submitted_at => @assignment.due_at - 1.day)
       submit_submission(:submission => @submission2, :submitted_at => @assignment.due_at + 1.day)
@@ -483,7 +511,7 @@ describe Analytics::Course do
     context "an assignment that has a due date" do
       before :each do
         @assignment = @course.assignments.active.create!(:submission_types => "online", :grading_type => "percent")
-        @submission = @assignment.submissions.create!(:user => @student)
+        @submission = @assignment.submissions.find_or_create_by!(user: @student)
 
         @assignment.due_at = 1.day.ago
         @assignment.save!
@@ -539,7 +567,7 @@ describe Analytics::Course do
           end
         end
 
-        context "when the assignment expects a submission" do
+        context "when the assignment expects an online submission" do
           before :each do
             @assignment.submission_types = 'online_text_entry'
             @assignment.save!
@@ -577,7 +605,7 @@ describe Analytics::Course do
     context "an assignment that has no due date" do
       before :each do
         @assignment = @course.assignments.active.create!(:submission_types => "online", :grading_type => "percent")
-        @submission = @assignment.submissions.create!(:user => @student)
+        @submission = @assignment.submissions.find_or_create_by!(user: @student)
       end
 
       context "when the assignment expects a submission" do
@@ -661,6 +689,7 @@ describe Analytics::Course do
 
   def grade_submission
     @submission.grade = 'A'
+    @submission.grader = @teacher
     @submission.score = '1'
     @submission.grade_matches_current_submission = true
     @submission.save!

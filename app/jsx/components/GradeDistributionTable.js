@@ -3,7 +3,8 @@ define([
     'plugins/analytics/react-bootstrap-table',
     'i18n!analytics',
     'jquery',
-], function (React, ReactBootstrapTable, I18n, $) {
+    'analytics/compiled/helpers'
+], function (React, ReactBootstrapTable, I18n, $, helpers) {
 
     const { BootstrapTable, TableHeaderColumn } = ReactBootstrapTable;
 
@@ -19,9 +20,9 @@ define([
             data: React.PropTypes.object.isRequired
         },
 
-        formatStyle (styles = {}) {
+        formatNumber (styles = {}) {
             return function (cell, row) {
-                return <span style={styles}>{cell}</span>;
+                return <span style={styles}>{helpers.formatNumber(cell)}</span>;
             }
         },
 
@@ -35,7 +36,7 @@ define([
             return (
                 <div>
                     <BootstrapTable data={this.props.data} pagination={true} options={tableOptions}>
-                        <TableHeaderColumn dataField="score" isKey={true} dataFormat={this.formatStyle()}>{I18n.t("Score")}</TableHeaderColumn>
+                        <TableHeaderColumn dataField="score" isKey={true} dataFormat={this.formatNumber()}>{I18n.t("Score")}</TableHeaderColumn>
                         <TableHeaderColumn dataField="percent" dataFormat={this.formatPercent()}>{I18n.t("Percent of Students Scoring")}</TableHeaderColumn>
                     </BootstrapTable>
                 </div>
@@ -43,5 +44,3 @@ define([
         }
     });
 });
-
-

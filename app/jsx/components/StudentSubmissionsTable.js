@@ -1,8 +1,9 @@
 define([
   'react',
   'plugins/analytics/react-bootstrap-table',
-  'i18n!analytics'
-], function (React, ReactBootstrapTable, I18n) {
+  'i18n!analytics',
+  'analytics/compiled/helpers'
+], function (React, ReactBootstrapTable, I18n, helpers) {
 
   const { BootstrapTable, TableHeaderColumn } = ReactBootstrapTable;
 
@@ -25,6 +26,12 @@ define([
       };
     },
 
+    formatNumber (styles = {}) {
+        return function (cell, row) {
+            return <span style={styles}>{helpers.formatNumber(cell)}</span>;
+        }
+    },
+
     formatDate (cell, row) {
       if (!cell) return I18n.t('N/A');
       return I18n.l('date.formats.default', cell);
@@ -38,7 +45,7 @@ define([
             <TableHeaderColumn dataField='status'>{I18n.t('Status')}</TableHeaderColumn>
             <TableHeaderColumn dataField='dueAt' dataFormat={this.formatDate}>{I18n.t('Due At')}</TableHeaderColumn>
             <TableHeaderColumn dataField='submittedAt' dataFormat={this.formatDate}>{I18n.t('Submitted At')}</TableHeaderColumn>
-            <TableHeaderColumn dataField='score'>{I18n.t('Score')}</TableHeaderColumn>
+            <TableHeaderColumn dataField='score' dataFormat={this.formatNumber()}>{I18n.t('Score')}</TableHeaderColumn>
           </BootstrapTable>
         </div>
 
@@ -46,4 +53,3 @@ define([
     }
   });
 });
-

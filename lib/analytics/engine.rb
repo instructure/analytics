@@ -18,38 +18,40 @@
 
 module Analytics
   class Engine < ::Rails::Engine
-    config.autoload_paths << File.expand_path(File.join(__FILE__, "../.."))
+    config.paths['lib'].eager_load!
 
-    # runs once on process startup, both development and production
-    initializer "analytics.canvas_plugin" do
+    Autoextend.hook(:AccountServices, after_load: true) do
       AccountServices.register_service :analytics,
-        :name => "Analytics",
-        :description => "",
-        :expose_to_ui => :setting,
-        :default => false
-
-      Permissions.register :view_analytics,
-        :label => lambda { I18n.t('#role_override.permissions.view_analytics', "View analytics pages") },
-        :available_to => %w(AccountAdmin TaEnrollment TeacherEnrollment StudentEnrollment AccountMembership),
-        :true_for => %w(AccountAdmin TaEnrollment TeacherEnrollment),
-        :applies_to_concluded => true
+                                       :name => "Analytics",
+                                       :description => "",
+                                       :expose_to_ui => :setting,
+                                       :default => false
     end
-
-    Autoextend.hook(:PageView, :"Analytics::Extensions::PageView",
+    Autoextend.hook(:Course,
+                    :"Analytics::Extensions::Course")
+    Autoextend.hook(:CoursesController,
+                    :"Analytics::Extensions::CoursesController",
+                    method: :prepend)
+    Autoextend.hook(:CustomSidebarLinksHelper,
+                    :"Analytics::Extensions::CustomSidebarLinksHelper",
+                    method: :prepend)
+    Autoextend.hook(:Enrollment,
+                    :"Analytics::Extensions::Enrollment")
+    Autoextend.hook(:GradeCalculator,
+                    :"Analytics::Extensions::GradeCalculator",
+                    method: :prepend)
+    Autoextend.hook(:Permissions, after_load: true) do
+      ::Permissions.register :view_analytics,
+                           :label => lambda { I18n.t('#role_override.permissions.view_analytics', "View analytics pages") },
+                           :available_to => %w(AccountAdmin TaEnrollment TeacherEnrollment StudentEnrollment AccountMembership),
+                           :true_for => %w(AccountAdmin TaEnrollment TeacherEnrollment),
+                           :applies_to_concluded => true
+    end
+    Autoextend.hook(:PageView,
+                    :"Analytics::Extensions::PageView",
                     method: :prepend)
     Autoextend.hook(:"PageView::Pv4Client",
                     :"Analytics::Extensions::PageView::Pv4Client")
-
-    # runs once in production, but on each request (to match class reloading)
-    # in development with class_caching off
-    config.to_prepare do
-      require 'analytics/extensions/courses_controller'
-      require 'analytics/extensions/custom_sidebar_links_helper'
-      require 'analytics/extensions/course'
-      require 'analytics/extensions/enrollment'
-      require 'analytics/extensions/grade_calculator'
-      require 'analytics/extensions/permissions'
-      require 'analytics/extensions/user'
-    end
+    Autoextend.hook(:User, :"Analytics::Extensions::User")
   end
 end

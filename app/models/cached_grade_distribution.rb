@@ -17,8 +17,6 @@
 #
 
 class CachedGradeDistribution < ActiveRecord::Base
-  strong_params
-
   def self.primary_key
     :course_id
   end
@@ -50,9 +48,13 @@ class CachedGradeDistribution < ActiveRecord::Base
   def grade_distribution_rows
     self.shard.activate do
       grade_distribution_sql = course.all_real_student_enrollments.
-        select("COUNT(DISTINCT user_id) AS user_count, ROUND(computed_current_score) AS score").
-        where(:workflow_state => ['active', 'completed']).
-        group("ROUND(computed_current_score)").
+        joins("LEFT JOIN #{Score.quoted_table_name} scores on
+            scores.enrollment_id = enrollments.id AND
+            scores.grading_period_id IS NULL AND
+            scores.workflow_state <> 'deleted'").
+        select("COUNT(DISTINCT user_id) AS user_count, ROUND(scores.current_score) AS score").
+        where(workflow_state: [:active, :completed]).
+        group('score').
         to_sql
 
       self.class.connection.select_rows(grade_distribution_sql)

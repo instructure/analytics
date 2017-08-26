@@ -145,8 +145,18 @@ describe Analytics::StudentCollection do
       let(:enrollment_count) { 4 }
       before :each do
         assigned_scores = [40, 20, nil, 60]
-        assigned_scores.zip(@enrollments).each { |score, enrollment| enrollment.update_attribute(:computed_current_score, score) }
-        @scope = User.active.joins(:enrollments)
+        assigned_scores.zip(@enrollments).each do |score, enrollment|
+          enrollment.scores.where(grading_period_id: nil).first_or_initialize.tap do |s|
+            s.current_score = score
+            s.save!
+          end
+        end
+
+        @scope = User.active.joins(:enrollments).
+          joins("LEFT JOIN #{Score.quoted_table_name} scores ON
+                scores.enrollment_id = enrollments.id AND
+                scores.grading_period_id IS NULL AND
+                scores.workflow_state <> 'deleted'")
         @strategy = Analytics::StudentCollection::SortStrategy::ByScore.new
         @reverse_strategy = Analytics::StudentCollection::SortStrategy::ByScore.new(:descending)
         @expected_sort = [2, 1, 0, 3].map{ |i| @users[i] }

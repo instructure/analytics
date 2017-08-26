@@ -3,7 +3,8 @@ define([
     'plugins/analytics/react-bootstrap-table',
     'i18n!analytics',
     'jquery',
-], function (React, ReactBootstrapTable, I18n, $) {
+    'analytics/compiled/helpers'
+], function (React, ReactBootstrapTable, I18n, $, helpers) {
 
     const { BootstrapTable, TableHeaderColumn } = ReactBootstrapTable;
 
@@ -29,17 +30,21 @@ define([
             }
         },
 
+        formatNumber (styles = {}) {
+            return function (cell, row) {
+                return <span style={styles}>{helpers.formatNumber(cell)}</span>;
+            }
+        },
+
         render () {
             return (
                 <div>
                     <BootstrapTable data={this.props.data} pagination={true} options={tableOptions}>
                         <TableHeaderColumn dataField="category" isKey={true} dataFormat={this.formatStyle()}>{I18n.t("Category")}</TableHeaderColumn>
-                        <TableHeaderColumn dataField="views" dataFormat={this.formatStyle()}>{I18n.t("Page Views")}</TableHeaderColumn>
+                        <TableHeaderColumn dataField="views" dataFormat={this.formatNumber()}>{I18n.t("Page Views")}</TableHeaderColumn>
                     </BootstrapTable>
                 </div>
             );
         }
     });
 });
-
-

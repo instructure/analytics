@@ -32,7 +32,7 @@ describe ContextController, :type => :controller do
 
   context "permissions" do
     before :once do
-      @student1 = user(:active_all => true)
+      @student1 = user_factory(active_all: true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
       @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
@@ -46,13 +46,13 @@ describe ContextController, :type => :controller do
 
     def expect_injection(course, student)
       expected_link = "/courses/#{course.id}/analytics/users/#{student.id}"
-      get 'roster_user', :course_id => course.id, :id => student.id
+      get 'roster_user', params: {:course_id => course.id, :id => student.id}
       expect(controller.roster_user_custom_links(student).map { |link| link[:url] }).to include expected_link
     end
 
     def forbid_injection(course, student)
       analytics_link = "/courses/#{course.id}/analytics/users/#{student.id}"
-      get 'roster_user', :course_id => course.id, :id => student.id
+      get 'roster_user', params: {:course_id => course.id, :id => student.id}
       expect(controller.roster_user_custom_links(student).map { |link| link[:url] }).not_to include analytics_link
     end
 
@@ -149,7 +149,7 @@ describe ContextController, :type => :controller do
     context "unreadable student" do
       before :once do
         # section limited ta in section other than student1
-        @ta = user(:active_all => true)
+        @ta = user_factory(active_all: true)
         @enrollment = @course.enroll_ta(@ta)
         @enrollment.course = @course # set the reverse association
         @enrollment.workflow_state = 'active'

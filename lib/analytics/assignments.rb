@@ -16,14 +16,18 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require 'rollups/assignment_rollup_aggregate'
-
 module Analytics
   module Assignments
     # required of host: submissions(assignments)
 
     SUBMISSION_COLUMNS_SELECT = [:id, :assignment_id, :score, :user_id, :submission_type,
-            :submitted_at, :grade, :graded_at, :updated_at, :workflow_state, :cached_due_date, :excused]
+            :submitted_at, :grade, :graded_at, :updated_at, :workflow_state, :cached_due_date, :excused, :late_policy_status]
+
+    [:accepted_at, :seconds_late_override].each do |column|
+      # this is temporary and will be cleaned up once the commit lands in canvas
+      # which adds seconds_late_override and removes accepted_at
+      SUBMISSION_COLUMNS_SELECT << column if Submission.column_names.include?(column.to_s)
+    end
 
     def assignments
       cache_array = [:assignments, allow_student_details?]

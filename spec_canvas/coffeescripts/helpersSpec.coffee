@@ -1,5 +1,5 @@
 define ['analytics/compiled/helpers'], (helpers) ->
-  module 'helpers'
+  QUnit.module 'helpers'
 
   test 'midnight: should find preceding midnight', ->
     original = new Date 2000, 0, 1, 0, 0, 1

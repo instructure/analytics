@@ -24,7 +24,7 @@ describe CachedGradeDistribution do
       @course = course_model
       @enrollment = student_in_course
       @enrollment.workflow_state = 'active'
-      @enrollment.computed_current_score = 12
+      @enrollment.scores.create!(current_score: 12)
       @enrollment.save!
       @dist = @course.cached_grade_distribution
     end
@@ -80,8 +80,8 @@ describe CachedGradeDistribution do
         :enrollment_state => 'active',
         :section => other_section,
         :allow_multiple_enrollments => true)
-      @second_enrollment.computed_current_score = 12
-
+      score = @second_enrollment.scores.find_or_create_by!(grading_period_id: nil)
+      score.update!(current_score: 12)
       @dist.recalculate!
       expect(@dist.s12).to eq 1 # not 2
     end
@@ -90,7 +90,7 @@ describe CachedGradeDistribution do
       @dist.recalculate!
       expect(@dist.s12).to eq 1
 
-      @enrollment.computed_current_score = 11
+      @enrollment.find_score.update!(current_score: 11)
       @enrollment.save!
 
       @dist.recalculate!
@@ -98,14 +98,14 @@ describe CachedGradeDistribution do
     end
 
     it "should round scores" do
-      @enrollment.computed_current_score = 11.4
+      @enrollment.find_score.update!(current_score: 11.4)
       @enrollment.save!
 
       @dist.recalculate!
       expect(@dist.s11).to eq 1
       expect(@dist.s12).to eq 0
 
-      @enrollment.computed_current_score = 11.6
+      @enrollment.find_score.update!(current_score: 11.6)
       @enrollment.save!
 
       @dist.recalculate!
@@ -118,24 +118,24 @@ describe CachedGradeDistribution do
     before :each do
       @course = course_model
       @dist = @course.create_cached_grade_distribution
-      @course.any_instantiation.stubs(:cached_grade_distribution).returns(@dist)
+      allow_any_instantiation_of(@course).to receive(:cached_grade_distribution).and_return(@dist)
     end
 
     it "should get recalculated when a student enrollment is added" do
-      @dist.expects(:recalculate!).once
+      expect(@dist).to receive(:recalculate!).once
       student_in_course
     end
 
     it "should get recalculated when a student enrollment's workflow_state is changed" do
       @enrollment = student_in_course
 
-      @dist.expects(:recalculate!).once
+      expect(@dist).to receive(:recalculate!).once
       @enrollment.workflow_state = 'deleted'
       @enrollment.save
     end
 
     it "should not get recalculated when a fake student enrollment is added" do
-      @dist.expects(:recalculate!).never
+      expect(@dist).to receive(:recalculate!).never
       @course.student_view_student
     end
 
@@ -143,7 +143,7 @@ describe CachedGradeDistribution do
       @course.student_view_student
       @enrollment = @course.student_view_enrollments.first
 
-      @dist.expects(:recalculate!).never
+      expect(@dist).to receive(:recalculate!).never
       @enrollment.workflow_state = 'deleted'
       @enrollment.save
     end
@@ -151,13 +151,13 @@ describe CachedGradeDistribution do
     it "should get recalculated after non-empty GradeCalculator.recompute_final_score" do
       student_in_course
 
-      @dist.expects(:recalculate!).once
+      expect(@dist).to receive(:recalculate!).once
       GradeCalculator.recompute_final_score([@student.id], @course.id)
     end
 
     it "should not get recalculated after empty GradeCalculator.recompute_final_score" do
       # no-op because there are no enrollments in the course
-      @dist.expects(:recalculate!).never
+      expect(@dist).to receive(:recalculate!).never
       GradeCalculator.recompute_final_score([], @course.id)
     end
   end

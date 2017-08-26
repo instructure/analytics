@@ -2,7 +2,7 @@ define [
   'jquery'
   'underscore'
   'Backbone'
-  'analytics/jst/course_student_summary'
+  '../../views/jst/course_student_summary.handlebars'
 ], ($, _, Backbone, template) ->
 
   class StudentSummaryView extends Backbone.View

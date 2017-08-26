@@ -17,6 +17,7 @@
 #
 
 require_relative '../../../../../../spec/spec_helper'
+require_dependency "analytics/assignments"
 
 module Analytics
 
@@ -25,7 +26,7 @@ module Analytics
 
     describe 'building assigment data' do
       let(:assignment) do
-        stub(
+        double(
           :id => 2,
           :title => 'title',
           :unlock_at => '2/2/2',
@@ -61,11 +62,11 @@ module Analytics
 
       describe '#assignment_data' do
 
-        let(:scores) { (1..5).map{|score| stub(:score => score, :user_id => 123) } }
+        let(:scores) { (1..5).map{|score| double(:score => score, :user_id => 123) } }
 
         before do
-         assignments.stubs(:fake_student_ids).returns([])
-         assignments.stubs(:allow_student_details? => true)
+         allow(assignments).to receive(:fake_student_ids).and_return([])
+         allow(assignments).to receive(:allow_student_details?).and_return(true)
         end
         subject { OpenStruct.new( assignments.assignment_data(assignment, scores) ) }
 
@@ -135,7 +136,7 @@ module Analytics
         user = User.create!
         enrollment = StudentEnrollment.create!(:user => user, :course => this_course, :course_section => sections.first)
         Enrollment.where(:id => enrollment).update_all(:workflow_state => 'active')
-        submission = assignment.submissions.create!(:user => user, :score => 95)
+        submission = assignment.submissions.find_or_create_by!(user: user).update! score: 95
         submission.submitted_at = 2.days.ago
         submission.graded_at = 2.days.ago
         submission.save!
@@ -155,7 +156,7 @@ module Analytics
 
     describe "#assignment_scope" do
       before :once do
-        course_with_student_logged_in(active_all: true)
+        course_with_student(active_all: true)
         @section_one = @course.course_sections.create!(name: "Section One")
         @section_two = @course.course_sections.create!(name: "Section Two")
         student_in_section(@section_one, user: @student)

@@ -17,6 +17,7 @@
 #
 
 require_relative '../../../../../spec/spec_helper'
+require_dependency "analytics/student_in_course"
 
 module Analytics
   describe StudentInCourse do
@@ -40,8 +41,8 @@ module Analytics
       let(:time1) { Time.local(2012, 10, 1) }
 
       it "has a :submission field" do
-        assignment = stub('assignment')
-        subm = stub('subm', :user_id => @student.id, :score => 10, :submitted_at => time1, :missing? => false, :excused? => false)
+        assignment = double('assignment')
+        subm = double('subm', :user_id => @student.id, :score => 10, :submitted_at => time1, :missing? => false, :excused? => false)
         data = analytics.extended_assignment_data(assignment, [subm])
         expect(data).to eq({
           :excused => false,
@@ -58,9 +59,9 @@ module Analytics
       let(:submitted_at) { 101.days.ago.change(usec: 0) }
 
       let(:analytics) { StudentInCourse.new(@teacher, @course, @student) }
-      let(:assignment) { stub_everything('assignment') }
+      let(:assignment) { double('assignment').as_null_object }
       let(:submission) {
-        stub('submission',
+        double('submission',
           :assignment_id => assignment.id,
           :assigment => assignment,
           :user_id => @student.id,
@@ -72,7 +73,7 @@ module Analytics
       }
 
       it 'lets overridden_for determine the due_at value' do
-        expect(analytics.basic_assignment_data(assignment, [submission])[:due_at]).to eq due_at
+        expect(analytics.basic_assignment_data(assignment, [submission])[:due_at]).to eq due_at.change(sec: 0)
       end
     end
   end

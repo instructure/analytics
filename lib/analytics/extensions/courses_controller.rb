@@ -16,12 +16,14 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-CoursesController.class_eval do
-  # we can't be guaranteed our extension to Api::V1::User (if we put it there)
-  # would be loaded before Courses is loaded and includes the old version of
-  # user_json. so we'll just extend CourseController's copy.
-  def user_json_with_analytics(user, current_user, session, includes = [], context = @context, enrollments = nil)
-    user_json_without_analytics(user, current_user, session, includes, context, enrollments).tap do |json|
+module Analytics::Extensions::CoursesController
+  # If Api::V1::User were already included onto User, we're already higher priority
+  # than it. Or, by including it, we force it to already be on the chain, so a
+  # subsequent inclusion won't make it higher priority than us
+  include Api::V1::User
+
+  def user_json(user, current_user, session, includes = [], context = @context, enrollments = nil, excludes=[])
+    super.tap do |json|
       # order of comparisons is meant to let the cheapest counters be
       # evalutated first, so the more expensive ones don't need to be evaluated
       # if a cheap one fails
@@ -40,15 +42,13 @@ CoursesController.class_eval do
       end
     end
   end
-  alias_method_chain :user_json, :analytics
 
   # extend the users API endpoint to request the analytics_url in the user_json
-  def users_with_analytics
+  def users
     # "", [], or nil => []. if it's not one of those, it
     # should already be a non-empty array
     params[:include] = [] if params[:include].blank?
     params[:include] << 'analytics_url' unless params[:include].include? 'analytics_url'
-    users_without_analytics
+    super
   end
-  alias_method_chain :users, :analytics
 end

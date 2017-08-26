@@ -2,7 +2,7 @@ define [
   'Backbone'
   'underscore'
   'react'
-  'analytics/jst/department_graphs'
+  '../../views/jst/department_graphs.handlebars'
   'analytics/compiled/graphs/page_views'
   'analytics/compiled/graphs/CategorizedPageViews'
   'analytics/compiled/graphs/GradeDistribution'

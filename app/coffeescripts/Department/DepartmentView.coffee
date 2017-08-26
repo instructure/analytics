@@ -1,7 +1,7 @@
 define [
   'jquery'
   'Backbone'
-  'analytics/jst/department'
+  '../../views/jst/department.handlebars'
   'analytics/compiled/Department/DepartmentFilterBox'
   'analytics/compiled/Department/DepartmentGraphView'
   'analytics/compiled/Department/StatisticsView'

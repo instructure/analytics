@@ -100,10 +100,17 @@ shared_examples_for "analytics tests" do
 
   def randomly_grade_assignments(number_of_assignments, student = @student)
     graded_assignments = []
+
+    if @course.teacher_enrollments.any?
+      teacher = @course.teacher_enrollments.last.user
+    else
+      teacher = User.create!
+      @course.enroll_teacher(teacher)
+    end
     number_of_assignments.times do |i|
       assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100, :due_at => Time.now.utc, :submission_types => "online")
       assignment.submit_homework(student)
-      assignment.grade_student(student, :grade => rand(100) + 1)
+      assignment.grade_student(student, grade: rand(100) + 1, grader: teacher)
       graded_assignments.push(assignment)
     end
     graded_assignments
@@ -195,6 +202,26 @@ shared_examples_for "analytics tests" do
 
   def validate_student_display(student_name)
     expect(find('.student_summary')).to include_text(student_name)
+  end
+
+  def create_past_due(number_assignments, number_graded, student = @student)
+    graded_assignments = []
+    to_grade_left = number_graded
+
+    number_assignments.times do |i|
+      assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100, :due_at => 1.day.ago, :submission_types => "online")
+      assignment.submit_homework(student)
+      next unless to_grade_left > 0
+      if @course.teacher_enrollments.any?
+        teacher = @course.teacher_enrollments.last.user
+      else
+        teacher = User.create!
+        @course.enroll_teacher(teacher)
+      end
+      assignment.grade_student(student, grade: ((100 - i*10) % 100), grader: teacher)
+      graded_assignments.push(assignment)
+      to_grade_left -= 1
+    end
   end
 
   shared_examples_for "analytics permissions specs" do

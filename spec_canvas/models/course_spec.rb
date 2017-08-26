@@ -24,7 +24,7 @@ describe Course do
       @course = course_model
       @enrollment = student_in_course
       @enrollment.workflow_state = 'active'
-      @enrollment.computed_current_score = 12
+      @enrollment.scores.create!(current_score: 12)
       @enrollment.save!
     end
 
@@ -40,7 +40,7 @@ describe Course do
       expect(existing.s11).to eq 0
       expect(existing.s12).to eq 1
 
-      @enrollment.computed_current_score = 11
+      @enrollment.find_score.update!(current_score: 11)
       @enrollment.save!
 
       @course.reload.recache_grade_distribution
