@@ -180,7 +180,7 @@ describe PageViewsRollup do
       end
 
       it "should cast to the corresponding UTC date on query" do
-        @scope.expects(:for_dates).with(@expected_date).returns(@scope)
+        expect(@scope).to receive(:for_dates).with(@expected_date).and_return(@scope)
         PageViewsRollup.bin_for(@scope, @input_timestamp, @category)
       end
 
@@ -219,14 +219,14 @@ describe PageViewsRollup do
       @today = Date.today
       @category = 'other'
 
-      bin = mock('bin')
-      scope = mock('scope')
-      scope.stubs(:transaction).yields
-      PageViewsRollup.stubs(:bin_scope_for).with(@course).returns(scope)
-      PageViewsRollup.stubs(:bin_for).with(scope, @today, @category).returns(bin)
-      bin.expects(:new_record?).returns(false)
-      bin.expects(:augment).with(5, 2).once
-      bin.expects(:save!).once
+      bin = double('bin')
+      scope = double('scope')
+      allow(scope).to receive(:transaction).and_yield
+      allow(PageViewsRollup).to receive(:bin_scope_for).with(@course).and_return(scope)
+      allow(PageViewsRollup).to receive(:bin_for).with(scope, @today, @category).and_return(bin)
+      expect(bin).to receive(:new_record?).and_return(false)
+      expect(bin).to receive(:augment).with(5, 2).once
+      expect(bin).to receive(:save!).once
 
       PageViewsRollup.augment!(@course, @today, @category, 5, 2)
     end
@@ -240,9 +240,8 @@ describe PageViewsRollup do
       bin1 = PageViewsRollup.bin_for(scope, today, category)
       bin2 = PageViewsRollup.bin_for(scope, today, category)
       bin2.save!
-      PageViewsRollup.expects(:bin_scope_for).returns(scope)
-      PageViewsRollup.expects(:bin_for).twice.with(scope, today, category).returns(bin1).
-          then.returns(bin2)
+      expect(PageViewsRollup).to receive(:bin_scope_for).and_return(scope)
+      expect(PageViewsRollup).to receive(:bin_for).twice.with(scope, today, category).and_return(bin1, bin2)
 
       PageViewsRollup.augment!(course, today, category, 5, 2)
     end
@@ -254,7 +253,7 @@ describe PageViewsRollup do
       @today = Date.today
       @category = 'other'
 
-      PageViewsRollup.expects(:augment!).with(@course, @today, @category, 1, 1).once
+      expect(PageViewsRollup).to receive(:augment!).with(@course, @today, @category, 1, 1).once
       PageViewsRollup.increment_db!(@course, @today, @category, true)
     end
 
@@ -263,7 +262,7 @@ describe PageViewsRollup do
       @today = Date.today
       @category = 'other'
 
-      PageViewsRollup.expects(:augment!).with(@course, @today, @category, 1, 0).once
+      expect(PageViewsRollup).to receive(:augment!).with(@course, @today, @category, 1, 0).once
       PageViewsRollup.increment_db!(@course, @today, @category, false)
     end
   end

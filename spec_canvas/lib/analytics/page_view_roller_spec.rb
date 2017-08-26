@@ -144,8 +144,8 @@ module Analytics
         build_page_view(:context => first_course, :created_at => date)
         build_page_view(:context => first_course, :created_at => date)
         build_page_view(:context => second_course, :created_at => date)
-        mockbin(first_course.id, date, 'other').expects(:augment).with(2, 0).once
-        mockbin(second_course.id, date, 'other').expects(:augment).with(1, 0).once
+        expect(mockbin(first_course.id, date, 'other')).to receive(:augment).with(2, 0).once
+        expect(mockbin(second_course.id, date, 'other')).to receive(:augment).with(1, 0).once
         PageViewRoller.rollup_one(date)
       end
 
@@ -154,8 +154,8 @@ module Analytics
         build_page_view(:controller => 'gradebooks', :created_at => date)
         build_page_view(:controller => 'discussion_topics', :created_at => date)
         build_page_view(:controller => 'discussion_topics', :created_at => date)
-        mockbin(@course.id, date, 'grades').expects(:augment).with(1, 0).once
-        mockbin(@course.id, date, 'discussions').expects(:augment).with(2, 0).once
+        expect(mockbin(@course.id, date, 'grades')).to receive(:augment).with(1, 0).once
+        expect(mockbin(@course.id, date, 'discussions')).to receive(:augment).with(2, 0).once
         PageViewRoller.rollup_one(date)
       end
 
@@ -172,7 +172,7 @@ module Analytics
       it "should recognize participations" do
         date = Date.today
         build_page_view(:participated => true, :created_at => date)
-        mockbin(@course.id, date, 'other').expects(:augment).with(1, 1).once
+        expect(mockbin(@course.id, date, 'other')).to receive(:augment).with(1, 1).once
         PageViewRoller.rollup_one(date)
       end
     end

@@ -26,7 +26,7 @@ module Analytics
 
     describe 'building assigment data' do
       let(:assignment) do
-        stub(
+        double(
           :id => 2,
           :title => 'title',
           :unlock_at => '2/2/2',
@@ -62,11 +62,11 @@ module Analytics
 
       describe '#assignment_data' do
 
-        let(:scores) { (1..5).map{|score| stub(:score => score, :user_id => 123) } }
+        let(:scores) { (1..5).map{|score| double(:score => score, :user_id => 123) } }
 
         before do
-         assignments.stubs(:fake_student_ids).returns([])
-         assignments.stubs(:allow_student_details? => true)
+         allow(assignments).to receive(:fake_student_ids).and_return([])
+         allow(assignments).to receive(:allow_student_details?).and_return(true)
         end
         subject { OpenStruct.new( assignments.assignment_data(assignment, scores) ) }
 
