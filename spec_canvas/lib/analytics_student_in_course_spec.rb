@@ -41,8 +41,8 @@ module Analytics
       let(:time1) { Time.local(2012, 10, 1) }
 
       it "has a :submission field" do
-        assignment = double('assignment')
-        subm = double('subm', :user_id => @student.id, :score => 10, :submitted_at => time1, :missing? => false, :excused? => false)
+        assignment = stub('assignment')
+        subm = stub('subm', :user_id => @student.id, :score => 10, :submitted_at => time1, :missing? => false, :excused? => false)
         data = analytics.extended_assignment_data(assignment, [subm])
         expect(data).to eq({
           :excused => false,
@@ -59,9 +59,9 @@ module Analytics
       let(:submitted_at) { 101.days.ago.change(usec: 0) }
 
       let(:analytics) { StudentInCourse.new(@teacher, @course, @student) }
-      let(:assignment) { double('assignment').as_null_object }
+      let(:assignment) { stub_everything('assignment') }
       let(:submission) {
-        double('submission',
+        stub('submission',
           :assignment_id => assignment.id,
           :assigment => assignment,
           :user_id => @student.id,

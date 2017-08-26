@@ -44,7 +44,7 @@ describe PageView do
     end
 
     it "should prefer the category attribute if any" do
-      expect(@view).to receive(:read_attribute).with(:category).and_return('category')
+      @view.expects(:read_attribute).with(:category).returns('category')
       expect(@view.category).to eq 'category'
     end
   end
@@ -143,7 +143,7 @@ describe PageView do
 
     it "should return user page view counts in the course by hour" do
       timewarp = Time.parse('2012-12-26T19:15:00Z')
-      allow(Time).to receive(:now).and_return(timewarp)
+      Time.stubs(:now).returns(timewarp)
       page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
       page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
       page_view(:user => @user, :context => @course, :created_at => 3.hours.ago)
@@ -156,7 +156,7 @@ describe PageView do
 
     it "should return user page view counts in course groups" do
       timewarp = Time.parse('2012-12-26T19:15:00Z')
-      allow(Time).to receive(:now).and_return(timewarp)
+      Time.stubs(:now).returns(timewarp)
 
       group_model(:context => @course)
       @group.add_user(@user, 'accepted')
@@ -185,7 +185,7 @@ describe PageView do
 
     it "should return user page view counts in the course by hour" do
       timewarp = Time.parse('2012-12-26T19:15:00Z')
-      allow(Time).to receive(:now).and_return(timewarp)
+      Time.stubs(:now).returns(timewarp)
       page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
       page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
       page_view(:user => @user, :context => @course, :created_at => 3.hours.ago)
@@ -198,7 +198,7 @@ describe PageView do
 
     it "should return user page view counts in course groups" do
       timewarp = Time.parse('2012-12-26T19:15:00Z')
-      allow(Time).to receive(:now).and_return(timewarp)
+      Time.stubs(:now).returns(timewarp)
 
       group_model(:context => @course)
       @group.add_user(@user, 'accepted')

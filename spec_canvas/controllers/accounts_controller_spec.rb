@@ -41,12 +41,12 @@ describe AccountsController, :type => :controller do
 
   context "permissions" do
     def expect_injection
-      get 'show', params: {:id => @account.id}, format: 'html'
+      get 'show', :id => @account.id, :format => 'html'
       expect(controller.account_custom_links.map { |link| link[:url] }).to include "/accounts/#{@account.id}/analytics"
     end
 
     def forbid_injection
-      get 'show', params: {:id => @account.id}, format: 'html'
+      get 'show', :id => @account.id, :format => 'html'
       expect(controller.account_custom_links.map { |link| link[:url] }).not_to include "/accounts/#{@account.id}/analytics"
     end
 

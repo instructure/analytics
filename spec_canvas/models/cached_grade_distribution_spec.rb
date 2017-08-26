@@ -118,24 +118,24 @@ describe CachedGradeDistribution do
     before :each do
       @course = course_model
       @dist = @course.create_cached_grade_distribution
-      allow_any_instantiation_of(@course).to receive(:cached_grade_distribution).and_return(@dist)
+      @course.any_instantiation.stubs(:cached_grade_distribution).returns(@dist)
     end
 
     it "should get recalculated when a student enrollment is added" do
-      expect(@dist).to receive(:recalculate!).once
+      @dist.expects(:recalculate!).once
       student_in_course
     end
 
     it "should get recalculated when a student enrollment's workflow_state is changed" do
       @enrollment = student_in_course
 
-      expect(@dist).to receive(:recalculate!).once
+      @dist.expects(:recalculate!).once
       @enrollment.workflow_state = 'deleted'
       @enrollment.save
     end
 
     it "should not get recalculated when a fake student enrollment is added" do
-      expect(@dist).to receive(:recalculate!).never
+      @dist.expects(:recalculate!).never
       @course.student_view_student
     end
 
@@ -143,7 +143,7 @@ describe CachedGradeDistribution do
       @course.student_view_student
       @enrollment = @course.student_view_enrollments.first
 
-      expect(@dist).to receive(:recalculate!).never
+      @dist.expects(:recalculate!).never
       @enrollment.workflow_state = 'deleted'
       @enrollment.save
     end
@@ -151,13 +151,13 @@ describe CachedGradeDistribution do
     it "should get recalculated after non-empty GradeCalculator.recompute_final_score" do
       student_in_course
 
-      expect(@dist).to receive(:recalculate!).once
+      @dist.expects(:recalculate!).once
       GradeCalculator.recompute_final_score([@student.id], @course.id)
     end
 
     it "should not get recalculated after empty GradeCalculator.recompute_final_score" do
       # no-op because there are no enrollments in the course
-      expect(@dist).to receive(:recalculate!).never
+      @dist.expects(:recalculate!).never
       GradeCalculator.recompute_final_score([], @course.id)
     end
   end

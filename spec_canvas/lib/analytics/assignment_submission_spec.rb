@@ -34,31 +34,31 @@ module Analytics
       it "should return recorded" do
         assignment_submission = AssignmentSubmission.new(assignment, submission)
 
-        allow(assignment_submission).to receive(:recorded_at).and_return(nil)
+        assignment_submission.stubs(:recorded_at).returns(nil)
         expect(assignment_submission.recorded?).to be_falsey
 
-        allow(assignment_submission).to receive(:recorded_at).and_return(date)
+        assignment_submission.stubs(:recorded_at).returns(date)
         expect(assignment_submission.recorded?).to be_truthy
       end
 
       context "recorded_at" do
         it "should return nil when missing" do
-          allow(submission).to receive(:missing?).and_return(true)
+          submission.stubs(:missing?).returns(true)
 
           assignment_submission = AssignmentSubmission.new(assignment, submission)
           expect(assignment_submission.recorded_at).to be_nil
         end
 
         it "should return submitted_at when present" do
-          allow(submission).to receive(:submitted_at).and_return(date)
+          submission.stubs(:submitted_at).returns(date)
 
           assignment_submission = AssignmentSubmission.new(assignment, submission)
           expect(assignment_submission.recorded_at).to eq date
         end
 
         it "should return submitted_at when not graded" do
-          allow(submission).to receive(:submitted_at).and_return(date)
-          allow(submission).to receive(:graded?).and_return(false)
+          submission.stubs(:submitted_at).returns(date)
+          submission.stubs(:graded?).returns(false)
 
           assignment_submission = AssignmentSubmission.new(assignment, submission)
           expect(assignment_submission.recorded_at).to eq date
@@ -67,9 +67,9 @@ module Analytics
         it "should return nil when graded_at is nil and not graded nor submitted" do
           assignment_submission = AssignmentSubmission.new(assignment, submission)
 
-          allow(assignment_submission).to receive(:graded?).and_return(true)
-          allow(assignment_submission).to receive(:graded_at).and_return(nil)
-          allow(assignment_submission).to receive(:due_at).and_return(date)
+          assignment_submission.stubs(:graded?).returns(true)
+          assignment_submission.stubs(:graded_at).returns(nil)
+          assignment_submission.stubs(:due_at).returns(date)
 
           expect(assignment_submission.recorded_at).to be_nil
         end
@@ -77,9 +77,9 @@ module Analytics
         it "should return graded_at when due_at does not exist" do
           assignment_submission = AssignmentSubmission.new(assignment, submission)
 
-          allow(assignment_submission).to receive(:graded?).and_return(true)
-          allow(assignment_submission).to receive(:graded_at).and_return(date)
-          allow(assignment_submission).to receive(:due_at).and_return(nil)
+          assignment_submission.stubs(:graded?).returns(true)
+          assignment_submission.stubs(:graded_at).returns(date)
+          assignment_submission.stubs(:due_at).returns(nil)
 
           expect(assignment_submission.recorded_at).to eq date
         end
@@ -87,9 +87,9 @@ module Analytics
         it "should return due_at when due_at is before graded_at" do
           assignment_submission = AssignmentSubmission.new(assignment, submission)
 
-          allow(assignment_submission).to receive(:graded?).and_return(true)
-          allow(assignment_submission).to receive(:due_at).and_return(date)
-          allow(assignment_submission).to receive(:graded_at).and_return(date + 2.days)
+          assignment_submission.stubs(:graded?).returns(true)
+          assignment_submission.stubs(:due_at).returns(date)
+          assignment_submission.stubs(:graded_at).returns(date + 2.days)
 
           expect(assignment_submission.recorded_at).to eq date
         end
@@ -97,59 +97,59 @@ module Analytics
         it "should return graded_at when graded_at is before due_at" do
           assignment_submission = AssignmentSubmission.new(assignment, submission)
 
-          allow(assignment_submission).to receive(:graded?).and_return(true)
-          allow(assignment_submission).to receive(:due_at).and_return(date + 2.days)
-          allow(assignment_submission).to receive(:graded_at).and_return(date)
+          assignment_submission.stubs(:graded?).returns(true)
+          assignment_submission.stubs(:due_at).returns(date + 2.days)
+          assignment_submission.stubs(:graded_at).returns(date)
 
           expect(assignment_submission.recorded_at).to eq date
         end
 
         it "should return graded_at when its not passed the due date and graded at a grade greater than zero" do
-          allow(submission).to receive(:graded?).and_return(true)
-          allow(submission).to receive(:graded_at).and_return(date)
-          allow(submission).to receive(:score).and_return(10)
+          submission.stubs(:graded?).returns(true)
+          submission.stubs(:graded_at).returns(date)
+          submission.stubs(:score).returns(10)
 
           assignment_submission = AssignmentSubmission.new(assignment, submission)
-          allow(assignment_submission).to receive(:due_at).and_return(date + 2.days)
+          assignment_submission.stubs(:due_at).returns(date + 2.days)
 
           expect(assignment_submission.recorded_at).to eq date
         end
 
         it "should return nil when its not passed the due date and graded at a grade of zero" do
-          allow(submission).to receive(:graded?).and_return(true)
-          allow(submission).to receive(:graded_at).and_return(date)
-          allow(submission).to receive(:score).and_return(0)
+          submission.stubs(:graded?).returns(true)
+          submission.stubs(:graded_at).returns(date)
+          submission.stubs(:score).returns(0)
 
           assignment_submission = AssignmentSubmission.new(assignment, submission)
-          allow(assignment_submission).to receive(:due_at).and_return(date + 2.days)
+          assignment_submission.stubs(:due_at).returns(date + 2.days)
 
           expect(assignment_submission.recorded_at).to be_nil
         end
       end
 
       it "should return cached due_date" do
-        allow(submission).to receive(:cached_due_date).and_return(Time.now)
+        submission.stubs(:cached_due_date).returns(Time.now)
 
         assignment_submission = AssignmentSubmission.new(assignment, submission)
         expect(assignment_submission.due_at).to eq submission.cached_due_date.change(sec: 0)
       end
 
       it "should return missing?" do
-        allow(submission).to receive(:missing?).and_return(true)
+        submission.stubs(:missing?).returns(true)
 
         assignment_submission = AssignmentSubmission.new(assignment, submission)
         expect(assignment_submission.missing?).to be_truthy
       end
 
       it "should return late?" do
-        allow(submission).to receive(:late?).and_return(true)
+        submission.stubs(:late?).returns(true)
 
         assignment_submission = AssignmentSubmission.new(assignment, submission)
         expect(assignment_submission.late?).to be_truthy
       end
 
       it "should return on_time?" do
-        allow(submission).to receive(:submitted_at).and_return(2.days.ago)
+        submission.stubs(:submitted_at).returns(2.days.ago)
 
         assignment_submission = AssignmentSubmission.new(assignment, submission)
         expect(assignment_submission.on_time?).to be_truthy
@@ -161,7 +161,7 @@ module Analytics
       end
 
       it "should return status" do
-        allow(submission).to receive(:missing?).and_return(true)
+        submission.stubs(:missing?).returns(true)
 
         assignment_submission = AssignmentSubmission.new(assignment, submission)
         expect(assignment_submission.status).to eq :missing
@@ -169,14 +169,14 @@ module Analytics
 
       it "should return score" do
         score = 10
-        allow(submission).to receive(:score).and_return(score)
+        submission.stubs(:score).returns(score)
 
         assignment_submission = AssignmentSubmission.new(assignment, submission)
         expect(assignment_submission.score).to eq score
       end
 
       it "should return submitted_at" do
-        allow(submission).to receive(:submitted_at).and_return(date)
+        submission.stubs(:submitted_at).returns(date)
 
         assignment_submission = AssignmentSubmission.new(assignment, submission)
         expect(assignment_submission.submitted_at).to eq date
@@ -185,22 +185,22 @@ module Analytics
       it "should return graded?" do
         assignment_submission = AssignmentSubmission.new(assignment, submission)
 
-        allow(submission).to receive(:graded?).and_return(true)
+        submission.stubs(:graded?).returns(true)
         expect(assignment_submission.graded?).to be_truthy
 
-        allow(submission).to receive(:graded?).and_return(false)
+        submission.stubs(:graded?).returns(false)
         expect(assignment_submission.graded?).to be_falsey
       end
 
       it "should return graded_at" do
-        allow(submission).to receive(:graded_at).and_return(date)
+        submission.stubs(:graded_at).returns(date)
 
         assignment_submission = AssignmentSubmission.new(assignment, submission)
 
-        allow(assignment_submission).to receive(:graded?).and_return(true)
+        assignment_submission.stubs(:graded?).returns(true)
         expect(assignment_submission.graded_at).to eq date
 
-        allow(assignment_submission).to receive(:graded?).and_return(false)
+        assignment_submission.stubs(:graded?).returns(false)
         expect(assignment_submission.graded_at).to be_nil
       end
     end
@@ -241,7 +241,7 @@ module Analytics
       end
 
       it "should return missing status when assignment overdue" do
-        allow(assignment).to receive(:overdue?).and_return(true)
+        assignment.stubs(:overdue?).returns(true)
         expect(AssignmentSubmission.new(assignment).status).to eq :missing
       end
 

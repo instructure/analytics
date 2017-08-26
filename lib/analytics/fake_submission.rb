@@ -31,8 +31,6 @@ module Analytics
                   :workflow_state, :excused, :submitted_at, :cached_due_date,
                   :graded_at, :late_policy_status, :accepted_at, :seconds_late_override
 
-    alias_method :excused?, :excused
-
     include Submission::Tardiness
 
     def initialize(data)
