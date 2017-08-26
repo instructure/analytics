@@ -29,7 +29,9 @@ module Analytics
     attr_accessor :assignment
     attr_reader   :assignment_id, :user_id, :score, :submission_type,
                   :workflow_state, :excused, :submitted_at, :cached_due_date,
-                  :graded_at, :late_policy_status, :accepted_at
+                  :graded_at, :late_policy_status, :accepted_at, :seconds_late_override
+
+    alias_method :excused?, :excused
 
     include Submission::Tardiness
 
@@ -64,7 +66,10 @@ module Analytics
       else
         @submitted_at
       end
+      @seconds_late_override = data['seconds_late_override']
     end
+
+    alias_method :excused?, :excused
 
     def self.from_scope(scope)
       ActiveRecord::Base.connection.select_all(scope).map{ |data| self.new(data) }

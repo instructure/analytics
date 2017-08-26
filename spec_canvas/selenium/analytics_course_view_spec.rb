@@ -176,6 +176,12 @@ describe "analytics course view" do
       expect(f(".StudentContextTray-Header__CourseName")).to include_text("Unnamed Course")
     end
 
+    it "should display section name in tray", priority: "1", test_id: 3252248 do
+      get("/courses/#{@course.id}/gradebook")
+      f("a[data-student_id='#{@student.id}']").click
+      expect(f("body")).to contain_jqcss(".StudentContextTray-Header__Content:contains(Section: Unnamed Course)")
+    end
+
     it "should display mail icon in tray", priority: "1", test_id: 3133723 do
       get("/courses/#{@course.id}/gradebook")
       f("a[data-student_id='#{@student.id}']").click
@@ -198,6 +204,27 @@ describe "analytics course view" do
       get("/courses/#{@course.id}/gradebook")
       f("a[data-student_id='#{@student.id}']").click
       expect(ff(".StudentContextTray-Progress__Bar").length).to eq 10
+    end
+
+    it "should link to course user details", priority: "1", test_id: 3022062 do
+      get("/courses/#{@course.id}/gradebook")
+      f("a[data-student_id='#{@student.id}']").click
+      expect(f(".StudentContextTray-Header__Name h2 a")).
+        to have_attribute("href", "/courses/#{@course.id}/users/#{@student.id}")
+    end
+
+    it "should link to course user grade details", priority: "1", test_id: 3022064 do
+      get("/courses/#{@course.id}/gradebook")
+      f("a[data-student_id='#{@student.id}']").click
+      expect(fj(".StudentContextTray-QuickLinks__Link:first a")).
+        to have_attribute("href", "/courses/#{@course.id}/grades/#{@student.id}")
+    end
+
+    it "should link to course user analytics", priority: "1", test_id: 3022065 do
+      get("/courses/#{@course.id}/gradebook")
+      f("a[data-student_id='#{@student.id}']").click
+      expect(fj(".StudentContextTray-QuickLinks__Link:eq(1) a")).
+        to have_attribute("href", "/courses/#{@course.id}/analytics/users/#{@student.id}")
     end
   end
 end

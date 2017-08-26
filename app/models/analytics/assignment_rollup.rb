@@ -79,7 +79,7 @@ class Analytics::AssignmentRollup
   def self.enrollments_with_submissions_scope(assignment, enrollments_scope)
     enrollments_scope
       .joins("LEFT JOIN #{Submission.quoted_table_name} ON submissions.user_id = enrollments.user_id
-              AND submissions.assignment_id = #{assignment.id}")
+              AND submissions.assignment_id = #{assignment.id} AND submissions.workflow_state <> 'deleted'")
       .select("enrollments.id,
                enrollments.user_id,
                enrollments.course_id,

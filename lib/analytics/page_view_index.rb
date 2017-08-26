@@ -51,7 +51,7 @@ module Analytics::PageViewIndex
     end
 
     def self.bucket_for_time(time)
-      time.to_i - (time.to_i % bucket_size)
+      time.to_i - (time.to_i % bucket_size.to_i)
     end
 
     def self.update(page_view, new_record)

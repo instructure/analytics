@@ -16,8 +16,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require 'mocha/api'
-require 'mocha_rspec_adapter'
 require_relative '../../lib/analytics/page_view_analysis'
 require_dependency "analytics/page_view_analysis"
 
