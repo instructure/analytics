@@ -235,6 +235,7 @@ describe "analytics course view" do
       f("a[data-student_id='#{@student.id}']").click
       expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student")
       f("a[data-student_id='#{@student2.id}']").click
+      f("a[data-student_id='#{@student2.id}']").click # first click closes the tray, second re-opens it
       expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student2")
     end
   end
