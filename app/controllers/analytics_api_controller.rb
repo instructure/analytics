@@ -356,7 +356,8 @@ class AnalyticsApiController < ApplicationController
   def course_student_summaries
     return unless require_analytics_for_course
     return unless authorized_action(@course, @current_user, [:manage_grades, :view_all_grades])
-    summaries = @course_analytics.student_summaries(sort_column: params[:sort_column], student_id: params[:student_id])
+    student_ids = [params[:student_id]] unless params[:student_id].blank?
+    summaries = @course_analytics.student_summaries(sort_column: params[:sort_column], student_ids: student_ids)
     render :json => Api.paginate(summaries, self, api_v1_course_student_summaries_url(@course))
   end
 

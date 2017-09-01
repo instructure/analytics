@@ -40,6 +40,9 @@ module Analytics
     Autoextend.hook(:GradeCalculator,
                     :"Analytics::Extensions::GradeCalculator",
                     method: :prepend)
+    Autoextend.hook(:"Loaders::CourseStudentAnalyticsLoader",
+                    :"Analytics::Extensions::CourseStudentAnalyticsLoader",
+                    method: :prepend)
     Autoextend.hook(:Permissions, after_load: true) do
       ::Permissions.register :view_analytics,
                            :label => lambda { I18n.t('#role_override.permissions.view_analytics', "View analytics pages") },
