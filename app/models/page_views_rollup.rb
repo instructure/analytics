@@ -153,7 +153,7 @@ class PageViewsRollup < ActiveRecord::Base
     end
 
     begin
-      keys.each do |data_key|
+      keys&.each do |data_key|
         data = lua_run(:process, [in_progress_set_key, data_key, lock_key, lock_time])
         next if data.nil?
 

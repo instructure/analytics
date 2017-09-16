@@ -27,7 +27,9 @@ module Analytics::Extensions::Enrollment
     if student? && !fake_student? && workflow_state_changed?
       # the course may have gained/lost a 'valid' (non-fake active or completed
       # student enrollment), update its cached grade distribution.
-      course.recache_grade_distribution
+      self.class.connection.after_transaction_commit do
+        course.recache_grade_distribution
+      end
     end
     true
   end
