@@ -161,8 +161,7 @@ describe CachedGradeDistribution do
       GradeCalculator.recompute_final_score([], @course.id)
     end
 
-    # TODO: stop skipping after GRADE-9 merges
-    xit "should not get recalculated if ignore_muted in GradeCalculator is false" do
+    it "should not get recalculated if ignore_muted in GradeCalculator is false" do
       student_in_course
       expect(@dist).to receive(:recalculate!).never
       GradeCalculator.recompute_final_score([@student.id], @course.id, ignore_muted: false)
