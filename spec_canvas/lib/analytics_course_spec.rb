@@ -449,11 +449,11 @@ describe Analytics::Course do
           end
         end
 
-        it "can return results for a single student", priority: "1", test_id: 2997780 do
+        it "can return results for specific students", priority: "1", test_id: 2997780 do
           student1 = @student
           student2 = active_student(name: "Student2").user
           summaries = @teacher_analytics.
-            student_summaries(student_id: student2.id).
+            student_summaries(student_ids: [student2.id]).
             paginate(per_page: 100)
           expect(summaries.size).to eq 1
           expect(summaries.first[:id]).to eq student2.id

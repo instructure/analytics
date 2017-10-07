@@ -56,13 +56,13 @@ describe AnalyticsApiController do
 
       it 'passes a sort_column down to the analytics engine' do
         params[:sort_column] = 'score'
-        expect(analytics).to receive(:student_summaries).with(sort_column: 'score', student_id: nil)
+        expect(analytics).to receive(:student_summaries).with(sort_column: 'score', student_ids: nil)
         controller.course_student_summaries
       end
 
       it 'passes a student_id down to the analytics engine' do
         params[:student_id] = '123'
-        expect(analytics).to receive(:student_summaries).with(sort_column: nil, student_id: '123')
+        expect(analytics).to receive(:student_summaries).with(sort_column: nil, student_ids: ['123'])
         controller.course_student_summaries
       end
 
