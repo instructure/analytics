@@ -20,7 +20,7 @@
 
 require_relative '../../../../../spec/spec_helper'
 
-describe AccountsController, :type => :controller do
+describe Account do
   ROLE = 'TestAdmin'
 
   before :once do
@@ -35,34 +35,25 @@ describe AccountsController, :type => :controller do
     @admin = account_admin_user(:account => @account, :role => role, :active_all => true)
   end
 
-  before :each do
-    user_session(@admin)
-  end
+  let(:analytics_tab_opts) {
+    {:label=>"Analytics", :css_class=>"analytics_plugin", :href=>:analytics_department_path}
+  }
 
-  context "permissions" do
-    def expect_injection
-      get 'show', params: {:id => @account.id}, format: 'html'
-      expect(controller.account_custom_links.map { |link| link[:url] }).to include "/accounts/#{@account.id}/analytics"
+  context "Analytics Tab" do
+
+    it "should inject an analytics tab under nominal conditions" do
+      expect(@account.tabs_available(@admin).last).to include(analytics_tab_opts)
     end
 
-    def forbid_injection
-      get 'show', params: {:id => @account.id}, format: 'html'
-      expect(controller.account_custom_links.map { |link| link[:url] }).not_to include "/accounts/#{@account.id}/analytics"
-    end
-
-    it "should inject an analytics button on the account page under nominal conditions" do
-      expect_injection
-    end
-
-    it "should not inject an analytics button on the account page when analytics is disabled" do
+    it "should not inject an analytics tab when analytics is disabled" do
       @account.allowed_services = '-analytics'
       @account.save!
-      forbid_injection
+      expect(@account.tabs_available(@admin).last).not_to include(analytics_tab_opts)
     end
 
-    it "should not inject an analytics button on the account page without the analytics permission" do
+    it "should not inject an analytics tab without the analytics permission" do
       RoleOverride.manage_role_override(@account, ROLE, 'view_analytics', :override => false)
-      forbid_injection
+      expect(@account.tabs_available(@admin).last).not_to include(analytics_tab_opts)
     end
   end
 end

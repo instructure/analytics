@@ -27,6 +27,9 @@ module Analytics
                                        :expose_to_ui => :setting,
                                        :default => false
     end
+    Autoextend.hook(:Account,
+                    :"Analytics::Extensions::Account",
+                    method: :prepend)
     Autoextend.hook(:Course,
                     :"Analytics::Extensions::Course")
     Autoextend.hook(:CoursesController,
