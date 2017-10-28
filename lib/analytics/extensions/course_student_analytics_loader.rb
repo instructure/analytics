@@ -20,6 +20,7 @@ module Analytics::Extensions::CourseStudentAnalyticsLoader
   def perform(users)
     course = Course.where(workflow_state: %w[available completed]).find(@course_id)
     if course &&
+        course.root_account.service_enabled?(:analytics) &&
         course.grants_all_rights?(@current_user, @session, :read_as_admin, :view_analytics) &&
         course.grants_any_right?(@current_user, @session, :manage_grades, :view_all_grades)
       course_analytics = Analytics::Course.new(@current_user, course)

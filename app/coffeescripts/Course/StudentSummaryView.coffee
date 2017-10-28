@@ -17,7 +17,10 @@ define [
       json.pageViews = @model.get('pageViews').count
       json.participations = @model.get('participations').count
       subs = @model.get('tardinessBreakdown')
-      json.submissions = subs.total
+      # Missing submissions aren't actually submissions yet.  Neither are
+      # 'floating' (which apparently means 'future' or 'not submitted yet, but
+      # also not missing yet')
+      json.submissions = subs.total - subs.missing - subs.floating
       json.onTime = subs.onTime
       json.late = subs.late
       json.missing = subs.missing

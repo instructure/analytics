@@ -21,8 +21,6 @@ module Analytics::Extensions::GradeCalculator
   # grade distribution
   def save_scores
     super
-    unless @current_updates.empty? && @final_updates.empty?
-      @course.recache_grade_distribution
-    end
+    @course.recache_grade_distribution if @ignore_muted && @grading_period.nil?
   end
 end

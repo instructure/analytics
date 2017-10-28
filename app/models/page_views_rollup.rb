@@ -42,7 +42,7 @@ class PageViewsRollup < ActiveRecord::Base
     else
       course_id, shard = Shard.local_id_for(course)
       shard ||= Shard.current
-      self.shard(shard).where(:course_id => course_id)
+      shard.activate { self.where(:course_id => course_id) }
     end
   end
 

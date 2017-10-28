@@ -18,6 +18,7 @@
 
 module Analytics
   class TardinessBreakdown
+    # Note: We *think* floating means "future", or "not submitted yet" -- Venk
     attr_accessor :missing, :late, :on_time, :floating
 
     def initialize(missing = 0, late = 0, on_time = 0, floating = 0)

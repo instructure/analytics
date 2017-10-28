@@ -146,7 +146,8 @@ describe "analytics course view" do
     it "should count submissions" do
       setup_variety_assignments(false)
       go_to_analytics("/courses/#{@course.id}/analytics")
-      expect(find("#student_#{@student.id} .submissions")).to include_text('3')
+      # Only 2 submissions are real now
+      expect(find("#student_#{@student.id} .submissions")).to include_text('2')
       expect(find("#student_#{@student.id} .on_time")).to include_text('1')
       expect(find("#student_#{@student.id} .late")).to include_text('1')
       expect(find("#student_#{@student.id} .missing")).to include_text('1')
