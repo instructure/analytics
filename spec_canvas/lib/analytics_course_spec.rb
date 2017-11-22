@@ -408,6 +408,21 @@ describe Analytics::Course do
     end
   end
 
+  describe "student_scope" do
+    it "includes only course_score, not assignment group scores" do
+      active_student
+
+      ag = @course.assignment_groups.create! :name => '1'
+      assign = @course.assignments.create! :title => '1', :assignment_group => ag, :points_possible => 100
+      @submission = assign.submissions.find_or_create_by!(user: @student)
+      submit_submission
+      grade_submission
+
+      ca = Analytics::Course.new(@teacher, @course)
+      expect(ca.student_scope.to_a.map(&:id)).to eq([@student.id])
+    end
+  end
+
   describe "student summaries" do
     shared_examples_for "#student_summaries" do
       describe "a student's summary" do
