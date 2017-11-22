@@ -186,11 +186,13 @@ module Analytics
         subselect = enrollment_scope.select([:id, :user_id]).to_sql
         User.shard(@course.shard).
           select("DISTINCT (users.id), users.*, scores.current_score as computed_current_score").
-          joins("INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id = users.id
-                 LEFT JOIN #{Score.quoted_table_name} scores ON
-                    scores.enrollment_id = enrollments.id AND
-                    scores.grading_period_id IS NULL AND
-                    scores.workflow_state <> 'deleted'")
+          joins(@course.send(:sanitize_sql, [<<-SQL, true]))
+            INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id = users.id
+            LEFT JOIN #{Score.quoted_table_name} scores ON
+              scores.enrollment_id = enrollments.id AND
+              scores.course_score = ? AND
+              scores.workflow_state <> 'deleted'
+            SQL
       end
     end
 
