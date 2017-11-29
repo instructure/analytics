@@ -21,13 +21,15 @@ module Analytics::Extensions::Account
 
   def tabs_available(user=nil, opts={})
     tabs = super
-    if active? && service_enabled?(:analytics) && grants_right?(user, :view_analytics)
-      tabs << {
+    if active? && root_account.service_enabled?(:analytics) && grants_right?(user, :view_analytics)
+      new_tab = {
         id: TAB_ANALYTICS,
         label: t("Analytics"),
         css_class: 'analytics_plugin',
         href: :analytics_department_path
       }
+      # insert right before the settings tab
+      tabs.insert(tabs.index{|t| t[:id] == ::Account::TAB_SETTINGS}, new_tab)
     end
     tabs
   end
