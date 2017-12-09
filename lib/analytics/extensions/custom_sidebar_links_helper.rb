@@ -41,19 +41,6 @@ module Analytics::Extensions
       end
       links
     end
-
-    def account_custom_links
-      links = super
-      if analytics_enabled_account?
-        links << {
-          :url => analytics_department_path(:account_id => @account.id),
-          :icon_class => 'icon-analytics',
-          :text => I18n.t("View Analytics")
-        }
-      end
-      links
-    end
-
   private
     # is the context a course with the necessary conditions to view analytics in
     # the course?
@@ -72,12 +59,6 @@ module Analytics::Extensions
       analytics = Analytics::StudentInCourse.new(@current_user, @context, student)
       analytics.available? &&
       analytics.enrollment.grants_right?(@current_user, :read_grades)
-    end
-
-    # is analytics enabled in the account, and does the user have permission to see it?
-    def analytics_enabled_account?
-      @account.active? && service_enabled?(:analytics) &&
-      @account.grants_right?(@current_user, session, :view_analytics)
     end
   end
 end
