@@ -18,7 +18,7 @@
 
 module Analytics::Extensions::CourseStudentAnalyticsLoader
   def perform(users)
-    course = Course.where(workflow_state: %w[available completed]).find(@course_id)
+    course = Course.where(workflow_state: %w[available completed], id: @course_id).first
     if course &&
         course.root_account.service_enabled?(:analytics) &&
         course.grants_all_rights?(@current_user, @session, :read_as_admin, :view_analytics) &&
