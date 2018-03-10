@@ -103,8 +103,8 @@ describe "analytics course view" do
   context "students display" do
 
     it "should be absent unless the user has permission to see grades" do
-      RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'manage_grades', :override => false)
-      RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_all_grades', :override => false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'manage_grades', :override => false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'view_all_grades', :override => false)
       go_to_analytics("/courses/#{@course.id}/analytics")
       expect(f('#content')).not_to contain_css('#students')
     end

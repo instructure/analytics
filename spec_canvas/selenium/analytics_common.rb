@@ -72,12 +72,12 @@ shared_examples_for "analytics tests" do
   end
 
   def enable_teacher_permissions
-    RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => true)
+    RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => true)
     Rails.cache.delete(['context_permissions', @course, @teacher].cache_key)
   end
 
   def disable_teacher_permissions
-    RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => false)
+    RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => false)
     Rails.cache.delete(['context_permissions', @course, @teacher].cache_key)
   end
 

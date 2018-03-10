@@ -28,11 +28,11 @@ describe Account do
     @account.allowed_services = '+analytics'
     @account.save!
 
-    role = custom_account_role(ROLE, :account => @account)
-    RoleOverride.manage_role_override(@account, role, 'read_course_list', :override => true)
-    RoleOverride.manage_role_override(@account, role, 'view_analytics', :override => true)
+    @role = custom_account_role(ROLE, :account => @account)
+    RoleOverride.manage_role_override(@account, @role, 'read_course_list', :override => true)
+    RoleOverride.manage_role_override(@account, @role, 'view_analytics', :override => true)
 
-    @admin = account_admin_user(:account => @account, :role => role, :active_all => true)
+    @admin = account_admin_user(:account => @account, :role => @role, :active_all => true)
   end
 
   let(:analytics_tab_opts) {
@@ -57,7 +57,7 @@ describe Account do
     end
 
     it "should not inject an analytics tab without the analytics permission" do
-      RoleOverride.manage_role_override(@account, ROLE, 'view_analytics', :override => false)
+      RoleOverride.manage_role_override(@account, @role, 'view_analytics', :override => false)
       expect(@account.tabs_available(@admin)[-2]).not_to include(analytics_tab_opts)
     end
   end

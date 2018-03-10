@@ -30,7 +30,7 @@ describe "Analytics API", :type => :request do
     @account.save!
 
     # give all teachers in the account canvalytics permissions for now
-    RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => true)
+    RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => true)
   end
 
   def analytics_api_call(action, course, student, opts={})
@@ -92,7 +92,7 @@ describe "Analytics API", :type => :request do
     end
 
     it "should 401 with out analytics permission" do
-      RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => false)
 
       analytics_api_call(:participation, @course, @student1, :expected_status => 401)
       analytics_api_call(:assignments, @course, @student1, :expected_status => 401)
@@ -109,7 +109,7 @@ describe "Analytics API", :type => :request do
       @enrollment.course_section = @default_section
       @enrollment.save!
 
-      RoleOverride.manage_role_override(@account, 'TaEnrollment', 'view_analytics', :override => true)
+      RoleOverride.manage_role_override(@account, ta_role, 'view_analytics', :override => true)
 
       analytics_api_call(:participation, @course, @student1, :expected_status => 404)
       analytics_api_call(:assignments, @course, @student1, :expected_status => 404)
@@ -249,7 +249,7 @@ describe "Analytics API", :type => :request do
       # the false negative, but a more robust solution should eventually be developed.
       @assignments[2].submissions.reject { |s| s.user == @students[1] }[0].destroy
       # Allow user to see analytics page
-      RoleOverride.manage_role_override(@account, 'StudentEnrollment', 'view_analytics', :override => true)
+      RoleOverride.manage_role_override(@account, student_role, 'view_analytics', :override => true)
       # Log in as the user for this API call
       json = analytics_api_call(:assignments, @course, @students[1], :user => @students[1])
       expect(response_assignment(json, @assignments[2])["submission"]["score"]).to eq 27
@@ -261,7 +261,7 @@ describe "Analytics API", :type => :request do
       @course.settings = { :hide_distribution_graphs => true }
       @course.save!
       # Allow user to see analytics page
-      RoleOverride.manage_role_override(@account, 'StudentEnrollment', 'view_analytics', :override => true)
+      RoleOverride.manage_role_override(@account, student_role, 'view_analytics', :override => true)
       # Log in as the user for this API call
       json = analytics_api_call(:assignments, @course, @students[1], :user => @students[1])
       expect(response_assignment(json, @assignments[2])["submission"]["score"]).to eq 27
@@ -322,8 +322,8 @@ describe "Analytics API", :type => :request do
       @user = @teacher
 
       # don't let the teacher see grades
-      RoleOverride.manage_role_override(Account.default, 'TeacherEnrollment', 'manage_grades', :override => false)
-      RoleOverride.manage_role_override(Account.default, 'TeacherEnrollment', 'view_all_grades', :override => false)
+      RoleOverride.manage_role_override(Account.default, teacher_role, 'manage_grades', :override => false)
+      RoleOverride.manage_role_override(Account.default, teacher_role, 'view_all_grades', :override => false)
 
       # should fail
       raw_api_call(:get, "/api/v1/courses/#{@course.id}/analytics/student_summaries",

@@ -113,7 +113,7 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "should 401 without view_analytics permission" do
-      RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => false)
       course_analytics
       assert_unauthorized
     end
@@ -134,8 +134,8 @@ describe AnalyticsController, :type => :controller do
       course_analytics
       expect(assigns[:course_json][:students]).not_to be_nil
 
-      RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'manage_grades', :override => false)
-      RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_all_grades', :override => false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'manage_grades', :override => false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'view_all_grades', :override => false)
 
       @account.clear_permissions_cache(@user)
       course_analytics
@@ -145,7 +145,7 @@ describe AnalyticsController, :type => :controller do
 
   describe "student_in_course" do
     before :each do
-      RoleOverride.manage_role_override(@account, 'StudentEnrollment', 'view_analytics', :override => true)
+      RoleOverride.manage_role_override(@account, student_role, 'view_analytics', :override => true)
       course_with_teacher_logged_in(:active_all => true)
       student_in_course(:active_all => true)
     end
@@ -195,7 +195,7 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "should 401 without view_analytics permission" do
-      RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => false)
       student_in_course_analytics
       assert_unauthorized
     end
