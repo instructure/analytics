@@ -24,7 +24,7 @@ module Analytics::Extensions::Enrollment
   def recache_course_grade_distribution
     # workflow_state_changed? will be true for records that were new, so this
     # will also catch newly created enrollments.
-    if student? && !fake_student? && workflow_state_changed?
+    if student? && !fake_student? && saved_change_to_workflow_state?
       # the course may have gained/lost a 'valid' (non-fake active or completed
       # student enrollment), update its cached grade distribution.
       self.class.connection.after_transaction_commit do
