@@ -23,7 +23,7 @@ div#analytics_body {
   div.student_summary {
     padding-bottom: 15px;
     .avatar {
-      float: left;
+      float: direction(left);
       margin-right: 10px;
       margin-top: 6px;
     }
@@ -46,7 +46,7 @@ div#analytics_body {
       margin-right: 2em;
       h3, .h3 {
         margin-bottom: 0.5em;
-        text-align: right;
+        text-align: direction(right);
         font-size: 20px;
         font-weight: normal;
         line-height: 19px;
@@ -276,7 +276,7 @@ div#analytics_body {
 
 #students {
   th, td {
-    text-align: right;
+    text-align: direction(right);
   }
   th[scope='col'] > span.sortable {
     padding-right: 20px;
@@ -296,7 +296,7 @@ div#analytics_body {
     padding-right: 20px;
   }
   .student {
-    text-align: left;
+    text-align: direction(left);
   }
   th .student {
     display: flex;
