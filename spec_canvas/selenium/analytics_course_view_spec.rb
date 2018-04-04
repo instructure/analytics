@@ -177,7 +177,7 @@ describe "analytics course view" do
     it "should display course name in tray", priority: "1", test_id: 3133722 do
       get("/courses/#{@course.id}/gradebook")
       f("a[data-student_id='#{@student.id}']").click
-      expect(f(".StudentContextTray-Header__CourseName")).to include_text("Unnamed Course")
+      expect(f("body")).to contain_jqcss(".StudentContextTray-Header__CourseName:contains(Unnamed Course)")
     end
 
     it "should display section name in tray", priority: "1", test_id: 3252248 do
