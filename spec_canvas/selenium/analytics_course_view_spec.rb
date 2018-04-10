@@ -34,15 +34,16 @@ describe "analytics course view" do
     driver.execute_script("return $('#{graph_selector} .assignment_#{assignment_id}').prev()[0]")
   end
 
-  before (:each) do
+  before(:once) do
     enable_analytics
     enable_teacher_permissions
-    course_with_teacher_logged_in.user
+    course_with_teacher(active_all: true)
     @course.update_attributes(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
     @course.save!
-    @student = User.create!(:name => INITIAL_STUDENT_NAME)
-    @course.enroll_student(@student).accept!
+    student_in_course(name: INITIAL_STUDENT_NAME, active_all: true)
   end
+
+  before(:each) { user_session(@teacher) }
 
   context "course home page" do
 
@@ -156,88 +157,45 @@ describe "analytics course view" do
 
   context "student tray" do
 
-    before(:each) do
-      @student2 = User.create!(:name => 'initial test student2')
-      @course.enroll_student(@student2).accept!
+    before(:once) do
+      @student1 = @student
+      @student2 = student_in_course(name: 'initial test student2', active_all: true).user
       @account.enable_feature!(:student_context_cards)
       Timecop.freeze(1.day.ago) do
-        3.times { page_view(:user => @student, :course => @course, :participated => true) }
+        3.times { page_view(:user => @student1, :course => @course, :participated => true) }
         3.times { page_view(:user => @student2, :course => @course, :participated => true) }
       end
       randomly_grade_assignments(8)
       create_past_due(3, 2)
     end
 
-    it "should display student name in tray", priority: "1", test_id: 3109484 do
+    it "should display context card content", priority: "1", test_id: 3109484 do
       get("/courses/#{@course.id}/gradebook")
-      f("a[data-student_id='#{@student.id}']").click
+      f("a[data-student_id='#{@student2.id}']").click
       expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student")
-    end
-
-    it "should display course name in tray", priority: "1", test_id: 3133722 do
-      get("/courses/#{@course.id}/gradebook")
-      f("a[data-student_id='#{@student.id}']").click
-      expect(f("body")).to contain_jqcss(".StudentContextTray-Header__CourseName:contains(Unnamed Course)")
-    end
-
-    it "should display section name in tray", priority: "1", test_id: 3252248 do
-      get("/courses/#{@course.id}/gradebook")
-      f("a[data-student_id='#{@student.id}']").click
+      expect(f(".StudentContextTray-Header__CourseName")).to include_text("Unnamed Course")
       expect(f("body")).to contain_jqcss(".StudentContextTray-Header__Content:contains(Section: Unnamed Course)")
-    end
-
-    it "should display mail icon in tray", priority: "1", test_id: 3133723 do
-      get("/courses/#{@course.id}/gradebook")
-      f("a[data-student_id='#{@student.id}']").click
       expect(f(".StudentContextTray-Header__Actions")).to contain_css(".icon-email")
-    end
-
-    it "should display grades link button in tray", priority: "1", test_id: 3134107 do
-      get("/courses/#{@course.id}/gradebook")
-      f("a[data-student_id='#{@student.id}']").click
       expect(f("body")).to contain_jqcss(".StudentContextTray-QuickLinks__Link:contains(Grades)")
-    end
-
-    it "should display analytics link button in tray", priority: "1", test_id: 3134125 do
-      get("/courses/#{@course.id}/gradebook")
-      f("a[data-student_id='#{@student.id}']").click
       expect(f("body")).to contain_jqcss(".StudentContextTray-QuickLinks__Link:contains(Analytics)")
-    end
-
-    it "should display nine assignments graded", priority: "1", test_id: 3134125 do
-      get("/courses/#{@course.id}/gradebook")
-      f("a[data-student_id='#{@student.id}']").click
       expect(ff(".StudentContextTray-Progress__Bar").length).to eq 10
-    end
-
-    it "should link to course user details", priority: "1", test_id: 3022062 do
-      get("/courses/#{@course.id}/gradebook")
-      f("a[data-student_id='#{@student.id}']").click
       expect(f(".StudentContextTray-Header__Name h2 a")).
-        to have_attribute("href", "/courses/#{@course.id}/users/#{@student.id}")
-    end
-
-    it "should link to course user grade details", priority: "1", test_id: 3022064 do
-      get("/courses/#{@course.id}/gradebook")
-      f("a[data-student_id='#{@student.id}']").click
+        to have_attribute("href", "/courses/#{@course.id}/users/#{@student2.id}")
       expect(fj(".StudentContextTray-QuickLinks__Link:first a")).
-        to have_attribute("href", "/courses/#{@course.id}/grades/#{@student.id}")
-    end
-
-    it "should link to course user analytics", priority: "1", test_id: 3022065 do
-      get("/courses/#{@course.id}/gradebook")
-      f("a[data-student_id='#{@student.id}']").click
+        to have_attribute("href", "/courses/#{@course.id}/grades/#{@student2.id}")
       expect(fj(".StudentContextTray-QuickLinks__Link:eq(1) a")).
-        to have_attribute("href", "/courses/#{@course.id}/analytics/users/#{@student.id}")
+        to have_attribute("href", "/courses/#{@course.id}/analytics/users/#{@student2.id}")
     end
 
     it "should switch student displayed in tray", priority: "1", test_id: 3022079 do
-      get("/courses/#{@course.id}/gradebook")
-      f("a[data-student_id='#{@student.id}']").click
-      expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student")
-      f("a[data-student_id='#{@student2.id}']").click
-      f("a[data-student_id='#{@student2.id}']").click # first click closes the tray, second re-opens it
-      expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student2")
+      enable_cache do
+        get("/courses/#{@course.id}/gradebook")
+        f("a[data-student_id='#{@student1.id}']").click
+        expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student")
+        f("a[data-student_id='#{@student2.id}']").click
+        f("a[data-student_id='#{@student2.id}']").click # first click closes the tray, second re-opens it
+        expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student2")
+      end
     end
   end
 end
