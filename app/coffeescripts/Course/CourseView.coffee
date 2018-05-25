@@ -3,7 +3,6 @@ define [
   'jquery'
   'underscore'
   'Backbone'
-  'i18n!analytics'
   '../../views/jst/course.handlebars'
   'analytics/compiled/Course/StudentSummariesView'
   'analytics/compiled/graphs/page_views'
@@ -15,7 +14,7 @@ define [
   'analytics/compiled/jsx/components/SubmissionsTable'
   'analytics/compiled/jsx/components/GradesTable'
   'analytics/compiled/helpers'
-], (React, $, _, Backbone, I18n, template, StudentSummariesView, PageViews, Grades, FinishingAssignmentsCourse, colors, util, ActivitiesTable, SubmissionsTable, GradesTable, helpers) ->
+], (React, $, _, Backbone, template, StudentSummariesView, PageViews, Grades, FinishingAssignmentsCourse, colors, util, ActivitiesTable, SubmissionsTable, GradesTable, helpers) ->
 
   class CourseView extends Backbone.View
     initialize: ->
