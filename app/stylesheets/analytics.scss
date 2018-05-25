@@ -24,7 +24,7 @@ div#analytics_body {
     padding-bottom: 15px;
     .avatar {
       float: direction(left);
-      margin-right: 10px;
+      margin-#{direction(right)}: 10px;
       margin-top: 6px;
     }
     table {
@@ -32,18 +32,18 @@ div#analytics_body {
         margin-bottom: 3px;
         font-size: 1.3em;
         &.message_student {
-          padding-left: 10px;
+          padding-#{direction(left)}: 10px;
         }
       }
       th[scope='col'] {
-        padding-right: 10px;
+        padding-#{direction(right)}: 10px;
       }
     }
     #course_info {
       display: inline-block;
       position: absolute;
-      right: 0;
-      margin-right: 2em;
+      #{direction(right)}: 0;
+      margin-#{direction(right)}: 2em;
       h3, .h3 {
         margin-bottom: 0.5em;
         text-align: direction(right);
@@ -59,7 +59,7 @@ div#analytics_body {
     flex-direction: row;
     align-items: center;
     #filter_box {
-      margin-left: auto;
+      margin-#{direction(left)}: auto;
     }
   }
   .ui-combobox {
@@ -71,7 +71,7 @@ div#analytics_body {
   .course_graphs, .department_graphs {
     h3, .h3 {
       margin-bottom: 0;
-      padding-right: 50px;
+      padding-#{direction(right)}: 50px;
     }
   }
   .department_statistics {
@@ -87,10 +87,10 @@ div#analytics_body {
         vertical-align: top;
         text-align: center;
         // colors.grid
-        border-left: 1px solid #cccccc;
+        border-#{direction(left)}: 1px solid #cccccc;
       }
       td:first-child {
-        border-left: none;
+        border-#{direction(left)}: none;
       }
       .AnalyticsStats__Label {
         // colors.frame
@@ -129,29 +129,29 @@ div#analytics_body {
   &.carat-left {
     .ui-menu-carat, .ui-menu-carat span {
       top: 50%;
-      left: -11px;
+      #{direction(left)}: -11px;
       border-width: 11px 11px 11px 0;
       margin-top: -11px;
-      margin-left: auto;
+      margin-#{direction(left)}: auto;
     }
     .ui-menu-carat span {
       border-width: 10px 10px 10px 0;
-      left: 1px;
+      #{direction(left)}: 1px;
       margin-top: -10px;
     }
   }
   &.carat-right {
     .ui-menu-carat, .ui-menu-carat span {
       top: 50%;
-      right: -11px;
-      left: auto;
+      #{direction(right)}: -11px;
+      #{direction(left)}: auto;
       border-width: 11px 0 11px 11px;
       margin-top: -11px;
-      margin-left: auto;
+      margin-#{direction(left)}: auto;
     }
     .ui-menu-carat span {
       border-width: 10px 0 10px 10px;
-      right: 1px;
+      #{direction(right)}: 1px;
       margin-top: -10px;
     }
   }
@@ -165,7 +165,7 @@ div#analytics_body {
 .legend_row {
   display: flex;
   align-items: baseline;
-  margin-left: 10px;
+  margin-#{direction(left)}: 10px;
 }
 
 .legend_entry {
@@ -177,12 +177,12 @@ div#analytics_body {
 }
 
 .graph_legend {
-  margin-left: auto;
-  margin-right: 35px;
+  margin-#{direction(left)}: auto;
+  margin-#{direction(right)}: 35px;
   .legend_swatch {
     display: inline-block;
-    margin-left: 20px;
-    margin-right: 5px;
+    margin-#{direction(left)}: 20px;
+    margin-#{direction(right)}: 5px;
     border: 1px solid white;
     border-radius: 5px;
     width: 16px;
@@ -279,7 +279,7 @@ div#analytics_body {
     text-align: direction(right);
   }
   th[scope='col'] > span.sortable {
-    padding-right: 20px;
+    padding-#{direction(right)}: 20px;
     cursor: pointer;
     background: url(/images/tablesorter/bg.png) no-repeat right center;
     &:hover {
@@ -293,7 +293,7 @@ div#analytics_body {
     }
   }
   td .sortable {
-    padding-right: 20px;
+    padding-#{direction(right)}: 20px;
   }
   .student {
     text-align: direction(left);
@@ -306,7 +306,7 @@ div#analytics_body {
       height: 30px;
       display: inline-block;
       vertical-align: middle;
-      margin-right: 5px;
+      margin-#{direction(right)}: 5px;
     }
   }
   .loading {
