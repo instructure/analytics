@@ -169,6 +169,8 @@ describe "analytics course view" do
       create_past_due(3, 2)
     end
 
+    before { preload_graphql_schema }
+
     it "should display context card content", priority: "1", test_id: 3109484 do
       get("/courses/#{@course.id}/gradebook")
       f("a[data-student_id='#{@student2.id}']").click
