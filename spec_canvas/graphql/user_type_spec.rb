@@ -14,7 +14,7 @@ describe Types::UserType do
     it "works" do
       expect(
         student_type.summaryAnalytics(
-          args: {courseId: @course.id.to_s},
+          args: {course_id: @course.id.to_s},
           current_user: @teacher
         )
       ).to be_a Analytics::StudentSummary
@@ -25,7 +25,7 @@ describe Types::UserType do
       Account.default.save!
       expect(
         student_type.summaryAnalytics(
-          args: {courseId: @course.id.to_s},
+          args: {course_id: @course.id.to_s},
           current_user: @teacher
         )
       ).to be_nil
@@ -38,7 +38,7 @@ describe Types::UserType do
       )
       expect(
         student_type.summaryAnalytics(
-          args: {courseId: @course.id.to_s},
+          args: {course_id: @course.id.to_s},
           current_user: @teacher
         )
       ).to be_nil
@@ -47,7 +47,7 @@ describe Types::UserType do
     it "is nil for students" do
       expect(
         student_type.summaryAnalytics(
-          args: {courseId: @course.id.to_s},
+          args: {course_id: @course.id.to_s},
           current_user: @student
         )
       ).to be_nil

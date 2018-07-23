@@ -1,10 +1,9 @@
 define [
   'jquery'
-  'i18n!analytics'
   'analytics/compiled/helpers'
   'analytics/compiled/Course/CourseModel'
   'analytics/compiled/Course/CourseView'
-], ($, i18n, helpers, CourseModel, CourseView) ->
+], ($, helpers, CourseModel, CourseView) ->
 
   # setup initial data from environment
   model = new CourseModel ENV.ANALYTICS.course

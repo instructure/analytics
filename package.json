@@ -1,5 +1,6 @@
 {
   "name": "analytics",
+  "version": "1.0.0",
   "dependencies": {
     "graphael": "https://github.com/ryankshaw/graphael.git"
   }
