@@ -159,7 +159,9 @@ describe "analytics course view" do
 
     before(:once) do
       @student1 = @student
-      @student2 = student_in_course(name: 'initial test student2', active_all: true).user
+      @enrollment = student_in_course(course: @course, name: 'initial test student2', active_all: true)
+      @enrollment.update_attribute(:last_activity_at, Time.zone.now)
+      @student2 = @student
       @account.enable_feature!(:student_context_cards)
       Timecop.freeze(1.day.ago) do
         3.times { page_view(:user => @student1, :course => @course, :participated => true) }
@@ -187,6 +189,7 @@ describe "analytics course view" do
         to have_attribute("href", "/courses/#{@course.id}/grades/#{@student2.id}")
       expect(fj(".StudentContextTray-QuickLinks__Link:eq(1) a")).
         to have_attribute("href", "/courses/#{@course.id}/analytics/users/#{@student2.id}")
+      expect(f("body")).to contain_jqcss(".StudentContextTray-Header__Content:contains(Last login)")
     end
 
     it "should switch student displayed in tray", priority: "1", test_id: 3022079 do
