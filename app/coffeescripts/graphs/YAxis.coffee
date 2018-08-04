@@ -1,5 +1,5 @@
 define [
-  'i18n!analytics'
+  'i18nObj'
 ], (I18n) ->
   class YAxis
     tickSize: 5

@@ -160,5 +160,25 @@ describe CachedGradeDistribution do
       expect(@dist).to receive(:recalculate!).never
       GradeCalculator.recompute_final_score([], @course.id)
     end
+
+    it "should not get recalculated if ignore_muted in GradeCalculator is false" do
+      student_in_course
+      expect(@dist).to receive(:recalculate!).never
+      GradeCalculator.recompute_final_score([@student.id], @course.id, ignore_muted: false)
+    end
+
+    it "should not get recalculated if grading period is passed to GradeCalculator" do
+      student_in_course
+      grading_period_set = @course.root_account.grading_period_groups.create!
+      grading_period_set.enrollment_terms << @course.enrollment_term
+      gp = grading_period_set.grading_periods.create!(
+        title: "A Grading Period",
+        start_date: 10.days.ago,
+        end_date: 10.days.from_now
+      )
+
+      expect(@dist).to receive(:recalculate!).never
+      GradeCalculator.recompute_final_score([@student.id], @course.id, grading_period_id: gp.id, update_course_score: false)
+    end
   end
 end

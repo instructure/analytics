@@ -27,7 +27,7 @@ describe CoursesController, :type => :controller do
     @account.save!
 
     # give all teachers in the account canvalytics permissions for now
-    RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => true)
+    RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => true)
   end
 
   context "permissions" do
@@ -84,12 +84,12 @@ describe CoursesController, :type => :controller do
     end
 
     it "should not inject an analytics button without the analytics permission" do
-      RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => false)
       forbid_injection
     end
 
     it "should not inject an analytics button without the read_as_admin permission" do
-      RoleOverride.manage_role_override(@account, 'StudentEnrollment', 'view_analytics', :override => true)
+      RoleOverride.manage_role_override(@account, student_role, 'view_analytics', :override => true)
       user_session(@student)
       forbid_injection
     end

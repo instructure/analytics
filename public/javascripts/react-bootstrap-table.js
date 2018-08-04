@@ -967,7 +967,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	      return _react2['default'].createElement(
 	        'th',
-	        { style: thStyle },
+	        { scope: 'col', style: thStyle },
 	        _react2['default'].createElement(
 	          'div',
 	          { className: 'th-inner table-header-column' },
@@ -1097,7 +1097,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                  className: tdClassName,
 	                  cellEdit: this.props.cellEdit,
 	                  onEdit: this.handleEditCell.bind(this),
-	                  width: column.width },
+	                  width: column.width,
+	                  rowHeader: i == 0 },
 	                formattedValue
 	              );
 	            } else {
@@ -1109,7 +1110,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                  cellEdit: this.props.cellEdit,
 	                  hidden: column.hidden,
 	                  onEdit: this.handleEditCell.bind(this),
-	                  width: column.width },
+	                  width: column.width,
+	                  rowHeader: i == 0 },
 	                fieldValue
 	              );
 	            }
@@ -1181,7 +1183,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	        return _react2['default'].createElement(
 	          'th',
-	          { style: style, key: i, className: column.className },
+	          { scope: 'col', style: style, key: i, className: column.className },
 	          column.friendlyName
 	        );
 	      });
@@ -1435,7 +1437,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        textAlign: this.props.dataAlign,
 	        display: this.props.hidden ? "none" : null
 	      };
-	
+
 	      var opts = {};
 	      if (this.props.cellEdit) {
 	        if (this.props.cellEdit.mode == _Const2['default'].CELL_EDIT_CLICK) {
@@ -1444,8 +1446,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	          opts.onDoubleClick = this.handleCellEdit.bind(this);
 	        }
 	      }
+
+	      var elName = 'td';
+	      if (this.props.rowHeader) {
+	        elName = 'th';
+	        opts.scope = 'row';
+	      }
 	      return _react2['default'].createElement(
-	        'td',
+	        elName,
 	        _extends({ style: tdStyle, className: this.props.className }, opts),
 	        this.props.children
 	      );
@@ -25551,7 +25559,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	        selectRowHeader = _react2['default'].createElement(
 	          'th',
-	          { style: style, key: -1 },
+	          { scope: 'col', style: style, key: -1 },
 	          'Filter'
 	        );
 	      }
@@ -25562,7 +25570,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	        return _react2['default'].createElement(
 	          'th',
-	          { key: column.name, style: thStyle },
+	          { scope: 'col', key: column.name, style: thStyle },
 	          _react2['default'].createElement(
 	            'div',
 	            { className: 'th-inner table-header-column' },
@@ -26261,7 +26269,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var classes = this.props.className + " " + (this.props.dataSort ? "sort-column" : "");
 	      return _react2['default'].createElement(
 	        'th',
-	        { className: classes, style: thStyle },
+	        { scope: 'col', className: classes, style: thStyle },
 	        _react2['default'].createElement(
 	          'div',
 	          { ref: 'innerDiv', className: 'th-inner table-header-column',

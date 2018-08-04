@@ -27,6 +27,9 @@ module Analytics
                                        :expose_to_ui => :setting,
                                        :default => false
     end
+    Autoextend.hook(:Account,
+                    :"Analytics::Extensions::Account",
+                    method: :prepend)
     Autoextend.hook(:Course,
                     :"Analytics::Extensions::Course")
     Autoextend.hook(:CoursesController,
@@ -40,9 +43,12 @@ module Analytics
     Autoextend.hook(:GradeCalculator,
                     :"Analytics::Extensions::GradeCalculator",
                     method: :prepend)
+    Autoextend.hook(:"Loaders::CourseStudentAnalyticsLoader",
+                    :"Analytics::Extensions::CourseStudentAnalyticsLoader",
+                    method: :prepend)
     Autoextend.hook(:Permissions, after_load: true) do
       ::Permissions.register :view_analytics,
-                           :label => lambda { I18n.t('#role_override.permissions.view_analytics', "View analytics pages") },
+                           :label => lambda { I18n.t('#role_override.permissions.view_analytics', "Analytics - view pages") },
                            :available_to => %w(AccountAdmin TaEnrollment TeacherEnrollment StudentEnrollment AccountMembership),
                            :true_for => %w(AccountAdmin TaEnrollment TeacherEnrollment),
                            :applies_to_concluded => true

@@ -62,7 +62,7 @@ class AnalyticsController < ApplicationController
       end
     else
       # what terms are available
-      @filters = @account.root_account.enrollment_terms.active.map do |term|
+      @filters = @account.root_account.enrollment_terms.active.by_name.map do |term|
         start_date, end_date = @department_analytics.dates_for_term(term)
         {
           :id => term.id,

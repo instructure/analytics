@@ -100,8 +100,10 @@ module Analytics
     end
 
     def statistics_by_subaccount
+      # TODO: Determine proper counts if sections are crosslisted to a
+      # different subaccounts
       slaved(:cache_as => :statistics_by_subaccount) do
-        # todo y u no paginate?
+        # TODO: y u no paginate?
         ([@account] + subaccounts).map do |a|
           {
             :name => a.name,
@@ -133,9 +135,13 @@ module Analytics
     end
 
     def courses_for_term(term, workflow_state=['completed', 'available'])
+      # AFAICT, rows in course_account_associations that *don't* have a section
+      # number associated are "really" associated with that account (i.e.
+      # not via crosslisting)
       @account.course_account_associations.
         joins(:course).
-        where(:courses => { :enrollment_term_id => term, :workflow_state => workflow_state })
+        where(:courses => { :enrollment_term_id => term, :workflow_state => workflow_state }).
+        where(:course_section_id => nil)
     end
 
     def courses_for_filter(filter)

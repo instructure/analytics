@@ -408,6 +408,21 @@ describe Analytics::Course do
     end
   end
 
+  describe "student_scope" do
+    it "includes only course_score, not assignment group scores" do
+      active_student
+
+      ag = @course.assignment_groups.create! :name => '1'
+      assign = @course.assignments.create! :title => '1', :assignment_group => ag, :points_possible => 100
+      @submission = assign.submissions.find_or_create_by!(user: @student)
+      submit_submission
+      grade_submission
+
+      ca = Analytics::Course.new(@teacher, @course)
+      expect(ca.student_scope.to_a.map(&:id)).to eq([@student.id])
+    end
+  end
+
   describe "student summaries" do
     shared_examples_for "#student_summaries" do
       describe "a student's summary" do
@@ -449,11 +464,11 @@ describe Analytics::Course do
           end
         end
 
-        it "can return results for a single student", priority: "1", test_id: 2997780 do
+        it "can return results for specific students", priority: "1", test_id: 2997780 do
           student1 = @student
           student2 = active_student(name: "Student2").user
           summaries = @teacher_analytics.
-            student_summaries(student_id: student2.id).
+            student_summaries(student_ids: [student2.id]).
             paginate(per_page: 100)
           expect(summaries.size).to eq 1
           expect(summaries.first[:id]).to eq student2.id

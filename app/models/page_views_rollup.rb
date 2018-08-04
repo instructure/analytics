@@ -42,7 +42,7 @@ class PageViewsRollup < ActiveRecord::Base
     else
       course_id, shard = Shard.local_id_for(course)
       shard ||= Shard.current
-      self.shard(shard).where(:course_id => course_id)
+      shard.activate { self.where(:course_id => course_id) }
     end
   end
 
@@ -153,7 +153,7 @@ class PageViewsRollup < ActiveRecord::Base
     end
 
     begin
-      keys.each do |data_key|
+      keys&.each do |data_key|
         data = lua_run(:process, [in_progress_set_key, data_key, lock_key, lock_time])
         next if data.nil?
 

@@ -29,6 +29,7 @@ define [
           onTime: summary.tardiness_breakdown.on_time
           late: summary.tardiness_breakdown.late
           missing: summary.tardiness_breakdown.missing
+          floating: summary.tardiness_breakdown.floating
 
     setSortKey: (sortKey) =>
       @options.params.sort_column = sortKey

@@ -27,7 +27,7 @@ describe ContextController, :type => :controller do
     @account.save!
 
     # give all teachers in the account canvalytics permissions for now
-    RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => true)
+    RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => true)
   end
 
   context "permissions" do
@@ -110,7 +110,7 @@ describe ContextController, :type => :controller do
 
     context "no analytics permission" do
       before :once do
-        RoleOverride.manage_role_override(@account, 'TeacherEnrollment', 'view_analytics', :override => false)
+        RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => false)
       end
 
       it "should not inject an analytics button on the roster_user page" do
@@ -120,7 +120,7 @@ describe ContextController, :type => :controller do
 
     context "no manage_grades or view_all_grades permission" do
       before :once do
-        RoleOverride.manage_role_override(@account, 'StudentEnrollment', 'view_analytics', :override => true)
+        RoleOverride.manage_role_override(@account, student_role, 'view_analytics', :override => true)
         @student2 = student_in_course(:active_all => true).user
       end
 
@@ -157,7 +157,7 @@ describe ContextController, :type => :controller do
         @enrollment.course_section = @default_section
         @enrollment.save!
 
-        RoleOverride.manage_role_override(@account, 'TaEnrollment', 'view_analytics', :override => true)
+        RoleOverride.manage_role_override(@account, ta_role, 'view_analytics', :override => true)
       end
 
       before :each do

@@ -1,9 +1,8 @@
 define [
   'jquery',
-  'i18n!analytics'
   'analytics/compiled/Department/DepartmentModel'
   'analytics/compiled/Department/DepartmentView'
-], ($, I18n, DepartmentModel, DepartmentView) ->
+], ($, DepartmentModel, DepartmentView) ->
 
   # package up the environment and then use it to build the view
   new DepartmentView

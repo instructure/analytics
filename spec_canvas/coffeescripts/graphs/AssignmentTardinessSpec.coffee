@@ -169,7 +169,7 @@ define ['jquery', 'analytics/compiled/graphs/assignment_tardiness'], ($, Assignm
       now:    new Date(2000, 1, 14)
       future: new Date(2000, 2, 1)
       end:    new Date(2000, 3, 1)
-    clock = @sandbox.useFakeTimers +dates.now
+    clock = sinon.useFakeTimers +dates.now
 
     # setup color map
     colors =
@@ -248,3 +248,5 @@ define ['jquery', 'analytics/compiled/graphs/assignment_tardiness'], ($, Assignm
       shape: 'circle'
       color: colors.onTime
       fill: colors.onTime
+
+    clock.restore()
