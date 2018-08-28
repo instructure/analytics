@@ -1,9 +1,14 @@
 require_relative '../../../../../spec/spec_helper'
-require_relative '../../../../../spec/helpers/graphql_type_tester'
+begin
+  require_relative '../../../../../spec/helpers/graphql_type_tester'
+  LegacyTypeTester = GraphQLTypeTester
+rescue LoadError
+  require_relative '../../../../../spec/helpers/legacy_type_tester'
+end
 
 describe Types::UserType do
   let_once(:user) { student_in_course(active_all: true).user }
-  let(:student_type) { GraphQLTypeTester.new(Types::UserType, user) }
+  let(:student_type) { LegacyTypeTester.new(Types::UserType, user) }
 
   before {
     Account.default.enable_service(:analytics)
