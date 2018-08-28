@@ -1,10 +1,5 @@
 require_relative '../../../../../spec/spec_helper'
-begin
-  require_relative '../../../../../spec/helpers/graphql_type_tester'
-  LegacyTypeTester = GraphQLTypeTester
-rescue LoadError
-  require_relative '../../../../../spec/helpers/legacy_type_tester'
-end
+require_relative '../../../../../spec/helpers/legacy_type_tester'
 
 describe Types::UserType do
   let_once(:user) { student_in_course(active_all: true).user }
