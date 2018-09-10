@@ -1,20 +1,21 @@
-define [
-  'underscore'
-  'analytics/compiled/BaseData'
-], (_, BaseData) ->
+import _ from 'underscore'
+import BaseData from '../BaseData'
 
-  ##
-  # Loads the grade distribution data for the current account/filter. Exposes
-  # the data as the 'values' property once loaded.
-  class GradeDistributionData extends BaseData
-    constructor: (filter) ->
-      account = filter.get 'account'
-      fragment = filter.get 'fragment'
-      super "/api/v1/accounts/#{account.get 'id'}/analytics/#{fragment}/grades"
+// Loads the grade distribution data for the current account/filter. Exposes
+// the data as the 'values' property once loaded.
+export default class GradeDistributionData extends BaseData {
+  constructor(filter) {
+    const account = filter.get('account')
+    const fragment = filter.get('fragment')
+    super(`/api/v1/accounts/${account.get('id')}/analytics/${fragment}/grades`)
+  }
 
-    populate: (data) ->
-      cumulative = 0
-      for i in [0..100]
-        cumulative += parseInt(data[i], 10)
-      cumulative = 1 if cumulative is 0
-      @values = _.map [0..100], (i) -> data[i] / cumulative
+  populate(data) {
+    let cumulative = 0
+    for (let i = 0; i <= 100; i++) {
+      cumulative += parseInt(data[i], 10)
+    }
+    if (cumulative === 0) cumulative = 1
+    this.values = Array(101).fill().map((_, i) => data[i] / cumulative)
+  }
+}

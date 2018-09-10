@@ -1,154 +1,181 @@
-define [
-  'underscore'
-  'analytics/compiled/graphs/base'
-  'analytics/compiled/graphs/DayBinner'
-  'analytics/compiled/graphs/WeekBinner'
-  'analytics/compiled/graphs/MonthBinner'
-  'analytics/compiled/graphs/ScaleByBins'
-  'analytics/compiled/helpers'
-  'i18n!page_views'
-], (_, Base, DayBinner, WeekBinner, MonthBinner, ScaleByBins, helpers, I18n) ->
+import _ from 'underscore'
+import Base from '../graphs/base'
+import DayBinner from '../graphs/DayBinner'
+import WeekBinner from '../graphs/WeekBinner'
+import MonthBinner from '../graphs/MonthBinner'
+import ScaleByBins from '../graphs/ScaleByBins'
+import helpers from '../helpers'
+import I18n from 'i18n!page_views'
 
-  ##
-  # Parent class for all graphs that have a date-aligned x-axis. Note: Left
-  # padding for this graph style is space from the frame to the start date's
-  # tick mark, not the leading graph element's edge. Similarly, right padding
-  # is space from the frame to the end date's tick, not the trailing graph
-  # element's edge. This is necessary to keep the date graphs aligned.
-  defaultOptions =
+// #
+// Parent class for all graphs that have a date-aligned x-axis. Note: Left
+// padding for this graph style is space from the frame to the start date's
+// tick mark, not the leading graph element's edge. Similarly, right padding
+// is space from the frame to the end date's tick, not the trailing graph
+// element's edge. This is necessary to keep the date graphs aligned.
+const defaultOptions = {
+  // #
+  // The date for the left end of the graph. Required.
+  startDate: null,
 
-    ##
-    # The date for the left end of the graph. Required.
-    startDate: null
+  // #
+  // The date for the right end of the graph. Required.
+  endDate: null,
 
-    ##
-    # The date for the right end of the graph. Required.
-    endDate: null
+  // #
+  // The size of the date tick marks, in pixels.
+  tickSize: 5,
 
-    ##
-    # The size of the date tick marks, in pixels.
-    tickSize: 5
+  // #
+  // If any date is outside the bounds of the graph, we have a clipped date
+  clippedDate: false
+}
 
-    ##
-    # If any date is outside the bounds of the graph, we have a clipped date
-    clippedDate: false
+export default class DateAlignedGraph extends Base {
+  // #
+  // Takes an element and options, same as for Base. Recognizes the options
+  // described above in addition to the options for Base.
+  constructor(div, options) {
+    super(...arguments)
 
+    // mixin ScaleByBins functionality
+    _.extend(this, ScaleByBins)
 
-  class DateAlignedGraph extends Base
-    ##
-    # Takes an element and options, same as for Base. Recognizes the options
-    # described above in addition to the options for Base.
-    constructor: (div, options) ->
-      super
+    // check for required options
+    if (options.startDate == null) throw new Error('startDate is required')
+    if (options.endDate == null) throw new Error('endDate is required')
 
-      # mixin ScaleByBins functionality
-      _.extend this, ScaleByBins
+    // copy in recognized options with defaults
+    for (const key in defaultOptions) {
+      const defaultValue = defaultOptions[key]
+      this[key] = options[key] != null ? options[key] : defaultValue
+    }
 
-      # check for required options
-      throw new Error "startDate is required" unless options.startDate?
-      throw new Error "endDate is required" unless options.endDate?
+    this.initScale()
+  }
 
-      # copy in recognized options with defaults
-      for key, defaultValue of defaultOptions
-        @[key] = options[key] ? defaultValue
+  // #
+  // Set up X-axis scale
+  initScale() {
+    const interior = this.width - this.leftPadding - this.rightPadding
 
-      @initScale()
+    // mixin for the appropriate bin size
+    // use a minimum of 10 pixels for bar width plus spacing before consolidating
+    this.binner = new DayBinner(this.startDate, this.endDate)
+    if (this.binner.count() * 10 > interior)
+      this.binner = new WeekBinner(this.startDate, this.endDate)
+    if (this.binner.count() * 10 > interior)
+      this.binner = new MonthBinner(this.startDate, this.endDate)
 
-    ##
-    # Set up X-axis scale
-    initScale: ->
-      interior = @width - @leftPadding - @rightPadding
+    // scale the x-axis for the number of bins
+    return this.scaleByBins(this.binner.count())
+  }
 
-      # mixin for the appropriate bin size
-      # use a minimum of 10 pixels for bar width plus spacing before consolidating
-      @binner = new DayBinner(@startDate, @endDate)
-      @binner = new WeekBinner(@startDate, @endDate) if @binner.count() * 10 > interior
-      @binner = new MonthBinner(@startDate, @endDate) if @binner.count() * 10 > interior
+  // #
+  // Reset the graph chrome. Adds an x-axis with daily ticks and weekly (on
+  // Mondays) labels.
+  reset() {
+    super.reset(...arguments)
+    if (this.startDate) this.initScale()
+    return this.drawDateAxis()
+  }
 
-      # scale the x-axis for the number of bins
-      @scaleByBins @binner.count()
+  // #
+  // Convert a date to a bin index.
+  dateBin(date) {
+    return this.binner.bin(date)
+  }
 
-    ##
-    # Reset the graph chrome. Adds an x-axis with daily ticks and weekly (on
-    # Mondays) labels.
-    reset: ->
-      super
-      @initScale() if @startDate
-      @drawDateAxis()
+  // #
+  // Convert a date to its bin's x-coordinate.
+  binnedDateX(date) {
+    return this.binX(this.dateBin(date))
+  }
 
-    ##
-    # Convert a date to a bin index.
-    dateBin: (date) ->
-      @binner.bin date
+  // #
+  // Given a datetime, return the floor and ceil as calculated by the binner
+  dateExtent(datetime) {
+    const floor = this.binner.reduce(datetime)
+    return [floor, this.binner.nextTick(floor)]
+  }
 
-    ##
-    # Convert a date to its bin's x-coordinate.
-    binnedDateX: (date) ->
-      @binX @dateBin date
+  // #
+  // Given a datetime and a datetime range, return a number from 0.0 to 1.0
+  dateFraction(datetime, floorDate, ceilDate) {
+    const deltaSeconds = datetime.getTime() - floorDate.getTime()
+    const totalSeconds = ceilDate.getTime() - floorDate.getTime()
+    return deltaSeconds / totalSeconds
+  }
 
-    ##
-    # Given a datetime, return the floor and ceil as calculated by the binner
-    dateExtent: (datetime) ->
-      floor = @binner.reduce datetime
-      [floor, @binner.nextTick floor]
+  // #
+  // Convert a date to an intra-bin x-coordinate.
+  dateX(datetime) {
+    const minX = this.leftMargin
+    const maxX = this.leftMargin + this.width
 
-    ##
-    # Given a datetime and a datetime range, return a number from 0.0 to 1.0
-    dateFraction: (datetime, floorDate, ceilDate) ->
-      deltaSeconds = datetime.getTime() - floorDate.getTime()
-      totalSeconds = ceilDate.getTime() - floorDate.getTime()
-      deltaSeconds / totalSeconds
+    const [floorDate, ceilDate] = this.dateExtent(datetime)
+    const floorX = this.binnedDateX(floorDate)
+    const ceilX = this.binnedDateX(ceilDate)
 
-    ##
-    # Convert a date to an intra-bin x-coordinate.
-    dateX: (datetime) ->
-      minX = @leftMargin
-      maxX = @leftMargin + @width
+    const fraction = this.dateFraction(datetime, floorDate, ceilDate)
 
-      [floorDate, ceilDate] = @dateExtent(datetime) 
-      floorX = @binnedDateX floorDate
-      ceilX = @binnedDateX ceilDate
+    if (datetime.getTime() < this.startDate.getTime()) {
+      // out of range, left
+      this.clippedDate = true
+      return minX
+    } else if (datetime.getTime() > this.endDate.getTime()) {
+      // out of range, right
+      this.clippedDate = true
+      return maxX
+    } else {
+      // in range
+      return floorX + fraction * (ceilX - floorX)
+    }
+  }
 
-      fraction = @dateFraction(datetime, floorDate, ceilDate)
+  // #
+  // Draw a guide along the x-axis. Each day gets a pair of ticks; one from
+  // the top of the frame, the other from the bottom. The ticks are replaced
+  // by a full vertical grid line on Mondays, accompanied by a label.
+  drawDateAxis() {
+    // skip if we haven't set start/end dates yet (@reset will be called by
+    // Base's constructor before we set startDate or endDate)
+    if (this.startDate == null || this.endDate == null) return
+    return this.binner.eachTick((tick, chrome) => {
+      const x = this.binnedDateX(tick)
+      if (chrome && chrome.label) return this.dateLabel(x, this.topMargin + this.height, chrome.label)
+    })
+  }
 
-      if datetime.getTime() < @startDate.getTime() # out of range, left
-        @clippedDate = true
-        minX
-      else if datetime.getTime() > @endDate.getTime() # out of range, right
-        @clippedDate = true
-        maxX
-      else # in range
-        floorX + fraction * (ceilX - floorX)
+  // #
+  // Draw label text at (x, y).
+  dateLabel(x, y, text) {
+    const label = this.paper.text(x, y, text)
+    return label.attr({fill: this.frameColor})
+  }
 
-    ##
-    # Draw a guide along the x-axis. Each day gets a pair of ticks; one from
-    # the top of the frame, the other from the bottom. The ticks are replaced
-    # by a full vertical grid line on Mondays, accompanied by a label.
-    drawDateAxis: ->
-      # skip if we haven't set start/end dates yet (@reset will be called by
-      # Base's constructor before we set startDate or endDate)
-      return unless @startDate? && @endDate?
-      @binner.eachTick (tick, chrome) =>
-        x = @binnedDateX tick
-        @dateLabel x, @topMargin + @height, chrome.label if chrome.label
-
-    ##
-    # Draw label text at (x, y).
-    dateLabel: (x, y, text) ->
-      label = @paper.text x, y, text
-      label.attr fill: @frameColor
-
-    ##
-    # Get date text for a bin
-    binDateText: (bin) ->
-      lastDay = @binner.nextTick(bin.date).addDays(-1)
-      daysBetween = helpers.daysBetween(bin.date, lastDay)
-      if daysBetween < 1 # single-day bucket: label the date
-        I18n.l 'date.formats.medium', bin.date
-      else if daysBetween < 7 # one-week bucket: label the start and end days; include the year only with the end day unless they're different
-        I18n.t "%{start_date} - %{end_date}",
-          start_date: I18n.l((if bin.date.getFullYear() == lastDay.getFullYear() then 'date.formats.short' else 'date.formats.medium'), bin.date)
-          end_date: I18n.l('date.formats.medium', lastDay)
-      else # one-month bucket; label the month and year
-        I18n.l 'date.formats.medium_month', bin.date
-
+  // #
+  // Get date text for a bin
+  binDateText(bin) {
+    const lastDay = this.binner.nextTick(bin.date).addDays(-1)
+    const daysBetween = helpers.daysBetween(bin.date, lastDay)
+    if (daysBetween < 1) {
+      // single-day bucket: label the date
+      return I18n.l('date.formats.medium', bin.date)
+    } else if (daysBetween < 7) {
+      // one-week bucket: label the start and end days; include the year only with the end day unless they're different
+      return I18n.t('%{start_date} - %{end_date}', {
+        start_date: I18n.l(
+          bin.date.getFullYear() === lastDay.getFullYear()
+            ? 'date.formats.short'
+            : 'date.formats.medium',
+          bin.date
+        ),
+        end_date: I18n.l('date.formats.medium', lastDay)
+      })
+    } else {
+      // one-month bucket; label the month and year
+      return I18n.l('date.formats.medium_month', bin.date)
+    }
+  }
+}

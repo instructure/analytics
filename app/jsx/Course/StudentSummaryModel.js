@@ -1,4 +1,5 @@
-define ['Backbone'], (Backbone) ->
+import Backbone from 'Backbone'
 
-  class StudentSummaryModel extends Backbone.Model
-    resourceName: 'analytics/student_summaries'
+export default class StudentSummaryModel extends Backbone.Model {}
+
+StudentSummaryModel.prototype.resourceName = 'analytics/student_summaries'

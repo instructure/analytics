@@ -1,146 +1,177 @@
-define [
-  'underscore'
-  'analytics/compiled/graphs/base'
-  'analytics/compiled/graphs/cover'
-  'analytics/compiled/graphs/YAxis'
-  'i18n!grade_distribution'
-], (_, Base, Cover, YAxis, I18n) ->
+import _ from 'underscore'
+import Base from '../graphs/base'
+import Cover from '../graphs/cover'
+import YAxis from '../graphs/YAxis'
+import I18n from 'i18n!grade_distribution'
 
-  ##
-  # GradeDistribution visualizes the distribution of grades across all students
-  # enrollments in department courses.
+// #
+// GradeDistribution visualizes the distribution of grades across all students
+// enrollments in department courses.
+const defaultOptions = {
+  // #
+  // The color of the line graph.
+  strokeColor: '#b1c6d8',
 
-  defaultOptions =
+  // #
+  // The fill color of the area under the line graph
+  areaColor: 'lightblue'
+}
 
-    ##
-    # The color of the line graph.
-    strokeColor: "#b1c6d8"
+export default class GradeDistribution extends Base {
+  // #
+  // Takes an element and options, same as for Base. Recognizes the options
+  // described above in addition to the options for Base.
+  constructor(div, options) {
+    super(...arguments)
 
-    ##
-    # The fill color of the area under the line graph
-    areaColor: "lightblue"
+    // copy in recognized options with defaults
+    for (const key in defaultOptions) {
+      const defaultValue = defaultOptions[key]
+      this[key] = options[key] != null ? options[key] : defaultValue
+    }
 
-  class GradeDistribution extends Base
-    ##
-    # Takes an element and options, same as for Base. Recognizes the options
-    # described above in addition to the options for Base.
-    constructor: (div, options) ->
-      super
+    // left edge of leftmost bar diamond = @leftMargin + @leftPadding
+    this.x0 = this.leftMargin + this.leftPadding
 
-      # copy in recognized options with defaults
-      for key, defaultValue of defaultOptions
-        @[key] = options[key] ? defaultValue
+    // base of bars = @topmargin + @height - @bottompadding
+    this.base = this.topMargin + this.height - this.bottomPadding
 
-      # left edge of leftmost bar diamond = @leftMargin + @leftPadding
-      @x0 = @leftMargin + @leftPadding
+    // always graphing scores from 0 to 100
+    this.scoreSpacing = (this.width - this.leftPadding - this.rightPadding) / 100
+  }
 
-      # base of bars = @topmargin + @height - @bottompadding
-      @base = @topMargin + @height - @bottomPadding
+  // #
+  // Add X-axis to reset.
+  reset() {
+    super.reset(...arguments)
+    return this.drawXAxis()
+  }
 
-      # always graphing scores from 0 to 100
-      @scoreSpacing = (@width - @leftPadding - @rightPadding) / 100
+  // #
+  // Graph the data.
+  graph(distribution) {
+    if (!super.graph(...arguments)) {
+      return
+    }
 
-    ##
-    # Add X-axis to reset.
-    reset: ->
-      super
-      @drawXAxis()
+    // scale the y-axis
+    const max = this.scaleToData(distribution.values)
+    this.yAxis.draw()
 
-    ##
-    # Graph the data.
-    graph: (distribution) ->
-      return unless super
+    // x label
+    this.drawXLabel(I18n.t('Grades'), {offset: this.labelHeight})
 
-      # scale the y-axis
-      max = @scaleToData distribution.values
-      @yAxis.draw()
+    // build path for distribution line
+    let path = _.map(distribution.values, (value, score) => {
+      if (score === 0) value = Math.min(value, max)
+      return [score === 0 ? 'M' : 'L', this.scoreX(score), this.valueY(value)]
+    })
 
-      # x label
-      @drawXLabel I18n.t("Grades"), offset: @labelHeight
+    // stroke the line
+    this.paper.path(path).attr({
+      stroke: this.strokeColor,
+      'stroke-width': 2,
+      'stroke-linejoin': 'round',
+      'stroke-linecap': 'round',
+      'stroke-dasharray': ''
+    })
 
-      # build path for distribution line
-      path = _.map distribution.values, (value, score) =>
-        value = Math.min value, max if score is 0
-        [ (if score is 0 then 'M' else 'L'), @scoreX(score), @valueY(value) ]
+    // extend the path to close around the area under the line
+    path = path.concat([
+      ['L', this.scoreX(100), this.valueY(0)],
+      ['L', this.scoreX(0), this.valueY(0)],
+      ['z']
+    ])
 
-      # stroke the line
-      @paper.path(path).attr
-        stroke: @strokeColor
-        "stroke-width": 2
-        "stroke-linejoin": "round"
-        "stroke-linecap": "round"
-        "stroke-dasharray": ""
+    // fill that area
+    this.paper.path(path).attr({
+      stroke: 'none',
+      fill: this.areaColor
+    })
 
-      # extend the path to close around the area under the line
-      path = path.concat [
-        ["L", @scoreX(100), @valueY(0)],
-        ["L", @scoreX(0), @valueY(0)],
-        ["z"]]
+    // add covers
+    _.each(distribution.values, (value, score) => this.cover(score, value))
 
-      # fill that area
-      @paper.path(path).attr
-        stroke: "none"
-        fill: @areaColor
+    return this.finish()
+  }
 
-      # add covers
-      _.each distribution.values, (value, score) =>
-        @cover score, value
+  // #
+  // Calculate the x-coordinate of a score, in pixels.
+  scoreX(score) {
+    return this.x0 + score * this.scoreSpacing
+  }
 
-      @finish()
+  // #
+  // Calculate the y-coordinate of a value, in pixels.
+  valueY(value) {
+    return this.base - value * this.countSpacing
+  }
 
-    ##
-    # Calculate the x-coordinate of a score, in pixels.
-    scoreX: (score) ->
-      @x0 + score * @scoreSpacing
+  // #
+  // Choose appropriate scale for the y-dimension so as to put the tallest
+  // point just at the top of the graph.
+  scaleToData(values) {
+    let max = Math.max(...Array.from(values.slice(1) || []))
+    if (max == null || !(max > 0)) max = 0.001
+    this.countSpacing = (this.height - this.topPadding - this.bottomPadding) / max
+    this.yAxis = new YAxis(this, {range: [0, max], style: 'percent'})
+    return max
+  }
 
-    ##
-    # Calculate the y-coordinate of a value, in pixels.
-    valueY: (value) ->
-      @base - value * @countSpacing
+  // #
+  // Draw a guide along the x-axis. Tick and label every 5 scores.
+  drawXAxis(bins) {
+    let i = 0
+    return (() => {
+      const result = []
+      while (i <= 100) {
+        const x = this.scoreX(i)
+        this.labelTick(x, i)
+        result.push((i += 5))
+      }
+      return result
+    })()
+  }
 
-    ##
-    # Choose appropriate scale for the y-dimension so as to put the tallest
-    # point just at the top of the graph.
-    scaleToData: (values) ->
-      max = Math.max values.slice(1)...
-      max = 0.001 unless max? && max > 0
-      @countSpacing = (@height - @topPadding - @bottomPadding) / max
-      @yAxis = new YAxis this, range: [0, max], style: 'percent'
-      max
+  // #
+  // Draw label text at (x, y).
+  labelTick(x, text) {
+    const y = this.topMargin + this.height
+    const label = this.paper.text(x, y, text)
+    label.attr({fill: this.frameColor})
+    return (this.labelHeight = label.getBBox().height)
+  }
 
-    ##
-    # Draw a guide along the x-axis. Tick and label every 5 scores.
-    drawXAxis: (bins) ->
-      i = 0
-      while i <= 100
-        x = @scoreX i
-        @labelTick x, i
-        i += 5
+  // #
+  // Create a tooltip for a score.
+  cover(score, value) {
+    const x = this.scoreX(score)
+    return new Cover(this, {
+      region: this.paper.rect(
+        x - this.scoreSpacing / 2,
+        this.topMargin,
+        this.scoreSpacing,
+        this.height
+      ),
+      tooltip: {
+        contents: this.tooltip(score, value),
+        x,
+        y: this.base,
+        direction: 'down'
+      }
+    })
+  }
 
-    ##
-    # Draw label text at (x, y).
-    labelTick: (x, text) ->
-      y = @topMargin + @height
-      label = @paper.text x, y, text
-      label.attr fill: @frameColor
-      @labelHeight = label.getBBox().height
+  // #
+  // Build the text for the score tooltip.
+  tooltip(score, value) {
+    return I18n.t('%{percent} of students scored %{score}', {
+      percent: this.percentText(value),
+      score: this.percentText(score / 100)
+    })
+  }
 
-    ##
-    # Create a tooltip for a score.
-    cover: (score, value) ->
-      x = @scoreX score
-      new Cover this,
-        region: @paper.rect x - @scoreSpacing / 2, @topMargin, @scoreSpacing, @height
-        tooltip:
-          contents: @tooltip(score, value)
-          x: x
-          y: @base
-          direction: 'down'
-
-    ##
-    # Build the text for the score tooltip.
-    tooltip: (score, value) ->
-      I18n.t("%{percent} of students scored %{score}", percent: @percentText(value), score: @percentText(score / 100))
-
-    percentText: (percent) ->
-      I18n.n(Math.round((percent || 0) * 1000) / 10, { percentage: true })
+  percentText(percent) {
+    return I18n.n(Math.round((percent || 0) * 1000) / 10, {percentage: true})
+  }
+}

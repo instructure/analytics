@@ -1,3 +1,5 @@
-define ->
-  computeGraphWidth: ->
-    Math.max(document.getElementById("content").clientWidth - 120, 400)
+export default {
+  computeGraphWidth() {
+    return Math.max(document.getElementById('content').clientWidth - 120, 400)
+  }
+}

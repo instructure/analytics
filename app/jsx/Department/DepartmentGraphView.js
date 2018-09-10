@@ -1,126 +1,156 @@
-define [
-  'Backbone'
-  'underscore'
-  'react'
-  '../../views/jst/department_graphs.handlebars'
-  'analytics/compiled/graphs/page_views'
-  'analytics/compiled/graphs/CategorizedPageViews'
-  'analytics/compiled/graphs/GradeDistribution'
-  'analytics/compiled/graphs/colors'
-  'analytics/compiled/graphs/util'
-  'analytics/compiled/jsx/components/ActivitiesTable'
-  'analytics/compiled/jsx/components/ActivitiesByCategory'
-  'analytics/compiled/jsx/components/GradeDistributionTable'
-  'analytics/compiled/helpers'
-], (Backbone, _, React, template, PageViews, CategorizedPageViews, GradeDistribution, colors, util, ActivitiesTable, ActivitiesByCategory, GradeDistributionTable, helpers) ->
+import Backbone from 'Backbone'
+import _ from 'underscore'
+import React from 'react'
+import template from '../../views/jst/department_graphs.handlebars'
+import PageViews from '../graphs/page_views'
+import CategorizedPageViews from '../graphs/CategorizedPageViews'
+import GradeDistribution from '../graphs/GradeDistribution'
+import colors from '../graphs/colors'
+import util from '../graphs/util'
+import ActivitiesTable from '../components/ActivitiesTable'
+import ActivitiesByCategory from '../components/ActivitiesByCategory'
+import GradeDistributionTable from '../components/GradeDistributionTable'
+import helpers from '../helpers'
 
-  ##
-  # Aggregate view for the Department Analytics page.
-  class DepartmentGraphView extends Backbone.View
-    initialize: ->
-      super
-      # render now and any time the model changes or the window resizes
-      @render()
-      @afterRender()
-      @model.on 'change:filter', =>
-        @render()
-        @afterRender()
-      $(window).on 'resize', _.debounce =>
-        @render()
-        @afterRender()
-      ,
-        200
+// #
+// Aggregate view for the Department Analytics page.
+export default class DepartmentGraphView extends Backbone.View {
+  initialize() {
+    super.initialize(...arguments)
+    // render now and any time the model changes or the window resizes
+    this.render()
+    this.afterRender()
+    this.model.on('change:filter', () => {
+      this.render()
+      return this.afterRender()
+    })
+    $(window).on(
+      'resize',
+      _.debounce(() => {
+        this.render()
+        this.afterRender()
+      }, 200)
+    )
+  }
 
-    formatTableData: (table) ->
-      data = table.data
+  formatTableData(table) {
+    let {data} = table
 
-      if data.bins? or data.assignments?
-        data = if data.bins then data.bins else data.assignments
+    if (data.bins != null || data.assignments != null) {
+      data = data.bins ? data.bins : data.assignments
+    }
 
-      if data.values? and typeof data.values isnt "function"
-        data = data.values
+    if (data.values != null && typeof data.values !== 'function') {
+      data = data.values
+    }
 
-      if (table.div == "#participating-category-table")
-        data = table.data.categoryBins
+    if (table.div === '#participating-category-table') {
+      data = table.data.categoryBins
+    }
 
-      if typeof table.format is "function"
-        data = data.map (item, index) ->
-          table.format(item, index)
+    if (typeof table.format === 'function') {
+      data = data.map((item, index) => table.format(item, index))
+    }
 
-      if typeof table.sort is "function"
-        data = data.sort(table.sort)
+    if (typeof table.sort === 'function') {
+      data = data.sort(table.sort)
+    }
 
-      data
+    return data
+  }
 
-    renderTable: (table) ->
-      React.render(React.createFactory(table.component)({ data: @formatTableData(table), student: true }), $(table.div)[0], helpers.makePaginationAccessible.bind(null, table.div))
+  renderTable(table) {
+    return React.render(
+      React.createFactory(table.component)({data: this.formatTableData(table), student: true}),
+      $(table.div)[0],
+      helpers.makePaginationAccessible.bind(null, table.div)
+    )
+  }
 
-    renderTables: (tables = []) ->
-      _.each tables, (table) =>
-        if table.data.loading?
-          table.data.loading.done =>
-            @renderTable(table)
-        else
-          @renderTable(table)
+  renderTables(tables = []) {
+    _.each(tables, table => {
+      if (table.data.loading != null) {
+        table.data.loading.done(() => this.renderTable(table))
+      } else {
+        this.renderTable(table)
+      }
+    })
+  }
 
-    afterRender: ->
-      # render the table versions of the graphs for a11y/KO
-      @renderTables([
-        {
-          div: "#participating-date-table"
-          component: ActivitiesTable
-          data: @model.get('filter').get('participation')
-          sort: (a, b) ->
-            b.date - a.date
-        },
-        {
-          div: "#participating-category-table"
-          component: ActivitiesByCategory
-          data: @model.get('filter').get('participation')
-        },
-        {
-          div: "#grade-distribution-table",
-          component: GradeDistributionTable,
-          data: @model.get('filter').get('gradeDistribution')
-          format: (percent, key) ->
-            score: key
-            percent: percent
+  afterRender() {
+    // render the table versions of the graphs for a11y/KO
+    this.renderTables([
+      {
+        div: '#participating-date-table',
+        component: ActivitiesTable,
+        data: this.model.get('filter').get('participation'),
+        sort: (a, b) => b.date - a.date
+      },
+      {
+        div: '#participating-category-table',
+        component: ActivitiesByCategory,
+        data: this.model.get('filter').get('participation')
+      },
+      {
+        div: '#grade-distribution-table',
+        component: GradeDistributionTable,
+        data: this.model.get('filter').get('gradeDistribution'),
+        format(percent, key) {
+          return {
+            score: key,
+            percent
+          }
         }
-      ])
-      $toggle = $("#graph_table_toggle")
-      if $toggle.is(':checked')
-        $toggle.trigger('change')
+      }
+    ])
+    const $toggle = $('#graph_table_toggle')
+    if ($toggle.is(':checked')) $toggle.trigger('change')
+  }
 
+  render() {
+    this.$el.html(template())
 
-    render: =>
-      @$el.html template()
+    const filter = this.model.get('filter')
+    const participations = filter.get('participation')
 
-      filter = @model.get 'filter'
-      participations = filter.get 'participation'
+    this.graphOpts = {
+      width: util.computeGraphWidth(),
+      height: 150,
+      frameColor: colors.frame,
+      gridColor: colors.grid,
+      horizontalMargin: 50
+    }
 
-      @graphOpts =
-        width: util.computeGraphWidth()
-        height: 150
-        frameColor: colors.frame
-        gridColor: colors.grid
-        horizontalMargin: 50
-
-      @pageViews = new PageViews @$("#participating-date-graph"), $.extend {}, @graphOpts,
-        startDate: filter.get 'startDate'
-        endDate: filter.get 'endDate'
-        horizontalPadding: 15
-        barColor: colors.lightblue
+    this.pageViews = new PageViews(
+      this.$('#participating-date-graph'),
+      $.extend({}, this.graphOpts, {
+        startDate: filter.get('startDate'),
+        endDate: filter.get('endDate'),
+        horizontalPadding: 15,
+        barColor: colors.lightblue,
         participationColor: colors.darkblue
-      @pageViews.graph participations
+      })
+    )
+    this.pageViews.graph(participations)
 
-      @categorizedPageViews = new CategorizedPageViews @$("#participating-category-graph"), $.extend {}, @graphOpts,
-        bottomMargin: 25
-        barColor: colors.blue
-        strokeColor: colors.blue
+    this.categorizedPageViews = new CategorizedPageViews(
+      this.$('#participating-category-graph'),
+      $.extend({}, this.graphOpts, {
+        bottomMargin: 25,
+        barColor: colors.blue,
+        strokeColor: colors.blue,
         sortBy: 'views'
-      @categorizedPageViews.graph participations
+      })
+    )
+    this.categorizedPageViews.graph(participations)
 
-      @gradeDistribution = new GradeDistribution @$("#grade-distribution-graph"), $.extend {}, @graphOpts,
-        areaColor: colors.blue
+    this.gradeDistribution = new GradeDistribution(
+      this.$('#grade-distribution-graph'),
+      $.extend({}, this.graphOpts, {
+        areaColor: colors.blue,
         strokeColor: colors.grid
-      @gradeDistribution.graph filter.get 'gradeDistribution'
+      })
+    )
+    return this.gradeDistribution.graph(filter.get('gradeDistribution'))
+  }
+}

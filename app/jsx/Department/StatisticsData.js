@@ -1,17 +1,18 @@
-define [
-  'underscore'
-  'analytics/compiled/BaseData'
-  'compiled/str/TextHelper'
-], (_, BaseData) ->
+import _ from 'underscore'
+import BaseData from '../BaseData'
+import 'compiled/str/TextHelper'
 
-  ##
-  # Loads the statistics data for the current account/filter. Exposes
-  # the data as named properties once loaded.
-  class StatisticsData extends BaseData
-    constructor: (filter) ->
-      account = filter.get 'account'
-      fragment = filter.get 'fragment'
-      super "/api/v1/accounts/#{account.get 'id'}/analytics/#{fragment}/statistics"
+// #
+// Loads the statistics data for the current account/filter. Exposes
+// the data as named properties once loaded.
+export default class StatisticsData extends BaseData {
+  constructor(filter) {
+    const account = filter.get('account')
+    const fragment = filter.get('fragment')
+    super(`/api/v1/accounts/${account.get('id')}/analytics/${fragment}/statistics`)
+  }
 
-    populate: (data) ->
-      _.extend this, data
+  populate(data) {
+    return _.extend(this, data)
+  }
+}

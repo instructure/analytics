@@ -1,44 +1,50 @@
-define [
-  'Backbone'
-  'analytics/compiled/helpers'
-  'analytics/compiled/Department/AccountModel'
-  'analytics/compiled/Department/FilterCollection'
-], (Backbone, helpers, AccountModel, FilterCollection) ->
+import Backbone from 'Backbone'
+import helpers from '../helpers'
+import AccountModel from '../Department/AccountModel'
+import FilterCollection from '../Department/FilterCollection'
 
-  ##
-  # Represents the collection of data the drives the Department Analytics page.
-  class DepartmentModel extends Backbone.Model
+// #
+// Represents the collection of data the drives the Department Analytics page.
+export default class DepartmentModel extends Backbone.Model {
+  // #
+  // Translate the raw objects from the environment into models, and parse the
+  // start/end dates.
+  initialize() {
+    let {account, filters, filter} = this.toJSON()
+    account = new AccountModel(account)
+    filters = new FilterCollection(filters)
+    filters.each(filter => filter.set({account}))
+    filter = filters.get(filter)
+    return this.set({account, filters, filter})
+  }
 
-    ##
-    # Translate the raw objects from the environment into models, and parse the
-    # start/end dates.
-    initialize: ->
-      {account, filters, filter} = @toJSON()
-      account = new AccountModel account
-      filters = new FilterCollection filters
-      filters.each (filter) => filter.set account: account
-      filter = filters.get filter
-      @set {account, filters, filter}
+  // #
+  // Set the filter to the filter with the given id, if known. Returns true on
+  // success, false if the filter was not found.
+  selectFilter(filterId) {
+    let filter
+    if ((filter = this.get('filters').get(filterId))) {
+      this.set({filter})
+      return true
+    } else {
+      return false
+    }
+  }
 
-    ##
-    # Set the filter to the filter with the given id, if known. Returns true on
-    # success, false if the filter was not found.
-    selectFilter: (filterId) ->
-      if filter = @get('filters').get filterId
-        @set filter: filter
-        return true
-      else
-        return false
+  // #
+  // Retrieve the fragment of the current filter.
+  currentFragment() {
+    return this.get('filter').get('fragment')
+  }
 
-    ##
-    # Retrieve the fragment of the current filter.
-    currentFragment: ->
-      @get('filter').get('fragment')
-
-    ##
-    # Override set to catch when we're setting the filter and make sure we
-    # start its data loading *before* it gets set (and the change:filter event
-    # fires).
-    set: (assignments, rest...) ->
-      assignments.filter.ensureData() if assignments.filter?.ensureData?
-      super assignments, rest...
+  // #
+  // Override set to catch when we're setting the filter and make sure we
+  // start its data loading *before* it gets set (and the change:filter event
+  // fires).
+  set(assignments, ...rest) {
+    if ((assignments.filter != null ? assignments.filter.ensureData : undefined) != null) {
+      assignments.filter.ensureData()
+    }
+    return super.set(assignments, ...Array.from(rest))
+  }
+}

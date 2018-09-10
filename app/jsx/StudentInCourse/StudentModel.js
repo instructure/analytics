@@ -1,16 +1,16 @@
-define [
-  'Backbone'
-  'analytics/compiled/StudentInCourse/ParticipationData'
-  'analytics/compiled/StudentInCourse/MessagingData'
-  'analytics/compiled/StudentInCourse/AssignmentData'
-], (Backbone, ParticipationData, MessagingData, AssignmentData) ->
+import Backbone from 'Backbone'
+import ParticipationData from '../StudentInCourse/ParticipationData'
+import MessagingData from '../StudentInCourse/MessagingData'
+import AssignmentData from '../StudentInCourse/AssignmentData'
 
-  class StudentModel extends Backbone.Model
-    ##
-    # Make sure all the data is either loading or loaded.
-    ensureData: ->
-      {participation, messaging, assignments} = @attributes
-      participation ?= new ParticipationData this
-      messaging ?= new MessagingData this
-      assignments ?= new AssignmentData this
-      @set {participation, messaging, assignments}
+export default class StudentModel extends Backbone.Model {
+  // #
+  // Make sure all the data is either loading or loaded.
+  ensureData() {
+    let {participation, messaging, assignments} = this.attributes
+    if (participation == null) participation = new ParticipationData(this)
+    if (messaging == null) messaging = new MessagingData(this)
+    if (assignments == null) assignments = new AssignmentData(this)
+    return this.set({participation, messaging, assignments})
+  }
+}

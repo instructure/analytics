@@ -1,7 +1,5 @@
-define [
-  'Backbone'
-  'analytics/compiled/StudentInCourse/StudentModel'
-], (Backbone, StudentModel) ->
+import Backbone from 'Backbone'
+import StudentModel from '../StudentInCourse/StudentModel'
 
-  class StudentCollection extends Backbone.Collection
-    model: StudentModel
+export default class StudentCollection extends Backbone.Collection {}
+StudentCollection.prototype.model = StudentModel

@@ -1,128 +1,161 @@
-define [
-  'underscore'
-  'analytics/compiled/graphs/base'
-  'analytics/compiled/graphs/cover'
-  'analytics/compiled/graphs/ScaleByBins'
-  'analytics/compiled/graphs/YAxis'
-  'i18n!page_views'
-  'str/htmlEscape'
-], (_, Base, Cover, ScaleByBins, YAxis, I18n, htmlEscape) ->
+import _ from 'underscore'
+import Base from '../graphs/base'
+import Cover from '../graphs/cover'
+import ScaleByBins from '../graphs/ScaleByBins'
+import YAxis from '../graphs/YAxis'
+import I18n from 'i18n!page_views'
+import htmlEscape from 'str/htmlEscape'
 
-  ##
-  # CategorizedPageViews visualizes the student's activity within the course by
-  # type of action rather than date. Each bar represents one category. The
-  # height of the bar is the number of course pages viewed in that time span.
+// #
+// CategorizedPageViews visualizes the student's activity within the course by
+// type of action rather than date. Each bar represents one category. The
+// height of the bar is the number of course pages viewed in that time span.
+const defaultOptions = {
+  // #
+  // The fill color of the bars.
+  barColor: 'lightblue',
 
-  defaultOptions =
+  // #
+  // The stroke color of the bars.
+  strokeColor: '#b1c6d8',
 
-    ##
-    # The fill color of the bars.
-    barColor: "lightblue"
+  // #
+  // The size of the tick marks, in pixels.
+  tickSize: 5,
 
-    ##
-    # The stroke color of the bars.
-    strokeColor: "#b1c6d8"
+  // #
+  // What to sort by ("views", "category")
+  sortBy: 'category'
+}
 
-    ##
-    # The size of the tick marks, in pixels.
-    tickSize: 5
-    
-    ##
-    # What to sort by ("views", "category")
-    sortBy: "category"
+export default class CategorizedPageViews extends Base {
+  // #
+  // Takes an element and options, same as for Base. Recognizes the options
+  // described above in addition to the options for Base.
+  constructor(div, options) {
+    super(...arguments)
+    this.graphBin = this.graphBin.bind(this)
+    this.valueY = this.valueY.bind(this)
 
-  class CategorizedPageViews extends Base
-    ##
-    # Takes an element and options, same as for Base. Recognizes the options
-    # described above in addition to the options for Base.
-    constructor: (div, options) ->
-      super
+    // mixin ScaleByBins functionality
+    _.extend(this, ScaleByBins)
 
-      # mixin ScaleByBins functionality
-      _.extend this, ScaleByBins
+    // copy in recognized options with defaults
+    for (const key in defaultOptions) {
+      const defaultValue = defaultOptions[key]
+      this[key] = options[key] != null ? options[key] : defaultValue
+    }
 
-      # copy in recognized options with defaults
-      for key, defaultValue of defaultOptions
-        @[key] = options[key] ? defaultValue
+    // base of bars = @topmargin + @height - @bottompadding
+    this.base = this.topMargin + this.height - this.bottomPadding
+  }
 
-      # base of bars = @topmargin + @height - @bottompadding
-      @base = @topMargin + @height - @bottomPadding
+  // #
+  // Graph the data.
+  graph(participation) {
+    if (!super.graph(...arguments)) {
+      return
+    }
 
-    ##
-    # Graph the data.
-    graph: (participation) ->
-      return unless super
+    // reduce the bins to the appropriate time scale
+    let bins = participation.categoryBins
+    if (this.sortBy === 'views' && bins.length > 0) {
+      const maxViews = _.max(bins, b => b.views).views
+      bins = _.sortBy(bins, b => [maxViews - b.views, b.category])
+    }
 
-      # reduce the bins to the appropriate time scale
-      bins = participation.categoryBins
-      if @sortBy == 'views' && bins.length > 0
-        maxViews = _.max(bins, (b) -> b.views).views
-        bins = _.sortBy(bins, (b) -> [maxViews - b.views, b.category])
+    this.scaleToData(bins)
+    this.drawXAxis(bins)
+    this.yAxis.draw()
+    _.each(bins, this.graphBin.bind(this))
+    return this.finish()
+  }
 
-      @scaleToData bins
-      @drawXAxis bins
-      @yAxis.draw()
-      _.each bins, @graphBin
-      @finish()
+  // #
+  // Choose appropriate sizes for the graph elements based on maximum value
+  // being graphed.
+  scaleToData(bins) {
+    // scale the x-axis for the number of bins
+    this.scaleByBins(bins.length, false)
 
-    ##
-    # Choose appropriate sizes for the graph elements based on maximum value
-    # being graphed.
-    scaleToData: (bins) ->
-      # scale the x-axis for the number of bins
-      @scaleByBins bins.length, false
+    // top of max bar = @topMargin + @topPadding
+    const views = Array.from(bins).map(bin => bin.views)
+    let max = Math.max(...Array.from(views || []))
+    if (max == null || !(max > 0)) {
+      max = 1
+    }
+    this.countSpacing = (this.height - this.topPadding - this.bottomPadding) / max
+    return (this.yAxis = new YAxis(this, {range: [0, max], title: I18n.t('Page Views')}))
+  }
 
-      # top of max bar = @topMargin + @topPadding
-      views = (bin.views for bin in bins)
-      max = Math.max(views...)
-      max = 1 unless max? && max > 0
-      @countSpacing = (@height - @topPadding - @bottomPadding) / max
-      @yAxis = new YAxis this, range: [0, max], title: I18n.t "Page Views"
+  // #
+  // Draw a guide along the x-axis. Each category bin gets a pair of ticks;
+  // one from the top of the frame, the other from the bottom. Each tick is
+  // labeled with the bin category.
+  drawXAxis(bins) {
+    return (() => {
+      const result = []
+      for (const i in bins) {
+        const bin = bins[i]
+        const x = this.binX(i)
+        const y = this.topMargin + this.height + (i % 2) * 10
+        result.push(this.labelBin(x, y, bin.category))
+      }
+      return result
+    })()
+  }
 
-    ##
-    # Draw a guide along the x-axis. Each category bin gets a pair of ticks;
-    # one from the top of the frame, the other from the bottom. Each tick is
-    # labeled with the bin category.
-    drawXAxis: (bins) ->
-      for i, bin of bins
-        x = @binX i
-        y = @topMargin + @height + (i % 2) * 10
-        @labelBin x, y, bin.category
+  // #
+  // Draw label text at (x, y).
+  labelBin(x, y, text) {
+    const label = this.paper.text(x, y, text)
+    return label.attr({fill: this.frameColor})
+  }
 
-    ##
-    # Draw label text at (x, y).
-    labelBin: (x, y, text) ->
-      label = @paper.text x, y, text
-      label.attr fill: @frameColor
+  // #
+  // Graph a single bin. Fat arrowed because it's called by _.each
+  graphBin(bin, i) {
+    const x = this.binX(i)
+    const y = this.valueY(bin.views)
+    const bar = this.paper.rect(x - this.barWidth / 2, y, this.barWidth, this.base - y)
+    bar.attr({stroke: this.strokeColor, fill: this.barColor})
+    return this.cover(x, bin)
+  }
 
-    ##
-    # Graph a single bin. Fat arrowed because it's called by _.each
-    graphBin: (bin, i) =>
-      x = @binX i
-      y = @valueY bin.views
-      bar = @paper.rect x - @barWidth / 2, y, @barWidth, @base - y
-      bar.attr stroke: @strokeColor, fill: @barColor
-      @cover x, bin
+  // #
+  // Calculate the y-coordinate, in pixels, for a value.
+  valueY(value) {
+    return this.base - value * this.countSpacing
+  }
 
-    ##
-    # Calculate the y-coordinate, in pixels, for a value.
-    valueY: (value) =>
-      @base - value * @countSpacing
+  // #
+  // Create a tooltip for the bin.
+  cover(x, bin) {
+    return new Cover(this, {
+      region: this.paper.rect(
+        x - this.coverWidth / 2,
+        this.topMargin,
+        this.coverWidth,
+        this.height
+      ),
+      classes: bin.category,
+      tooltip: {
+        contents: this.tooltip(bin),
+        x,
+        y: this.base,
+        direction: 'down'
+      }
+    })
+  }
 
-    ##
-    # Create a tooltip for the bin.
-    cover: (x, bin) ->
-      new Cover this,
-        region: @paper.rect x - @coverWidth / 2, @topMargin, @coverWidth, @height
-        classes: bin.category
-        tooltip:
-          contents: @tooltip bin
-          x: x
-          y: @base
-          direction: 'down'
-
-    ##
-    # Build the text for the bin's tooltip.
-    tooltip: (bin) ->
-      count = bin.views
-      $.raw "#{htmlEscape(bin.category)}<br/>#{htmlEscape I18n.t {one: "1 page view", other: "%{count} page views"}, {count: count}}"
+  // #
+  // Build the text for the bin's tooltip.
+  tooltip(bin) {
+    const count = bin.views
+    return $.raw(
+      `${htmlEscape(bin.category)}<br/>${htmlEscape(
+        I18n.t({one: '1 page view', other: '%{count} page views'}, {count})
+      )}`
+    )
+  }
+}

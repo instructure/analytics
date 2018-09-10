@@ -1,21 +1,24 @@
-define [
-  'Backbone',
-  '../../views/jst/department_statistics.handlebars'
-  'jquery.disableWhileLoading'
-], (Backbone, template) ->
+import Backbone from 'Backbone'
+import template from '../../views/jst/department_statistics.handlebars'
+import 'jquery.disableWhileLoading'
 
-  class StatisticsView extends Backbone.View
-    initialize: ->
-      super
-      @model.on 'change', @render
-      @render()
+export default class StatisticsView extends Backbone.View {
+  initialize() {
+    super.initialize(...arguments)
+    this.model.on('change', this.render)
+    return this.render()
+  }
 
-    render: =>
-      statistics = @model.get('filter').get('statistics')
-      if statistics?
-        $table = $ template statistics
-        @$el.html $table
-        if statistics.loading?
-          $table.disableWhileLoading(statistics.loading)
-          statistics.loading.done @render
-          statistics.loading.fail -> # TODO: add error icon
+  render() {
+    const statistics = this.model.get('filter').get('statistics')
+    if (statistics != null) {
+      const $table = $(template(statistics))
+      this.$el.html($table)
+      if (statistics.loading != null) {
+        $table.disableWhileLoading(statistics.loading)
+        statistics.loading.done(this.render)
+        statistics.loading.fail(() => {}) // TODO: add error icon
+      }
+    }
+  }
+}

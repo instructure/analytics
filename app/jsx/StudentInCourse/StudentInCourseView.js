@@ -1,258 +1,332 @@
-define [
-  'react'
-  'jquery'
-  'underscore'
-  'Backbone'
-  '../../views/jst/student_in_course.handlebars'
-  'jst/_avatar'
-  'analytics/compiled/graphs/page_views'
-  'analytics/compiled/graphs/responsiveness'
-  'analytics/compiled/graphs/assignment_tardiness'
-  'analytics/compiled/graphs/grades'
-  'analytics/compiled/graphs/colors'
-  'analytics/compiled/StudentInCourse/StudentComboBox'
-  'i18n!student_in_course_view'
-  'analytics/compiled/graphs/util'
-  'analytics/compiled/jsx/components/ActivitiesTable'
-  'analytics/compiled/jsx/components/StudentSubmissionsTable'
-  'analytics/compiled/jsx/components/GradesTable'
-  'analytics/compiled/jsx/components/ResponsivenessTable'
-  'analytics/compiled/helpers'
-], (React, $, _, Backbone, template, avatarPartial, PageViews, Responsiveness, AssignmentTardiness, Grades, colors, StudentComboBox, I18n, util, ActivitiesTable, StudentSubmissionsTable, GradesTable, ResponsivenessTable, helpers) ->
+import React from 'react'
+import $ from 'jquery'
+import _ from 'underscore'
+import Backbone from 'Backbone'
+import template from '../../views/jst/student_in_course.handlebars'
+import avatarPartial from 'jst/_avatar'
+import PageViews from '../graphs/page_views'
+import Responsiveness from '../graphs/responsiveness'
+import AssignmentTardiness from '../graphs/assignment_tardiness'
+import Grades from '../graphs/grades'
+import colors from '../graphs/colors'
+import StudentComboBox from '../StudentInCourse/StudentComboBox'
+import I18n from 'i18n!student_in_course_view'
+import util from '../graphs/util'
+import ActivitiesTable from '../components/ActivitiesTable'
+import StudentSubmissionsTable from '../components/StudentSubmissionsTable'
+import GradesTable from '../components/GradesTable'
+import ResponsivenessTable from '../components/ResponsivenessTable'
+import helpers from '../helpers'
 
-  class StudentInCourseView extends Backbone.View
-    initialize: ->
-      super
+export default class StudentInCourseView extends Backbone.View {
+  initialize() {
+    super.initialize(...arguments)
 
-      course = @model.get('course')
-      student = @model.get('student')
-      students = course.get('students')
+    const course = this.model.get('course')
+    const student = this.model.get('student')
+    const students = course.get('students')
 
-      # build view
-      @$el = $ template
-        student: _.omit(student.toJSON(), 'html_url')
+    // build view
+    this.$el = $(
+      template({
+        student: _.omit(student.toJSON(), 'html_url'),
         course: course.toJSON()
+      })
+    )
 
-      # cache elements for updates
-      @$crumb_span = $('#student_analytics_crumb span')
-      @$crumb_link = $('#student_analytics_crumb a')
-      @$student_link = @$('.student_link')
-      @$current_score = @$('.current_score')
+    // cache elements for updates
+    this.$crumb_span = $('#student_analytics_crumb span')
+    this.$crumb_link = $('#student_analytics_crumb a')
+    this.$student_link = this.$('.student_link')
+    this.$current_score = this.$('.current_score')
 
-      if students.length > 1
-        # build combobox of student names to replace name element
-        @comboBox = new StudentComboBox @model
-        @$('.students_box').html @comboBox.$el
+    if (students.length > 1) {
+      // build combobox of student names to replace name element
+      this.comboBox = new StudentComboBox(this.model)
+      this.$('.students_box').html(this.comboBox.$el)
+    }
 
-      # setup the graph objects
-      @setupGraphs()
+    // setup the graph objects
+    this.setupGraphs()
 
-      # render now and any time the model changes or the window resizes
-      @render()
-      @afterRender()
-      @model.on 'change:student', =>
-        @render()
-        @afterRender()
-      $(window).on 'resize', _.debounce =>
-        newWidth = util.computeGraphWidth()
-        @pageViews.resize(width: newWidth)
-        @responsiveness.resize(width: newWidth)
-        @assignmentTardiness.resize(width: newWidth)
-        @grades.resize(width: newWidth)
-        @render()
-        @afterRender()
-      ,
-        200
+    // render now and any time the model changes or the window resizes
+    this.render()
+    this.afterRender()
+    this.model.on('change:student', () => {
+      this.render()
+      return this.afterRender()
+    })
+    return $(window).on(
+      'resize',
+      _.debounce(() => {
+        const newWidth = util.computeGraphWidth()
+        this.pageViews.resize({width: newWidth})
+        this.responsiveness.resize({width: newWidth})
+        this.assignmentTardiness.resize({width: newWidth})
+        this.grades.resize({width: newWidth})
+        this.render()
+        return this.afterRender()
+      }, 200)
+    )
+  }
 
-    formatTableData: (table) ->
-      data = table.data
+  formatTableData(table) {
+    let {data} = table
 
-      if data.bins? or data.assignments?
-        data = if data.bins then data.bins else data.assignments
+    if (data.bins != null || data.assignments != null) {
+      data = data.bins ? data.bins : data.assignments
+    }
 
-      if typeof table.format is "function"
-        data = data.map (item) ->
-          table.format(item)
+    if (typeof table.format === 'function') {
+      data = data.map(item => table.format(item))
+    }
 
-      if (table.div == "#responsiveness-table")
-        data = @formatResponsivenessData(data)
+    if (table.div === '#responsiveness-table') {
+      data = this.formatResponsivenessData(data)
+    }
 
-      if typeof table.sort is "function"
-        data = data.sort(table.sort)
+    if (typeof table.sort === 'function') {
+      data = data.sort(table.sort)
+    }
 
-      data
+    return data
+  }
 
-    renderTable: (table) ->
-      React.render(React.createFactory(table.component)({ data: @formatTableData(table), student: true }), $(table.div)[0], helpers.makePaginationAccessible.bind(null, table.div))
+  renderTable(table) {
+    return React.render(
+      React.createFactory(table.component)({data: this.formatTableData(table), student: true}),
+      $(table.div)[0],
+      helpers.makePaginationAccessible.bind(null, table.div)
+    )
+  }
 
-    renderTables: (tables = []) ->
-      _.each tables, (table) =>
-        if table.data.loading?
-          table.data.loading.done =>
-            @renderTable(table)
-        else
-          @renderTable(table)
+  renderTables(tables = []) {
+    _.each(tables, table => {
+      if (table.data.loading != null) {
+        table.data.loading.done(() => this.renderTable(table))
+      } else {
+        this.renderTable(table)
+      }
+    })
+  }
 
-    ##
-    # This will get things into the proper format we need
-    # for the responsiveness table. It produces an array
-    # of objects in this format:
-    # {
-    #   date: Date
-    #   instructorMessages: Number
-    #   studentMessages: Number
-    # }
-    formatResponsivenessData: (data) ->
-      groups = _.groupBy(data, 'date')
-      Object.keys(groups).map((key) ->
-        date: new Date(key),
-        instructorMessages: groups[key].filter((obj) -> obj.track == 'instructor').length,
-        studentMessages: groups[key].filter((obj) -> obj.track == 'student').length
-      )
+  // #
+  // This will get things into the proper format we need
+  // for the responsiveness table. It produces an array
+  // of objects in this format:
+  // {
+  //   date: Date
+  //   instructorMessages: Number
+  //   studentMessages: Number
+  // }
+  formatResponsivenessData(data) {
+    const groups = _.groupBy(data, 'date')
+    return Object.keys(groups).map(key => ({
+      date: new Date(key),
+      instructorMessages: groups[key].filter(obj => obj.track === 'instructor').length,
+      studentMessages: groups[key].filter(obj => obj.track === 'student').length
+    }))
+  }
 
-    afterRender: ->
-      # render the table versions of the graphs for a11y/KO
-      @renderTables([
-        {
-          div: "#participating-table"
-          component: ActivitiesTable
-          data: @model.get('student').get('participation')
-          sort: (a, b) ->
-            b.date - a.date
-        },
-        {
-          div: "#responsiveness-table",
-          component: ResponsivenessTable,
-          data: @model.get('student').get('messaging')
-          sort: (a, b) ->
-            b.date - a.date
-        },
-        {
-          div: "#assignment-finishing-table"
-          component: StudentSubmissionsTable
-          data: @model.get('student').get('assignments')
-          format: (assignment) ->
+  afterRender() {
+    // render the table versions of the graphs for a11y/KO
+    return this.renderTables([
+      {
+        div: '#participating-table',
+        component: ActivitiesTable,
+        data: this.model.get('student').get('participation'),
+        sort(a, b) {
+          return b.date - a.date
+        }
+      },
+      {
+        div: '#responsiveness-table',
+        component: ResponsivenessTable,
+        data: this.model.get('student').get('messaging'),
+        sort(a, b) {
+          return b.date - a.date
+        }
+      },
+      {
+        div: '#assignment-finishing-table',
+        component: StudentSubmissionsTable,
+        data: this.model.get('student').get('assignments'),
+        format(assignment) {
+          const formattedStatus = (() => {
+            switch (assignment.original.status) {
+              case 'late':
+                return I18n.t('Late')
+              case 'missing':
+                return I18n.t('Missing')
+              case 'on_time':
+                return I18n.t('On Time')
+              case 'floating':
+                return I18n.t('Future')
+            }
+          })()
 
-            formattedStatus = switch assignment.original.status
-              when "late" then I18n.t("Late")
-              when "missing" then I18n.t("Missing")
-              when "on_time" then I18n.t("On Time")
-              when "floating" then I18n.t("Future")
-
-            title: assignment.title
+          return {
+            title: assignment.title,
             dueAt: assignment.dueAt,
             submittedAt: assignment.submittedAt,
             status: formattedStatus,
             score: assignment.studentScore
-        },
-        {
-          div: "#grades-table"
-          component: GradesTable
-          data: @model.get('student').get('assignments')
-          format: (assignment) ->
-            scoreType = if assignment.scoreDistribution?
-                          if assignment.studentScore >= assignment.scoreDistribution.median
-                            I18n.t("Good")
-                          else if assignment.studentScore >= assignment.scoreDistribution.firstQuartile
-                            I18n.t("Fair")
-                          else
-                            I18n.t("Poor")
-                        else
-                          I18n.t("Good")
-
-            title:            assignment.title
-            min_score:        assignment.scoreDistribution?.minScore
-            median:           assignment.scoreDistribution?.median
-            max_score:        assignment.scoreDistribution?.maxScore
-            points_possible:  assignment.pointsPossible
-            student_score:    assignment.studentScore
-            score_type:       scoreType
-            percentile:
-              min: assignment.scoreDistribution?.firstQuartile
-              max: assignment.scoreDistribution?.thirdQuartile
+          }
         }
-      ])
+      },
+      {
+        div: '#grades-table',
+        component: GradesTable,
+        data: this.model.get('student').get('assignments'),
+        format(assignment) {
+          const scoreType =
+            assignment.scoreDistribution != null
+              ? assignment.studentScore >= assignment.scoreDistribution.median
+                ? I18n.t('Good')
+                : assignment.studentScore >= assignment.scoreDistribution.firstQuartile
+                  ? I18n.t('Fair')
+                  : I18n.t('Poor')
+              : I18n.t('Good')
 
-    ##
-    # TODO: I18n
-    render: =>
-      course = @model.get 'course'
-      student = @model.get 'student'
+          return {
+            title: assignment.title,
+            min_score:
+              assignment.scoreDistribution != null
+                ? assignment.scoreDistribution.minScore
+                : undefined,
+            median:
+              assignment.scoreDistribution != null
+                ? assignment.scoreDistribution.median
+                : undefined,
+            max_score:
+              assignment.scoreDistribution != null
+                ? assignment.scoreDistribution.maxScore
+                : undefined,
+            points_possible: assignment.pointsPossible,
+            student_score: assignment.studentScore,
+            score_type: scoreType,
+            percentile: {
+              min:
+                assignment.scoreDistribution != null
+                  ? assignment.scoreDistribution.firstQuartile
+                  : undefined,
+              max:
+                assignment.scoreDistribution != null
+                  ? assignment.scoreDistribution.thirdQuartile
+                  : undefined
+            }
+          }
+        }
+      }
+    ])
+  }
 
-      document.title = I18n.t("Analytics: %{course_code} -- %{student_name}",
-        {course_code: course.get('course_code'), student_name: student.get('short_name')})
-      @$crumb_span.text student.get 'short_name'
-      @$crumb_link.attr href: student.get 'analytics_url'
+  // #
+  // TODO: I18n
+  render() {
+    let message_url
+    const course = this.model.get('course')
+    const student = this.model.get('student')
 
-      @$('.avatar').replaceWith(avatarPartial(_.omit(student.toJSON(), 'html_url')))
-      @$student_link.text student.get 'name'
-      @$student_link.attr href: student.get 'html_url'
+    document.title = I18n.t('Analytics: %{course_code} -- %{student_name}', {
+      course_code: course.get('course_code'),
+      student_name: student.get('short_name')
+    })
+    this.$crumb_span.text(student.get('short_name'))
+    this.$crumb_link.attr({href: student.get('analytics_url')})
 
-      # hide message link unless url is present
-      if message_url = student.get('message_student_url')
-        @$('.message_student_link').show()
-        @$('.message_student_link').attr href: message_url
-      else
-        @$('.message_student_link').hide()
+    this.$('.avatar').replaceWith(avatarPartial(_.omit(student.toJSON(), 'html_url')))
+    this.$student_link.text(student.get('name'))
+    this.$student_link.attr({href: student.get('html_url')})
 
-      current_score = student.get 'current_score'
-      if current_score != null
-        @$current_score.text "#{current_score}%"
-      else
-        @$current_score.text 'N/A'
+    // hide message link unless url is present
+    if ((message_url = student.get('message_student_url'))) {
+      this.$('.message_student_link').show()
+      this.$('.message_student_link').attr({href: message_url})
+    } else {
+      this.$('.message_student_link').hide()
+    }
 
-      participation = student.get('participation')
-      messaging = student.get('messaging')
-      assignments = student.get('assignments')
+    const current_score = student.get('current_score')
+    if (current_score !== null) {
+      this.$current_score.text(`${current_score}%`)
+    } else {
+      this.$current_score.text('N/A')
+    }
 
-      @pageViews.graph participation
-      @responsiveness.graph messaging
-      @assignmentTardiness.graph assignments
-      @grades.graph assignments
+    const participation = student.get('participation')
+    const messaging = student.get('messaging')
+    const assignments = student.get('assignments')
 
-    ##
-    # Instantiate the graphs.
-    setupGraphs: ->
-      # setup the graphs
-      graphOpts =
-        width: util.computeGraphWidth()
-        frameColor: colors.frame
-        gridColor: colors.grid
-        horizontalMargin: 40
+    this.pageViews.graph(participation)
+    this.responsiveness.graph(messaging)
+    this.assignmentTardiness.graph(assignments)
+    return this.grades.graph(assignments)
+  }
 
-      dateGraphOpts = $.extend {}, graphOpts,
-        startDate: @options.startDate
-        endDate: @options.endDate
-        leftPadding: 30  # larger padding on left because of assymetrical
-        rightPadding: 15 # responsiveness bubbles
+  // #
+  // Instantiate the graphs.
+  setupGraphs() {
+    // setup the graphs
+    const graphOpts = {
+      width: util.computeGraphWidth(),
+      frameColor: colors.frame,
+      gridColor: colors.grid,
+      horizontalMargin: 40
+    }
 
-      @pageViews = new PageViews @$("#participating-graph"), $.extend {}, dateGraphOpts,
-        height: 150
-        barColor: colors.lightblue
+    const dateGraphOpts = $.extend({}, graphOpts, {
+      startDate: this.options.startDate,
+      endDate: this.options.endDate,
+      leftPadding: 30, // larger padding on left because of assymetrical
+      rightPadding: 15
+    }) // responsiveness bubbles
+
+    this.pageViews = new PageViews(
+      this.$('#participating-graph'),
+      $.extend({}, dateGraphOpts, {
+        height: 150,
+        barColor: colors.lightblue,
         participationColor: colors.darkblue
+      })
+    )
 
-      @responsiveness = new Responsiveness @$("#responsiveness-graph"), $.extend {}, dateGraphOpts,
-        height: 110
-        verticalPadding: 4
-        gutterHeight: 32
-        markerWidth: 31
-        caratOffset: 7
-        caratSize: 10
-        studentColor: colors.orange
+    this.responsiveness = new Responsiveness(
+      this.$('#responsiveness-graph'),
+      $.extend({}, dateGraphOpts, {
+        height: 110,
+        verticalPadding: 4,
+        gutterHeight: 32,
+        markerWidth: 31,
+        caratOffset: 7,
+        caratSize: 10,
+        studentColor: colors.orange,
         instructorColor: colors.blue
+      })
+    )
 
-      @assignmentTardiness = new AssignmentTardiness @$("#assignment-finishing-graph"), $.extend {}, dateGraphOpts,
-        height: 250
-        colorOnTime: colors.sharpgreen
-        colorLate: colors.sharpyellow
-        colorMissing: colors.sharpred
+    this.assignmentTardiness = new AssignmentTardiness(
+      this.$('#assignment-finishing-graph'),
+      $.extend({}, dateGraphOpts, {
+        height: 250,
+        colorOnTime: colors.sharpgreen,
+        colorLate: colors.sharpyellow,
+        colorMissing: colors.sharpred,
         colorUndated: colors.frame
+      })
+    )
 
-      @grades = new Grades @$("#grades-graph"), $.extend {}, graphOpts,
-        height: 250
-        whiskerColor: colors.frame
-        boxColor: colors.grid
-        medianColor: colors.frame
-        colorGood: colors.sharpgreen
-        colorFair: colors.sharpyellow
+    this.grades = new Grades(
+      this.$('#grades-graph'),
+      $.extend({}, graphOpts, {
+        height: 250,
+        whiskerColor: colors.frame,
+        boxColor: colors.grid,
+        medianColor: colors.frame,
+        colorGood: colors.sharpgreen,
+        colorFair: colors.sharpyellow,
         colorPoor: colors.sharpred
+      })
+    )
+  }
+}

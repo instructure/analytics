@@ -1,11 +1,15 @@
-define ['analytics/compiled/AnalyticsRouter'], (AnalyticsRouter) ->
+import AnalyticsRouter from '../AnalyticsRouter'
 
-  ##
-  # Routes based on the list of students in the course.
-  class StudentInCourseRouter extends AnalyticsRouter
-    initialize: (@model) ->
-      super @model,
-        path: ':student'
-        name: 'studentInCourse'
-        trigger: 'change:student'
-        select: @model.selectStudent
+// #
+// Routes based on the list of students in the course.
+export default class StudentInCourseRouter extends AnalyticsRouter {
+  initialize(model) {
+    this.model = model
+    return super.initialize(this.model, {
+      path: ':student',
+      name: 'studentInCourse',
+      trigger: 'change:student',
+      select: this.model.selectStudent
+    })
+  }
+}

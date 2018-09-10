@@ -1,31 +1,32 @@
-define [
-  'jquery'
-  'analytics/compiled/helpers'
-  'analytics/compiled/Course/CourseModel'
-  'analytics/compiled/Course/CourseView'
-], ($, helpers, CourseModel, CourseView) ->
+import $ from 'jquery'
+import helpers from '../helpers'
+import CourseModel from '../Course/CourseModel'
+import CourseView from '../Course/CourseView'
 
-  # setup initial data from environment
-  model = new CourseModel ENV.ANALYTICS.course
+// setup initial data from environment
+const model = new CourseModel(ENV.ANALYTICS.course)
 
-  # wrap data in view
-  view = new CourseView
-    model: model
-    startDate: helpers.midnight Date.parse ENV.ANALYTICS.startDate
-    endDate: helpers.midnight Date.parse ENV.ANALYTICS.endDate
+// wrap data in view
+const view = new CourseView({
+  model,
+  startDate: helpers.midnight(Date.parse(ENV.ANALYTICS.startDate)),
+  endDate: helpers.midnight(Date.parse(ENV.ANALYTICS.endDate))
+})
 
-  $("#analytics_body").append view.$el
+$('#analytics_body').append(view.$el)
 
-  toggleTables = ->
-    $("#activities-table").toggle()
-    $("#submissions-table").toggle()
-    $("#grades-table").toggle()
+const toggleTables = function() {
+  $('#activities-table').toggle()
+  $('#submissions-table').toggle()
+  $('#grades-table').toggle()
+}
 
-  toggleGraphs = ->
-    $(".graph_legend").toggle()
-    $(".graph_container").toggle()
+const toggleGraphs = function() {
+  $('.graph_legend').toggle()
+  $('.graph_container').toggle()
+}
 
-  $("#graph_table_toggle").on('change', (event) ->
-    toggleTables()
-    toggleGraphs()
-  )
+$('#graph_table_toggle').on('change', event => {
+  toggleTables()
+  toggleGraphs()
+})

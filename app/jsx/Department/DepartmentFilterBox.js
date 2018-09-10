@@ -1,31 +1,39 @@
-define [
-  'compiled/widget/ComboBox'
-  'analytics/compiled/Department/DepartmentRouter'
-], (ComboBox, DepartmentRouter) ->
+import ComboBox from 'compiled/widget/ComboBox'
+import DepartmentRouter from '../Department/DepartmentRouter'
 
-  ##
-  # A combobox representing the possible filters for the department view.
-  class DepartmentFilterBox extends ComboBox
-    constructor: (@model) ->
-      # add a router tied to the model
-      @router = new DepartmentRouter @model
+export default class DepartmentFilterBox extends ComboBox {
+  constructor(model) {
 
-      # construct combobox
-      super @model.get('filters').models,
-        value: (filter) -> filter.get 'id'
-        label: (filter) -> filter.get 'label'
-        selected: @model.get('filter').get 'id'
+    {
+      // Hack: trick Babel/TypeScript into allowing this before super.
+      if (false) { super(); }
+      let thisFn = (() => { return this; }).toString();
+      let thisName = thisFn.match(/_this\d*/)[0];
+      eval(`${thisName} = this;`);
+    }
 
-      # connect combobox to model
-      @on 'change', @push
-      @model.on 'change:filter', @pull
+    this.model = model
 
-    ##
-    # Push the current value of the combobox to the URL
-    push: (filter) =>
-      @router.select filter.get('fragment')
+    // add a router tied to the model
+    this.router = new DepartmentRouter(this.model)
 
-    ##
-    # Pull the current value from the model to the combobox
-    pull: =>
-      @select @model.get('filter').get 'id'
+    // construct combobox
+    super(this.model.get('filters').models, {
+      value: filter => filter.get('id'),
+      label: filter => filter.get('label'),
+      selected: this.model.get('filter').get('id')
+    })
+
+    // connect combobox to model
+    this.on('change', this.push)
+    this.model.on('change:filter', this.pull)
+  }
+
+  // #
+  // Push the current value of the combobox to the URL
+  push = filter => this.router.select(filter.get('fragment'))
+
+  // #
+  // Pull the current value from the model to the combobox
+  pull = () => this.select(this.model.get('filter').get('id'))
+}

@@ -1,217 +1,265 @@
-define [
-  'underscore'
-  'analytics/compiled/graphs/base'
-  'analytics/compiled/graphs/cover'
-  'analytics/compiled/graphs/ScaleByBins'
-  'analytics/compiled/graphs/YAxis'
-  'str/htmlEscape'
-  'i18n!analytics_grades'
-], (_, Base, Cover, ScaleByBins, YAxis, htmlEscape, I18n) ->
+import _ from 'underscore'
+import Base from '../graphs/base'
+import Cover from '../graphs/cover'
+import ScaleByBins from '../graphs/ScaleByBins'
+import YAxis from '../graphs/YAxis'
+import htmlEscape from 'str/htmlEscape'
+import I18n from 'i18n!analytics_grades'
 
-  ##
-  # Grades visualizes the student's scores on assignments compared to the
-  # distribution of scores in the class. The distribution of each assignment is
-  # displayed as a "bar and whiskers" plot where the top whisker reaches to the
-  # max score, the bottom whisker to the min score, the box covers the first
-  # through third quartiles, and the median is stroked through the box. The
-  # student's score is superimposed on this as a colored dot. The distribution
-  # and dot are replaced by a faint placeholder for muted assignments in
-  # student view.
+// #
+// Grades visualizes the student's scores on assignments compared to the
+// distribution of scores in the class. The distribution of each assignment is
+// displayed as a "bar and whiskers" plot where the top whisker reaches to the
+// max score, the bottom whisker to the min score, the box covers the first
+// through third quartiles, and the median is stroked through the box. The
+// student's score is superimposed on this as a colored dot. The distribution
+// and dot are replaced by a faint placeholder for muted assignments in
+// student view.
+const defaultOptions = {
+  // #
+  // The color of the whiskers.
+  whiskerColor: 'dimgray',
 
-  defaultOptions =
+  // #
+  // The color of the boxes.
+  boxColor: 'lightgray',
 
-    ##
-    # The color of the whiskers.
-    whiskerColor: "dimgray"
+  // #
+  // The color of the median line.
+  medianColor: 'dimgray',
 
-    ##
-    # The color of the boxes.
-    boxColor: "lightgray"
+  // #
+  // The colors of the outer rings of value dots, by performance level.
+  colorGood: 'green',
+  colorFair: 'gold',
+  colorPoor: 'red',
 
-    ##
-    # The color of the median line.
-    medianColor: "dimgray"
+  // #
+  // Max width of a bar, in pixels. (Overrides default from ScaleByBins)
+  maxBarWidth: 30,
+  gutterPercent: 1.0
+}
 
-    ##
-    # The colors of the outer rings of value dots, by performance level.
-    colorGood: "green"
-    colorFair: "gold"
-    colorPoor: "red"
+export default class Grades extends Base {
+  // #
+  // Takes an element id and options, same as for Base. Recognizes the options
+  // described above in addition to the options for Base.
+  constructor(div, options) {
+    super(...arguments)
+    this.graphAssignment = this.graphAssignment.bind(this)
 
-    ##
-    # Max width of a bar, in pixels. (Overrides default from ScaleByBins)
-    maxBarWidth: 30
-    gutterPercent: 1.0
+    // mixin ScaleByBins functionality
+    _.extend(this, ScaleByBins)
 
-  class Grades extends Base
-    ##
-    # Takes an element id and options, same as for Base. Recognizes the options
-    # described above in addition to the options for Base.
-    constructor: (div, options) ->
-      super
+    // copy in recognized options with defaults
+    for (const key in defaultOptions) {
+      const defaultValue = defaultOptions[key]
+      this[key] = options[key] != null ? options[key] : defaultValue
+    }
 
-      # mixin ScaleByBins functionality
-      _.extend this, ScaleByBins
+    this.base = this.topMargin + this.height - this.bottomPadding
+  }
 
-      # copy in recognized options with defaults
-      for key, defaultValue of defaultOptions
-        @[key] = options[key] ? defaultValue
+  // #
+  // Graph the assignments.
+  graph(assignments) {
+    if (!super.graph(...arguments)) return
+    ;({assignments} = assignments)
+    this.scaleToAssignments(assignments)
+    this.yAxis.draw()
+    this.drawXLabel(I18n.t('Assignments'))
+    _.each(assignments, this.graphAssignment.bind(this))
 
-      @base = @topMargin + @height - @bottomPadding
+    return this.finish()
+  }
 
-    ##
-    # Graph the assignments.
-    graph: (assignments) ->
-      return unless super
+  // #
+  // given an assignment, what's the max score possible/achieved so far?
+  maxAssignmentScore(assignment) {
+    if (assignment.pointsPossible != null) {
+      return assignment.pointsPossible
+    } else if (assignment.scoreDistribution != null) {
+      return assignment.scoreDistribution.maxScore
+    } else {
+      return 0
+    }
+  }
 
-      assignments = assignments.assignments
-      @scaleToAssignments assignments
-      @yAxis.draw()
-      @drawXLabel I18n.t "Assignments"
-      _.each assignments, @graphAssignment
+  // #
+  // Choose appropriate sizes for the graph elements based on number of
+  // assignments and maximum score being graphed.
+  scaleToAssignments(assignments) {
+    // scale the x-axis for the number of bins
+    this.scaleByBins(assignments.length, false)
 
-      @finish()
+    // top of max bar = @topMargin + @topPadding
+    // base of bars = @topMargin + @height - @bottomPadding
+    const maxScores = Array.from(assignments).map(a => this.maxAssignmentScore(a))
 
-    ##
-    # given an assignment, what's the max score possible/achieved so far?
-    maxAssignmentScore: (assignment) ->
-      if assignment.pointsPossible?
-        assignment.pointsPossible
-      else if assignment.scoreDistribution?
-        assignment.scoreDistribution.maxScore
-      else
-        0
+    let max = Math.max(...Array.from(maxScores || []))
+    if (max == null || !(max > 0)) max = 1
+    this.pointSpacing = (this.height - this.topPadding - this.bottomPadding) / max
+    return (this.yAxis = new YAxis(this, {range: [0, max], title: I18n.t('Points')}))
+  }
 
-    ##
-    # Choose appropriate sizes for the graph elements based on number of
-    # assignments and maximum score being graphed.
-    scaleToAssignments: (assignments) ->
-      # scale the x-axis for the number of bins
-      @scaleByBins assignments.length, false
+  // #
+  // Graph a single assignment. Fat arrowed because it's called by _.each
+  graphAssignment(assignment, i) {
+    const x = this.binX(i)
 
-      # top of max bar = @topMargin + @topPadding
-      # base of bars = @topMargin + @height - @bottomPadding
-      maxScores = (@maxAssignmentScore(a) for a in assignments)
+    if (assignment.muted) {
+      this.drawMutedAssignment(x)
+    } else {
+      if (assignment.scoreDistribution != null) {
+        this.drawWhisker(x, assignment)
+        this.drawBox(x, assignment)
+        this.drawMedian(x, assignment)
+      }
 
-      max = Math.max(maxScores...)
-      max = 1 unless max? && max > 0
-      @pointSpacing = (@height - @topPadding - @bottomPadding) / max
-      @yAxis = new YAxis this, range: [0, max], title: I18n.t "Points"
+      if (assignment.studentScore != null) {
+        this.drawStudentScore(x, assignment)
+      }
+    }
 
-    ##
-    # Graph a single assignment. Fat arrowed because it's called by _.each
-    graphAssignment: (assignment, i) =>
-      x = @binX i
+    return this.cover(x, assignment)
+  }
 
-      if assignment.muted
-        @drawMutedAssignment x
-      else
-        if assignment.scoreDistribution?
-          @drawWhisker x, assignment
-          @drawBox x, assignment
-          @drawMedian x, assignment
+  // #
+  // Convert a score to a y-coordinate.
+  valueY(score) {
+    return this.base - score * this.pointSpacing
+  }
 
-        if assignment.studentScore?
-          @drawStudentScore x, assignment
+  // #
+  // Draw the whisker for an assignment's score distribution
+  drawWhisker(x, assignment) {
+    const whiskerTop = this.valueY(assignment.scoreDistribution.maxScore)
+    const whiskerBottom = this.valueY(assignment.scoreDistribution.minScore)
+    const whiskerHeight = whiskerBottom - whiskerTop
+    const whisker = this.paper.rect(x, whiskerTop, 1, whiskerHeight)
+    return whisker.attr({stroke: this.whiskerColor, fill: 'none'})
+  }
 
-      @cover x, assignment
+  // #
+  // Draw the box for an assignment's score distribution
+  drawBox(x, assignment) {
+    const boxTop = this.valueY(assignment.scoreDistribution.thirdQuartile)
+    const boxBottom = this.valueY(assignment.scoreDistribution.firstQuartile)
+    const boxHeight = boxBottom - boxTop
+    const box = this.paper.rect(x - this.barWidth * 0.3, boxTop, this.barWidth * 0.6, boxHeight)
+    return box.attr({stroke: this.boxColor, fill: this.boxColor})
+  }
 
-    ##
-    # Convert a score to a y-coordinate.
-    valueY: (score) ->
-      @base - score * @pointSpacing
+  // #
+  // Draw the median of an assignment's score distribution
+  drawMedian(x, assignment) {
+    const medianY = this.valueY(assignment.scoreDistribution.median)
+    const median = this.paper.rect(x - this.barWidth / 2, medianY, this.barWidth, 1)
+    return median.attr({stroke: 'none', fill: this.medianColor})
+  }
 
-    ##
-    # Draw the whisker for an assignment's score distribution
-    drawWhisker: (x, assignment) ->
-      whiskerTop = @valueY assignment.scoreDistribution.maxScore
-      whiskerBottom = @valueY assignment.scoreDistribution.minScore
-      whiskerHeight = whiskerBottom - whiskerTop
-      whisker = @paper.rect x, whiskerTop, 1, whiskerHeight
-      whisker.attr stroke: @whiskerColor, fill: "none"
+  // #
+  // Draw the shape for the student's score in an assignment
+  drawStudentScore(x, assignment) {
+    const scoreY = this.valueY(assignment.studentScore)
+    const attrs = this.scoreAttrs(assignment)
+    attrs.color = 'white'
+    attrs.outline = 1
+    return this.drawShape(x, scoreY, this.barWidth / 4 + 2, attrs)
+  }
 
-    ##
-    # Draw the box for an assignment's score distribution
-    drawBox: (x, assignment) ->
-      boxTop = @valueY assignment.scoreDistribution.thirdQuartile
-      boxBottom = @valueY assignment.scoreDistribution.firstQuartile
-      boxHeight = boxBottom - boxTop
-      box = @paper.rect x - @barWidth * 0.3, boxTop, @barWidth * 0.6, boxHeight
-      box.attr stroke: @boxColor, fill: @boxColor
-
-    ##
-    # Draw the median of an assignment's score distribution
-    drawMedian: (x, assignment) ->
-      medianY = @valueY assignment.scoreDistribution.median
-      median = @paper.rect x - @barWidth / 2, medianY, @barWidth, 1
-      median.attr stroke: "none", fill: @medianColor
-
-    ##
-    # Draw the shape for the student's score in an assignment
-    drawStudentScore: (x, assignment) ->
-      scoreY = @valueY assignment.studentScore
-      attrs = @scoreAttrs assignment
-      attrs.color = 'white'
-      attrs.outline = 1
-      @drawShape x, scoreY, @barWidth / 4 + 2, attrs
-
-    ##
-    # Returns colors to use for the value dot of an assignment. If this is
-    # being called, it's implied there is a student score for the assignment.
-    scoreAttrs: (assignment) ->
-      if assignment.scoreDistribution?
-        if assignment.studentScore >= assignment.scoreDistribution.median
-          fill: @colorGood
+  // #
+  // Returns colors to use for the value dot of an assignment. If this is
+  // being called, it's implied there is a student score for the assignment.
+  scoreAttrs(assignment) {
+    if (assignment.scoreDistribution != null) {
+      if (assignment.studentScore >= assignment.scoreDistribution.median) {
+        return {
+          fill: this.colorGood,
           shape: 'circle'
-        else if assignment.studentScore >= assignment.scoreDistribution.firstQuartile
-          fill: @colorFair
+        }
+      } else if (assignment.studentScore >= assignment.scoreDistribution.firstQuartile) {
+        return {
+          fill: this.colorFair,
           shape: 'triangle'
-        else
-          fill: @colorPoor
+        }
+      } else {
+        return {
+          fill: this.colorPoor,
           shape: 'square'
-      else
-        fill: @colorGood
+        }
+      }
+    } else {
+      return {
+        fill: this.colorGood,
         shape: 'circle'
+      }
+    }
+  }
 
-    ##
-    # Draw a muted assignment indicator
-    drawMutedAssignment: (x) ->
-      whisker = @paper.rect x, @middle - @height * 0.4, 1, @height * 0.6
-      whisker.attr stroke: @gridColor, fill: "none"
-      dot = @paper.circle x, @middle, @barWidth / 4
-      dot.attr stroke: @gridColor, fill: @gridColor
+  // #
+  // Draw a muted assignment indicator
+  drawMutedAssignment(x) {
+    const whisker = this.paper.rect(x, this.middle - this.height * 0.4, 1, this.height * 0.6)
+    whisker.attr({stroke: this.gridColor, fill: 'none'})
+    const dot = this.paper.circle(x, this.middle, this.barWidth / 4)
+    return dot.attr({stroke: this.gridColor, fill: this.gridColor})
+  }
 
-    ##
-    # Create a tooltip for the assignment.
-    cover: (x, assignment) ->
-      new Cover this,
-        region: @paper.rect x - @coverWidth / 2, @topMargin, @coverWidth, @height
-        classes: "assignment_#{assignment.id}"
-        tooltip:
-          contents: @tooltip assignment
-          x: x
-          y: @base
-          direction: 'down'
+  // #
+  // Create a tooltip for the assignment.
+  cover(x, assignment) {
+    return new Cover(this, {
+      region: this.paper.rect(
+        x - this.coverWidth / 2,
+        this.topMargin,
+        this.coverWidth,
+        this.height
+      ),
+      classes: `assignment_${assignment.id}`,
+      tooltip: {
+        contents: this.tooltip(assignment),
+        x,
+        y: this.base,
+        direction: 'down'
+      }
+    })
+  }
 
-    ##
-    # Build the text for the assignment's tooltip.
-    tooltip: (assignment) ->
-      tooltip = htmlEscape(assignment.title)
-      if assignment.scoreDistribution?
-        tooltip += "<br/>" + htmlEscape I18n.t("High: %{score}", score: I18n.n assignment.scoreDistribution.maxScore)
-        tooltip += "<br/>" + htmlEscape I18n.t("Median: %{score}", score: I18n.n assignment.scoreDistribution.median)
-        tooltip += "<br/>" + htmlEscape I18n.t("Low: %{score}", score: I18n.n assignment.scoreDistribution.minScore)
-        if assignment.studentScore? && assignment.pointsPossible?
-          score = "#{I18n.n assignment.studentScore} / #{I18n.n assignment.pointsPossible}"
-          tooltip += "<br/>" + htmlEscape I18n.t("Score: %{score}", score: score)
-        else if assignment.studentScore?
-          tooltip += "<br/>" + htmlEscape I18n.t("Score: %{score}", score: I18n.n assignment.studentScore)
-        else if assignment.pointsPossible?
-          tooltip += "<br/>" + htmlEscape I18n.t("Possible: %{score}", score: I18n.n assignment.pointsPossible)
-      else if assignment.muted
-        tooltip += "<br/>" + htmlEscape I18n.t("(muted)")
-      else if assignment.studentScore? && assignment.pointsPossible?
-        score = "#{I18n.n assignment.studentScore} / #{I18n.n assignment.pointsPossible}"
-        tooltip += "<br/>" + htmlEscape I18n.t("Score: %{score}", score: score)
+  // #
+  // Build the text for the assignment's tooltip.
+  tooltip(assignment) {
+    let score
+    let tooltip = htmlEscape(assignment.title)
+    if (assignment.scoreDistribution != null) {
+      tooltip += `<br/>${htmlEscape(
+        I18n.t('High: %{score}', {score: I18n.n(assignment.scoreDistribution.maxScore)})
+      )}`
+      tooltip += `<br/>${htmlEscape(
+        I18n.t('Median: %{score}', {score: I18n.n(assignment.scoreDistribution.median)})
+      )}`
+      tooltip += `<br/>${htmlEscape(
+        I18n.t('Low: %{score}', {score: I18n.n(assignment.scoreDistribution.minScore)})
+      )}`
+      if (assignment.studentScore != null && assignment.pointsPossible != null) {
+        score = `${I18n.n(assignment.studentScore)} / ${I18n.n(assignment.pointsPossible)}`
+        tooltip += `<br/>${htmlEscape(I18n.t('Score: %{score}', {score}))}`
+      } else if (assignment.studentScore != null) {
+        tooltip += `<br/>${htmlEscape(
+          I18n.t('Score: %{score}', {score: I18n.n(assignment.studentScore)})
+        )}`
+      } else if (assignment.pointsPossible != null) {
+        tooltip += `<br/>${htmlEscape(
+          I18n.t('Possible: %{score}', {score: I18n.n(assignment.pointsPossible)})
+        )}`
+      }
+    } else if (assignment.muted) {
+      tooltip += `<br/>${htmlEscape(I18n.t('(muted)'))}`
+    } else if (assignment.studentScore != null && assignment.pointsPossible != null) {
+      score = `${I18n.n(assignment.studentScore)} / ${I18n.n(assignment.pointsPossible)}`
+      tooltip += `<br/>${htmlEscape(I18n.t('Score: %{score}', {score}))}`
+    }
 
-      $.raw tooltip
+    return $.raw(tooltip)
+  }
+}

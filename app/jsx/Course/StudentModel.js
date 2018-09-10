@@ -1,3 +1,3 @@
-define ['Backbone'], (Backbone) ->
+import Backbone from 'backbone'
 
-  class StudentModel extends Backbone.Model
+export default class StudentModel extends Backbone.Model {}

@@ -1,7 +1,6 @@
-define [
-  'Backbone'
-  'analytics/compiled/Department/FilterModel'
-], (Backbone, FilterModel) ->
+import Backbone from 'Backbone'
+import FilterModel from '../Department/FilterModel'
 
-  class FilterCollection extends Backbone.Collection
-    model: FilterModel
+export default class FilterCollection extends Backbone.Collection {}
+
+FilterCollection.prototype.model = FilterModel
