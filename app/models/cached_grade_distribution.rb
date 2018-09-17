@@ -30,7 +30,7 @@ class CachedGradeDistribution < ActiveRecord::Base
         update_score( row[1].to_i, row[0].to_i )
       end
     end
-    save
+    save if changed?
   end
 
   private
