@@ -29,6 +29,8 @@ module Analytics::Extensions::Course
   end
 
   def recache_grade_distribution
+    distribution = cached_grade_distribution
+    return distribution.recalculate! if distribution
     Course.unique_constraint_retry do
       (cached_grade_distribution || build_cached_grade_distribution).recalculate!
     end
