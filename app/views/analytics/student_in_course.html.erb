@@ -12,6 +12,9 @@
   add_crumb @student.short_name, analytics_student_in_course_path(:course_id => @course.id, :student_id => @student.id), :id => "student_analytics_crumb"
 %>
 
+<%
+  js_env ga_page_title: "Analytics: #{@course.short_name} -- Student"
+%>
 <% content_for :page_title do %>
   <%= t :page_title, "Analytics: %{course} -- %{student}", :course => @course.short_name, :student => context_user_name(@course, @student) %>
 <% end %>

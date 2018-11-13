@@ -24,11 +24,13 @@ module Analytics::Extensions::Course
     unless klass.instance_methods.include?(:recache_grade_distribution_without_send_later)
       klass.handle_asynchronously_if_production :recache_grade_distribution,
                                                 singleton: proc { |c| "recache_grade_distribution:#{ c.global_id }" },
-                                                priority: Delayed::LOW_PRIORITY
+                                                priority: 30
     end
   end
 
   def recache_grade_distribution
+    distribution = cached_grade_distribution
+    return distribution.recalculate! if distribution
     Course.unique_constraint_retry do
       (cached_grade_distribution || build_cached_grade_distribution).recalculate!
     end

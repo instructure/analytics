@@ -29,15 +29,15 @@ define [
 
       # sort the page view data to the appropriate bins
       for date, views of data.page_views
-        # this date is the hour for the bin
+        # this date is the day for the bin
         bin = binFor(Date.parse date)
         bin.views += views
 
       # sort the participation date to the appropriate bins
       for event in data.participations
         event.createdAt = Date.parse event.created_at
-        # bin to the hour corresponding to event.createdAt, so that all
+        # bin to the day corresponding to event.createdAt, so that all
         # participations fall in the same bin as their respective page views.
-        bin = binFor(tz.parse(tz.format(event.createdAt, '%F %H:00:00')))
+        bin = binFor(new Date(event.createdAt.setHours(0,0,0,0)))
         bin.participation_events.push event
         bin.participations += 1
