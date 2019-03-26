@@ -1,5 +1,5 @@
 require_relative '../../../../../spec/spec_helper'
-require_relative '../../../../../spec/helpers/graphql_type_tester'
+require_relative '../../../../../spec/graphql/graphql_spec_helper'
 
 describe Types::UserType do
   let_once(:user) { student_in_course(active_all: true).user }
