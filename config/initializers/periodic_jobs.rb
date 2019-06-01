@@ -17,7 +17,7 @@
 #
 
 Delayed::Periodic.cron 'PageViewsRollup.process_cached_rollups', '* * * * *' do
-  Shard.with_each_shard do
+  Shard.with_each_shard(exception: :ignore) do
     PageViewsRollup.send_later_enqueue_args(:process_cached_rollups,
       :singleton => "PageViewsRollup.process_cached_rollups:#{Shard.current.id}")
   end
