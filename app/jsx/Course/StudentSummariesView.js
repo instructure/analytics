@@ -7,6 +7,7 @@ export default class StudentSummariesView extends PaginatedView {
     super.initialize(...arguments)
     this.$rows = this.$('tbody.rows')
     this.collection.on('reset', () => this.render())
+    this.collection.on('sync', () => this.render())
     this.collection.on('add', this.addOne)
     this.$('.student .sortable').addClass('headerSortUp')
     // @$('.sortable').attr('tabindex', '0').attr('role', 'button').click(@sort).on 'keydown', (e) =>
