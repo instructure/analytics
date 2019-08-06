@@ -5,23 +5,14 @@ import StudentInCourseRouter from '../StudentInCourse/StudentInCourseRouter'
 // A combobox representing the possible filters for the department view.
 export default class StudentComboBox extends ComboBox {
   constructor(model) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/_this\d*/)[0];
-      eval(`${thisName} = this;`);
-    }
-
-    this.model = model
-    this.router = new StudentInCourseRouter(this.model)
-
     // construct combobox
-    super(this.model.get('course').get('students').models, {
+    super(model.get('course').get('students').models, {
       value: student => student.get('id'),
       label: student => student.get('name'),
-      selected: this.model.get('student').get('id')
+      selected: model.get('student').get('id')
     })
+    this.model = model
+    this.router = new StudentInCourseRouter(this.model)
 
     // connect combobox to model
     this.on('change', this.push)
