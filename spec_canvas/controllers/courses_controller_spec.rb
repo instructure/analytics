@@ -56,6 +56,16 @@ describe CoursesController, :type => :controller do
       expect_injection
     end
 
+    it "should not inject an analytics button if analytics 2.0 is present" do
+      Account.default.enable_feature!(:analytics_2)
+      expect(controller).to receive(:external_tools_display_hashes).and_return([{
+        tool_id: ContextExternalTool::ANALYTICS_2,
+        title: 'Analytics Beta',
+        base_url: 'https://example.com/foo'
+      }])
+      forbid_injection
+    end
+
     it "should not inject an analytics button with analytics disabled" do
       @account.allowed_services = '-analytics'
       @account.save!
