@@ -107,18 +107,14 @@ export default class Grades extends Base {
   graphAssignment(assignment, i) {
     const x = this.binX(i)
 
-    if (assignment.muted) {
-      this.drawMutedAssignment(x)
-    } else {
-      if (assignment.scoreDistribution != null) {
-        this.drawWhisker(x, assignment)
-        this.drawBox(x, assignment)
-        this.drawMedian(x, assignment)
-      }
+    if (assignment.scoreDistribution != null) {
+      this.drawWhisker(x, assignment)
+      this.drawBox(x, assignment)
+      this.drawMedian(x, assignment)
+    }
 
-      if (assignment.studentScore != null) {
-        this.drawStudentScore(x, assignment)
-      }
+    if (assignment.studentScore != null) {
+      this.drawStudentScore(x, assignment)
     }
 
     return this.cover(x, assignment)
@@ -195,15 +191,6 @@ export default class Grades extends Base {
         shape: 'circle'
       }
     }
-  }
-
-  // #
-  // Draw a muted assignment indicator
-  drawMutedAssignment(x) {
-    const whisker = this.paper.rect(x, this.middle - this.height * 0.4, 1, this.height * 0.6)
-    whisker.attr({stroke: this.gridColor, fill: 'none'})
-    const dot = this.paper.circle(x, this.middle, this.barWidth / 4)
-    return dot.attr({stroke: this.gridColor, fill: this.gridColor})
   }
 
   // #
