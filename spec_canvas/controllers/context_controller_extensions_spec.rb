@@ -72,7 +72,7 @@ describe ContextController, :type => :controller do
 
     context "analytics 2 enabled" do
       before :once do
-        @course.enable_feature!(:analytics_2)
+        Account.default.enable_feature!(:analytics_2)
       end
 
       it "does not inject an analytics button" do
