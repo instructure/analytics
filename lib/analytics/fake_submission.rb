@@ -29,9 +29,11 @@ module Analytics
     attr_accessor :assignment
     attr_reader   :assignment_id, :user_id, :score, :submission_type,
                   :workflow_state, :excused, :submitted_at, :cached_due_date,
-                  :graded_at, :late_policy_status, :accepted_at, :seconds_late_override
+                  :graded_at, :late_policy_status, :accepted_at, :seconds_late_override,
+                  :cached_quiz_lti
 
     alias_method :excused?, :excused
+    alias_method :cached_quiz_lti?, :cached_quiz_lti
 
     include Submission::Tardiness
 
@@ -45,6 +47,7 @@ module Analytics
       @graded_at       = data['graded_at']
       @cached_due_date = data['cached_due_date']
       @late_policy_status = data['late_policy_status']
+      @cached_quiz_lti = data['cached_quiz_lti'].present? ? data['cached_quiz_lti'] : false
 
       # submissions without a submission_type do not have a meaningful
       # submitted_at; see Submission#submitted_at

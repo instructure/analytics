@@ -56,6 +56,11 @@ describe CoursesController, :type => :controller do
       expect_injection
     end
 
+    it "should not inject an analytics button if analytics 2.0 is enabled" do
+      @course.enable_feature!(:analytics_2)
+      forbid_injection
+    end
+
     it "should not inject an analytics button with analytics disabled" do
       @account.allowed_services = '-analytics'
       @account.save!

@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactBootstrapTable from 'plugins/analytics/react-bootstrap-table'
 import I18n from 'i18n!analytics'
-import helpers from 'analytics/compiled/helpers'
+import helpers from '../helpers'
 
 const {BootstrapTable, TableHeaderColumn} = ReactBootstrapTable
 
