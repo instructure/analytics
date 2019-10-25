@@ -20,6 +20,7 @@ module Analytics::Extensions
   module CustomSidebarLinksHelper
     def roster_user_custom_links(user)
       links = super
+      return links if links.any? { |link| link[:tool_id] == ContextExternalTool::ANALYTICS_2 }
       if analytics_enabled_course? && analytics_enabled_student?(user)
         links << {
           :url => analytics_student_in_course_path(:course_id => @context.id, :student_id => user.id),
@@ -32,6 +33,7 @@ module Analytics::Extensions
 
     def course_custom_links
       links = super
+      return links if links.any? { |link| link[:tool_id] == ContextExternalTool::ANALYTICS_2 }
       if analytics_enabled_course? && @context.grants_right?(@current_user, :read_as_admin)
         links << {
           :url => analytics_course_path(:course_id => @context.id),

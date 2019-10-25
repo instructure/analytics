@@ -12,7 +12,7 @@ export default class StudentSummariesView extends PaginatedView {
     this.$('.student .sortable').addClass('headerSortUp')
     // @$('.sortable').attr('tabindex', '0').attr('role', 'button').click(@sort).on 'keydown', (e) =>
     this.$('.sortable')
-      .click(this.sort)
+      .click(e => this.sort(e))
       .on('keydown', e => {
         if (e.keyCode === 13 || e.keyCode === 32) {
           e.preventDefault()
