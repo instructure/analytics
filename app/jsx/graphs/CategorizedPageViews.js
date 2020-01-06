@@ -28,6 +28,50 @@ const defaultOptions = {
   sortBy: 'category'
 }
 
+function internationalizeBin(bin) {
+  switch (bin.category) {
+    case "announcements":
+      bin.category = I18n.t("announcements");
+      break;
+    case "assignments":
+      bin.category = I18n.t("assignments");
+      break;
+    case "collaborations":
+      bin.category = I18n.t("collaborations");
+      break;
+    case "conferences":
+      bin.category = I18n.t("conferences");
+      break;
+    case "discussions":
+      bin.category = I18n.t("discussions");
+      break;
+    case "files":
+      bin.category = I18n.t("files");
+      break;
+    case "general":
+      bin.category = I18n.t("general");
+      break;
+    case "grades":
+      bin.category = I18n.t("grades");
+      break;
+    case "groups":
+      bin.category = I18n.t("groups");
+      break;
+    case "modules":
+      bin.category = I18n.t("modules");
+      break;
+    case "other":
+      bin.category = I18n.t("other");
+      break;
+    case "pages":
+      bin.category = I18n.t("pages");
+      break;
+    case "quizzes":
+      bin.category = I18n.t("quizzes");
+      break;
+  }
+}
+
 export default class CategorizedPageViews extends Base {
   // #
   // Takes an element and options, same as for Base. Recognizes the options
@@ -59,6 +103,9 @@ export default class CategorizedPageViews extends Base {
 
     // reduce the bins to the appropriate time scale
     let bins = participation.categoryBins
+
+    bins.forEach(bin => {internationalizeBin(bin)})
+
     if (this.sortBy === 'views' && bins.length > 0) {
       const maxViews = _.max(bins, b => b.views).views
       bins = _.sortBy(bins, b => [maxViews - b.views, b.category])
