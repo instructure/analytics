@@ -31,7 +31,7 @@ describe "analytics account view" do
   before (:each) do
     enable_analytics
     course_with_admin_logged_in.user
-    @course.update_attributes(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
+    @course.update(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
     @course.save!
   end
 

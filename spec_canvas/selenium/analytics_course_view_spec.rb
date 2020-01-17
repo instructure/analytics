@@ -38,7 +38,7 @@ describe "analytics course view" do
     enable_analytics
     enable_teacher_permissions
     course_with_teacher(active_all: true)
-    @course.update_attributes(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
+    @course.update(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
     @course.save!
     student_in_course(name: INITIAL_STUDENT_NAME, active_all: true)
   end

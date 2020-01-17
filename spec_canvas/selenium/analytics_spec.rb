@@ -119,7 +119,7 @@ describe "analytics" do
     before (:each) do
       enable_analytics
       @teacher = course_with_teacher_logged_in.user
-      @course.update_attributes(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
+      @course.update(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
       @course.save!
       add_students_to_course(1)
       @student = StudentEnrollment.last.user
