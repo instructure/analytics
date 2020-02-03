@@ -44,7 +44,7 @@ module Analytics
                     :"Analytics::Extensions::GradeCalculator",
                     method: :prepend)
     Autoextend.hook(:"Loaders::CourseStudentAnalyticsLoader",
-                    :"Analytics::Extensions::CourseStudentAnalyticsLoader",
+                    :"Analytics::Extensions::Graphql::CourseStudentAnalyticsLoader",
                     method: :prepend)
     Autoextend.hook(:Permissions, after_load: true) do
       ::Permissions.register :view_analytics,

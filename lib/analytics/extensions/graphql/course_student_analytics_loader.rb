@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-module Analytics::Extensions::CourseStudentAnalyticsLoader
+module Analytics::Extensions::Graphql::CourseStudentAnalyticsLoader
   def perform(users)
     course = Course.where(workflow_state: %w[available completed], id: @course_id).first
     if course &&
