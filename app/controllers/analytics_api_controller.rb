@@ -431,6 +431,7 @@ class AnalyticsApiController < ApplicationController
   #           2
   #       ],
   #       "submission": {
+  #         "posted_at": "2012-01-23T20:00:00-07:00",
   #         "submitted_at": "2012-01-22T22:00:00-07:00",
   #         "score": 10
   #       }
@@ -451,6 +452,7 @@ class AnalyticsApiController < ApplicationController
   #           1
   #       ],
   #       "submission": {
+  #         "posted_at": null,
   #         "submitted_at": "2012-01-22T22:00:00-07:00"
   #       }
   #     }

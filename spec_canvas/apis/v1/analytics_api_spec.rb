@@ -166,6 +166,7 @@ describe "Analytics API", :type => :request do
         "non_digital_submission" => false,
         "excused" => false,
         "submission" => {
+          "posted_at" => nil,
           "submitted_at" => @submitted_at.iso8601,
           "score" => 9
         }

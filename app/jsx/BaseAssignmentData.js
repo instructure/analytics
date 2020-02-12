@@ -18,7 +18,6 @@ export default class BaseAssignmentData extends BaseData {
       const assignment = {
         id: original.assignment_id,
         title: original.title,
-        muted: original.muted,
         original
       }
 
@@ -46,6 +45,9 @@ export default class BaseAssignmentData extends BaseData {
         if (original.submission.score != null) {
           assignment.studentScore = original.submission.score
         }
+        assignment.muted = assignment.studentScore != null && original.submission.posted_at == null
+      } else {
+        assignment.muted = original.muted
       }
 
       if (original.min_score != null) {

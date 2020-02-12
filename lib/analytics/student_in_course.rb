@@ -130,22 +130,19 @@ module Analytics
     end
 
     def extended_assignment_data(assignment, submissions)
-      if s = my_submission(submissions)
-        assignment_submission = AssignmentSubmission.new(assignment, s)
-        if s.excused?
-          return {:excused => true}
-        else
-          return {
-            :excused => false,
-            :submission => {
-              :score => muted(assignment) ? nil : s.score,
-              :submitted_at => assignment_submission.recorded_at
-            }
-          }
-        end
-      else
-        return {}
-      end
+      submission = my_submission(submissions)
+      return {} unless submission.present?
+      return { excused: true } if submission.excused?
+      assignment_submission = AssignmentSubmission.new(assignment, submission)
+
+      {
+        excused: false,
+        submission: {
+          posted_at: submission.posted_at,
+          score: muted(assignment) ? nil : submission.score,
+          submitted_at: assignment_submission.recorded_at
+        }
+      }
     end
 
     def allow_student_details?

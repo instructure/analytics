@@ -240,11 +240,12 @@ export default class Grades extends Base {
           I18n.t('Possible: %{score}', {score: I18n.n(assignment.pointsPossible)})
         )}`
       }
-    } else if (assignment.muted) {
-      tooltip += `<br/>${htmlEscape(I18n.t('(muted)'))}`
     } else if (assignment.studentScore != null && assignment.pointsPossible != null) {
       score = `${I18n.n(assignment.studentScore)} / ${I18n.n(assignment.pointsPossible)}`
       tooltip += `<br/>${htmlEscape(I18n.t('Score: %{score}', {score}))}`
+    }
+    if (assignment.muted) {
+      tooltip += `<br/>${htmlEscape(I18n.t('(hidden)'))}`
     }
 
     return $.raw(tooltip)
