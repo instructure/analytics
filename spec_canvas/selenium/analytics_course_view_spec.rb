@@ -17,8 +17,8 @@
 #
 
 require_relative '../../../../../spec/selenium/common'
-require_relative '../../../../../spec/selenium/grades/pages/gradezilla_page'
-require_relative '../../../../../spec/selenium/grades/pages/gradezilla_cells_page'
+require_relative '../../../../../spec/selenium/grades/pages/gradebook_page'
+require_relative '../../../../../spec/selenium/grades/pages/gradebook_cells_page'
 require_relative 'analytics_common'
 
 describe "analytics course view" do
@@ -176,8 +176,8 @@ describe "analytics course view" do
     before { preload_graphql_schema }
 
     it "should display context card content", priority: "1", test_id: 3109484 do
-      Gradezilla.visit(@course)
-      Gradezilla::Cells.student_cell_name_link(@student2).click
+      Gradebook.visit(@course)
+      Gradebook::Cells.student_cell_name_link(@student2).click
       expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student")
       expect(f(".StudentContextTray-Header__CourseName")).to include_text("Unnamed Course")
       expect(f("body")).to contain_jqcss(".StudentContextTray-Header__Content:contains(Section: Unnamed Course)")
@@ -196,11 +196,11 @@ describe "analytics course view" do
 
     it "should switch student displayed in tray", priority: "1", test_id: 3022079 do
       enable_cache do
-        Gradezilla.visit(@course)
-        Gradezilla::Cells.student_cell_name_link(@student1).click
+        Gradebook.visit(@course)
+        Gradebook::Cells.student_cell_name_link(@student1).click
         expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student")
-        Gradezilla::Cells.student_cell_name_link(@student2).click
-        Gradezilla::Cells.student_cell_name_link(@student2).click # first click closes the tray, second re-opens it
+        Gradebook::Cells.student_cell_name_link(@student2).click
+        Gradebook::Cells.student_cell_name_link(@student2).click # first click closes the tray, second re-opens it
         expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student2")
       end
     end
