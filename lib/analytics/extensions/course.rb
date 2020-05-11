@@ -22,9 +22,11 @@ module Analytics::Extensions::Course
     klass.has_many :page_views_rollups
 
     unless klass.instance_methods.include?(:recache_grade_distribution_without_send_later)
-      klass.handle_asynchronously_if_production :recache_grade_distribution,
+      klass.handle_asynchronously_if_production(:recache_grade_distribution,
                                                 singleton: proc { |c| "recache_grade_distribution:#{ c.global_id }" },
-                                                priority: 30
+                                                priority: 30,
+                                                on_conflict: :loose
+      )
     end
   end
 
