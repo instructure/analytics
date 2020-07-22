@@ -4,6 +4,7 @@
     'startDate' => @start_date,
     'endDate' => @end_date
   }
+  js_env[:context_asset_string] ||= @course&.asset_string
 
   @body_classes << 'full-width'
   add_crumb @course.short_name, url_for(@course)
