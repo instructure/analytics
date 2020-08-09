@@ -23,7 +23,7 @@ require_dependency 'analytics/fake_submission'
 module Analytics
   describe FakeSubmission do
     before(:once) do
-      @course = Course.create!
+      @course = ::Course.create!
       @student = @course.enroll_student(User.create!, enrollment_state: :active)
       @assignment = @course.assignments.create!(submission_types: "online_text_entry")
     end
