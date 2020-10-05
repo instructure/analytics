@@ -356,7 +356,6 @@ describe Analytics::Course do
       specs_require_sharding
 
       it "should work with the correct shard" do
-        allow(ActiveRecord::Base.connection).to receive(:use_qualified_names?).and_return(true)
         active_student
 
         @shard1.activate do

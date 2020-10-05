@@ -34,7 +34,7 @@ module Analytics
       Rails.cache.fetch(['analytics', cache_prefix, key].cache_key, :expires_in => Analytics::Base.cache_expiry) { yield }
     end
 
-    def slaved(opts={})
+    def secondaried(opts={})
       if opts[:cache_as]
         cache(opts[:cache_as]) { super() }
       else

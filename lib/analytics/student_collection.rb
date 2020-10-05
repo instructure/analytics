@@ -24,7 +24,7 @@ module Analytics
       @sort_strategy = SortStrategy::Default.new
       @formatter = nil
       @collection = PaginatedCollection.build do |pager|
-        pager = Analytics::Slave.slaved{ @sort_strategy.paginate(scope, pager) }
+        pager = Analytics::Slave.secondaried{ @sort_strategy.paginate(scope, pager) }
         pager.map!{ |student| @formatter.call(student) } if @formatter
         pager
       end

@@ -91,7 +91,7 @@ module Analytics::PageViewRoller
   #   - verbose [boolean or string]: print additional log lines if set to
   #     'flood'
   def self.start_day(opts={})
-    slaved do
+    secondaried do
       # Nov 2010 is just after the first page views in production cloud canvas.
       # if we go much later as the upper bound (in production canvas) the MIN
       # aggregate gets slow. if that's too early for other installs/shards
@@ -125,7 +125,7 @@ module Analytics::PageViewRoller
   #   - verbose [boolean or string]: print additional log lines if set to
   #     'flood'
   def self.end_day(opts={})
-    slaved do
+    secondaried do
       # find the oldest roll up on or after start_day. assume any days after that
       # have been completely rolled up. if none found, go through today (or
       # start_day if somehow after today)
@@ -172,7 +172,7 @@ module Analytics::PageViewRoller
       SUM(CAST(participated AND asset_user_access_id IS NOT NULL AS INTEGER)) AS participations
     SQL
 
-    rows = slaved { scope.to_a }
+    rows = secondaried { scope.to_a }
     rows.each do |row|
       # unpack the selected values
       course_id = row.context_id
@@ -189,7 +189,7 @@ module Analytics::PageViewRoller
     ActiveRecord::Base.logger
   end
 
-  def self.slaved
-    Shackles.activate(:slave) { yield }
+  def self.secondaried
+    GuardRail.activate(:secondary) { yield }
   end
 end

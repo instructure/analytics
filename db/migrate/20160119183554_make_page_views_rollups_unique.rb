@@ -4,9 +4,9 @@ class MakePageViewsRollupsUnique < ActiveRecord::Migration[4.2]
 
   def up
     scope = PageViewsRollup.select([:course_id, :date, :category]).group(:course_id, :date, :category).having("COUNT(*) > 1")
-    Shackles.activate(:slave) do
+    GuardRail.activate(:secondary) do
       scope.find_each do |dup|
-        Shackles.activate(:master) do
+        GuardRail.activate(:primary) do
           PageViewsRollup.where(course_id: dup.course_id, date: dup.date, category: dup.category).
             order(:id).offset(1).delete_all
         end

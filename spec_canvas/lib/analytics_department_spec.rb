@@ -117,7 +117,7 @@ describe Analytics::Department do
     let!(:now){ Time.zone.now }
 
     before do
-      allow(@acct_statistics).to receive(:slaved).and_return(nil)
+      allow(@acct_statistics).to receive(:secondaried).and_return(nil)
     end
 
     def check_clamps(start_at, end_at, expected_start_at = nil, expected_end_at = nil)

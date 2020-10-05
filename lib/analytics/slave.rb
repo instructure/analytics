@@ -18,12 +18,12 @@
 
 module Analytics
   module Slave
-    def self.slaved
-      Shackles.activate(:slave) { yield }
+    def self.secondaried
+      GuardRail.activate(:secondary) { yield }
     end
 
-    def slaved
-      Analytics::Slave.slaved{ yield }
+    def secondaried
+      Analytics::Slave.secondaried{ yield }
     end
   end
 end

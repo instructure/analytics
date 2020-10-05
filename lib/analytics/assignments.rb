@@ -33,7 +33,7 @@ module Analytics
     def assignments
       cache_array = [:assignments, allow_student_details?]
       cache_array << @current_user if differentiated_assignments_applies?
-      slaved(:cache_as => cache_array) do
+      secondaried(:cache_as => cache_array) do
         assignments = assignment_scope.to_a
         submissions = submissions(assignments).group_by { |s| s.assignment_id }
         assignment_ids = assignments.map(&:id)
@@ -60,7 +60,7 @@ module Analytics
         assignments.map do |assignment|
           # cache at this level, so that we cache for all sections and then
           # pick out the relevant sections from the cache below
-          rollups = slaved(:cache_as => [:assignment_rollups, assignment]) do
+          rollups = secondaried(:cache_as => [:assignment_rollups, assignment]) do
             AssignmentRollup.build(@course, assignment)
           end
           rollups = rollups.values_at(*section_ids).compact.reject { |r| r.total_submissions.zero? }

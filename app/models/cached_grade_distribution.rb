@@ -47,7 +47,7 @@ class CachedGradeDistribution < ActiveRecord::Base
 
   def grade_distribution_rows
     self.shard.activate do
-      Shackles.activate(:slave) do
+      GuardRail.activate(:secondary) do
         grade_distribution_sql = course.all_enrollments.
           joins("LEFT JOIN #{Score.quoted_table_name} scores on
               scores.enrollment_id = enrollments.id AND

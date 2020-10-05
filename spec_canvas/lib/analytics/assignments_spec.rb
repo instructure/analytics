@@ -182,7 +182,7 @@ module Analytics
       @current_user = user
     end
 
-    def slaved(options={}); yield; end
+    def secondaried(options={}); yield; end
   end
 
 end

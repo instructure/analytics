@@ -33,8 +33,8 @@ module Analytics
     end
 
     def enrollment
-      # not slaved or cached because it's pretty lightweight, we don't want
-      # it to depend on the slave being present, and the result depends on
+      # not secondaried or cached because it's pretty lightweight, we don't want
+      # it to depend on the secondary being present, and the result depends on
       # @current_user
       enrollment_scope.first
     end
@@ -52,7 +52,7 @@ module Analytics
       # TODO the javascript will break if this comes back nil, so we need a
       # sensible default. using "now" for the time being, but there's gotta be
       # something better
-      slaved(:cache_as => :start_date) do
+      secondaried(:cache_as => :start_date) do
         enrollment.effective_start_at || Time.zone.now
       end
     end
@@ -61,7 +61,7 @@ module Analytics
       # TODO ditto. "now" makes more sense this time, but it could also make
       # sense to go past "now" if the course has assignments due in the future,
       # for instance.
-      slaved(:cache_as => :end_date) do
+      secondaried(:cache_as => :end_date) do
         enrollment.effective_end_at || Time.zone.now
       end
     end
@@ -69,7 +69,7 @@ module Analytics
     include Analytics::Assignments
 
     def page_views
-      slaved(:cache_as => :page_views) do
+      secondaried(:cache_as => :page_views) do
         # convert non-string keys from time objects to iso8601 strings since we
         # don't want to use Time#to_s on the keys in Hash#to_json
         buckets = {}
@@ -82,7 +82,7 @@ module Analytics
     end
 
     def participations
-      slaved(:cache_as => :participations) do
+      secondaried(:cache_as => :participations) do
         PageView.participations_for_context(@course, @student)
       end
     end
@@ -91,7 +91,7 @@ module Analytics
       # count up the messages from those conversations authored by the student
       # or by an instructor, binned by day and whether it was the student or an
       # instructor that sent it
-      slaved(:cache_as => :messages) do
+      secondaried(:cache_as => :messages) do
         messages = {}
         unless shared_conversation_ids.empty?
           # TODO sharding
