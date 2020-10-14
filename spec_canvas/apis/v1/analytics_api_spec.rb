@@ -182,57 +182,59 @@ describe "Analytics API", :type => :request do
 
   context "course with multiple assignments and multiple students with scores" do
     before do
-      num_students = 5
-      num_assignments = 5
+      skip 'OREO-435 (10/14/2020)'
 
-      @students = []
-      @assignments = []
-      @outcomes = []
+      # num_students = 5
+      # num_assignments = 5
 
-      num_students.times {|u| @students << user_factory(active_all: true)}
+      # @students = []
+      # @assignments = []
+      # @outcomes = []
 
-      course_with_teacher(:active_all => true)
-      @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
+      # num_students.times {|u| @students << user_factory(active_all: true)}
 
-      @students.each {|s| @course.enroll_user(s, 'StudentEnrollment', :section => @section).accept!}
+      # course_with_teacher(:active_all => true)
+      # @default_section = @course.default_section
+      # @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
 
-      @due_time ||= Time.now.utc
+      # @students.each {|s| @course.enroll_user(s, 'StudentEnrollment', :section => @section).accept!}
 
-      num_assignments.times{|i| @assignments << Assignment.create!(
-          :title => "assignment #{i + 1}",
-          :context => @course,
-          :points_possible => 10 * (i+1),
-          :due_at => @due_time)}
+      # @due_time ||= Time.now.utc
 
-      @module = ContextModule.create!(name: "unnamed module", context: @course)
-      content_tag_params = {
-          content_type: 'Assignment',
-          context: @course,
-          content: @assignments[0],
-          tag_type: 'context_module'
-      }
-      @module.content_tags.create!(content_tag_params)
+      # num_assignments.times{|i| @assignments << Assignment.create!(
+      #     :title => "assignment #{i + 1}",
+      #     :context => @course,
+      #     :points_possible => 10 * (i+1),
+      #     :due_at => @due_time)}
 
-      for s_index in 0..(num_students - 1)
-        student = @students[s_index]
-        for a_index in 0..(num_assignments - 1)
-          assignment = @assignments[a_index]
-          @outcomes[a_index] = @course.created_learning_outcomes.create!(:short_description => 'outcome')
-          @tag = @outcomes[a_index].align(assignment, @course, :mastery_type => "points")
-          assignment.reload
-          grade = (10 * (a_index + 1)) - s_index * (a_index+1)
-          sub = assignment.grade_student(student, grade: grade, grader: @teacher).first
-          sub.submission_type = 'online_text_entry'
-          if a_index > 0
-            sub.submitted_at = @due_time - 3.hours + s_index.hours
-          end
-          if a_index < 4
-            sub.graded_at = @due_time + 6.days - a_index.days
-          end
-          sub.save!
-        end
-      end
+      # @module = ContextModule.create!(name: "unnamed module", context: @course)
+      # content_tag_params = {
+      #     content_type: 'Assignment',
+      #     context: @course,
+      #     content: @assignments[0],
+      #     tag_type: 'context_module'
+      # }
+      # @module.content_tags.create!(content_tag_params)
+
+      # for s_index in 0..(num_students - 1)
+      #   student = @students[s_index]
+      #   for a_index in 0..(num_assignments - 1)
+      #     assignment = @assignments[a_index]
+      #     @outcomes[a_index] = @course.created_learning_outcomes.create!(:short_description => 'outcome')
+      #     @tag = @outcomes[a_index].align(assignment, @course, :mastery_type => "points")
+      #     assignment.reload
+      #     grade = (10 * (a_index + 1)) - s_index * (a_index+1)
+      #     sub = assignment.grade_student(student, grade: grade, grader: @teacher).first
+      #     sub.submission_type = 'online_text_entry'
+      #     if a_index > 0
+      #       sub.submitted_at = @due_time - 3.hours + s_index.hours
+      #     end
+      #     if a_index < 4
+      #       sub.graded_at = @due_time + 6.days - a_index.days
+      #     end
+      #     sub.save!
+      #   end
+      # end
     end
 
     def response_assignment(json, assignment)
