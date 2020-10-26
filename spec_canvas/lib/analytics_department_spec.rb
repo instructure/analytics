@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-# encoding: utf-8
-
-#
 # Copyright (C) 2014 Instructure, Inc.
 #
 # This file is part of Canvas.
