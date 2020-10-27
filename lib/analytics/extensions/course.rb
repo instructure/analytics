@@ -31,7 +31,9 @@ module Analytics::Extensions::Course
     end
   end
 
-  def recache_grade_distribution
+  # allow kwargs, in case we're not production we still need to accept and ignore
+  # synchronous: true
+  def recache_grade_distribution(**)
     distribution = cached_grade_distribution
     return distribution.recalculate! if distribution
     Course.unique_constraint_retry do
