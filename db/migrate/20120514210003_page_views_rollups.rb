@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PageViewsRollups < ActiveRecord::Migration[4.2]
   tag :predeploy
 

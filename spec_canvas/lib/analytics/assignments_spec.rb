@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -182,7 +184,7 @@ module Analytics
       @current_user = user
     end
 
-    def slaved(options={}); yield; end
+    def secondaried(options={}); yield; end
   end
 
 end

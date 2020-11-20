@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -56,13 +58,8 @@ describe CoursesController, :type => :controller do
       expect_injection
     end
 
-    it "should not inject an analytics button if analytics 2.0 is present" do
-      Account.default.enable_feature!(:analytics_2)
-      expect(controller).to receive(:external_tools_display_hashes).and_return([{
-        tool_id: ContextExternalTool::ANALYTICS_2,
-        title: 'Analytics Beta',
-        base_url: 'https://example.com/foo'
-      }])
+    it "should not inject an analytics button if analytics 2.0 is enabled" do
+      @course.enable_feature!(:analytics_2)
       forbid_injection
     end
 

@@ -277,7 +277,7 @@ export default class AssignmentTardiness extends DateAlignedGraph {
       )}`
     }
     if (assignment.muted) {
-      tooltip += `<br/>${htmlEscape(I18n.t('Score: (muted)'))}`
+      tooltip += `<br/>${htmlEscape(I18n.t('Score: (hidden)'))}`
     } else if (assignment.studentScore != null) {
       tooltip += `<br/>${htmlEscape(
         I18n.t('Score: %{score}', {score: I18n.n(assignment.studentScore)})

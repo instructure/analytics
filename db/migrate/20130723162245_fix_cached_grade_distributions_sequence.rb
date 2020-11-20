@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FixCachedGradeDistributionsSequence < ActiveRecord::Migration[4.2]
   tag :postdeploy
 

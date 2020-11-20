@@ -14,5 +14,3 @@ redis.call('EXPIRE', lock_key, lock_time)
 if redis.call('EXISTS', in_progress_set_key) == 0 then
   redis.call('RENAMENX', set_key, in_progress_set_key)
 end
-
-return redis.call('SMEMBERS', in_progress_set_key)

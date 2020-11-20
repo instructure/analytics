@@ -107,18 +107,14 @@ export default class Grades extends Base {
   graphAssignment(assignment, i) {
     const x = this.binX(i)
 
-    if (assignment.muted) {
-      this.drawMutedAssignment(x)
-    } else {
-      if (assignment.scoreDistribution != null) {
-        this.drawWhisker(x, assignment)
-        this.drawBox(x, assignment)
-        this.drawMedian(x, assignment)
-      }
+    if (assignment.scoreDistribution != null) {
+      this.drawWhisker(x, assignment)
+      this.drawBox(x, assignment)
+      this.drawMedian(x, assignment)
+    }
 
-      if (assignment.studentScore != null) {
-        this.drawStudentScore(x, assignment)
-      }
+    if (assignment.studentScore != null) {
+      this.drawStudentScore(x, assignment)
     }
 
     return this.cover(x, assignment)
@@ -198,15 +194,6 @@ export default class Grades extends Base {
   }
 
   // #
-  // Draw a muted assignment indicator
-  drawMutedAssignment(x) {
-    const whisker = this.paper.rect(x, this.middle - this.height * 0.4, 1, this.height * 0.6)
-    whisker.attr({stroke: this.gridColor, fill: 'none'})
-    const dot = this.paper.circle(x, this.middle, this.barWidth / 4)
-    return dot.attr({stroke: this.gridColor, fill: this.gridColor})
-  }
-
-  // #
   // Create a tooltip for the assignment.
   cover(x, assignment) {
     return new Cover(this, {
@@ -253,11 +240,12 @@ export default class Grades extends Base {
           I18n.t('Possible: %{score}', {score: I18n.n(assignment.pointsPossible)})
         )}`
       }
-    } else if (assignment.muted) {
-      tooltip += `<br/>${htmlEscape(I18n.t('(muted)'))}`
     } else if (assignment.studentScore != null && assignment.pointsPossible != null) {
       score = `${I18n.n(assignment.studentScore)} / ${I18n.n(assignment.pointsPossible)}`
       tooltip += `<br/>${htmlEscape(I18n.t('Score: %{score}', {score}))}`
+    }
+    if (assignment.muted) {
+      tooltip += `<br/>${htmlEscape(I18n.t('(hidden)'))}`
     }
 
     return $.raw(tooltip)

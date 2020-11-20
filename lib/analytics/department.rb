@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -26,7 +28,7 @@ module Analytics
     end
 
     def dates
-      slaved(:cache_as => :dates) { @filter ? dates_for_filter(@filter) : dates_for_term(@term) }
+      secondaried(:cache_as => :dates) { @filter ? dates_for_filter(@filter) : dates_for_term(@term) }
     end
 
     def start_date
@@ -54,7 +56,7 @@ module Analytics
     end
 
     def participation_by_date
-      slaved(:cache_as => :participation_by_date) do
+      secondaried(:cache_as => :participation_by_date) do
         page_views_rollups.
           select("date, SUM(views) AS views, SUM(participations) AS participations").
           group(:date).
@@ -63,7 +65,7 @@ module Analytics
     end
 
     def participation_by_category
-      slaved(:cache_as => :participation_by_category) do
+      secondaried(:cache_as => :participation_by_category) do
         page_views_rollups.
           select("category, SUM(views) AS views").
           group(:category).
@@ -73,7 +75,7 @@ module Analytics
     end
 
     def grade_distribution
-      slaved(:cache_as => :grade_distribution) do
+      secondaried(:cache_as => :grade_distribution) do
         result = {}
         distribution = cached_grade_distribution
         (0..100).each{ |i| result[i] = distribution["s#{i}"] }
@@ -85,7 +87,7 @@ module Analytics
     # because the queries were too slow.  If we bring them back, we need to
     # find a way to make them performant.
     def statistics
-      slaved(:cache_as => :statistics) do
+      secondaried(:cache_as => :statistics) do
         {
           :courses => courses.distinct.count("courses.id"),
           :subaccounts => subaccounts.count,
@@ -102,7 +104,7 @@ module Analytics
     def statistics_by_subaccount
       # TODO: Determine proper counts if sections are crosslisted to a
       # different subaccounts
-      slaved(:cache_as => :statistics_by_subaccount) do
+      secondaried(:cache_as => :statistics_by_subaccount) do
         # TODO: y u no paginate?
         ([@account] + subaccounts).map do |a|
           {
@@ -233,7 +235,7 @@ module Analytics
       select << 'MIN(courses.created_at) AS created_at' unless start_at
       select << 'MAX(courses.conclude_at) AS conclude_at' unless end_at
       unless select.empty?
-        if dates = slaved{ ActiveRecord::Base.connection.select_all(courses.select(select)).to_a.first }
+        if dates = secondaried{ ActiveRecord::Base.connection.select_all(courses.select(select)).to_a.first }
           start_at ||= parse_utc_time(dates['created_at'])
           end_at ||= parse_utc_time(dates['conclude_at'])
         end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 CanvasRails::Application.routes.draw do
   # common path strings
   department_path = 'accounts/:account_id/analytics'

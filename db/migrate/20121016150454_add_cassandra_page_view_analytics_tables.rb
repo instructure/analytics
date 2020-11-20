@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddCassandraPageViewAnalyticsTables < ActiveRecord::Migration[4.2]
   tag :predeploy
 

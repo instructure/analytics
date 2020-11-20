@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -22,7 +24,7 @@ module Analytics
 
     SUBMISSION_COLUMNS_SELECT = [:id, :assignment_id, :score, :user_id, :submission_type,
             :submitted_at, :grade, :graded_at, :updated_at, :workflow_state, :cached_due_date, :excused,
-            :late_policy_status, :cached_quiz_lti]
+            :late_policy_status, :cached_quiz_lti, :posted_at]
 
     [:accepted_at, :seconds_late_override].each do |column|
       # this is temporary and will be cleaned up once the commit lands in canvas
@@ -33,7 +35,7 @@ module Analytics
     def assignments
       cache_array = [:assignments, allow_student_details?]
       cache_array << @current_user if differentiated_assignments_applies?
-      slaved(:cache_as => cache_array) do
+      secondaried(:cache_as => cache_array) do
         assignments = assignment_scope.to_a
         submissions = submissions(assignments).group_by { |s| s.assignment_id }
         assignment_ids = assignments.map(&:id)
@@ -60,7 +62,7 @@ module Analytics
         assignments.map do |assignment|
           # cache at this level, so that we cache for all sections and then
           # pick out the relevant sections from the cache below
-          rollups = slaved(:cache_as => [:assignment_rollups, assignment]) do
+          rollups = secondaried(:cache_as => [:assignment_rollups, assignment]) do
             AssignmentRollup.build(@course, assignment)
           end
           rollups = rollups.values_at(*section_ids).compact.reject { |r| r.total_submissions.zero? }

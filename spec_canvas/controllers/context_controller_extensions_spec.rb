@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -72,16 +74,10 @@ describe ContextController, :type => :controller do
 
     context "analytics 2 enabled" do
       before :once do
-        Account.default.enable_feature!(:analytics_2)
+        @course.enable_feature!(:analytics_2)
       end
 
-      it "does not inject an analytics button when analytics 2 is present" do
-        expect(controller).to receive(:external_tools_display_hashes).and_return([{
-          tool_id: ContextExternalTool::ANALYTICS_2,
-          title: 'Analytics Beta',
-          base_url: 'https://example.com/foo'
-        }])
-
+      it "does not inject an analytics button" do
         forbid_injection(@course, @student1)
       end
     end

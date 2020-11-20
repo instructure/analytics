@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddBackDefaultStringLimitsAnalytics < ActiveRecord::Migration[4.2]
   tag :postdeploy
 

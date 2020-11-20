@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -21,14 +23,17 @@ module Analytics::Extensions::Course
     klass.has_one :cached_grade_distribution
     klass.has_many :page_views_rollups
 
-    unless klass.instance_methods.include?(:recache_grade_distribution_without_send_later)
-      klass.handle_asynchronously_if_production :recache_grade_distribution,
-                                                singleton: proc { |c| "recache_grade_distribution:#{ c.global_id }" },
-                                                priority: 30
+    if Rails.env.production?
+      klass.handle_asynchronously(:recache_grade_distribution,
+                                  singleton: proc { |c| "recache_grade_distribution:#{ c.global_id }" },
+                                  priority: 30,
+                                  on_conflict: :loose)
     end
   end
 
-  def recache_grade_distribution
+  # allow kwargs, in case we're not production we still need to accept and ignore
+  # synchronous: true
+  def recache_grade_distribution(**)
     distribution = cached_grade_distribution
     return distribution.recalculate! if distribution
     Course.unique_constraint_retry do
