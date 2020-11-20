@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -20,7 +22,7 @@ module Analytics::GradeDistributionCacher
   def self.recache_grade_distributions
     Course.find_ids_in_batches do |ids|
       Course.select(:id).where(:id => ids).each do |course|
-        course.recache_grade_distribution_without_send_later
+        course.recache_grade_distribution(synchronous: true)
       end
     end
   end

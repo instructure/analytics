@@ -4,6 +4,7 @@
     'filters' => @filters,
     'filter' => @filter || @term.id
   }
+  js_env[:context_asset_string] ||= @account&.asset_string
 
   css_bundle :analytics, :plugin => :analytics
   js_bundle :department, :plugin => :analytics

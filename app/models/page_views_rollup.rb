@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -145,7 +147,8 @@ class PageViewsRollup < ActiveRecord::Base
     begin
       # we grab all the keys up front, because redis lua scripts aren't allowed
       # to call the SPOP command (it's non-deterministic).
-      keys = lua_run(:process_setup, [in_progress_set_key, lock_key, lock_time])
+      lua_run(:process_setup, [in_progress_set_key, lock_key, lock_time])
+      keys = self.redis.smembers(in_progress_set_key)
     rescue => e
       # An error here likely means that the original key does not exist,
       # so there is no work to do.
@@ -200,6 +203,12 @@ class PageViewsRollup < ActiveRecord::Base
   def self.lua_run(script_name, args)
     @lua ||= ::Redis::Scripting::Module.new(nil, File.join(File.dirname(__FILE__), "../lua/page_views_rollup"))
     @lua.run(script_name, [page_views_rollup_keys_set_key], args, Canvas.redis)
+  end
+
+  def self.redis
+    redis = Canvas.redis
+    redis = redis.node_for(page_views_rollup_keys_set_key) if redis.is_a?(Redis::Distributed)
+    redis
   end
 
   def self.page_views_rollup_key_from_course_id(course)

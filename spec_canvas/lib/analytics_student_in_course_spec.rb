@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -39,16 +41,18 @@ module Analytics
     describe "#extended_assignment_data" do
       let(:analytics) { StudentInCourse.new(@teacher, @course, @student) }
       let(:time1) { Time.local(2012, 10, 1) }
+      let(:time_posted) { Time.local(2022, 10, 1) }
 
       it "has a :submission field" do
         assignment = double('assignment')
-        subm = double('subm', :user_id => @student.id, :score => 10, :submitted_at => time1, :missing? => false, :excused? => false)
+        subm = double('subm', user_id: @student.id, score: 10, submitted_at: time1, posted_at: time_posted, missing?: false, excused?: false)
         data = analytics.extended_assignment_data(assignment, [subm])
         expect(data).to eq({
-          :excused => false,
-          :submission => {
-            :score => 10,
-            :submitted_at => time1
+          excused: false,
+          submission: {
+            posted_at: time_posted,
+            score: 10,
+            submitted_at: time1
           }
         })
       end

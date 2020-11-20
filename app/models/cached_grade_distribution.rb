@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -47,13 +49,13 @@ class CachedGradeDistribution < ActiveRecord::Base
 
   def grade_distribution_rows
     self.shard.activate do
-      Shackles.activate(:slave) do
+      GuardRail.activate(:secondary) do
         grade_distribution_sql = course.all_enrollments.
           joins("LEFT JOIN #{Score.quoted_table_name} scores on
               scores.enrollment_id = enrollments.id AND
               scores.grading_period_id IS NULL AND
               scores.workflow_state <> 'deleted'").
-          select("COUNT(DISTINCT user_id) AS user_count, ROUND(scores.current_score) AS score").
+          select("COUNT(DISTINCT enrollments.user_id) AS user_count, ROUND(scores.current_score) AS score").
           where(workflow_state: [:active, :completed], type: "StudentEnrollment").
           group('score').
           to_sql

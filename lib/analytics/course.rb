@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -28,13 +30,13 @@ module Analytics
     end
 
     def available?
-      # not slaved because it's pretty lightweight and we don't want it to
-      # depend on the slave being present
+      # not secondaried because it's pretty lightweight and we don't want it to
+      # depend on the secondary being present
       cache(:available) { enrollment_scope.exists? }
     end
 
     def enrollments
-      @enrollments ||= slaved do
+      @enrollments ||= secondaried do
         rows = enrollment_scope.to_a
         ActiveRecord::Associations::Preloader.new.preload(rows, [ :course_section, {:course => :enrollment_term} ])
         rows
@@ -45,7 +47,7 @@ module Analytics
       # TODO the javascript will break if this comes back nil, so we need a
       # sensible default. using "now" for the time being, but there's gotta be
       # something better
-      slaved(:cache_as => :start_date) do
+      secondaried(:cache_as => :start_date) do
         [
             enrollment_scope.minimum(:start_at),
             @course.sections_visible_to(@current_user).minimum(:start_at),
@@ -63,7 +65,7 @@ module Analytics
       # TODO ditto. "now" makes more sense this time, but it could also make
       # sense to go past "now" if the course has assignments due in the future,
       # for instance.
-      slaved(:cache_as => :end_date) do
+      secondaried(:cache_as => :end_date) do
         [
             enrollment_scope.maximum(:end_at),
             @course.sections_visible_to(@current_user).maximum(:end_at),
@@ -75,18 +77,18 @@ module Analytics
     end
 
     def students
-      slaved(:cache_as => :students) { student_scope.order_by_sortable_name.to_a }
+      secondaried(:cache_as => :students) { student_scope.order_by_sortable_name.to_a }
     end
 
     def student_ids
-      slaved(:cache_as => :student_ids) do
+      secondaried(:cache_as => :student_ids) do
         # id of any user with an enrollment, order unimportant
         enrollment_scope.distinct.pluck(:user_id)
       end
     end
 
     def participation
-      slaved(:cache_as => :participation) do
+      secondaried(:cache_as => :participation) do
         @course.page_views_rollups.
           select("date, SUM(views) AS views, SUM(participations) AS participations").
           group(:date).
@@ -142,13 +144,13 @@ module Analytics
     end
 
     def page_views_by_student
-      slaved(:cache_as => :page_views_by_student) do
+      secondaried(:cache_as => :page_views_by_student) do
         PageView.counters_by_context_for_users(@course, student_ids)
       end
     end
 
     def page_view_analysis(page_view_counts)
-      slaved(:cache_as => :page_view_analysis) do
+      secondaried(:cache_as => :page_view_analysis) do
         PageViewAnalysis.new( page_view_counts ).hash
       end
     end
@@ -199,7 +201,7 @@ module Analytics
     def raw_assignments
       cache_array = [:raw_assignments]
       cache_array << @current_user if differentiated_assignments_applies?
-      slaved(:cache_as => cache_array) do
+      secondaried(:cache_as => cache_array) do
         assignment_scope.to_a
       end
     end
@@ -208,7 +210,7 @@ module Analytics
       @course.shard.activate do
         cache_array = [:tardiness_breakdowns]
         cache_array << @current_user if differentiated_assignments_applies?
-        @tardiness_breakdowns ||= slaved(:cache_as => cache_array) do
+        @tardiness_breakdowns ||= secondaried(:cache_as => cache_array) do
           # initialize breakdown tallies
           breakdowns = {
             assignments: Hash[raw_assignments.map{ |a| [a.id, TardinessBreakdown.new] }],

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -75,7 +77,7 @@ module Analytics
         progress = Progress.create!(
           :context => @course,
           :tag => tag) { |p| p.cache_key_context = assignments_cache_key }
-        progress.process_job(self, :assignments)
+        progress.process_job(self, :assignments, {})
       end
       return progress
     end

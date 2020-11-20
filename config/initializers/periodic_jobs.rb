@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -18,7 +20,7 @@
 
 Delayed::Periodic.cron 'PageViewsRollup.process_cached_rollups', '* * * * *' do
   Shard.with_each_shard(exception: :ignore) do
-    PageViewsRollup.send_later_enqueue_args(:process_cached_rollups,
-      :singleton => "PageViewsRollup.process_cached_rollups:#{Shard.current.id}")
+    PageViewsRollup.delay(singleton: "PageViewsRollup.process_cached_rollups:#{Shard.current.id}").
+      process_cached_rollups
   end
 end

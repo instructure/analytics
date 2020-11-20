@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright (C) 2014 Instructure, Inc.
 #
@@ -44,7 +46,7 @@ module Analytics
                     :"Analytics::Extensions::GradeCalculator",
                     method: :prepend)
     Autoextend.hook(:"Loaders::CourseStudentAnalyticsLoader",
-                    :"Analytics::Extensions::CourseStudentAnalyticsLoader",
+                    :"Analytics::Extensions::Graphql::CourseStudentAnalyticsLoader",
                     method: :prepend)
     Autoextend.hook(:Permissions, after_load: true) do
       ::Permissions.register :view_analytics,

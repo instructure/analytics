@@ -283,3 +283,59 @@ test('colors', function() {
 
   clock.restore()
 })
+
+QUnit.module('Assignment tooltip', hooks => {
+  let $el
+  let tardinessGraph
+  let oldRaw
+
+  hooks.beforeEach(() => {
+    const startDate = new Date(2022, 0, 1)
+    const endDate = startDate.clone().addDays(5)
+
+    // $.raw may or may not be defined at this point, depending on whether
+    // we're running these tests as part of Canvas. Make sure there's something
+    // here regardless.
+    oldRaw = $.raw
+    $.raw = string => string
+
+    $el = $("<div id='tardiness-graph'/>")
+    tardinessGraph = new AssignmentTardiness($el, {
+      endDate,
+      height: 100,
+      margin: 0,
+      padding: 0,
+      startDate,
+      width: 100
+    })
+  })
+
+  hooks.afterEach(() => {
+    $.raw = oldRaw
+  })
+
+  test('includes the title of the assignment', () => {
+    const assignment = {
+      title: 'my assignment'
+    }
+    ok(tardinessGraph.tooltip(assignment).includes('my assignment'))
+  })
+
+  test('indicates that the score is hidden if "muted" is true', () => {
+    const assignment = {
+      muted: true,
+      studentScore: 10,
+      title: 'my assignment'
+    }
+    ok(tardinessGraph.tooltip(assignment).includes('Score: (hidden)'))
+  })
+
+  test('displays the student score if a score exists', () => {
+    const assignment = {
+      muted: false,
+      studentScore: 10,
+      title: 'my assignment'
+    }
+    ok(tardinessGraph.tooltip(assignment).includes('Score: 10'))
+  })
+})
