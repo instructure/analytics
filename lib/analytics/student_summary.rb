@@ -64,7 +64,8 @@ module Analytics
     end
 
     def tardiness_breakdown
-      @course.tardiness_breakdowns[:students][@student.id].as_hash
+      breakdown = @course.tardiness_breakdowns[:students][@student.id]
+      breakdown.nil? ? {} : breakdown.as_hash
     end
 
     def level(n, quartiles)
