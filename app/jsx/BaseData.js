@@ -1,6 +1,6 @@
 import $ from 'jquery'
-import ProgressModel from 'compiled/models/ContentMigrationProgress'
-import 'jquery.ajaxJSON'
+import ProgressModel from '@canvas/content-migrations/backbone/models/ContentMigrationProgress.coffee'
+import '@canvas/jquery/jquery.ajaxJSON'
 
 // #
 // Base class for all the analytics data models. Performs an AJAX GET of a url

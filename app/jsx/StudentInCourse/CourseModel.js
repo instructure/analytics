@@ -1,4 +1,4 @@
-import Backbone from 'Backbone'
+import Backbone from '@canvas/backbone'
 import StudentCollection from '../StudentInCourse/StudentCollection'
 
 export default class CourseModel extends Backbone.Model {

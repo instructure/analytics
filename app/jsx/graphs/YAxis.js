@@ -1,4 +1,4 @@
-import I18n from 'i18nObj'
+import I18n from '@canvas/i18n'
 
 export default class YAxis {
   constructor(host, opts = {}) {

@@ -1,4 +1,4 @@
-import Backbone from 'Backbone'
+import Backbone from '@canvas/backbone'
 
 export default class StudentSummaryModel extends Backbone.Model {}
 

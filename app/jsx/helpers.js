@@ -1,6 +1,6 @@
 import $ from 'jquery'
 import I18n from 'i18n!analytics'
-import 'vendor/date'
+import 'date'
 
 // returns midnight for the given datetime. with mode 'floor' (the default)
 // it's the nearest preceding (or equal) midnight. with mode 'ceil' it's the
