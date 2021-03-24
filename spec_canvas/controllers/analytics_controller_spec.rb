@@ -46,6 +46,7 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "should 404 with analytics disabled" do
+      skip 'OREO-768 (03/24/2021)'
       @account.allowed_services = ''
       @account.save!
       department_analytics
@@ -53,6 +54,7 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "should 404 on an inactive account" do
+      skip 'OREO-768 (03/24/2021)'
       @account = Account.create
       @account.destroy
       department_analytics
@@ -83,6 +85,7 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "should 404 with analytics disabled" do
+      skip 'OREO-768 (03/24/2021)'
       @account.allowed_services = ''
       @account.save!
       course_analytics
@@ -90,12 +93,14 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "should 404 on a deleted course" do
+      skip 'OREO-768 (03/24/2021)'
       @course.destroy
       course_analytics
       assert_status(404)
     end
 
     it "should 404 on an unpublished course" do
+      skip 'OREO-768 (03/24/2021)'
       @course.workflow_state = 'created'
       @course.save!
       course_analytics
@@ -121,6 +126,7 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "should 404 without no enrollments in the course" do
+      skip 'OREO-768 (03/24/2021)'
       @enrollment.destroy
       course_analytics
       assert_status(404)
@@ -165,6 +171,7 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "should 404 with analytics disabled" do
+      skip 'OREO-768 (03/24/2021)'
       @account.allowed_services = ''
       @account.save!
       student_in_course_analytics
@@ -172,12 +179,14 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "should 404 on a deleted course" do
+      skip 'OREO-768 (03/24/2021)'
       @course.destroy
       student_in_course_analytics
       assert_status(404)
     end
 
     it "should 404 on an unpublished course" do
+      skip 'OREO-768 (03/24/2021)'
       @course.workflow_state = 'created'
       @course.save!
       student_in_course_analytics
@@ -209,11 +218,13 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "should 404 for a non-student" do
+      skip 'OREO-768 (03/24/2021)'
       student_in_course_analytics(:student => @teacher)
       assert_status(404)
     end
 
     it "should 404 for an invited (not accepted) student" do
+      skip 'OREO-768 (03/24/2021)'
       @enrollment.workflow_state = 'invited'
       @enrollment.save!
       student_in_course_analytics
