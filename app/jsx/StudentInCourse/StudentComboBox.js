@@ -1,4 +1,4 @@
-import ComboBox from 'compiled/widget/ComboBox'
+import ComboBox from '@canvas/combo-box'
 import StudentInCourseRouter from '../StudentInCourse/StudentInCourseRouter'
 
 // #

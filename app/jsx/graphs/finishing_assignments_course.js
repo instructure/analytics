@@ -4,7 +4,7 @@ import Cover from '../graphs/cover'
 import ScaleByBins from '../graphs/ScaleByBins'
 import YAxis from '../graphs/YAxis'
 import I18n from 'i18n!finishing_assignments'
-import htmlEscape from 'str/htmlEscape'
+import htmlEscape from 'html-escape'
 
 // #
 // FinishingAssignmentCourse visualizes the proportion of students that are

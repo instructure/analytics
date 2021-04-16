@@ -1,6 +1,6 @@
 import Binner from '../graphs/Binner'
 import helpers from '../helpers'
-import I18n from 'i18nObj'
+import I18n from '@canvas/i18n'
 
 export default class DayBinner extends Binner {
   // #

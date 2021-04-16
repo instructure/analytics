@@ -1,4 +1,4 @@
-import ComboBox from 'compiled/widget/ComboBox'
+import ComboBox from '@canvas/combo-box'
 import DepartmentRouter from '../Department/DepartmentRouter'
 
 export default class DepartmentFilterBox extends ComboBox {

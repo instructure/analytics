@@ -1,4 +1,4 @@
-import Backbone from 'Backbone'
+import Backbone from '@canvas/backbone'
 import helpers from '../helpers'
 import AccountModel from '../Department/AccountModel'
 import FilterCollection from '../Department/FilterCollection'
