@@ -3,7 +3,7 @@ import DateAlignedGraph from '../graphs/DateAlignedGraph'
 import Cover from '../graphs/cover'
 import helpers from '../helpers'
 import I18n from 'i18n!time'
-import htmlEscape from 'str/htmlEscape'
+import htmlEscape from 'html-escape'
 
 // #
 // AssignmentTardiness visualizes the student's ability to turn in assignments

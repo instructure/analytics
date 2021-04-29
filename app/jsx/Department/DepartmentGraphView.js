@@ -1,4 +1,4 @@
-import Backbone from 'Backbone'
+import Backbone from '@canvas/backbone'
 import _ from 'underscore'
 import React from 'react'
 import template from '../../views/jst/department_graphs.handlebars'

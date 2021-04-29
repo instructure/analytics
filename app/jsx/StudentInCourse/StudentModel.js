@@ -1,4 +1,4 @@
-import Backbone from 'Backbone'
+import Backbone from '@canvas/backbone'
 import ParticipationData from '../StudentInCourse/ParticipationData'
 import MessagingData from '../StudentInCourse/MessagingData'
 import AssignmentData from '../StudentInCourse/AssignmentData'

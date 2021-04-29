@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import htmlEscape from 'str/htmlEscape'
+import htmlEscape from 'html-escape'
 
 // #
 // Global shared tooltip elements. The $tooltip will be reused by each Tooltip

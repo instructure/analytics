@@ -1,6 +1,6 @@
 import $ from 'jquery'
 import _ from 'underscore'
-import Backbone from 'Backbone'
+import Backbone from '@canvas/backbone'
 import template from '../../views/jst/course_student_summary.handlebars'
 
 export default class StudentSummaryView extends Backbone.View {

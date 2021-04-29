@@ -1,5 +1,5 @@
 import graphael from 'graphael'
-import 'jquery.disableWhileLoading'
+import '@canvas/jquery/jquery.disableWhileLoading'
 
 // #
 // Base class for all the analytics graphs (actual displayed graphs, not

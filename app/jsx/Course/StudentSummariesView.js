@@ -1,5 +1,5 @@
 import I18n from 'i18n!student_summary'
-import PaginatedView from 'compiled/views/PaginatedView'
+import PaginatedView from '@canvas/pagination/backbone/views/PaginatedView.coffee'
 import StudentSummaryView from '../Course/StudentSummaryView'
 
 export default class StudentSummariesView extends PaginatedView {

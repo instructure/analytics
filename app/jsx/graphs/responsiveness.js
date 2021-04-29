@@ -1,9 +1,9 @@
 import _ from 'underscore'
 import DateAlignedGraph from '../graphs/DateAlignedGraph'
 import Cover from '../graphs/cover'
-import {delimit} from 'compiled/str/TextHelper'
+import {delimit} from '@canvas/util/TextHelper.coffee'
 import I18n from 'i18n!responsiveness'
-import htmlEscape from 'str/htmlEscape'
+import htmlEscape from 'html-escape'
 
 // #
 // Responsiveness visualizes the student's communication frequency with the

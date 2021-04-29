@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import PaginatedCollection from 'compiled/collections/PaginatedCollection'
+import PaginatedCollection from '@canvas/pagination/backbone/collections/PaginatedCollection.coffee'
 import StudentSummaryModel from '../Course/StudentSummaryModel'
 
 export default class StudentSummaryCollection extends PaginatedCollection {

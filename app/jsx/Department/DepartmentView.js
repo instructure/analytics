@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import Backbone from 'Backbone'
+import Backbone from '@canvas/backbone'
 import template from '../../views/jst/department.handlebars'
 import DepartmentFilterBox from '../Department/DepartmentFilterBox'
 import DepartmentGraphView from '../Department/DepartmentGraphView'

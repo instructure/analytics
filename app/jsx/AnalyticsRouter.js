@@ -1,4 +1,4 @@
-import Backbone from 'Backbone'
+import Backbone from '@canvas/backbone'
 
 // #
 // Handles combobox-based ajax routing on analytics pages.

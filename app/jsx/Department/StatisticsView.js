@@ -1,6 +1,6 @@
-import Backbone from 'Backbone'
+import Backbone from '@canvas/backbone'
 import template from '../../views/jst/department_statistics.handlebars'
-import 'jquery.disableWhileLoading'
+import '@canvas/jquery/jquery.disableWhileLoading'
 
 export default class StatisticsView extends Backbone.View {
   initialize() {
