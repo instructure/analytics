@@ -177,9 +177,9 @@ module Analytics
     end
 
     def self.submission_scope_for(assignments)
-      Submission.
-        select(Analytics::Assignments::SUBMISSION_COLUMNS_SELECT).
-        where(:assignment_id => assignments)
+      Submission.active
+        .select(Analytics::Assignments::SUBMISSION_COLUMNS_SELECT)
+        .where(assignment_id: assignments)
     end
 
     def student_scope

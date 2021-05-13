@@ -407,6 +407,14 @@ describe Analytics::Course do
         expect(@teacher_analytics.assignments.first[:min_score]).to be_nil
       end
     end
+
+    describe "Validations" do
+      it "should not include submissions with workflow_state deleted" do
+        active_student
+        @assignment.submissions.find_or_create_by!(user: @student).update! workflow_state: 'deleted'
+        expect(Analytics::Course.submission_scope_for([@assignment])).to be_empty
+      end
+    end
   end
 
   describe "student_scope" do
