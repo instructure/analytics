@@ -166,7 +166,6 @@ describe "analytics course view" do
       @enrollment = student_in_course(course: @course, name: 'initial test student2', active_all: true)
       @enrollment.update_attribute(:last_activity_at, Time.zone.now)
       @student2 = @student
-      @account.enable_feature!(:student_context_cards)
       Timecop.freeze(1.day.ago) do
         3.times { page_view(:user => @student1, :course => @course, :participated => true) }
         3.times { page_view(:user => @student2, :course => @course, :participated => true) }
