@@ -142,7 +142,7 @@ module Analytics::PageViewIndex
   module DB
     def self.scope_for_context_and_user(context, user)
       contexts = [context] + user.group_memberships_for(context).to_a
-      PageView.for_users([user]).polymorphic_where(:context => contexts)
+      PageView.for_users([user]).where(context: contexts)
     end
 
     def self.participations_for_context(context, user)
@@ -181,13 +181,13 @@ module Analytics::PageViewIndex
 
       context.shard.activate do
         contexts = [context] + context.groups.to_a
-        PageView.for_users(id_map.keys).polymorphic_where(:context => contexts).group(:user_id).count.each do |relative_user_id,count|
+        PageView.for_users(id_map.keys).where(context: contexts).group(:user_id).count.each do |relative_user_id,count|
           if id = id_map[relative_user_id]
             counters[id][:page_views] = count
           end
         end
 
-        AssetUserAccess.participations.polymorphic_where(:context => contexts).for_user(id_map.keys).group(:user_id).count.each do |relative_user_id, count|
+        AssetUserAccess.participations.where(context: contexts).for_user(id_map.keys).group(:user_id).count.each do |relative_user_id, count|
           if id = id_map[relative_user_id]
             counters[id][:participations] = count
           end
