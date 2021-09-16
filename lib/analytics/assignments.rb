@@ -94,7 +94,7 @@ module Analytics
     end
 
     def self.differentiated_assignments_applies?(course, user)
-      !course.grants_any_right?(user, :read_as_admin, :manage_grades, :manage_assignments)
+      !course.grants_any_right?(user, :read_as_admin, :manage_grades, *RoleOverride::GRANULAR_MANAGE_ASSIGNMENT_PERMISSIONS)
     end
 
     def assignment_data(assignment, submissions, course_module_tags_hash=nil)
