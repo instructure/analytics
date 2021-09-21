@@ -45,7 +45,7 @@ describe Analytics::StudentCollection do
 
   describe "#format" do
     it "should set the formatter" do
-      formatter = proc{}
+      formatter = proc {}
       collection = Analytics::StudentCollection.new(User)
       collection.format(&formatter)
       expect(collection.formatter).to eq formatter
@@ -70,12 +70,12 @@ describe Analytics::StudentCollection do
     it "should use the specified sort strategy" do
       collection = Analytics::StudentCollection.new(User.active)
       collection.sort_by(:page_views, :page_view_counts => {
-        @users[0].id => { :page_views => 40, :participations => 10 },
-        @users[1].id => { :page_views => 20, :participations => 10 },
-        @users[2].id => { :page_views => 60, :participations => 10 },
-      })
+                           @users[0].id => { :page_views => 40, :participations => 10 },
+                           @users[1].id => { :page_views => 20, :participations => 10 },
+                           @users[2].id => { :page_views => 60, :participations => 10 },
+                         })
       students = collection.paginate(:page => 1, :per_page => 3)
-      expect(students).to eq [1, 0, 2].map{ |i| @users[i] }
+      expect(students).to eq [1, 0, 2].map { |i| @users[i] }
     end
 
     it "should pass the results through the formatter" do
@@ -118,7 +118,7 @@ describe Analytics::StudentCollection do
       it 'should handle accidental pagination past the end' do
         @pager.current_page = @users.size + 1
         @pager.per_page = 1
-        expect{ @strategy.paginate(@scope, @pager) }.to raise_error Folio::InvalidPage
+        expect { @strategy.paginate(@scope, @pager) }.to raise_error Folio::InvalidPage
       end
 
       it 'should return a WillPaginate-style object' do
@@ -137,7 +137,7 @@ describe Analytics::StudentCollection do
         @scope = User.active
         @strategy = Analytics::StudentCollection::SortStrategy::ByName.new
         @reverse_strategy = Analytics::StudentCollection::SortStrategy::ByName.new(:descending)
-        @expected_sort = [1, 0, 2].map{ |i| @users[i] }
+        @expected_sort = [1, 0, 2].map { |i| @users[i] }
       end
 
       include_examples "paginated sort strategy"
@@ -154,14 +154,14 @@ describe Analytics::StudentCollection do
           end
         end
 
-        @scope = User.active.joins(:enrollments).
-          joins("LEFT JOIN #{Score.quoted_table_name} scores ON
+        @scope = User.active.joins(:enrollments)
+                     .joins("LEFT JOIN #{Score.quoted_table_name} scores ON
                 scores.enrollment_id = enrollments.id AND
                 scores.grading_period_id IS NULL AND
                 scores.workflow_state <> 'deleted'")
         @strategy = Analytics::StudentCollection::SortStrategy::ByScore.new
         @reverse_strategy = Analytics::StudentCollection::SortStrategy::ByScore.new(:descending)
-        @expected_sort = [2, 1, 0, 3].map{ |i| @users[i] }
+        @expected_sort = [2, 1, 0, 3].map { |i| @users[i] }
       end
 
       include_examples "paginated sort strategy"
@@ -177,7 +177,7 @@ describe Analytics::StudentCollection do
         @scope = User.active
         @strategy = Analytics::StudentCollection::SortStrategy::ByPageViews.new(page_view_counts)
         @reverse_strategy = Analytics::StudentCollection::SortStrategy::ByPageViews.new(page_view_counts, :descending)
-        @expected_sort = [1, 0, 2].map{ |i| @users[i] }
+        @expected_sort = [1, 0, 2].map { |i| @users[i] }
       end
 
       include_examples "paginated sort strategy"
@@ -192,8 +192,9 @@ describe Analytics::StudentCollection do
         }
         @scope = User.active
         @strategy = Analytics::StudentCollection::SortStrategy::ByParticipations.new(page_view_counts)
-        @reverse_strategy = Analytics::StudentCollection::SortStrategy::ByParticipations.new(page_view_counts, :descending)
-        @expected_sort = [1, 0, 2].map{ |i| @users[i] }
+        @reverse_strategy = Analytics::StudentCollection::SortStrategy::ByParticipations.new(page_view_counts,
+                                                                                             :descending)
+        @expected_sort = [1, 0, 2].map { |i| @users[i] }
       end
 
       include_examples "paginated sort strategy"
@@ -293,7 +294,8 @@ describe Analytics::StudentCollection do
       it "should pass :page_view_counts to ByParticipations" do
         id = 5
         page_view_counts = { id => { :page_views => 0, :participations => 0 } }
-        strategy = Analytics::StudentCollection::SortStrategy.for(:participations, :page_view_counts => page_view_counts)
+        strategy = Analytics::StudentCollection::SortStrategy.for(:participations,
+                                                                  :page_view_counts => page_view_counts)
         expect(strategy.sorted_ids).to eq [id]
       end
     end

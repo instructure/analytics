@@ -42,15 +42,15 @@ describe CoursesController, :type => :controller do
       user_session(@teacher)
     end
 
-    def expect_injection(opts={})
+    def expect_injection(opts = {})
       course = opts[:course] || @course
-      get 'show', params: {:id => course.id}
+      get 'show', params: { :id => course.id }
       expect(controller.course_custom_links.map { |link| link[:url] }).to include "/courses/#{course.id}/analytics"
     end
 
-    def forbid_injection(opts={})
+    def forbid_injection(opts = {})
       course = opts[:course] || @course
-      get 'show', params: {:id => course.id}
+      get 'show', params: { :id => course.id }
       expect(controller.course_custom_links.map { |link| link[:url] }).not_to include "/courses/#{course.id}/analytics"
     end
 

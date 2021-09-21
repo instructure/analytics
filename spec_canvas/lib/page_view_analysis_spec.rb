@@ -23,7 +23,6 @@ require_dependency "analytics/page_view_analysis"
 
 module Analytics
   describe PageViewAnalysis do
-
     let(:page_view_counts) do
       {
         'User 1' => { :page_views => 2, :participations => 4 },
@@ -34,7 +33,7 @@ module Analytics
       }
     end
 
-    let(:analysis) { PageViewAnalysis.new( page_view_counts ) }
+    let(:analysis) { PageViewAnalysis.new(page_view_counts) }
     let(:hash) { analysis.hash }
 
     describe '#hash' do
@@ -54,6 +53,5 @@ module Analytics
         expect(analysis.max_participations).to eq 32
       end
     end
-
   end
 end

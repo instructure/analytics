@@ -21,7 +21,6 @@ require_relative '../../../../../spec/spec_helper'
 require_relative '../spec_helper'
 
 describe Analytics::Department do
-
   before :each do
     @account = Account.default
     @account.sub_accounts.create!(name: "Some department")
@@ -48,7 +47,7 @@ describe Analytics::Department do
       c2 = course_shim(account: @account.sub_accounts.second, active_all: true)
       c2.course_sections.create!({ :name => "section 2" })
       c2.course_sections.first.crosslist_to_course(c1)
-      lst = @acct_statistics.statistics_by_subaccount.sort_by{|x| x[:id]}
+      lst = @acct_statistics.statistics_by_subaccount.sort_by { |x| x[:id] }
       expect(lst[0][:courses]).to eq 0
       expect(lst[1][:courses]).to eq 1
       expect(lst[2][:courses]).to eq 1
@@ -59,7 +58,7 @@ describe Analytics::Department do
       course_shim(account: @account.sub_accounts.first, active_course: true)
       course_shim(account: @account.sub_accounts.second, active_course: true)
       course_shim(account: @account.sub_accounts.second, active_course: true)
-      lst = @acct_statistics.statistics_by_subaccount.sort_by{|x| x[:id]}
+      lst = @acct_statistics.statistics_by_subaccount.sort_by { |x| x[:id] }
       expect(lst[0][:courses]).to eq 1
       expect(lst[1][:courses]).to eq 1
       expect(lst[2][:courses]).to eq 2
@@ -87,7 +86,7 @@ describe Analytics::Department do
       3.times do
         student_in_course(course: c4, active_all: true)
       end
-      lst = @acct_statistics.statistics_by_subaccount.sort_by{|x| x[:id]}
+      lst = @acct_statistics.statistics_by_subaccount.sort_by { |x| x[:id] }
       expect(lst[0][:teachers]).to eq 1
       expect(lst[1][:teachers]).to eq 1
       expect(lst[2][:teachers]).to eq 2
@@ -113,7 +112,7 @@ describe Analytics::Department do
     # none     | > now      | [now - 1.year, now]       | ongoing term with indefinite start
     # none     | none       | [now - 1.year, now]       | ongoing term with indefinite start or end
 
-    let!(:now){ Time.zone.now }
+    let!(:now) { Time.zone.now }
 
     before do
       allow(@acct_statistics).to receive(:secondaried).and_return(nil)
