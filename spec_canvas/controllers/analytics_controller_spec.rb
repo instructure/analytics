@@ -35,9 +35,9 @@ describe AnalyticsController, :type => :controller do
   end
 
   describe "department" do
-    def department_analytics(opts={})
+    def department_analytics(opts = {})
       account = opts[:account] || @account
-      get 'department', params: {:account_id => account.id}
+      get 'department', params: { :account_id => account.id }
     end
 
     it "should set @department_analytics on success" do
@@ -74,9 +74,9 @@ describe AnalyticsController, :type => :controller do
       student_in_course(:active_all => true)
     end
 
-    def course_analytics(opts={})
+    def course_analytics(opts = {})
       course = opts[:course] || @course
-      get 'course', params: {:course_id => course.id}
+      get 'course', params: { :course_id => course.id }
     end
 
     it "should set @course_analytics on success" do
@@ -158,10 +158,10 @@ describe AnalyticsController, :type => :controller do
       student_in_course(:active_all => true)
     end
 
-    def student_in_course_analytics(opts={})
+    def student_in_course_analytics(opts = {})
       course = opts[:course] || @course
       student = opts[:student] || @student
-      get 'student_in_course', params: {:course_id => course.id, :student_id => student.id}
+      get 'student_in_course', params: { :course_id => course.id, :student_id => student.id }
     end
 
     it "should set @course_analytics and @student_analytics on success" do
@@ -241,17 +241,17 @@ describe AnalyticsController, :type => :controller do
 
     it "should include all students for a teacher" do
       students = [@student]
-      3.times{ students << student_in_course(:active_all => true).user }
+      3.times { students << student_in_course(:active_all => true).user }
       student_in_course_analytics
-      expect(assigns[:course_json][:students].map{ |s| s[:id] }.sort).to eq students.map(&:id).sort
+      expect(assigns[:course_json][:students].map { |s| s[:id] }.sort).to eq students.map(&:id).sort
     end
 
     it "should include only self for a student" do
       students = [@student]
-      3.times{ students << student_in_course(:active_all => true).user }
+      3.times { students << student_in_course(:active_all => true).user }
       user_session(@student)
       student_in_course_analytics
-      expect(assigns[:course_json][:students].map{ |s| s[:id] }.sort).to eq [@student.id]
+      expect(assigns[:course_json][:students].map { |s| s[:id] }.sort).to eq [@student.id]
     end
   end
 end

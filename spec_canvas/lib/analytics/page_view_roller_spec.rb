@@ -23,14 +23,15 @@ require_dependency "analytics/page_view_roller"
 
 module Analytics
   describe PageViewRoller do
-    def build_page_view(opts={})
+    def build_page_view(opts = {})
       context = opts[:context] || @course
       user = opts[:user] || @user
 
       page_view = page_view_model(
         :context => context,
         :user => user,
-        :controller => opts[:controller])
+        :controller => opts[:controller]
+      )
 
       needs_save = false
 
@@ -75,10 +76,10 @@ module Analytics
         expect(PageViewRoller.start_day).to be_nil
       end
 
-      it "should return the earliest page_view's created_at"  do
+      it "should return the earliest page_view's created_at" do
         date1 = Date.today - 1.day
         date2 = Date.today - 2.days
-        [date1, date2].each{ |date| build_page_view(:created_at => date) }
+        [date1, date2].each { |date| build_page_view(:created_at => date) }
         expect(PageViewRoller.start_day).to eq date2
       end
     end
@@ -88,31 +89,31 @@ module Analytics
         expect(PageViewRoller.end_day).to be_nil
       end
 
-      it "should return the earliest existing rollup's date"  do
+      it "should return the earliest existing rollup's date" do
         date1 = Date.today - 1.day
         date2 = Date.today - 2.days
         build_page_view(:created_at => date2)
-        [date1, date2].each{ |date| PageViewsRollup.bin_for(@course, date, 'other').save }
+        [date1, date2].each { |date| PageViewsRollup.bin_for(@course, date, 'other').save }
         expect(PageViewRoller.end_day).to eq date2
       end
 
-      it "should return today if no existing rollup's but existing page views"  do
+      it "should return today if no existing rollup's but existing page views" do
         build_page_view(:created_at => Date.today - 2.days)
         PageViewsRollup.delete_all
         expect(PageViewRoller.end_day).to eq Date.today
       end
 
-      it "should ignore rollups before overridden start_day"  do
+      it "should ignore rollups before overridden start_day" do
         date1 = Date.today - 1.day
         date2 = Date.today - 2.days
         build_page_view(:created_at => date2)
-        [date1, date2].each{ |date| PageViewsRollup.bin_for(@course, date, 'other').save }
+        [date1, date2].each { |date| PageViewsRollup.bin_for(@course, date, 'other').save }
         expect(PageViewRoller.end_day(:start_day => date1)).to eq date1
       end
     end
 
     describe "#rollup_one" do
-      def mockbin(course, date, category, new_record=true)
+      def mockbin(course, date, category, new_record = true)
         mockbin = double('fake bin')
         expect(PageViewsRollup).to receive(:bin_for).with(course, date, category).once.and_return(mockbin)
         allow(mockbin).to receive(:new_record?).and_return(new_record)

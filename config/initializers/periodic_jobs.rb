@@ -20,7 +20,7 @@
 
 Delayed::Periodic.cron 'PageViewsRollup.process_cached_rollups', '* * * * *' do
   Shard.with_each_shard(exception: :ignore) do
-    PageViewsRollup.delay(singleton: "PageViewsRollup.process_cached_rollups:#{Shard.current.id}").
-      process_cached_rollups
+    PageViewsRollup.delay(singleton: "PageViewsRollup.process_cached_rollups:#{Shard.current.id}")
+                   .process_cached_rollups
   end
 end

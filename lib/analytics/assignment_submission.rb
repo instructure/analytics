@@ -61,6 +61,7 @@ module Analytics
 
     def due_at
       return @submission.cached_due_date&.change(sec: 0) if @submission
+
       @assignment.due_at&.change(sec: 0)
     end
 

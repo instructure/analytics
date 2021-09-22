@@ -21,7 +21,7 @@
 require_relative '../../../../../spec/sharding_spec_helper'
 
 describe PageViewsRollup do
-  def create_rollup(opts={})
+  def create_rollup(opts = {})
     rollup = PageViewsRollup.new
     rollup.course = opts[:course]
     rollup.date = opts[:date]

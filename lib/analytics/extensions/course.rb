@@ -25,7 +25,7 @@ module Analytics::Extensions::Course
 
     if Rails.env.production?
       klass.handle_asynchronously(:recache_grade_distribution,
-                                  singleton: proc { |c| "recache_grade_distribution:#{ c.global_id }" },
+                                  singleton: proc { |c| "recache_grade_distribution:#{c.global_id}" },
                                   priority: 30,
                                   on_conflict: :loose)
     end
@@ -36,6 +36,7 @@ module Analytics::Extensions::Course
   def recache_grade_distribution(**)
     distribution = cached_grade_distribution
     return distribution.recalculate! if distribution
+
     Course.unique_constraint_retry do
       (cached_grade_distribution || build_cached_grade_distribution).recalculate!
     end

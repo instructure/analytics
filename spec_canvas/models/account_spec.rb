@@ -38,11 +38,10 @@ describe Account do
   end
 
   let(:analytics_tab_opts) {
-    {:label=>"Analytics", :css_class=>"analytics_plugin", :href=>:analytics_department_path}
+    { :label => "Analytics", :css_class => "analytics_plugin", :href => :analytics_department_path }
   }
 
   context "Analytics Tab" do
-
     it "should inject an analytics tab under nominal conditions" do
       expect(@account.tabs_available(@admin)[-2]).to include(analytics_tab_opts)
     end
