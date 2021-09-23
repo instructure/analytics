@@ -77,7 +77,7 @@ module Analytics
     alias_method :excused?, :excused
 
     def self.from_scope(scope)
-      ActiveRecord::Base.connection.select_all(scope).map { |data| self.new(data) }
+      ActiveRecord::Base.connection.select_all(scope).map { |data| new(data) }
     end
   end
 end

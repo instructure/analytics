@@ -127,7 +127,7 @@ module Analytics
         )
       end
 
-      if self.respond_to?(:extended_assignment_data)
+      if respond_to?(:extended_assignment_data)
         hash.merge!(extended_assignment_data(assignment, submissions))
       end
 

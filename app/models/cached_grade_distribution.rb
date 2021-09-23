@@ -49,7 +49,7 @@ class CachedGradeDistribution < ActiveRecord::Base
   end
 
   def grade_distribution_rows
-    self.shard.activate do
+    shard.activate do
       GuardRail.activate(:secondary) do
         grade_distribution_sql = course.all_enrollments
                                        .joins("LEFT JOIN #{Score.quoted_table_name} scores on

@@ -27,7 +27,7 @@ class Analytics::AssignmentRollup
   attr_accessor :tardiness_breakdown, :buckets
 
   def initialize(attrs = {})
-    attrs.each { |k, v| self.send("#{k}=", v) }
+    attrs.each { |k, v| send("#{k}=", v) }
   end
 
   def self.init_rollup(assignment)
@@ -77,7 +77,7 @@ class Analytics::AssignmentRollup
     # includes StudentViewEnrollment which we want to exclude
     enrollments_scope = course.enrollments.where(workflow_state: %w[active completed],
                                                  type: 'StudentEnrollment').except(:preload)
-    self.init(assignment, enrollments_scope)
+    init(assignment, enrollments_scope)
   end
 
   def self.enrollments_with_submissions_scope(assignment, enrollments_scope)
@@ -114,19 +114,19 @@ class Analytics::AssignmentRollup
 
     submission = submission_from(assignment, enrollment_and_submission)
     assignment_submission = Analytics::AssignmentSubmission.new(assignment, submission)
-    self.tardiness_breakdown.tally!(assignment_submission)
+    tardiness_breakdown.tally!(assignment_submission)
 
-    if self.buckets && score = assignment_submission.score
-      self.buckets << score
+    if buckets && score = assignment_submission.score
+      buckets << score
     end
   end
 
   def calculate(assignment)
-    tardiness                = self.tardiness_breakdown.as_hash_scaled(self.total_submissions)
+    tardiness                = tardiness_breakdown.as_hash_scaled(self.total_submissions)
     self.missing_submissions = tardiness[:missing]
     self.late_submissions    = tardiness[:late]
     self.on_time_submissions = tardiness[:on_time]
-    if self.buckets
+    if buckets
       self.max_score            = buckets.max
       self.min_score            = buckets.min
       self.first_quartile_score = buckets.first_quartile

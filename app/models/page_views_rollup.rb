@@ -44,7 +44,7 @@ class PageViewsRollup < ActiveRecord::Base
     else
       course_id, shard = Shard.local_id_for(course)
       shard ||= Shard.current
-      shard.activate { self.where(:course_id => course_id) }
+      shard.activate { where(:course_id => course_id) }
     end
   end
 
@@ -149,7 +149,7 @@ class PageViewsRollup < ActiveRecord::Base
       # we grab all the keys up front, because redis lua scripts aren't allowed
       # to call the SPOP command (it's non-deterministic).
       lua_run(:process_setup, [in_progress_set_key, lock_key, lock_time])
-      keys = self.redis.smembers(in_progress_set_key)
+      keys = redis.smembers(in_progress_set_key)
     rescue => e
       # An error here likely means that the original key does not exist,
       # so there is no work to do.

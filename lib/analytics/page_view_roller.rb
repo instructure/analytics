@@ -38,12 +38,12 @@ module Analytics::PageViewRoller
   #   - verbose [boolean or string]: print additional log lines (excessive
   #     amounts if set to 'flood')
   def self.rollup_all(opts = {})
-    opts[:start_day] ||= self.start_day(opts)
+    opts[:start_day] ||= start_day(opts)
     unless opts[:start_day]
       logger.info "Did not detect any page views to roll up."
       return
     end
-    opts[:end_day] ||= self.end_day(opts)
+    opts[:end_day] ||= end_day(opts)
     logger.info "Rolling up page views between #{opts[:start_day]} and #{opts[:end_day]}, inclusive."
 
     # process each day in between as its own chunk, from most recent to least
