@@ -28,14 +28,14 @@ describe "analytics" do
 
   describe "course view" do
     describe "links" do
-      before (:each) do
+      before(:each) do
         course_with_teacher_logged_in
         enable_analytics
         add_students_to_course(1)
         @student = StudentEnrollment.last.user
       end
 
-      it "should validate analytics icon link works" do
+      it "validates analytics icon link works" do
         get "/courses/#{@course.id}/users"
         expect_new_page_load do
           student_roster[0].find_element(:css, ".al-trigger").click
@@ -44,14 +44,14 @@ describe "analytics" do
         validate_student_display(@student.name)
       end
 
-      it "should validate analytics button link works" do
+      it "validates analytics button link works" do
         get "/courses/#{@course.id}/users/#{@student.id}"
 
         expect_new_page_load { analytics_nav_button.click }
         validate_student_display(@student.name)
       end
 
-      it "should validate analytics button link works with profiles enabled" do
+      it "validates analytics button link works with profiles enabled" do
         @course.root_account.settings[:enable_profiles] = true
         @course.root_account.save!
         get "/courses/#{@course.id}/users/#{@student.id}"
@@ -64,7 +64,7 @@ describe "analytics" do
     context "as an admin" do
       describe "with analytics turned on" do
         let(:validate) { true }
-        before (:each) do
+        before(:each) do
           course_with_admin_logged_in
           enable_analytics
           add_students_to_course(5)
@@ -75,7 +75,7 @@ describe "analytics" do
 
       describe "with analytics turned off" do
         let(:validate) { false }
-        before (:each) do
+        before(:each) do
           course_with_admin_logged_in
           disable_analytics
           add_students_to_course(5)
@@ -88,7 +88,7 @@ describe "analytics" do
     context "as a teacher" do
       describe "with analytics permissions on" do
         let(:validate) { true }
-        before (:each) do
+        before(:each) do
           enable_analytics
           enable_teacher_permissions
           course_with_teacher_logged_in
@@ -100,7 +100,7 @@ describe "analytics" do
 
       describe "with analytics permissions off" do
         let(:validate) { false }
-        before (:each) do
+        before(:each) do
           enable_analytics
           disable_teacher_permissions
           course_with_teacher_logged_in
@@ -113,7 +113,7 @@ describe "analytics" do
   end
 
   describe "analytics view" do
-    before (:each) do
+    before(:each) do
       enable_analytics
       @teacher = course_with_teacher_logged_in.user
       @course.update(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
@@ -122,13 +122,13 @@ describe "analytics" do
       @student = StudentEnrollment.last.user
     end
 
-    it "should validate correct user is showing up on analytics page" do
+    it "validates correct user is showing up on analytics page" do
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
       validate_student_display(@student.name)
     end
 
-    it "should validate current total display" do
+    it "validates current total display" do
       randomly_grade_assignments(5)
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
@@ -140,7 +140,7 @@ describe "analytics" do
       include_examples "participation graph specs"
     end
 
-    it "should validate responsiveness graph" do
+    it "validates responsiveness graph" do
       single_message = '1 message'
       multiple_message = '3 messages'
       users_css = ["#responsiveness-graph .student", "#responsiveness-graph .instructor"]
@@ -176,7 +176,7 @@ describe "analytics" do
       users_css.each { |user_css| validate_tooltip_text(user_css, multiple_message) }
     end
 
-    it "should validate finishing assignments graph" do
+    it "validates finishing assignments graph" do
       # setting up assignments
       setup_variety_assignments
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
@@ -193,7 +193,7 @@ describe "analytics" do
       validate_element_stroke(no_due_date_diamond, GraphColors::FRAME)
     end
 
-    it "should validate grades graph" do
+    it "validates grades graph" do
       randomly_grade_assignments(10)
       first_assignment = @course.active_assignments.first
       first_submission_score = first_assignment.submissions.first.score.to_i.to_s
@@ -205,7 +205,7 @@ describe "analytics" do
       }
     end
 
-    it "should validate a non-graded assignment on graph" do
+    it "validates a non-graded assignment on graph" do
       @course.assignments.create!(:title => 'new assignment', :points_possible => 10)
       first_assignment = @course.active_assignments.first
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
@@ -215,7 +215,7 @@ describe "analytics" do
       expect(tooltip.text).to eq first_assignment.title
     end
 
-    it "should show assignments on submissions graph" do
+    it "shows assignments on submissions graph" do
       assmt = @course.assignments.create!(:title => 'new assignment', :points_possible => 10,
                                           :submission_types => 'online_url')
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
@@ -223,7 +223,7 @@ describe "analytics" do
       expect(f('#assignment-finishing-graph')).to contain_css(".assignment_#{assmt.id}.cover")
     end
 
-    it "should not show an excused assignment on submissions graph" do
+    it "does not show an excused assignment on submissions graph" do
       if @course.teacher_enrollments.any?
         teacher = @course.teacher_enrollments.last.user
       else
@@ -247,18 +247,18 @@ describe "analytics" do
         end
       end
 
-      it "should validate student combo box shows up when >= 2 students are in the course" do
+      it "validates student combo box shows up when >= 2 students are in the course" do
         add_students_to_course(1)
         go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
         validate_combobox_presence
       end
 
-      it "should not show the combo box when course student count = 1" do
+      it "does not show the combo box when course student count = 1" do
         go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
         validate_combobox_presence(false)
       end
 
-      it "should display the correct student info when selected in the combo box" do
+      it "displays the correct student info when selected in the combo box" do
         def select_next_student(nav_button, expected_student)
           nav_button.click
           wait_for_ajaximations

@@ -91,7 +91,7 @@ describe "Courses API Extensions", :type => :request do
         @user = @teacher
       end
 
-      it "should inject analytics buttons on the roster page" do
+      it "injects analytics buttons on the roster page" do
         expect_injection(@course, [@student1, @student2])
       end
     end
@@ -102,7 +102,7 @@ describe "Courses API Extensions", :type => :request do
         @account.save!
       end
 
-      it "should not inject analytics buttons on the roster page" do
+      it "does not inject analytics buttons on the roster page" do
         forbid_injection(@course, [@student1])
       end
     end
@@ -113,7 +113,7 @@ describe "Courses API Extensions", :type => :request do
         @course.save!
       end
 
-      it "should not inject analytics buttons on the roster page" do
+      it "does not inject analytics buttons on the roster page" do
         forbid_injection(@course, [@student1])
       end
     end
@@ -123,7 +123,7 @@ describe "Courses API Extensions", :type => :request do
         RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => false)
       end
 
-      it "should not inject analytics buttons on the roster page" do
+      it "does not inject analytics buttons on the roster page" do
         forbid_injection(@course, [@student1])
       end
     end
@@ -134,7 +134,7 @@ describe "Courses API Extensions", :type => :request do
         @student2 = student_in_course(:active_all => true).user
       end
 
-      it "should only inject one analytics button on the roster page" do
+      it "only injects one analytics button on the roster page" do
         @user = @student1
         expect_injection(@course, [@student1])
 
@@ -149,7 +149,7 @@ describe "Courses API Extensions", :type => :request do
         @enrollment.save!
       end
 
-      it "should not inject an analytics button on the roster page" do
+      it "does not inject an analytics button on the roster page" do
         forbid_injection(@course, [@student1])
       end
     end
@@ -169,7 +169,7 @@ describe "Courses API Extensions", :type => :request do
         RoleOverride.manage_role_override(@account, ta_role, 'view_analytics', :override => true)
       end
 
-      it "should not inject analytics buttons on the roster page" do
+      it "does not inject analytics buttons on the roster page" do
         forbid_injection(@course, [@student1])
       end
     end

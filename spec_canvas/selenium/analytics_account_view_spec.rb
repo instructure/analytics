@@ -30,14 +30,14 @@ describe "analytics account view" do
     expect(find(".AnalyticsStats__#{data_point}").find(".AnalyticsStats__Count").text).to eq expected_count
   end
 
-  before (:each) do
+  before(:each) do
     enable_analytics
     course_with_admin_logged_in.user
     @course.update(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
     @course.save!
   end
 
-  it "should validate course drop down" do
+  it "validates course drop down" do
     concluded_course = Course.create!(:name => 'concluded course', :account => Account.default)
     concluded_course.offer!
     create_users_in_course(concluded_course, 10)
@@ -53,7 +53,7 @@ describe "analytics account view" do
   end
 
   context "graphs" do
-    it "should validate activity by date graph with no action taken" do
+    it "validates activity by date graph with no action taken" do
       page_view_count = 10
       page_view_count.times { page_view(:user => @student, :course => @course) }
       go_to_analytics("/accounts/#{account_id}/analytics")
@@ -61,7 +61,7 @@ describe "analytics account view" do
       validate_element_fill(get_rectangle(Time.now, '#participating-date-graph'), GraphColors::LIGHT_BLUE)
     end
 
-    it "should validate activity by date graph with action taken" do
+    it "validates activity by date graph with action taken" do
       page_view(:user => @student, :course => @course, :participated => true)
       expected_text = %w(1 page view 1 participation)
       go_to_analytics("/accounts/#{account_id}/analytics")
@@ -69,7 +69,7 @@ describe "analytics account view" do
       validate_element_fill(get_rectangle(Time.now, '#participating-date-graph'), GraphColors::DARK_BLUE)
     end
 
-    it "should validate activity by category graph" do
+    it "validates activity by category graph" do
       controllers = %w(files gradebook2 groups assignments)
       controllers.each { |controller| page_view(:user => @student, :course => @course, :controller => controller) }
       go_to_analytics("/accounts/#{account_id}/analytics")
@@ -78,7 +78,7 @@ describe "analytics account view" do
       }
     end
 
-    it "should validate grade distribution graph" do
+    it "validates grade distribution graph" do
       skip('figure out how to validate this graph')
       added_students = add_students_to_course(5)
       added_students.each { |student| randomly_grade_assignments(5, student) }
@@ -88,7 +88,7 @@ describe "analytics account view" do
   end
 
   context "bottom data points with all data" do
-    before (:each) do
+    before(:each) do
       students = add_students_to_course(1)
       assignment = @course.active_assignments.create!(:title => 'new assignment')
       assignment.submit_homework(students[0])
@@ -108,7 +108,7 @@ describe "analytics account view" do
       go_to_analytics("/accounts/#{account_id}/analytics")
     end
 
-    it "should validate data points" do
+    it "validates data points" do
       %w(Courses Teachers Students Assignments Topics Attachments Media).each do |data_point|
         validate_data_point(data_point)
       end

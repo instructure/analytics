@@ -27,7 +27,7 @@ describe Loaders::CourseStudentAnalyticsLoader do
     @account.save!
   end
 
-  it "should work" do
+  it "works" do
     course_with_student(active_all: true)
     GraphQL::Batch.batch do
       Loaders::CourseStudentAnalyticsLoader

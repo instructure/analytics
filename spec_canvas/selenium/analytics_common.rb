@@ -235,30 +235,30 @@ shared_examples_for "analytics tests" do
   end
 
   shared_examples_for "analytics permissions specs" do
-    it "should validate analytics icons display" do
+    it "validates analytics icons display" do
       validate_analytics_icons_exist(validate)
     end
 
-    it "should validate analytics button display" do
+    it "validates analytics button display" do
       validate_analytics_button_exists(validate)
     end
   end
 
   shared_examples_for "participation graph specs" do
-    it "should validate participating graph with a single page view" do
+    it "validates participating graph with a single page view" do
       page_view(:user => @student, :course => @course)
       go_to_analytics(analytics_url)
       validate_tooltip_text(date_selector(Time.now), '1 page view')
     end
 
-    it "should validate participating graph with multiple page views" do
+    it "validates participating graph with multiple page views" do
       page_view_count = 10
       page_view_count.times { page_view(:user => @student, :course => @course) }
       go_to_analytics(analytics_url)
       validate_tooltip_text(date_selector(Time.now), page_view_count.to_s + ' page views')
     end
 
-    it "should validate participating graph with multiple page views on multiple days" do
+    it "validates participating graph with multiple page views on multiple days" do
       old_page_views_date = Time.now - 2.days
       dates = [old_page_views_date, Time.now]
       number_of_page_views = 5
@@ -270,14 +270,14 @@ shared_examples_for "analytics tests" do
       dates.each { |date| validate_tooltip_text(date_selector(date), number_of_page_views.to_s + ' page views') }
     end
 
-    it "should validate the graph color when a student took action on that day" do
+    it "validates the graph color when a student took action on that day" do
       page_view(:user => @student, :course => @course, :participated => true)
       go_to_analytics(analytics_url)
       validate_element_fill(get_rectangle(Time.now), GraphColors::DARK_BLUE)
       validate_tooltip_text(date_selector(Time.now), '1 participation')
     end
 
-    it "should validate the participation and non participation display" do
+    it "validates the participation and non participation display" do
       old_page_view_date = Time.now - 3.days
       rectangles = []
       dates = [old_page_view_date, Time.now]

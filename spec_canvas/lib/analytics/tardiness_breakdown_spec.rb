@@ -55,7 +55,7 @@ module Analytics
     describe 'in common usage' do
       let(:breakdown) { TardinessBreakdown.new(12, 8, 3, 2) }
 
-      it 'should return total count' do
+      it 'returns total count' do
         expect(breakdown.total).to eq 25
       end
 
