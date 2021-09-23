@@ -37,7 +37,7 @@ module Analytics::PageViewRoller
   #
   #   - verbose [boolean or string]: print additional log lines (excessive
   #     amounts if set to 'flood')
-  def self.rollup_all(opts = {})
+  def self.rollup_all(opts={})
     opts[:start_day] ||= self.start_day(opts)
     unless opts[:start_day]
       logger.info "Did not detect any page views to roll up."
@@ -64,7 +64,7 @@ module Analytics::PageViewRoller
   #
   #   - verbose [boolean or string]: print additional log lines (excessive
   #     amounts if set to 'flood')
-  def self.rollup_one(day, opts = {})
+  def self.rollup_one(day, opts={})
     # scope the page views down to just that day
     page_views = PAGE_VIEWS.where(:created_at => day..(day + 1.day))
 
@@ -78,7 +78,6 @@ module Analytics::PageViewRoller
         PageView.transaction do
           bin = PageViewsRollup.bin_for(course_id, day, category)
           next unless bin.new_record?
-
           bin.augment(views, participations)
           bin.save!
         end
@@ -93,7 +92,7 @@ module Analytics::PageViewRoller
   # Available options:
   #   - verbose [boolean or string]: print additional log lines if set to
   #     'flood'
-  def self.start_day(opts = {})
+  def self.start_day(opts={})
     secondaried do
       # Nov 2010 is just after the first page views in production cloud canvas.
       # if we go much later as the upper bound (in production canvas) the MIN
@@ -105,13 +104,11 @@ module Analytics::PageViewRoller
         logger.info "Looking for oldest page view before #{day}." if opts[:verbose] == 'flood'
         row = PAGE_VIEWS.where("created_at<=?", day).minimum(:created_at)
         return row.to_date if row
-
         logger.info "No page views before #{day}." if opts[:verbose] == 'flood'
 
         # break here rather than at the start of loop so we still attempt the
         # first time day >= today
-        break if day >= today
-
+        break if  day >= today
         day = [day + 1.month, today].min
       end
 
@@ -129,14 +126,13 @@ module Analytics::PageViewRoller
   #
   #   - verbose [boolean or string]: print additional log lines if set to
   #     'flood'
-  def self.end_day(opts = {})
+  def self.end_day(opts={})
     secondaried do
       # find the oldest roll up on or after start_day. assume any days after that
       # have been completely rolled up. if none found, go through today (or
       # start_day if somehow after today)
       opts[:start_day] ||= start_day(opts)
       return nil unless opts[:start_day]
-
       logger.info "Looking for oldest roll up on or after #{opts[:start_day]}." if opts[:verbose] == 'flood'
       date = PageViewsRollup.where("date>=?", opts[:start_day]).minimum(:date)
       date || Date.today

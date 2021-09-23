@@ -27,7 +27,9 @@ describe "analytics" do
   ANALYTICS_ICON_CSS = '.roster .icon-analytics'
 
   describe "course view" do
+
     describe "links" do
+
       before (:each) do
         course_with_teacher_logged_in
         enable_analytics
@@ -62,6 +64,7 @@ describe "analytics" do
     end
 
     context "as an admin" do
+
       describe "with analytics turned on" do
         let(:validate) { true }
         before (:each) do
@@ -86,6 +89,7 @@ describe "analytics" do
     end
 
     context "as a teacher" do
+
       describe "with analytics permissions on" do
         let(:validate) { true }
         before (:each) do
@@ -113,6 +117,7 @@ describe "analytics" do
   end
 
   describe "analytics view" do
+
     before (:each) do
       enable_analytics
       @teacher = course_with_teacher_logged_in.user
@@ -200,9 +205,7 @@ describe "analytics" do
       validation_text = ['Score: ' + first_submission_score + ' / 100', first_assignment.title]
       setup_for_grades_graph
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
-      validation_text.each { |text|
-        validate_tooltip_text("#grades-graph .assignment_#{first_assignment.id}.cover", text)
-      }
+      validation_text.each { |text| validate_tooltip_text("#grades-graph .assignment_#{first_assignment.id}.cover", text) }
     end
 
     it "should validate a non-graded assignment on graph" do
@@ -216,8 +219,7 @@ describe "analytics" do
     end
 
     it "should show assignments on submissions graph" do
-      assmt = @course.assignments.create!(:title => 'new assignment', :points_possible => 10,
-                                          :submission_types => 'online_url')
+      assmt = @course.assignments.create!(:title => 'new assignment', :points_possible => 10, :submission_types => 'online_url')
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
       expect(f('#assignment-finishing-graph')).to contain_css(".assignment_#{assmt.id}.cover")
@@ -230,15 +232,15 @@ describe "analytics" do
         teacher = User.create!
         @course.enroll_teacher(teacher)
       end
-      assmt = @course.assignments.create!(:title => 'new assignment', :points_possible => 10,
-                                          :submission_types => 'online_url')
+      assmt = @course.assignments.create!(:title => 'new assignment', :points_possible => 10, :submission_types => 'online_url')
       assmt.grade_student(@student, excuse: true, grader: teacher)
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
-      expect(f('#assignment-finishing-graph')).to_not contain_css(".assignment_#{assmt.id}.cover")
+      expect(f('#assignment-finishing-graph')).to_not  contain_css(".assignment_#{assmt.id}.cover")
     end
 
     describe "student combo box" do
+
       def validate_combobox_presence(is_present = true)
         if is_present
           expect(find('.ui-combobox')).to be_displayed
@@ -277,9 +279,7 @@ describe "analytics" do
           first_assignment = @graded_assignments.first
           first_submission_score = first_assignment.submissions.find_by(user: @student).score.to_i.to_s
           validation_text = ['Score: ' + first_submission_score + ' / 100', first_assignment.title]
-          validation_text.each { |text|
-            validate_tooltip_text("#grades-graph .assignment_#{first_assignment.id}.cover", text)
-          }
+          validation_text.each { |text| validate_tooltip_text("#grades-graph .assignment_#{first_assignment.id}.cover", text) }
         end
 
         added_students = add_students_to_course(1)
@@ -288,20 +288,20 @@ describe "analytics" do
         next_button = find('.ui-combobox-next')
         prev_button = find('.ui-combobox-prev')
 
-        # check that first student in course is selected
+        #check that first student in course is selected
         expect(driver.current_url).to include(@student.id.to_s)
         validate_combobox_name(@student.name)
 
-        # validate grades graph for first graded student
+        #validate grades graph for first graded student
         validate_first_students_grade_graph
 
-        # change to the next student
+        #change to the next student
         select_next_student(next_button, added_students[0])
         validate_combobox_name(added_students[0].name)
         assignment_diamond = get_diamond(@graded_assignments[0].id)
         validate_element_fill(assignment_diamond, GraphColors::SHARP_RED)
 
-        # change back to the first student
+        #change back to the first student
         select_next_student(prev_button, @student)
         validate_combobox_name(@student.name)
         validate_first_students_grade_graph

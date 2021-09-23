@@ -24,7 +24,7 @@ require_dependency "analytics/tardiness_breakdown"
 module Analytics
   describe TardinessBreakdown do
     describe 'defaults' do
-      subject { TardinessBreakdown.new(nil, nil, nil) }
+      subject { TardinessBreakdown.new(nil,nil,nil) }
 
       describe '#missing' do
         subject { super().missing }
@@ -61,32 +61,32 @@ module Analytics
 
       it 'can be output as a hash' do
         expect(breakdown.as_hash).to eq({
-                                          :missing => 12,
-                                          :late => 8,
-                                          :on_time => 3,
-                                          :floating => 2,
-                                          :total => 25
-                                        })
+          :missing  => 12,
+          :late     => 8,
+          :on_time  => 3,
+          :floating => 2,
+          :total    => 25
+        })
       end
 
       it 'formats as a scaled hash' do
         expect(breakdown.as_hash_scaled(10)).to eq({
-                                                     :missing => 1.2,
-                                                     :late => 0.8,
-                                                     :on_time => 0.3,
-                                                     :floating => 0.2,
-                                                     :total => 10
-                                                   })
+          :missing  => 1.2,
+          :late     => 0.8,
+          :on_time  => 0.3,
+          :floating => 0.2,
+          :total    => 10
+        })
       end
 
       it 'handles a 0 denominator acceptably' do
         expect(breakdown.as_hash_scaled(0.0)).to eq({
-                                                      :missing => 0.0,
-                                                      :late => 0.0,
-                                                      :on_time => 0.0,
-                                                      :floating => 0.0,
-                                                      :total => 0.0
-                                                    })
+          :missing  => 0.0,
+          :late     => 0.0,
+          :on_time  => 0.0,
+          :floating => 0.0,
+          :total    => 0.0
+        })
       end
     end
   end

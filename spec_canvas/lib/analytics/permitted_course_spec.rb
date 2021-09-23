@@ -26,19 +26,19 @@ module Analytics
     describe '#assignments' do
       let(:analytics) do
         double('course_analytics',
-               assignment_rollups_for: ['SECTIONAL_ROLLUP'],
-               assignments: ['ASSIGNMENT_DATA'])
+          assignment_rollups_for: ['SECTIONAL_ROLLUP'],
+          assignments: ['ASSIGNMENT_DATA'])
       end
 
       let(:user) { double('user') }
       let(:shard) { double('shard') }
       let(:course) do
         double('course',
-               shard: shard,
-               section_visibilities_for: [{ course_section_id: 'SECTION_ID1' }],
-               course_sections: double('course_sections',
-                                       active: double('active_course_sections',
-                                                      pluck: ['SECTION_ID1', 'SECTION_ID2'])))
+          shard: shard,
+          section_visibilities_for: [{course_section_id: 'SECTION_ID1'}],
+          course_sections: double('course_sections',
+            active: double('active_course_sections',
+              pluck: ['SECTION_ID1', 'SECTION_ID2'])))
       end
       let(:permitted_course) { PermittedCourse.new(user, course) }
 
@@ -106,7 +106,7 @@ module Analytics
 
       it "unifies cache check between rails3 and rails4" do
         enable_cache do
-          assignments = [{ id: 1 }]
+          assignments = [{id: 1}]
           Rails.cache.write(permitted_course.assignments_cache_key, assignments, :use_new_rails => false)
           expect(permitted_course.async_data_available?).to be_truthy
         end
@@ -114,7 +114,7 @@ module Analytics
 
       it "unifies cache lookup between rails3 and rails4" do
         enable_cache do
-          assignments = [{ id: 1 }]
+          assignments = [{id: 1}]
           Rails.cache.write(permitted_course.assignments_cache_key, assignments, :use_new_rails => false)
           expect(permitted_course.assignments).to eq assignments
         end

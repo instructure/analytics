@@ -29,7 +29,7 @@ class CachedGradeDistribution < ActiveRecord::Base
     Enrollment.unscoped do
       reset_score_counts
       grade_distribution_rows.each do |row|
-        update_score(row[1].to_i, row[0].to_i)
+        update_score( row[1].to_i, row[0].to_i )
       end
     end
     save if changed?
@@ -38,28 +38,27 @@ class CachedGradeDistribution < ActiveRecord::Base
   private
 
   def reset_score_counts
-    (0..100).each { |score| update_score(score, 0) }
+    (0..100).each{ |score| update_score(score, 0) }
   end
 
   def update_score(score, value)
     # ignore anomalous scores, we don't have columns for it
     return unless 0 <= score && score <= 100
-
     send("s#{score}=", value)
   end
 
   def grade_distribution_rows
     self.shard.activate do
       GuardRail.activate(:secondary) do
-        grade_distribution_sql = course.all_enrollments
-                                       .joins("LEFT JOIN #{Score.quoted_table_name} scores on
+        grade_distribution_sql = course.all_enrollments.
+          joins("LEFT JOIN #{Score.quoted_table_name} scores on
               scores.enrollment_id = enrollments.id AND
               scores.grading_period_id IS NULL AND
-              scores.workflow_state <> 'deleted'")
-                                       .select("COUNT(DISTINCT enrollments.user_id) AS user_count, ROUND(scores.current_score) AS score")
-                                       .where(workflow_state: [:active, :completed], type: "StudentEnrollment")
-                                       .group('score')
-                                       .to_sql
+              scores.workflow_state <> 'deleted'").
+          select("COUNT(DISTINCT enrollments.user_id) AS user_count, ROUND(scores.current_score) AS score").
+          where(workflow_state: [:active, :completed], type: "StudentEnrollment").
+          group('score').
+          to_sql
 
         self.class.connection.select_rows(grade_distribution_sql)
       end

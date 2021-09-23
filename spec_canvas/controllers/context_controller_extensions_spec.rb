@@ -37,8 +37,7 @@ describe ContextController, :type => :controller do
       @student1 = user_factory(active_all: true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id',
-                                                                            :name => 'section2')
+      @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
       @enrollment = @course.enroll_user(@student1, 'StudentEnrollment', :section => @section)
       @enrollment.accept!
     end
@@ -49,13 +48,13 @@ describe ContextController, :type => :controller do
 
     def expect_injection(course, student)
       expected_link = "/courses/#{course.id}/analytics/users/#{student.id}"
-      get 'roster_user', params: { :course_id => course.id, :id => student.id }
+      get 'roster_user', params: {:course_id => course.id, :id => student.id}
       expect(controller.roster_user_custom_links(student).map { |link| link[:url] }).to include expected_link
     end
 
     def forbid_injection(course, student)
       analytics_link = "/courses/#{course.id}/analytics/users/#{student.id}"
-      get 'roster_user', params: { :course_id => course.id, :id => student.id }
+      get 'roster_user', params: {:course_id => course.id, :id => student.id}
       expect(controller.roster_user_custom_links(student).map { |link| link[:url] }).not_to include analytics_link
     end
 

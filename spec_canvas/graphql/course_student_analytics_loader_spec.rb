@@ -30,9 +30,9 @@ describe Loaders::CourseStudentAnalyticsLoader do
   it "should work" do
     course_with_student(active_all: true)
     GraphQL::Batch.batch do
-      Loaders::CourseStudentAnalyticsLoader
-        .for(@course.id, current_user: @teacher, session: nil)
-        .load(@student).then { |result|
+      Loaders::CourseStudentAnalyticsLoader.
+        for(@course.id, current_user: @teacher, session: nil).
+        load(@student).then { |result|
           expect(result).to be_a(Analytics::StudentSummary)
         }
     end
@@ -41,9 +41,9 @@ describe Loaders::CourseStudentAnalyticsLoader do
   it "returns nil for completed or inactive courses" do
     course_with_student
     GraphQL::Batch.batch do
-      Loaders::CourseStudentAnalyticsLoader
-        .for(@course.id, current_user: @teacher, session: nil)
-        .load(@student).then { |result|
+      Loaders::CourseStudentAnalyticsLoader.
+        for(@course.id, current_user: @teacher, session: nil).
+        load(@student).then { |result|
           expect(result).to be_nil
         }
     end

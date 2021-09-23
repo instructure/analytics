@@ -29,7 +29,7 @@ module Analytics::Rollups
     describe 'defaults' do
       it 'defaults all array values to 0' do
         expect(buckets.to_a.size).to eq ScoreBuckets::BUCKET_COUNT
-        expect(buckets.to_a.select { |i| i != 0 }.size).to eq 0
+        expect(buckets.to_a.select{|i| i != 0}.size).to eq 0
       end
 
       it 'sets a low number of buckets to the same number as the points' do
@@ -92,7 +92,7 @@ module Analytics::Rollups
 
       describe 'stat counting on small buckets' do
         let(:buckets) { ScoreBuckets.new(5) }
-        before { buckets << 1 << 1 << 2 << 5 << 3 << 2 << 1 }
+        before { buckets << 1 << 1 << 2<< 5 <<3 << 2<< 1 }
         subject { buckets }
 
         describe '#max' do
@@ -128,14 +128,14 @@ module Analytics::Rollups
       end
 
       it 'places the boundary value for the first bucket in the second bucket' do
-        boundary_value = (points / ScoreBuckets::BUCKET_COUNT)
+        boundary_value  = (points / ScoreBuckets::BUCKET_COUNT)
         expect(buckets.index_for(boundary_value)).to eq 1
       end
     end
 
     describe '.parse' do
       describe 'with good data' do
-        let(:scores) { [0, 5, 2, 0, 0, 0, 0, 0, 0, 4, 0, 1, 2, 1, 0, 0, 0, 0, 0, 7, 9, 3, 10, 1, 0] }
+        let(:scores) { [0, 5, 2,0,0,0,0,0,0,4,0,1,2,1,0,0,0,0,0,7,9,3,10,1,0] }
         let(:buckets) { ScoreBuckets.parse(100.0, scores) }
 
         it '#max' do

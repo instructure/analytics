@@ -23,13 +23,14 @@ require_relative '../../spec_helper'
 require_dependency "analytics/assignments"
 
 module Analytics
+
   describe Assignments do
     let(:harness) { AssignmentsHarness.new }
     let(:course) { ::Course.create }
 
     describe '#assignment_scope' do
       before do
-        3.times { course.assignments.create }
+        3.times{ course.assignments.create }
         harness.instance_variable_set '@course', course
       end
 
@@ -56,4 +57,5 @@ module Analytics
   class AssignmentsHarness
     include ::Analytics::Assignments
   end
+
 end

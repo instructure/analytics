@@ -63,30 +63,24 @@ module Analytics::Rollups
     def index_for(value)
       return 0 if @bucket_size == 0 || value <= 0
       return bucket_count - 1 if value >= @points_possible
-
       # Add 0.5 to "center" the bucket,
       # ie multiples of bucket size should fall on midpoints.
       ((value / @bucket_size) + 0.5).floor
     end
 
     def max; @counter.max; end
-
     def min; @counter.min; end
-
     def first_quartile; @counter.quartiles[0]; end
-
     def median; @counter.quartiles[1]; end
-
     def third_quartile; @counter.quartiles[2]; end
 
     private
-
     def bucket_count
       @_bucket_count ||= if @points_possible < BUCKET_COUNT
-                           @points_possible.floor + 1
-                         else
-                           BUCKET_COUNT
-                         end
+        @points_possible.floor + 1
+      else
+        BUCKET_COUNT
+      end
     end
   end
 end
