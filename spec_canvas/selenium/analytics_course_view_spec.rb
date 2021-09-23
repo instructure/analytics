@@ -50,7 +50,6 @@ describe "analytics course view" do
   before(:each) { user_session(@teacher) }
 
   context "course home page" do
-
     it 'should show the analytics button on the course home page' do
       get "/courses/#{@course.id}"
       wait_for_ajaximations
@@ -59,7 +58,6 @@ describe "analytics course view" do
   end
 
   context "course graphs" do
-
     context "participation graph" do
       let(:analytics_url) { "/courses/#{@course.id}/analytics" }
       include_examples "participation graph specs"
@@ -70,19 +68,22 @@ describe "analytics course view" do
       setup_variety_assignments
       go_to_analytics("/courses/#{@course.id}/analytics")
 
-      #get assignment bars
+      # get assignment bars
       missed_bar = get_bar(finishing_graph_css, @missed_assignment.id)
       late_submission_bar = get_bar(finishing_graph_css, @late_assignment.id)
       on_time_bar = get_bar(finishing_graph_css, @on_time_assignment.id)
 
-      #validate bar colors
+      # validate bar colors
       validate_element_fill(missed_bar, GraphColors::SHARP_RED)
       validate_element_fill(late_submission_bar, GraphColors::SHARP_YELLOW)
       validate_element_fill(on_time_bar, GraphColors::SHARP_GREEN)
 
-      #validate first bar tooltip info
-      validation_text = [@missed_assignment.title, "Due: " + TextHelper.date_string(@missed_assignment.due_at), "Missing: 100%"]
-      validation_text.each { |text| validate_tooltip_text("#{finishing_graph_css} .assignment_#{@missed_assignment.id}.cover", text) }
+      # validate first bar tooltip info
+      validation_text = [@missed_assignment.title, "Due: " + TextHelper.date_string(@missed_assignment.due_at),
+                         "Missing: 100%"]
+      validation_text.each { |text|
+        validate_tooltip_text("#{finishing_graph_css} .assignment_#{@missed_assignment.id}.cover", text)
+      }
     end
 
     it "should validate grades graph" do
@@ -90,7 +91,9 @@ describe "analytics course view" do
       validation_text = ['High: ' + @first_submission_score.to_i.to_s, @first_assignment.title]
       go_to_analytics("/courses/#{@course.id}/analytics")
 
-      validation_text.each { |text| validate_tooltip_text("#grades-graph .assignment_#{@first_assignment.id}.cover", text) }
+      validation_text.each { |text|
+        validate_tooltip_text("#grades-graph .assignment_#{@first_assignment.id}.cover", text)
+      }
     end
 
     describe "graph toggle switch" do
@@ -106,7 +109,6 @@ describe "analytics course view" do
   end
 
   context "students display" do
-
     it "should be absent unless the user has permission to see grades" do
       RoleOverride.manage_role_override(@account, teacher_role, 'manage_grades', :override => false)
       RoleOverride.manage_role_override(@account, teacher_role, 'view_all_grades', :override => false)
@@ -116,14 +118,14 @@ describe "analytics course view" do
 
     it "should validate correct number of students are showing up" do
       def student_rows
-        ffj('#students div.student') #avoid selenium caching
+        ffj('#students div.student') # avoid selenium caching
       end
 
       go_to_analytics("/courses/#{@course.id}/analytics")
       expect(student_rows.count).to eq 1
       expect(student_rows.first.text).to eq INITIAL_STUDENT_NAME
       add_students_to_course(2)
-      refresh_page #in order to make new students show up
+      refresh_page # in order to make new students show up
       wait_for_ajaximations # student rows are loaded asynchronously
       expect(student_rows.count).to eq 3
     end
@@ -160,7 +162,6 @@ describe "analytics course view" do
   end
 
   context "student tray" do
-
     before(:once) do
       @student1 = @student
       @enrollment = student_in_course(course: @course, name: 'initial test student2', active_all: true)
@@ -184,12 +185,12 @@ describe "analytics course view" do
       expect(f("body")).to contain_jqcss(".StudentContextTray-QuickLinks__Link:contains(Grades)")
       expect(f("body")).to contain_jqcss(".StudentContextTray-QuickLinks__Link:contains(Analytics)")
       expect(ff(".StudentContextTray-Progress__Bar").length).to eq 10
-      expect(f(".StudentContextTray-Header__Name h2 a")).
-        to have_attribute("href", "/courses/#{@course.id}/users/#{@student2.id}")
-      expect(fj(".StudentContextTray-QuickLinks__Link:first a")).
-        to have_attribute("href", "/courses/#{@course.id}/grades/#{@student2.id}")
-      expect(fj(".StudentContextTray-QuickLinks__Link:eq(1) a")).
-        to have_attribute("href", "/courses/#{@course.id}/analytics/users/#{@student2.id}")
+      expect(f(".StudentContextTray-Header__Name h2 a"))
+        .to have_attribute("href", "/courses/#{@course.id}/users/#{@student2.id}")
+      expect(fj(".StudentContextTray-QuickLinks__Link:first a"))
+        .to have_attribute("href", "/courses/#{@course.id}/grades/#{@student2.id}")
+      expect(fj(".StudentContextTray-QuickLinks__Link:eq(1) a"))
+        .to have_attribute("href", "/courses/#{@course.id}/analytics/users/#{@student2.id}")
       expect(f("body")).to contain_jqcss(".StudentContextTray-Header__Content:contains(Last login)")
     end
 

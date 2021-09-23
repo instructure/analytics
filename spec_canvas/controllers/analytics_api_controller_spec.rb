@@ -21,21 +21,19 @@
 require_relative '../../../../../spec/spec_helper'
 
 describe AnalyticsApiController do
-
   let(:params) { Hash.new }
   let(:controller) { AnalyticsApiController.new }
 
   before do
     allow(controller).to receive_messages(:api_request? => true,
-                     :require_analytics_for_course => true,
-                     :render => "RENDERED!",
-                     :params => params,
-                     :api_v1_course_student_summaries_url => '/',
-                     :session => nil)
+                                          :require_analytics_for_course => true,
+                                          :render => "RENDERED!",
+                                          :params => params,
+                                          :api_v1_course_student_summaries_url => '/',
+                                          :session => nil)
   end
 
   describe '#course_student_summaries' do
-
     let(:course) { double(grants_any_right?: false).as_null_object }
     let(:user) { double().as_null_object }
     let(:analytics) { double(:student_summaries => ['summary1']).as_null_object }
@@ -80,6 +78,5 @@ describe AnalyticsApiController do
         expect(controller.course_student_summaries).not_to eq "RENDERED!"
       end
     end
-
   end
 end

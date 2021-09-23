@@ -25,7 +25,6 @@ require_relative '../../spec_helper'
 require_relative '../../cassandra_spec_helper'
 
 describe "Analytics API", :type => :request do
-
   before :each do
     @account = Account.default
     @account.allowed_services = '+analytics'
@@ -35,7 +34,7 @@ describe "Analytics API", :type => :request do
     RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => true)
   end
 
-  def analytics_api_call(action, course, student, opts={})
+  def analytics_api_call(action, course, student, opts = {})
     action, suffix =
       case action
       when :participation then ['student_in_course_participation', "/activity"]
@@ -44,13 +43,13 @@ describe "Analytics API", :type => :request do
       end
     user = opts.delete(:user)
     args = [:get,
-      "/api/v1/courses/#{course.id}/analytics/users/#{student.id}" + suffix,
-      { :controller => 'analytics_api',
-        :action => action,
-        :format => 'json',
-        :course_id => course.id.to_s,
-        :student_id => student.id.to_s },
-      {}, {}, opts]
+            "/api/v1/courses/#{course.id}/analytics/users/#{student.id}" + suffix,
+            { :controller => 'analytics_api',
+              :action => action,
+              :format => 'json',
+              :course_id => course.id.to_s,
+              :student_id => student.id.to_s },
+            {}, {}, opts]
 
     if user then
       api_call_as_user(user, *args)
@@ -64,7 +63,8 @@ describe "Analytics API", :type => :request do
       @student1 = user_factory(active_all: true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
+      @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id',
+                                                                            :name => 'section2')
       @course.enroll_user(@student1, 'StudentEnrollment', :section => @section).accept!
     end
 
@@ -123,17 +123,18 @@ describe "Analytics API", :type => :request do
     # shim for quiz namespacing
     def quiz_klass
       @quiz_klass ||= begin
-                        "Quiz".constantize
-                      rescue NameError
-                        "Quizzes::Quiz".constantize
-                      end
+        "Quiz".constantize
+      rescue NameError
+        "Quizzes::Quiz".constantize
+      end
     end
 
     before do
       @student1 = user_factory(active_all: true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
+      @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id',
+                                                                            :name => 'section2')
       @course.enroll_user(@student1, 'StudentEnrollment', :section => @section).accept!
 
       quiz = quiz_klass.create!(:title => 'quiz1', :context => @course, :points_possible => 10)
@@ -240,7 +241,7 @@ describe "Analytics API", :type => :request do
     end
 
     def response_assignment(json, assignment)
-      json_assignment = json.detect{ |a| a["assignment_id"] == assignment.id }
+      json_assignment = json.detect { |a| a["assignment_id"] == assignment.id }
       expect(json_assignment).not_to be_nil
       json_assignment
     end
@@ -305,7 +306,8 @@ describe "Analytics API", :type => :request do
 
     it "should have the student submit time" do
       json = analytics_api_call(:assignments, @course, @students[1])
-      expect(response_assignment(json, @assignments[4])["submission"]["submitted_at"]).to eq (@due_time - 2.hours).iso8601
+      expect(response_assignment(json,
+                                 @assignments[4])["submission"]["submitted_at"]).to eq (@due_time - 2.hours).iso8601
     end
 
     it "should track due dates" do
@@ -323,7 +325,7 @@ describe "Analytics API", :type => :request do
     it "should fetch data for a student in the course" do
       # course with teacher and some students
       course_with_teacher(:active_all => true)
-      3.times{ |u| student_in_course(:active_all => true) }
+      3.times { |u| student_in_course(:active_all => true) }
       @user = @teacher
 
       # don't let the teacher see grades
@@ -332,8 +334,8 @@ describe "Analytics API", :type => :request do
 
       # should fail
       raw_api_call(:get, "/api/v1/courses/#{@course.id}/analytics/student_summaries",
-        :controller => 'analytics_api', :action => 'course_student_summaries', :format => 'json',
-        :course_id => @course.id.to_s)
+                   :controller => 'analytics_api', :action => 'course_student_summaries', :format => 'json',
+                   :course_id => @course.id.to_s)
       expect(response.status.to_i).to eq 401 # Unauthorized
     end
   end
@@ -357,10 +359,11 @@ describe "Analytics API", :type => :request do
 
     it "should return assignments" do
       Assignment.create!(
-          :title => "assignment",
-          :context => @course,
-          :points_possible => 10,
-          :due_at => Time.now + 2.days)
+        :title => "assignment",
+        :context => @course,
+        :points_possible => 10,
+        :due_at => Time.now + 2.days
+      )
 
       json = api_call(:get, url, course_assignments_route)
       expect(response.status.to_i).to eq 200
@@ -393,7 +396,7 @@ describe "Analytics API", :type => :request do
       course_with_teacher(active_all: true)
       course_with_student(course: @course, active_all: true)
     end
-s
+    s
     it "should return submission data when graded but not submitted" do
       assignment = assignment_model course: @course
       assignment.grade_student(@student, grade: 1, grader: @teacher)

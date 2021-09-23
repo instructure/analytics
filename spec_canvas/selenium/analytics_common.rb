@@ -47,7 +47,7 @@ shared_examples_for "analytics tests" do
     @account
   end
 
-  def page_view(opts={})
+  def page_view(opts = {})
     Setting.set('enable_page_views', 'db')
     course = opts[:course] || @course
     user = opts[:user] || @student || User.create!
@@ -55,9 +55,10 @@ shared_examples_for "analytics tests" do
     summarized = opts[:summarized] || nil
 
     page_view = PageView.new(
-        :context => course,
-        :user => user,
-        :controller => controller)
+      :context => course,
+      :user => user,
+      :controller => controller
+    )
 
     page_view.summarized = summarized
     page_view.request_id = SecureRandom.hex(10)
@@ -110,7 +111,8 @@ shared_examples_for "analytics tests" do
       @course.enroll_teacher(teacher)
     end
     number_of_assignments.times do |i|
-      assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100, :due_at => Time.now.utc, :submission_types => "online")
+      assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100,
+                                                      :due_at => Time.now.utc, :submission_types => "online")
       assignment.submit_homework(student)
       assignment.grade_student(student, grade: rand(100) + 1, grader: teacher)
       graded_assignments.push(assignment)
@@ -126,11 +128,15 @@ shared_examples_for "analytics tests" do
   end
 
   def setup_variety_assignments(add_no_due_date = true)
-    @missed_assignment = @course.assignments.create!(:title => "missed assignment", :due_at => 5.days.ago, :points_possible => 10, :submission_types => 'online_url')
-    @no_due_date_assignment = @course.assignments.create!(:title => 'no due date assignment', :due_at => nil, :points_possible => 20, :submission_types => 'online_url') if add_no_due_date
-    @late_assignment = @course.assignments.create!(:title => 'late assignment', :due_at => 1.day.ago, :points_possible => 20, :submission_types => 'online_url')
+    @missed_assignment = @course.assignments.create!(:title => "missed assignment", :due_at => 5.days.ago,
+                                                     :points_possible => 10, :submission_types => 'online_url')
+    @no_due_date_assignment = @course.assignments.create!(:title => 'no due date assignment', :due_at => nil,
+                                                          :points_possible => 20, :submission_types => 'online_url') if add_no_due_date
+    @late_assignment = @course.assignments.create!(:title => 'late assignment', :due_at => 1.day.ago,
+                                                   :points_possible => 20, :submission_types => 'online_url')
     @late_assignment.submit_homework(@student, :submission_type => 'online_url')
-    @on_time_assignment = @course.assignments.create!(:title => 'on time submission', :due_at => 2.days.from_now, :points_possible => 10, :submission_types => 'online_url')
+    @on_time_assignment = @course.assignments.create!(:title => 'on time submission', :due_at => 2.days.from_now,
+                                                      :points_possible => 10, :submission_types => 'online_url')
     @on_time_assignment.submit_homework(@student, :submission_type => 'online_url')
   end
 
@@ -211,16 +217,18 @@ shared_examples_for "analytics tests" do
     to_grade_left = number_graded
 
     number_assignments.times do |i|
-      assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100, :due_at => 1.day.ago, :submission_types => "online")
+      assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100,
+                                                      :due_at => 1.day.ago, :submission_types => "online")
       assignment.submit_homework(student)
       next unless to_grade_left > 0
+
       if @course.teacher_enrollments.any?
         teacher = @course.teacher_enrollments.last.user
       else
         teacher = User.create!
         @course.enroll_teacher(teacher)
       end
-      assignment.grade_student(student, grade: ((100 - i*10) % 100), grader: teacher)
+      assignment.grade_student(student, grade: ((100 - i * 10) % 100), grader: teacher)
       graded_assignments.push(assignment)
       to_grade_left -= 1
     end
@@ -255,7 +263,9 @@ shared_examples_for "analytics tests" do
       dates = [old_page_views_date, Time.now]
       number_of_page_views = 5
       number_of_page_views.times { page_view(:user => @student, :course => @course) }
-      number_of_page_views.times { page_view(:user => @student, :course => @course, :created_at => old_page_views_date) }
+      number_of_page_views.times {
+        page_view(:user => @student, :course => @course, :created_at => old_page_views_date)
+      }
       go_to_analytics(analytics_url)
       dates.each { |date| validate_tooltip_text(date_selector(date), number_of_page_views.to_s + ' page views') }
     end
