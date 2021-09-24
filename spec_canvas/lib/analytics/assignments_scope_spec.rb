@@ -33,7 +33,7 @@ module Analytics
         harness.instance_variable_set '@course', course
       end
 
-      it 'should have versions included' do
+      it 'has versions included' do
         assignments = harness.assignment_scope.to_a
 
         expect(assignments.size).to eq 3
@@ -42,7 +42,7 @@ module Analytics
         end
       end
 
-      it 'should only return published assignments' do
+      it 'only returns published assignments' do
         unpublished_assignment = course.assignments.first
         unpublished_assignment.update_attribute(:workflow_state, 'unpublished')
 

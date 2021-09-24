@@ -31,18 +31,18 @@ describe Analytics::Department do
   end
 
   describe "account level statistics" do
-    it "should return number of subaccounts" do
+    it "returns number of subaccounts" do
       expect(@acct_statistics.statistics[:subaccounts]).to eq 2
       expect(@acct_statistics.statistics_by_subaccount.size).to eq 3
     end
 
-    it "should return the number of courses, across all subaccounts" do
+    it "returns the number of courses, across all subaccounts" do
       course_shim(account: @account, active_course: true)
       course_shim(account: @account.sub_accounts.first, active_course: true)
       expect(@acct_statistics.statistics[:courses]).to eq 2
     end
 
-    it "should not count courses that are crosslisted" do
+    it "does not count courses that are crosslisted" do
       c1 = course_shim(account: @account.sub_accounts.first, active_all: true)
       c2 = course_shim(account: @account.sub_accounts.second, active_all: true)
       c2.course_sections.create!({ :name => "section 2" })
@@ -53,7 +53,7 @@ describe Analytics::Department do
       expect(lst[2][:courses]).to eq 1
     end
 
-    it "should return the number of courses, grouped by subaccount" do
+    it "returns the number of courses, grouped by subaccount" do
       course_shim(account: @account, active_course: true)
       course_shim(account: @account.sub_accounts.first, active_course: true)
       course_shim(account: @account.sub_accounts.second, active_course: true)
@@ -64,7 +64,7 @@ describe Analytics::Department do
       expect(lst[2][:courses]).to eq 2
     end
 
-    it "should return the number of teachers and students, across all subaccounts" do
+    it "returns the number of teachers and students, across all subaccounts" do
       c1 = course_shim(account: @account, active_all: true)
       c2 = course_shim(account: @account.sub_accounts.first, active_all: true)
       s1 = student_in_course(course: c1, active_all: true).user
@@ -75,7 +75,7 @@ describe Analytics::Department do
       expect(hsh[:students]).to eq 2
     end
 
-    it "should return the number of teachers and students, grouped by subaccount" do
+    it "returns the number of teachers and students, grouped by subaccount" do
       c1 = course_shim(account: @account, active_all: true)
       c2 = course_shim(account: @account.sub_accounts.first, active_all: true)
       c3 = course_shim(account: @account.sub_accounts.second, active_all: true)

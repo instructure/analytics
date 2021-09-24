@@ -29,7 +29,7 @@ module Analytics
     end
 
     describe "#enrollment" do
-      it "should not cache the enrollment" do
+      it "does not cache the enrollment" do
         enable_cache do
           a1 = StudentInCourse.new(@teacher, @course, @student)
           a2 = StudentInCourse.new(@teacher, @course, @student)

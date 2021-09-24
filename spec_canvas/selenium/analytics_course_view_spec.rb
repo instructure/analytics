@@ -50,7 +50,7 @@ describe "analytics course view" do
   before(:each) { user_session(@teacher) }
 
   context "course home page" do
-    it 'should show the analytics button on the course home page' do
+    it 'shows the analytics button on the course home page' do
       get "/courses/#{@course.id}"
       wait_for_ajaximations
       expect(find('div.course-options').text).to include("Analytics")
@@ -63,7 +63,7 @@ describe "analytics course view" do
       include_examples "participation graph specs"
     end
 
-    it "should validate finishing assignments graph" do
+    it "validates finishing assignments graph" do
       finishing_graph_css = '#finishing-assignments-graph'
       setup_variety_assignments
       go_to_analytics("/courses/#{@course.id}/analytics")
@@ -86,7 +86,7 @@ describe "analytics course view" do
       }
     end
 
-    it "should validate grades graph" do
+    it "validates grades graph" do
       setup_for_grades_graph
       validation_text = ['High: ' + @first_submission_score.to_i.to_s, @first_assignment.title]
       go_to_analytics("/courses/#{@course.id}/analytics")
@@ -97,7 +97,7 @@ describe "analytics course view" do
     end
 
     describe "graph toggle switch" do
-      it "should hide the graphs and show table when selected" do
+      it "hides the graphs and show table when selected" do
         go_to_analytics("/courses/#{@course.id}/analytics")
         expect(f('#activities-table')).not_to be_displayed
         expect(f('.graph')).to be_displayed
@@ -109,14 +109,14 @@ describe "analytics course view" do
   end
 
   context "students display" do
-    it "should be absent unless the user has permission to see grades" do
+    it "is absent unless the user has permission to see grades" do
       RoleOverride.manage_role_override(@account, teacher_role, 'manage_grades', :override => false)
       RoleOverride.manage_role_override(@account, teacher_role, 'view_all_grades', :override => false)
       go_to_analytics("/courses/#{@course.id}/analytics")
       expect(f('#content')).not_to contain_css('#students')
     end
 
-    it "should validate correct number of students are showing up" do
+    it "validates correct number of students are showing up" do
       def student_rows
         ffj('#students div.student') # avoid selenium caching
       end
@@ -130,13 +130,13 @@ describe "analytics course view" do
       expect(student_rows.count).to eq 3
     end
 
-    it "should validate current score display for students" do
+    it "validates current score display for students" do
       randomly_grade_assignments(5)
       go_to_analytics("/courses/#{@course.id}/analytics")
       expect(find("#student_#{@student.id} .current_score")).to include_text(current_student_score)
     end
 
-    it "should display student activity for tomorrow" do
+    it "displays student activity for tomorrow" do
       tomorrow = Time.now.utc + 1.day
       page_view(:user => @student, :course => @course, :participated => true, :created_at => tomorrow)
 
@@ -144,13 +144,13 @@ describe "analytics course view" do
       expect(fj("rect.#{tomorrow.strftime("%Y-%m-%d")}")).to be_displayed
     end
 
-    it "should count pageviews" do
+    it "counts pageviews" do
       3.times { page_view(:user => @student, :course => @course) }
       go_to_analytics("/courses/#{@course.id}/analytics")
       expect(find("#student_#{@student.id} .page_views")).to include_text('3')
     end
 
-    it "should count submissions" do
+    it "counts submissions" do
       setup_variety_assignments(false)
       go_to_analytics("/courses/#{@course.id}/analytics")
       # Only 2 submissions are real now
@@ -175,7 +175,7 @@ describe "analytics course view" do
       create_past_due(3, 2)
     end
 
-    it "should display context card content", priority: "1", test_id: 3109484 do
+    it "displays context card content", priority: "1", test_id: 3109484 do
       Gradebook.visit(@course)
       Gradebook::Cells.student_cell_name_link(@student2).click
       expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student")
@@ -194,7 +194,7 @@ describe "analytics course view" do
       expect(f("body")).to contain_jqcss(".StudentContextTray-Header__Content:contains(Last login)")
     end
 
-    it "should switch student displayed in tray", priority: "1", test_id: 3022079 do
+    it "switches student displayed in tray", priority: "1", test_id: 3022079 do
       enable_cache do
         Gradebook.visit(@course)
         Gradebook::Cells.student_cell_name_link(@student1).click

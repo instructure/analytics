@@ -31,12 +31,12 @@ describe CachedGradeDistribution do
       @dist = @course.cached_grade_distribution
     end
 
-    it "should count grades from active student enrollments" do
+    it "counts grades from active student enrollments" do
       @dist.recalculate!
       expect(@dist.s12).to eq 1
     end
 
-    it "should count grades from completed student enrollments" do
+    it "counts grades from completed student enrollments" do
       @enrollment.workflow_state = 'completed'
       @enrollment.save!
 
@@ -44,7 +44,7 @@ describe CachedGradeDistribution do
       expect(@dist.s12).to eq 1
     end
 
-    it "should not count grades from invited student enrollments" do
+    it "does not count grades from invited student enrollments" do
       @enrollment.workflow_state = 'invited'
       @enrollment.save!
 
@@ -52,7 +52,7 @@ describe CachedGradeDistribution do
       expect(@dist.s12).to eq 0
     end
 
-    it "should not count grades from deleted student enrollments" do
+    it "does not count grades from deleted student enrollments" do
       @enrollment.workflow_state = 'deleted'
       @enrollment.save!
 
@@ -60,7 +60,7 @@ describe CachedGradeDistribution do
       expect(@dist.s12).to eq 0
     end
 
-    it "should not count grades from fake student enrollments" do
+    it "does not count grades from fake student enrollments" do
       @enrollment.type = 'StudentViewEnrollment'
       @enrollment.save!
 
@@ -68,7 +68,7 @@ describe CachedGradeDistribution do
       expect(@dist.s12).to eq 0
     end
 
-    it "should not count grades from teacher enrollments" do
+    it "does not count grades from teacher enrollments" do
       @enrollment.type = 'TeacherEnrollment'
       @enrollment.save!
 
@@ -76,7 +76,7 @@ describe CachedGradeDistribution do
       expect(@dist.s12).to eq 0
     end
 
-    it "should count same grade only once per student" do
+    it "counts same grade only once per student" do
       other_section = @course.course_sections.create!
       @second_enrollment = @course.enroll_student(@student,
                                                   :enrollment_state => 'active',
@@ -88,7 +88,7 @@ describe CachedGradeDistribution do
       expect(@dist.s12).to eq 1 # not 2
     end
 
-    it "should zero out scores it doesn't see" do
+    it "zeroes out scores it doesn't see" do
       @dist.recalculate!
       expect(@dist.s12).to eq 1
 
@@ -99,7 +99,7 @@ describe CachedGradeDistribution do
       expect(@dist.s12).to eq 0
     end
 
-    it "should round scores" do
+    it "rounds scores" do
       @enrollment.find_score.update!(current_score: 11.4)
       @enrollment.save!
 
@@ -123,12 +123,12 @@ describe CachedGradeDistribution do
       allow_any_instantiation_of(@course).to receive(:cached_grade_distribution).and_return(@dist)
     end
 
-    it "should get recalculated when a student enrollment is added" do
+    it "gets recalculated when a student enrollment is added" do
       expect(@dist).to receive(:recalculate!).once
       student_in_course
     end
 
-    it "should get recalculated when a student enrollment's workflow_state is changed" do
+    it "gets recalculated when a student enrollment's workflow_state is changed" do
       @enrollment = student_in_course
 
       expect(@dist).to receive(:recalculate!).once
@@ -136,12 +136,12 @@ describe CachedGradeDistribution do
       @enrollment.save
     end
 
-    it "should not get recalculated when a fake student enrollment is added" do
+    it "does not get recalculated when a fake student enrollment is added" do
       expect(@dist).to receive(:recalculate!).never
       @course.student_view_student
     end
 
-    it "should not get recalculated when a fake student enrollment's workflow_state is changed" do
+    it "does not get recalculated when a fake student enrollment's workflow_state is changed" do
       @course.student_view_student
       @enrollment = @course.student_view_enrollments.first
 
@@ -150,26 +150,26 @@ describe CachedGradeDistribution do
       @enrollment.save
     end
 
-    it "should get recalculated after non-empty GradeCalculator.recompute_final_score" do
+    it "gets recalculated after non-empty GradeCalculator.recompute_final_score" do
       student_in_course
 
       expect(@dist).to receive(:recalculate!).once
       GradeCalculator.recompute_final_score([@student.id], @course.id)
     end
 
-    it "should not get recalculated after empty GradeCalculator.recompute_final_score" do
+    it "does not get recalculated after empty GradeCalculator.recompute_final_score" do
       # no-op because there are no enrollments in the course
       expect(@dist).to receive(:recalculate!).never
       GradeCalculator.recompute_final_score([], @course.id)
     end
 
-    it "should not get recalculated if ignore_muted in GradeCalculator is false" do
+    it "does not get recalculated if ignore_muted in GradeCalculator is false" do
       student_in_course
       expect(@dist).to receive(:recalculate!).never
       GradeCalculator.recompute_final_score([@student.id], @course.id, ignore_muted: false)
     end
 
-    it "should not get recalculated if grading period is passed to GradeCalculator" do
+    it "does not get recalculated if grading period is passed to GradeCalculator" do
       student_in_course
       grading_period_set = @course.root_account.grading_period_groups.create!
       grading_period_set.enrollment_terms << @course.enrollment_term
