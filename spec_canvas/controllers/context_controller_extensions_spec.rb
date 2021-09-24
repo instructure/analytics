@@ -116,7 +116,7 @@ describe ContextController, :type => :controller do
         user_session(account_admin_user)
       end
 
-      it "stills inject an analytics button on the roster_user page" do
+      it "still injects an analytics button on the roster_user page" do
         expect_injection(@course, @student1)
       end
     end
