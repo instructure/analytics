@@ -42,7 +42,7 @@ module Analytics::Rollups
     end
 
     def self.parse(points, bucket_list)
-      buckets = self.new(points)
+      buckets = new(points)
       bucket_list.each_with_index do |count, index|
         value = buckets.bucket_size * index
         count.times { buckets << value }
