@@ -21,12 +21,13 @@
 class Analytics::AssignmentRollup
   attr_accessor :title, :points_possible, :due_at, :muted
   attr_accessor :total_submissions, :late_submissions, :missing_submissions, :on_time_submissions
-  attr_accessor :max_score, :min_score, :first_quartile_score, :median_score, :third_quartile_score, :score_buckets, :non_digital_submission
+  attr_accessor :max_score, :min_score, :first_quartile_score, :median_score, :third_quartile_score, :score_buckets,
+                :non_digital_submission
   attr_accessor :assignment_id, :course_section_id
   attr_accessor :tardiness_breakdown, :buckets
 
   def initialize(attrs = {})
-    attrs.each { |k,v| self.send("#{k}=", v) }
+    attrs.each { |k, v| send("#{k}=", v) }
   end
 
   def self.init_rollup(assignment)
@@ -36,7 +37,7 @@ class Analytics::AssignmentRollup
       rollup.points_possible     = assignment.points_possible
       rollup.due_at              = assignment.due_at
       rollup.muted               = assignment.muted?
-      rollup.non_digital_submission  = assignment.non_digital_submission?
+      rollup.non_digital_submission = assignment.non_digital_submission?
       rollup.total_submissions   = 0
       rollup.missing_submissions = 0
       rollup.late_submissions    = 0
@@ -49,7 +50,7 @@ class Analytics::AssignmentRollup
   end
 
   def self.init(assignment, enrollments_scope)
-    stats_by_section = Hash.new { |h,section_id| h[section_id] = init_rollup(assignment) }
+    stats_by_section = Hash.new { |h, section_id| h[section_id] = init_rollup(assignment) }
 
     enrollments_with_submissions_scope(assignment, enrollments_scope).find_each do |submission|
       # weird object here - submission is actually an Enrollment, but with a
@@ -74,15 +75,16 @@ class Analytics::AssignmentRollup
   def self.build(course, assignment)
     # explicitly give the :type here, because student_enrollments scope also
     # includes StudentViewEnrollment which we want to exclude
-    enrollments_scope = course.enrollments.where(workflow_state: %w[active completed], type: 'StudentEnrollment').except(:preload)
-    self.init(assignment, enrollments_scope)
+    enrollments_scope = course.enrollments.where(workflow_state: %w[active completed],
+                                                 type: 'StudentEnrollment').except(:preload)
+    init(assignment, enrollments_scope)
   end
 
   def self.enrollments_with_submissions_scope(assignment, enrollments_scope)
-    enrollments_scope.
-      joins("LEFT JOIN #{Submission.quoted_table_name} ON submissions.user_id = enrollments.user_id
-              AND submissions.assignment_id = #{assignment.id} AND submissions.workflow_state <> 'deleted'").
-      select("enrollments.id,
+    enrollments_scope
+      .joins("LEFT JOIN #{Submission.quoted_table_name} ON submissions.user_id = enrollments.user_id
+              AND submissions.assignment_id = #{assignment.id} AND submissions.workflow_state <> 'deleted'")
+      .select("enrollments.id,
                enrollments.user_id,
                enrollments.course_id,
                enrollments.course_section_id,
@@ -112,19 +114,19 @@ class Analytics::AssignmentRollup
 
     submission = submission_from(assignment, enrollment_and_submission)
     assignment_submission = Analytics::AssignmentSubmission.new(assignment, submission)
-    self.tardiness_breakdown.tally!(assignment_submission)
+    tardiness_breakdown.tally!(assignment_submission)
 
-    if self.buckets && score = assignment_submission.score
-      self.buckets << score
+    if buckets && score = assignment_submission.score
+      buckets << score
     end
   end
 
   def calculate(assignment)
-    tardiness                = self.tardiness_breakdown.as_hash_scaled(self.total_submissions)
+    tardiness                = tardiness_breakdown.as_hash_scaled(self.total_submissions)
     self.missing_submissions = tardiness[:missing]
     self.late_submissions    = tardiness[:late]
     self.on_time_submissions = tardiness[:on_time]
-    if self.buckets
+    if buckets
       self.max_score            = buckets.max
       self.min_score            = buckets.min
       self.first_quartile_score = buckets.first_quartile
@@ -148,7 +150,7 @@ class Analytics::AssignmentRollup
       :min_score => min_score,
       :points_possible => points_possible,
       :third_quartile => third_quartile_score,
-      :non_digital_submission  => non_digital_submission,
+      :non_digital_submission => non_digital_submission,
       :tardiness_breakdown => {
         :late => late_submissions,
         :missing => missing_submissions,
@@ -165,7 +167,7 @@ class Analytics::AssignmentRollup
     end
   end
 
-  def as_json(options={})
+  def as_json(options = {})
     data
   end
 end

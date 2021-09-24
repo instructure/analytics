@@ -44,7 +44,7 @@ class PageViewsRollup < ActiveRecord::Base
     else
       course_id, shard = Shard.local_id_for(course)
       shard ||= Shard.current
-      shard.activate { self.where(:course_id => course_id) }
+      shard.activate { where(:course_id => course_id) }
     end
   end
 
@@ -61,11 +61,11 @@ class PageViewsRollup < ActiveRecord::Base
       scope = bin_scope_for(scope)
     end
 
-    bin = scope.
-      for_dates(date).
-      for_category(category).
-      lock(:no_key_update).
-      first
+    bin = scope
+          .for_dates(date)
+          .for_category(category)
+          .lock(:no_key_update)
+          .first
 
     unless bin
       bin = scope.new
@@ -92,6 +92,7 @@ class PageViewsRollup < ActiveRecord::Base
         rescue ActiveRecord::RecordNotUnique
           bin = bin_for(scope, date, category)
           raise if bin.new_record?
+
           bin.augment(views, participations)
         end
       end
@@ -101,7 +102,7 @@ class PageViewsRollup < ActiveRecord::Base
 
   def self.increment!(course, date, category, participated)
     if Setting.get("page_view_rollups_method", "") == "redis" &&
-        Canvas.redis_enabled?
+       Canvas.redis_enabled?
       increment_cached!(course, date, category, participated)
     else
       increment_db!(course, date, category, participated)
@@ -148,7 +149,7 @@ class PageViewsRollup < ActiveRecord::Base
       # we grab all the keys up front, because redis lua scripts aren't allowed
       # to call the SPOP command (it's non-deterministic).
       lua_run(:process_setup, [in_progress_set_key, lock_key, lock_time])
-      keys = self.redis.smembers(in_progress_set_key)
+      keys = redis.smembers(in_progress_set_key)
     rescue => e
       # An error here likely means that the original key does not exist,
       # so there is no work to do.
@@ -177,7 +178,6 @@ class PageViewsRollup < ActiveRecord::Base
           augment!(course, date, category, views, participations)
         end
       end
-
     ensure
       lua_run(:unlock, [lock_key])
     end
@@ -212,10 +212,9 @@ class PageViewsRollup < ActiveRecord::Base
   end
 
   def self.page_views_rollup_key_from_course_id(course)
-    [ "page_views_rollup",
-      Shard.current.id,
-      course.to_s
-    ].join ":"
+    ["page_views_rollup",
+     Shard.current.id,
+     course.to_s].join ":"
   end
 
   def self.course_id_from_page_views_rollup_key(key)
@@ -235,7 +234,8 @@ class PageViewsRollup < ActiveRecord::Base
     category, date, participation = key.split(':')
     # participation keys are skipped, so don't bother doing the (fairly)
     # expensive timezone calculations on it.
-    return [ nil, nil ] if participation
-    [ Time.zone.at(date.to_i), category ]
+    return [nil, nil] if participation
+
+    [Time.zone.at(date.to_i), category]
   end
 end

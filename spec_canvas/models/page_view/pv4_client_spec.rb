@@ -30,7 +30,7 @@ describe PageView::Pv4Client do
 
   describe "#user_in_course_participations" do
     it "caches between requests" do
-      stub = double(body: { 'participations' => [], 'page_views' => []}.to_json)
+      stub = double(body: { 'participations' => [], 'page_views' => [] }.to_json)
       expect(CanvasHttp).to receive(:get).once.and_return(stub)
       course = Course.create!
       user = User.create!
@@ -43,18 +43,18 @@ describe PageView::Pv4Client do
   describe "#counters_by_context_for_users" do
     it "transforms the response to a hash" do
       stub = double(body: {
-          'users' => [
-              { 'user_id' => 1, 'page_views' => [], 'participations' => [] },
-              { 'user_id' => 2, 'page_views' => [], 'participations' => [] }
-          ]
+        'users' => [
+          { 'user_id' => 1, 'page_views' => [], 'participations' => [] },
+          { 'user_id' => 2, 'page_views' => [], 'participations' => [] }
+        ]
       }.to_json)
       expect(CanvasHttp).to receive(:get).and_return(stub).at_least(:once)
       course = Course.create!
       expect(client.counters_by_context_for_users(course, [])).to eq({})
-      expect(client.counters_by_context_for_users(course, [1])).to eq( { 1 => { page_views: [], participations: [] }} )
+      expect(client.counters_by_context_for_users(course, [1])).to eq({ 1 => { page_views: [], participations: [] } })
       expect(client.counters_by_context_for_users(course, [1, 2])).to eq(
-          { 1 => { page_views: [], participations: [] },
-            2 => { page_views: [], participations: [] } }
+        { 1 => { page_views: [], participations: [] },
+          2 => { page_views: [], participations: [] } }
       )
     end
   end

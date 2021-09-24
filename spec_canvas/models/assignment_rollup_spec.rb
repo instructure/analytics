@@ -23,7 +23,7 @@ require_dependency "analytics/assignment_rollup"
 
 module Analytics
   describe AssignmentRollup do
-    describe "build" do
+    describe "build" do # rubocop:todo RSpec/EmptyExampleGroup
       # pending 'merge of https://gerrit.instructure.com/c/120358/'
       # it "does not work with a missing external tool assignment" do
       #   assignment_model(due_at: 1.day.ago, submission_types: "external_tool")
