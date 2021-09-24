@@ -21,6 +21,7 @@ require_relative '../../../../../spec/spec_helper'
 require_relative '../spec_helper'
 
 describe Analytics::Department do
+
   before :each do
     @account = Account.default
     @account.sub_accounts.create!(name: "Some department")
@@ -31,40 +32,40 @@ describe Analytics::Department do
   end
 
   describe "account level statistics" do
-    it "returns number of subaccounts" do
+    it "should return number of subaccounts" do
       expect(@acct_statistics.statistics[:subaccounts]).to eq 2
       expect(@acct_statistics.statistics_by_subaccount.size).to eq 3
     end
 
-    it "returns the number of courses, across all subaccounts" do
+    it "should return the number of courses, across all subaccounts" do
       course_shim(account: @account, active_course: true)
       course_shim(account: @account.sub_accounts.first, active_course: true)
       expect(@acct_statistics.statistics[:courses]).to eq 2
     end
 
-    it "does not count courses that are crosslisted" do
+    it "should not count courses that are crosslisted" do
       c1 = course_shim(account: @account.sub_accounts.first, active_all: true)
       c2 = course_shim(account: @account.sub_accounts.second, active_all: true)
       c2.course_sections.create!({ :name => "section 2" })
       c2.course_sections.first.crosslist_to_course(c1)
-      lst = @acct_statistics.statistics_by_subaccount.sort_by { |x| x[:id] }
+      lst = @acct_statistics.statistics_by_subaccount.sort_by{|x| x[:id]}
       expect(lst[0][:courses]).to eq 0
       expect(lst[1][:courses]).to eq 1
       expect(lst[2][:courses]).to eq 1
     end
 
-    it "returns the number of courses, grouped by subaccount" do
+    it "should return the number of courses, grouped by subaccount" do
       course_shim(account: @account, active_course: true)
       course_shim(account: @account.sub_accounts.first, active_course: true)
       course_shim(account: @account.sub_accounts.second, active_course: true)
       course_shim(account: @account.sub_accounts.second, active_course: true)
-      lst = @acct_statistics.statistics_by_subaccount.sort_by { |x| x[:id] }
+      lst = @acct_statistics.statistics_by_subaccount.sort_by{|x| x[:id]}
       expect(lst[0][:courses]).to eq 1
       expect(lst[1][:courses]).to eq 1
       expect(lst[2][:courses]).to eq 2
     end
 
-    it "returns the number of teachers and students, across all subaccounts" do
+    it "should return the number of teachers and students, across all subaccounts" do
       c1 = course_shim(account: @account, active_all: true)
       c2 = course_shim(account: @account.sub_accounts.first, active_all: true)
       s1 = student_in_course(course: c1, active_all: true).user
@@ -75,7 +76,7 @@ describe Analytics::Department do
       expect(hsh[:students]).to eq 2
     end
 
-    it "returns the number of teachers and students, grouped by subaccount" do
+    it "should return the number of teachers and students, grouped by subaccount" do
       c1 = course_shim(account: @account, active_all: true)
       c2 = course_shim(account: @account.sub_accounts.first, active_all: true)
       c3 = course_shim(account: @account.sub_accounts.second, active_all: true)
@@ -86,7 +87,7 @@ describe Analytics::Department do
       3.times do
         student_in_course(course: c4, active_all: true)
       end
-      lst = @acct_statistics.statistics_by_subaccount.sort_by { |x| x[:id] }
+      lst = @acct_statistics.statistics_by_subaccount.sort_by{|x| x[:id]}
       expect(lst[0][:teachers]).to eq 1
       expect(lst[1][:teachers]).to eq 1
       expect(lst[2][:teachers]).to eq 2
@@ -112,7 +113,7 @@ describe Analytics::Department do
     # none     | > now      | [now - 1.year, now]       | ongoing term with indefinite start
     # none     | none       | [now - 1.year, now]       | ongoing term with indefinite start or end
 
-    let!(:now) { Time.zone.now }
+    let!(:now){ Time.zone.now }
 
     before do
       allow(@acct_statistics).to receive(:secondaried).and_return(nil)

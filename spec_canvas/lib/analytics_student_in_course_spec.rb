@@ -29,7 +29,7 @@ module Analytics
     end
 
     describe "#enrollment" do
-      it "does not cache the enrollment" do
+      it "should not cache the enrollment" do
         enable_cache do
           a1 = StudentInCourse.new(@teacher, @course, @student)
           a2 = StudentInCourse.new(@teacher, @course, @student)
@@ -45,17 +45,16 @@ module Analytics
 
       it "has a :submission field" do
         assignment = double('assignment')
-        subm = double('subm', user_id: @student.id, score: 10, submitted_at: time1, posted_at: time_posted,
-                              missing?: false, excused?: false)
+        subm = double('subm', user_id: @student.id, score: 10, submitted_at: time1, posted_at: time_posted, missing?: false, excused?: false)
         data = analytics.extended_assignment_data(assignment, [subm])
         expect(data).to eq({
-                             excused: false,
-                             submission: {
-                               posted_at: time_posted,
-                               score: 10,
-                               submitted_at: time1
-                             }
-                           })
+          excused: false,
+          submission: {
+            posted_at: time_posted,
+            score: 10,
+            submitted_at: time1
+          }
+        })
       end
     end
 
@@ -67,13 +66,14 @@ module Analytics
       let(:assignment) { double('assignment').as_null_object }
       let(:submission) {
         double('submission',
-               :assignment_id => assignment.id,
-               :assigment => assignment,
-               :user_id => @student.id,
-               :cached_due_date => due_at,
-               :missing? => false,
-               :late? => false,
-               :submitted_at => submitted_at)
+          :assignment_id => assignment.id,
+          :assigment => assignment,
+          :user_id => @student.id,
+          :cached_due_date => due_at,
+          :missing? => false,
+          :late? => false,
+          :submitted_at => submitted_at
+        )
       }
 
       it 'lets overridden_for determine the due_at value' do

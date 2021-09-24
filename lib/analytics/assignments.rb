@@ -23,8 +23,8 @@ module Analytics
     # required of host: submissions(assignments)
 
     SUBMISSION_COLUMNS_SELECT = [:id, :assignment_id, :score, :user_id, :submission_type,
-                                 :submitted_at, :grade, :graded_at, :updated_at, :workflow_state, :cached_due_date, :excused,
-                                 :late_policy_status, :cached_quiz_lti, :posted_at]
+            :submitted_at, :grade, :graded_at, :updated_at, :workflow_state, :cached_due_date, :excused,
+            :late_policy_status, :cached_quiz_lti, :posted_at]
 
     [:accepted_at, :seconds_late_override].each do |column|
       # this is temporary and will be cleaned up once the commit lands in canvas
@@ -40,10 +40,9 @@ module Analytics
         submissions = submissions(assignments).group_by { |s| s.assignment_id }
         assignment_ids = assignments.map(&:id)
         course_module_tags = @course.context_module_tags.where(
-          content_type: 'Assignment',
-          content_id: assignment_ids,
-          tag_type: 'context_module'
-        ).select([:content_id, :context_module_id]).reorder(:context_module_id).distinct
+            content_type: 'Assignment',
+            content_id: assignment_ids,
+            tag_type: 'context_module').select([:content_id, :context_module_id]).reorder(:context_module_id).distinct
         course_module_tags_hash = {}
         course_module_tags.each do |t|
           array = course_module_tags_hash[t.content_id] ||= []
@@ -89,8 +88,8 @@ module Analytics
           scope = scope.visible_to_students_in_course_with_da(user.id, this_course.id)
         end
 
-        scope.preload(:versions) # Optimizes AssignmentOverrideApplicator
-             .reorder("assignments.due_at, assignments.id")
+        scope.preload(:versions). # Optimizes AssignmentOverrideApplicator
+              reorder("assignments.due_at, assignments.id")
       end
     end
 
@@ -98,17 +97,17 @@ module Analytics
       !course.grants_any_right?(user, :read_as_admin, :manage_grades, *RoleOverride::GRANULAR_MANAGE_ASSIGNMENT_PERMISSIONS)
     end
 
-    def assignment_data(assignment, submissions, course_module_tags_hash = nil)
+    def assignment_data(assignment, submissions, course_module_tags_hash=nil)
       submissions ||= []
-      real_submissions = submissions.reject { |s| fake_student_ids.include?(s.user_id) }
+      real_submissions = submissions.reject{|s| fake_student_ids.include?(s.user_id)}
 
       module_ids = []
       if course_module_tags_hash
         module_ids = course_module_tags_hash[assignment.id] || []
       end
 
-      hash = basic_assignment_data(assignment, submissions)
-             .merge(:muted => muted(assignment))
+      hash = basic_assignment_data(assignment, submissions).
+        merge(:muted => muted(assignment))
 
       unless muted(assignment) || suppressed_due_to_few_submissions(real_submissions) || suppressed_due_to_course_setting
         scores = Stats::Counter.new
@@ -127,14 +126,14 @@ module Analytics
         )
       end
 
-      if respond_to?(:extended_assignment_data)
+      if self.respond_to?(:extended_assignment_data)
         hash.merge!(extended_assignment_data(assignment, submissions))
       end
 
       hash
     end
 
-    def basic_assignment_data(assignment, submissions = nil)
+    def basic_assignment_data(assignment, submissions=nil)
       {
         :assignment_id => assignment.id,
         :title => assignment.title,

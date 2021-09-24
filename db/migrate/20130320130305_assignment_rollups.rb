@@ -5,10 +5,10 @@ class AssignmentRollups < ActiveRecord::Migration[4.2]
 
   def self.up
     create_table :assignment_rollups do |t|
-      t.integer  :assignment_id,     :limit => 8, :null => false
+      t.integer  :assignment_id,     :limit => 8,   :null => false
       t.integer  :course_section_id, :limit => 8
       t.datetime :due_at
-      t.string   :title, :null => false
+      t.string   :title,                            :null => false
       t.boolean  :muted
       t.integer  :max_score
       t.float    :first_quartile_score

@@ -28,10 +28,9 @@ module Analytics::Rollups
 
     def data
       return nil if @rollups.blank?
-
       hash = @rollups.first.data.slice(*STABLE_ATTRS)
       hash.merge!(score_summary)
-      hash.merge({ :tardiness_breakdown => tardiness_summary })
+      hash.merge({:tardiness_breakdown => tardiness_summary})
     end
 
     def score_summary
@@ -50,7 +49,7 @@ module Analytics::Rollups
     end
 
     def composite_bucket_list
-      @rollups.map { |r| r.score_buckets }.compact.transpose.map(&:sum)
+      @rollups.map{|r| r.score_buckets }.compact.transpose.map(&:sum)
     end
 
     def tardiness_summary
@@ -61,7 +60,7 @@ module Analytics::Rollups
       if total > 0
         Analytics::TardinessBreakdown.new(missing, late, on_time).as_hash_scaled(total).merge(:total => total)
       else
-        { :missing => 0, :late => 0, :on_time => 0, :total => 0 }
+        {:missing => 0, :late => 0, :on_time => 0, :total => 0}
       end
     end
   end

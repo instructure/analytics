@@ -25,7 +25,7 @@ module Analytics
     end
 
     def secondaried
-      Analytics::Slave.secondaried { yield }
+      Analytics::Slave.secondaried{ yield }
     end
   end
 end
