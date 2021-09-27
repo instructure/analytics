@@ -47,7 +47,7 @@ shared_examples_for "analytics tests" do
     @account
   end
 
-  def page_view(opts = {})
+  def page_view(opts={})
     Setting.set('enable_page_views', 'db')
     course = opts[:course] || @course
     user = opts[:user] || @student || User.create!
@@ -55,10 +55,9 @@ shared_examples_for "analytics tests" do
     summarized = opts[:summarized] || nil
 
     page_view = PageView.new(
-      :context => course,
-      :user => user,
-      :controller => controller
-    )
+        :context => course,
+        :user => user,
+        :controller => controller)
 
     page_view.summarized = summarized
     page_view.request_id = SecureRandom.hex(10)
@@ -111,8 +110,7 @@ shared_examples_for "analytics tests" do
       @course.enroll_teacher(teacher)
     end
     number_of_assignments.times do |i|
-      assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100,
-                                                      :due_at => Time.now.utc, :submission_types => "online")
+      assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100, :due_at => Time.now.utc, :submission_types => "online")
       assignment.submit_homework(student)
       assignment.grade_student(student, grade: rand(100) + 1, grader: teacher)
       graded_assignments.push(assignment)
@@ -128,15 +126,11 @@ shared_examples_for "analytics tests" do
   end
 
   def setup_variety_assignments(add_no_due_date = true)
-    @missed_assignment = @course.assignments.create!(:title => "missed assignment", :due_at => 5.days.ago,
-                                                     :points_possible => 10, :submission_types => 'online_url')
-    @no_due_date_assignment = @course.assignments.create!(:title => 'no due date assignment', :due_at => nil,
-                                                          :points_possible => 20, :submission_types => 'online_url') if add_no_due_date
-    @late_assignment = @course.assignments.create!(:title => 'late assignment', :due_at => 1.day.ago,
-                                                   :points_possible => 20, :submission_types => 'online_url')
+    @missed_assignment = @course.assignments.create!(:title => "missed assignment", :due_at => 5.days.ago, :points_possible => 10, :submission_types => 'online_url')
+    @no_due_date_assignment = @course.assignments.create!(:title => 'no due date assignment', :due_at => nil, :points_possible => 20, :submission_types => 'online_url') if add_no_due_date
+    @late_assignment = @course.assignments.create!(:title => 'late assignment', :due_at => 1.day.ago, :points_possible => 20, :submission_types => 'online_url')
     @late_assignment.submit_homework(@student, :submission_type => 'online_url')
-    @on_time_assignment = @course.assignments.create!(:title => 'on time submission', :due_at => 2.days.from_now,
-                                                      :points_possible => 10, :submission_types => 'online_url')
+    @on_time_assignment = @course.assignments.create!(:title => 'on time submission', :due_at => 2.days.from_now, :points_possible => 10, :submission_types => 'online_url')
     @on_time_assignment.submit_homework(@student, :submission_type => 'online_url')
   end
 
@@ -217,67 +211,63 @@ shared_examples_for "analytics tests" do
     to_grade_left = number_graded
 
     number_assignments.times do |i|
-      assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100,
-                                                      :due_at => 1.day.ago, :submission_types => "online")
+      assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100, :due_at => 1.day.ago, :submission_types => "online")
       assignment.submit_homework(student)
       next unless to_grade_left > 0
-
       if @course.teacher_enrollments.any?
         teacher = @course.teacher_enrollments.last.user
       else
         teacher = User.create!
         @course.enroll_teacher(teacher)
       end
-      assignment.grade_student(student, grade: ((100 - i * 10) % 100), grader: teacher)
+      assignment.grade_student(student, grade: ((100 - i*10) % 100), grader: teacher)
       graded_assignments.push(assignment)
       to_grade_left -= 1
     end
   end
 
   shared_examples_for "analytics permissions specs" do
-    it "validates analytics icons display" do
+    it "should validate analytics icons display" do
       validate_analytics_icons_exist(validate)
     end
 
-    it "validates analytics button display" do
+    it "should validate analytics button display" do
       validate_analytics_button_exists(validate)
     end
   end
 
   shared_examples_for "participation graph specs" do
-    it "validates participating graph with a single page view" do
+    it "should validate participating graph with a single page view" do
       page_view(:user => @student, :course => @course)
       go_to_analytics(analytics_url)
       validate_tooltip_text(date_selector(Time.now), '1 page view')
     end
 
-    it "validates participating graph with multiple page views" do
+    it "should validate participating graph with multiple page views" do
       page_view_count = 10
       page_view_count.times { page_view(:user => @student, :course => @course) }
       go_to_analytics(analytics_url)
       validate_tooltip_text(date_selector(Time.now), page_view_count.to_s + ' page views')
     end
 
-    it "validates participating graph with multiple page views on multiple days" do
+    it "should validate participating graph with multiple page views on multiple days" do
       old_page_views_date = Time.now - 2.days
       dates = [old_page_views_date, Time.now]
       number_of_page_views = 5
       number_of_page_views.times { page_view(:user => @student, :course => @course) }
-      number_of_page_views.times {
-        page_view(:user => @student, :course => @course, :created_at => old_page_views_date)
-      }
+      number_of_page_views.times { page_view(:user => @student, :course => @course, :created_at => old_page_views_date) }
       go_to_analytics(analytics_url)
       dates.each { |date| validate_tooltip_text(date_selector(date), number_of_page_views.to_s + ' page views') }
     end
 
-    it "validates the graph color when a student took action on that day" do
+    it "should validate the graph color when a student took action on that day" do
       page_view(:user => @student, :course => @course, :participated => true)
       go_to_analytics(analytics_url)
       validate_element_fill(get_rectangle(Time.now), GraphColors::DARK_BLUE)
       validate_tooltip_text(date_selector(Time.now), '1 participation')
     end
 
-    it "validates the participation and non participation display" do
+    it "should validate the participation and non participation display" do
       old_page_view_date = Time.now - 3.days
       rectangles = []
       dates = [old_page_view_date, Time.now]

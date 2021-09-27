@@ -38,26 +38,27 @@ describe Account do
   end
 
   let(:analytics_tab_opts) {
-    { :label => "Analytics", :css_class => "analytics_plugin", :href => :analytics_department_path }
+    {:label=>"Analytics", :css_class=>"analytics_plugin", :href=>:analytics_department_path}
   }
 
   context "Analytics Tab" do
-    it "injects an analytics tab under nominal conditions" do
+
+    it "should inject an analytics tab under nominal conditions" do
       expect(@account.tabs_available(@admin)[-2]).to include(analytics_tab_opts)
     end
 
-    it "injects an analytics tab for a sub-account" do
+    it "should inject an analytics tab for a sub-account" do
       sub_account = @account.sub_accounts.create!
       expect(sub_account.tabs_available(@admin)[-2]).to include(analytics_tab_opts)
     end
 
-    it "does not inject an analytics tab when analytics is disabled" do
+    it "should not inject an analytics tab when analytics is disabled" do
       @account.allowed_services = '-analytics'
       @account.save!
       expect(@account.tabs_available(@admin)[-2]).not_to include(analytics_tab_opts)
     end
 
-    it "does not inject an analytics tab without the analytics permission" do
+    it "should not inject an analytics tab without the analytics permission" do
       RoleOverride.manage_role_override(@account, @role, 'view_analytics', :override => false)
       expect(@account.tabs_available(@admin)[-2]).not_to include(analytics_tab_opts)
     end

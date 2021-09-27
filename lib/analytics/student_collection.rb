@@ -26,8 +26,8 @@ module Analytics
       @sort_strategy = SortStrategy::Default.new
       @formatter = nil
       @collection = PaginatedCollection.build do |pager|
-        pager = Analytics::Slave.secondaried { @sort_strategy.paginate(scope, pager) }
-        pager.map! { |student| @formatter.call(student) } if @formatter
+        pager = Analytics::Slave.secondaried{ @sort_strategy.paginate(scope, pager) }
+        pager.map!{ |student| @formatter.call(student) } if @formatter
         pager
       end
     end
@@ -36,7 +36,7 @@ module Analytics
       @collection.paginate(options)
     end
 
-    def sort_by(sort_column, options = {})
+    def sort_by(sort_column, options={})
       @sort_strategy = SortStrategy.for(sort_column, options)
     end
 
@@ -48,7 +48,7 @@ module Analytics
       class Default
         attr_reader :direction
 
-        def initialize(direction = :ascending)
+        def initialize(direction=:ascending)
           @direction = direction
         end
 
@@ -80,7 +80,7 @@ module Analytics
       class BySortedIDs
         attr_reader :sorted_ids, :direction
 
-        def initialize(sorted_ids, direction = :ascending)
+        def initialize(sorted_ids, direction=:ascending)
           @sorted_ids = sorted_ids
           @direction = direction
           @sorted_ids.reverse! if @direction == :descending
@@ -91,10 +91,9 @@ module Analytics
           offset = (pager.current_page - 1) * pager.per_page
           raise Folio::InvalidPage if pager.current_page < 1
           raise Folio::InvalidPage if pager.current_page > 1 && offset >= @sorted_ids.size
-
           paged_ids = @sorted_ids[offset, pager.per_page]
           student_map = scope.where(:id => paged_ids).index_by(&:id)
-          pager.replace paged_ids.map { |id| student_map[id] }.compact
+          pager.replace paged_ids.map{ |id| student_map[id] }.compact
         end
 
         def set_pages(pager)
@@ -106,15 +105,15 @@ module Analytics
       end
 
       class ByPageViews < BySortedIDs
-        def initialize(page_view_counts, direction = :ascending)
-          sorted_ids = page_view_counts.keys.sort_by { |id| [page_view_counts[id][:page_views], id] }
+        def initialize(page_view_counts, direction=:ascending)
+          sorted_ids = page_view_counts.keys.sort_by{ |id| [page_view_counts[id][:page_views], id] }
           super sorted_ids, direction
         end
       end
 
       class ByParticipations < BySortedIDs
-        def initialize(page_view_counts, direction = :ascending)
-          sorted_ids = page_view_counts.keys.sort_by { |id| [page_view_counts[id][:participations], id] }
+        def initialize(page_view_counts, direction=:ascending)
+          sorted_ids = page_view_counts.keys.sort_by{ |id| [page_view_counts[id][:participations], id] }
           super sorted_ids, direction
         end
       end
@@ -127,7 +126,7 @@ module Analytics
       ]
       DEFAULT_STRATEGY = :name
 
-      def self.for(strategy, options = {})
+      def self.for(strategy, options={})
         # normalize sort method
         strategy = strategy.to_sym if strategy.is_a?(String)
         strategy = nil unless KNOWN_STRATEGIES.include?(strategy)

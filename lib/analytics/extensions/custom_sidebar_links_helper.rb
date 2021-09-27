@@ -23,7 +23,6 @@ module Analytics::Extensions
     def roster_user_custom_links(user)
       links = super
       return links if @context.feature_enabled?(:analytics_2)
-
       if analytics_enabled_course? && analytics_enabled_student?(user)
         links << {
           :url => analytics_student_in_course_path(:course_id => @context.id, :student_id => user.id),
@@ -37,7 +36,6 @@ module Analytics::Extensions
     def course_custom_links
       links = super
       return links if @context.feature_enabled?(:analytics_2)
-
       if analytics_enabled_course? && @context.grants_right?(@current_user, :read_as_admin)
         links << {
           :url => analytics_course_path(:course_id => @context.id),
@@ -47,18 +45,16 @@ module Analytics::Extensions
       end
       links
     end
-
-    private
-
+  private
     # is the context a course with the necessary conditions to view analytics in
     # the course?
     def analytics_enabled_course?
       RequestCache.cache('analytics_enabled_course', @context) do
         @context.is_a?(Course) &&
-          ['available', 'completed'].include?(@context.workflow_state) &&
-          service_enabled?(:analytics) &&
-          @context.grants_right?(@current_user, session, :view_analytics) &&
-          Analytics::Course.available_for?(@current_user, @context)
+        ['available', 'completed'].include?(@context.workflow_state) &&
+        service_enabled?(:analytics) &&
+        @context.grants_right?(@current_user, session, :view_analytics) &&
+        Analytics::Course.available_for?(@current_user, @context)
       end
     end
 
@@ -66,7 +62,7 @@ module Analytics::Extensions
     def analytics_enabled_student?(student)
       analytics = Analytics::StudentInCourse.new(@current_user, @context, student)
       analytics.available? &&
-        analytics.enrollment.grants_right?(@current_user, :read_grades)
+      analytics.enrollment.grants_right?(@current_user, :read_grades)
     end
   end
 end
