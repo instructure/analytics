@@ -116,7 +116,7 @@ class Analytics::AssignmentRollup
     assignment_submission = Analytics::AssignmentSubmission.new(assignment, submission)
     tardiness_breakdown.tally!(assignment_submission)
 
-    if buckets && score = assignment_submission.score
+    if buckets && (score = assignment_submission.score)
       buckets << score
     end
   end

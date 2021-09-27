@@ -228,7 +228,7 @@ shared_examples_for "analytics tests" do
         teacher = User.create!
         @course.enroll_teacher(teacher)
       end
-      assignment.grade_student(student, grade: ((100 - i * 10) % 100), grader: teacher)
+      assignment.grade_student(student, grade: ((100 - (i * 10)) % 100), grader: teacher)
       graded_assignments.push(assignment)
       to_grade_left -= 1
     end

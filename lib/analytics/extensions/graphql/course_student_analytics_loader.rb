@@ -34,7 +34,7 @@ module Analytics::Extensions::Graphql::CourseStudentAnalyticsLoader
                                        .index_by(&:id)
 
       users.each do |user|
-        if analytics_student = students_by_id[user.id]
+        if (analytics_student = students_by_id[user.id])
           fulfill(user, student_summaries.for(analytics_student))
         else
           fulfill(user, nil)
