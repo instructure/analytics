@@ -136,7 +136,7 @@ module Analytics::PageViewIndex
       database.execute(
         "SELECT user_id, page_view_count, participation_count FROM page_views_counters_by_context_and_user %CONSISTENCY% WHERE context = ?", context.global_asset_string, consistency: read_consistency_level
       ).fetch do |row|
-        if id = id_map[row['user_id']]
+        if (id = id_map[row['user_id']])
           counters[id] = {
             :page_views => row['page_view_count'].to_i,
             :participations => row['participation_count'].to_i
@@ -191,13 +191,13 @@ module Analytics::PageViewIndex
       context.shard.activate do
         contexts = [context] + context.groups.to_a
         PageView.for_users(id_map.keys).where(context: contexts).group(:user_id).count.each do |relative_user_id, count|
-          if id = id_map[relative_user_id]
+          if (id = id_map[relative_user_id])
             counters[id][:page_views] = count
           end
         end
 
         AssetUserAccess.participations.where(context: contexts).for_user(id_map.keys).group(:user_id).count.each do |relative_user_id, count|
-          if id = id_map[relative_user_id]
+          if (id = id_map[relative_user_id])
             counters[id][:participations] = count
           end
         end
