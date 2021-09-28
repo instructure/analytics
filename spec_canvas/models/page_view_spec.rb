@@ -31,21 +31,21 @@ describe PageView do
       @view = page_view_model
     end
 
-    it "should be :other if controller is nil" do
+    it "is :other if controller is nil" do
       expect(@view.category).to eq :other
     end
 
-    it "should recognize known controllers" do
+    it "recognizes known controllers" do
       @view.controller = 'assignments'
       expect(@view.category).to eq :assignments
     end
 
-    it "should be :other for unknown controllers" do
+    it "is :other for unknown controllers" do
       @view.controller = 'unknown'
       expect(@view.category).to eq :other
     end
 
-    it "should prefer the category attribute if any" do
+    it "prefers the category attribute if any" do
       expect(@view).to receive(:read_attribute).with(:category).and_return('category')
       expect(@view.category).to eq 'category'
     end
@@ -71,12 +71,12 @@ describe PageView do
     view
   end
 
-  it "should always flag new page views as summarized" do
+  it "always flags new page views as summarized" do
     view = page_view
     expect(view).to be_summarized
   end
 
-  it "should not automatically summarize existing non-summarized page views on save" do
+  it "does not automatically summarize existing non-summarized page views on save" do
     # set up unsummarized page view
     view = page_view
     view.summarized = false
@@ -88,7 +88,7 @@ describe PageView do
     expect(view).not_to be_summarized
   end
 
-  it "should increment the rollup when a new page view is created" do
+  it "increments the rollup when a new page view is created" do
     date = Date.today
     course = course_model
     expect(PageViewsRollup.bin_for(course, date, 'other').views).to eq 0
@@ -97,7 +97,7 @@ describe PageView do
     expect(PageViewsRollup.bin_for(course, date, 'other').views).to eq 1
   end
 
-  it "should assign new page view to bin by utc date" do
+  it "assigns new page view to bin by utc date" do
     # 2012-06-01 20:00:00 AKDT / 2012-06-02 04:00:00 UTC
     time = Time.zone.parse('2012-06-01 20:00:00-08:00').in_time_zone('Alaska')
     course = course_model
@@ -111,7 +111,7 @@ describe PageView do
       student_in_course(:active_all => true)
     end
 
-    it "should return a object for each participation" do
+    it "returns a object for each participation" do
       page_view(:user => @user, :context => @course, :participated => true)
       page_view(:user => @user, :context => @course, :participated => true)
       page_view(:user => @user, :context => @course)
@@ -120,7 +120,7 @@ describe PageView do
       parts.each { |p| expect(p.key?(:created_at)).to be_truthy }
     end
 
-    it "should update when participating on a group context" do
+    it "updates when participating on a group context" do
       group_model(:context => @course)
       @group.add_user(@user, 'accepted')
       page_view(:user => @user, :context => @group, :participated => true)
@@ -143,7 +143,7 @@ describe PageView do
       student_in_course(:active_all => true)
     end
 
-    it "should return user page view counts in the course by hour" do
+    it "returns user page view counts in the course by hour" do
       timewarp = Time.parse('2012-12-26T19:15:00Z')
       allow(Time).to receive(:now).and_return(timewarp)
       page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
@@ -156,7 +156,7 @@ describe PageView do
       expect(counts.values.sum).to eq 5
     end
 
-    it "should return user page view counts in course groups" do
+    it "returns user page view counts in course groups" do
       timewarp = Time.parse('2012-12-26T19:15:00Z')
       allow(Time).to receive(:now).and_return(timewarp)
 
@@ -185,7 +185,7 @@ describe PageView do
       student_in_course(:active_all => true)
     end
 
-    it "should return user page view counts in the course by hour" do
+    it "returns user page view counts in the course by hour" do
       timewarp = Time.parse('2012-12-26T19:15:00Z')
       allow(Time).to receive(:now).and_return(timewarp)
       page_view(:user => @user, :context => @course, :created_at => 2.days.ago)
@@ -198,7 +198,7 @@ describe PageView do
       expect(counts.values.sum).to eq 5
     end
 
-    it "should return user page view counts in course groups" do
+    it "returns user page view counts in course groups" do
       timewarp = Time.parse('2012-12-26T19:15:00Z')
       allow(Time).to receive(:now).and_return(timewarp)
 
@@ -222,7 +222,7 @@ describe PageView do
       @user2 = student_in_course(:active_all => true).user
     end
 
-    it "should return user total page views and participants counts" do
+    it "returns user total page views and participants counts" do
       page_view(:user => @user1, :context => @course, :participated => true,  :created_at => 2.days.ago)
       page_view(:user => @user1, :context => @course, :participated => false, :created_at => 11.months.ago)
       page_view(:user => @user1, :context => @course, :participated => true,  :created_at => 1.hour.ago)
@@ -236,14 +236,13 @@ describe PageView do
 
       counts = PageView.counters_by_context_for_users(@course, [@user1.id, @user2.id])
       expect(counts).to eq({ @user1.id => { :page_views => 4, :participations => 3 },
-                         @user2.id => { :page_views => 5, :participations => 1 },
-      })
+                             @user2.id => { :page_views => 5, :participations => 1 },  })
 
       # partial retrieval
       expect(PageView.counters_by_context_for_users(@course, [@user2.id])).to eq({ @user2.id => counts[@user2.id] })
     end
 
-    it "should return user total page views and participants counts with groups" do
+    it "returns user total page views and participants counts with groups" do
       group_model(:context => @course)
       @group.add_user(@user, 'accepted')
 
@@ -254,11 +253,9 @@ describe PageView do
       page_view(:user => @user2, :context => @group, :participated => true,  :created_at => 1.day.ago)
       page_view(:user => @user2, :context => @group, :participated => false, :created_at => 1.hour.ago)
 
-
       counts = PageView.counters_by_context_for_users(@course, [@user1.id, @user2.id])
       expect(counts).to eq({ @user1.id => { :page_views => 3, :participations => 2 },
-        @user2.id => { :page_views => 2, :participations => 1 },
-      })
+                             @user2.id => { :page_views => 2, :participations => 1 },  })
 
       # partial retrieval
       expect(PageView.counters_by_context_for_users(@course, [@user2.id])).to eq({ @user2.id => counts[@user2.id] })
