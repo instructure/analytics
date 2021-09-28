@@ -26,7 +26,6 @@ class AnalyticsController < ApplicationController
 
   def department
     return unless require_analytics_for_department
-
     @account_json = account_json(@account, @current_user, session, ['html_url'])
 
     if @filter
@@ -86,7 +85,6 @@ class AnalyticsController < ApplicationController
 
   def course
     return unless require_analytics_for_course
-
     @course_json = course_json(@course, @current_user, session, ['html_url'], false)
     @course_json[:students] = students_json(@course_analytics) if @course_analytics.allow_student_details?
     @start_date = @course_analytics.start_date
@@ -95,7 +93,6 @@ class AnalyticsController < ApplicationController
 
   def student_in_course
     return unless require_analytics_for_student_in_course
-
     @course_json = course_json(@course, @current_user, session, ['html_url'], false)
     if @course.grants_right?(@current_user, session, :read_as_admin)
       @course_json[:analytics_url] = analytics_course_path(:course_id => @course.id)
@@ -121,7 +118,7 @@ class AnalyticsController < ApplicationController
       { pseudonym: :account }
     ]
     ActiveRecord::Associations::Preloader.new.preload(students, associations)
-    students.map { |student| student_json(student) }
+    students.map{ |student| student_json(student) }
   end
 
   def student_json(student)
@@ -133,8 +130,7 @@ class AnalyticsController < ApplicationController
       json[:message_student_url] = conversations_path(
         context_id: @course.asset_string,
         user_id: student.id,
-        user_name: student.name
-      )
+        user_name: student.name)
     end
     json
   end

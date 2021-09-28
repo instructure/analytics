@@ -24,14 +24,15 @@ module Analytics::Extensions::PageView::Pv4Client
 
     json['participations'].map do |p|
       { created_at: Time.zone.parse(p['created_at']),
-        url: p['url'] }
+        url: p['url']
+      }
     end
   end
 
   def counters_by_context_and_hour(context, user)
     json = user_in_course_participations(context, user)
 
-    Hash[json['page_views'].map { |(k, v)| [Time.zone.parse(k), v] }]
+    Hash[json['page_views'].map { |(k, v)| [Time.zone.parse(k), v]}]
   end
 
   # Takes a context (right now, only a Course is valid), and a list of User
@@ -45,7 +46,6 @@ module Analytics::Extensions::PageView::Pv4Client
     Hash[json['users'].map do |entry|
       user_id = Shard.relative_id_for(entry['user_id'], Shard.default, context.shard)
       next unless user_ids.include?(user_id)
-
       [user_id,
        { page_views: entry['page_views'], participations: entry['participations'] }]
     end.compact]

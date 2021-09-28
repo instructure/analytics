@@ -30,13 +30,13 @@ describe Course do
       @enrollment.save!
     end
 
-    it "creates the distribution row if not there yet" do
+    it "should create the distribution row if not there yet" do
       @course.cached_grade_distribution.destroy
       @course.reload.recache_grade_distribution
       expect(@course.reload.cached_grade_distribution).not_to be_nil
     end
 
-    it "updates the existing distribution row if any" do
+    it "should update the existing distribution row if any" do
       @course.recache_grade_distribution
       existing = @course.cached_grade_distribution
       expect(existing.s11).to eq 0

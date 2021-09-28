@@ -37,8 +37,7 @@ describe "Courses API Extensions", :type => :request do
       @student1 = user_factory(active_all: true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id',
-                                                                            :name => 'section2')
+      @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
       @enrollment = @course.enroll_user(@student1, 'StudentEnrollment', :section => @section)
       @enrollment.accept!
       @user = @teacher
@@ -55,7 +54,7 @@ describe "Courses API Extensions", :type => :request do
       # each student's json should have the expected analytics url or lack thereof
       seen_students = []
       json.each do |student_json|
-        student = students.detect { |s| s.id == student_json['id'] }
+        student = students.detect{ |s| s.id == student_json['id'] }
         if student
           expect(student_json['analytics_url']).to eq "/courses/#{course.id}/analytics/users/#{student.id}"
           seen_students << student
@@ -78,7 +77,7 @@ describe "Courses API Extensions", :type => :request do
 
       # for the students we're interested in, make sure they don't have an url
       json.each do |student_json|
-        student = students.detect { |s| s.id == student_json['id'] }
+        student = students.detect{ |s| s.id == student_json['id'] }
         if student
           expect(student_json['analytics_url']).to be_falsey
         end
@@ -91,7 +90,7 @@ describe "Courses API Extensions", :type => :request do
         @user = @teacher
       end
 
-      it "injects analytics buttons on the roster page" do
+      it "should inject analytics buttons on the roster page" do
         expect_injection(@course, [@student1, @student2])
       end
     end
@@ -102,7 +101,7 @@ describe "Courses API Extensions", :type => :request do
         @account.save!
       end
 
-      it "does not inject analytics buttons on the roster page" do
+      it "should not inject analytics buttons on the roster page" do
         forbid_injection(@course, [@student1])
       end
     end
@@ -113,7 +112,7 @@ describe "Courses API Extensions", :type => :request do
         @course.save!
       end
 
-      it "does not inject analytics buttons on the roster page" do
+      it "should not inject analytics buttons on the roster page" do
         forbid_injection(@course, [@student1])
       end
     end
@@ -123,7 +122,7 @@ describe "Courses API Extensions", :type => :request do
         RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => false)
       end
 
-      it "does not inject analytics buttons on the roster page" do
+      it "should not inject analytics buttons on the roster page" do
         forbid_injection(@course, [@student1])
       end
     end
@@ -134,7 +133,7 @@ describe "Courses API Extensions", :type => :request do
         @student2 = student_in_course(:active_all => true).user
       end
 
-      it "only injects one analytics button on the roster page" do
+      it "should only inject one analytics button on the roster page" do
         @user = @student1
         expect_injection(@course, [@student1])
 
@@ -149,7 +148,7 @@ describe "Courses API Extensions", :type => :request do
         @enrollment.save!
       end
 
-      it "does not inject an analytics button on the roster page" do
+      it "should not inject an analytics button on the roster page" do
         forbid_injection(@course, [@student1])
       end
     end
@@ -169,7 +168,7 @@ describe "Courses API Extensions", :type => :request do
         RoleOverride.manage_role_override(@account, ta_role, 'view_analytics', :override => true)
       end
 
-      it "does not inject analytics buttons on the roster page" do
+      it "should not inject analytics buttons on the roster page" do
         forbid_injection(@course, [@student1])
       end
     end
