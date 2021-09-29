@@ -37,7 +37,8 @@ describe ContextController, :type => :controller do
       @student1 = user_factory(active_all: true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id', :name => 'section2')
+      @section = factory_with_protected_attributes(@course.course_sections, :sis_source_id => 'my-section-sis-id',
+                                                                            :name => 'section2')
       @enrollment = @course.enroll_user(@student1, 'StudentEnrollment', :section => @section)
       @enrollment.accept!
     end
@@ -48,13 +49,13 @@ describe ContextController, :type => :controller do
 
     def expect_injection(course, student)
       expected_link = "/courses/#{course.id}/analytics/users/#{student.id}"
-      get 'roster_user', params: {:course_id => course.id, :id => student.id}
+      get 'roster_user', params: { :course_id => course.id, :id => student.id }
       expect(controller.roster_user_custom_links(student).map { |link| link[:url] }).to include expected_link
     end
 
     def forbid_injection(course, student)
       analytics_link = "/courses/#{course.id}/analytics/users/#{student.id}"
-      get 'roster_user', params: {:course_id => course.id, :id => student.id}
+      get 'roster_user', params: { :course_id => course.id, :id => student.id }
       expect(controller.roster_user_custom_links(student).map { |link| link[:url] }).not_to include analytics_link
     end
 
@@ -63,11 +64,11 @@ describe ContextController, :type => :controller do
         @student2 = student_in_course(:active_all => true).user
       end
 
-      it "should inject an analytics button on the roster_user page 1" do
+      it "injects an analytics button on the roster_user page 1" do
         expect_injection(@course, @student1)
       end
 
-      it "should inject an analytics button on the roster_user page 2" do
+      it "injects an analytics button on the roster_user page 2" do
         expect_injection(@course, @student2)
       end
     end
@@ -88,7 +89,7 @@ describe ContextController, :type => :controller do
         @account.save!
       end
 
-      it "should not inject an analytics button on the roster_user page" do
+      it "does not inject an analytics button on the roster_user page" do
         forbid_injection(@course, @student1)
       end
     end
@@ -99,7 +100,7 @@ describe ContextController, :type => :controller do
         @course.save!
       end
 
-      it "should not inject an analytics button on the roster_user page" do
+      it "does not inject an analytics button on the roster_user page" do
         forbid_injection(@course, @student1)
       end
     end
@@ -115,7 +116,7 @@ describe ContextController, :type => :controller do
         user_session(account_admin_user)
       end
 
-      it "should still inject an analytics button on the roster_user page" do
+      it "still injects an analytics button on the roster_user page" do
         expect_injection(@course, @student1)
       end
     end
@@ -125,7 +126,7 @@ describe ContextController, :type => :controller do
         RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => false)
       end
 
-      it "should not inject an analytics button on the roster_user page" do
+      it "does not inject an analytics button on the roster_user page" do
         forbid_injection(@course, @student1)
       end
     end
@@ -136,12 +137,12 @@ describe ContextController, :type => :controller do
         @student2 = student_in_course(:active_all => true).user
       end
 
-      it "should inject an analytics button on the student's own roster_user page" do
+      it "injects an analytics button on the student's own roster_user page" do
         user_session(@student1)
         expect_injection(@course, @student1)
       end
 
-      it "should not inject an analytics button on another student's roster_user page" do
+      it "does not inject an analytics button on another student's roster_user page" do
         user_session(@student1)
         forbid_injection(@course, @student2)
       end
@@ -153,7 +154,7 @@ describe ContextController, :type => :controller do
         @enrollment.save!
       end
 
-      it "should not inject an analytics button on the roster user page" do
+      it "does not inject an analytics button on the roster user page" do
         forbid_injection(@course, @student1)
       end
     end
@@ -176,7 +177,7 @@ describe ContextController, :type => :controller do
         user_session(@ta)
       end
 
-      it "should not inject an analytics button on the roster_user page" do
+      it "does not inject an analytics button on the roster_user page" do
         forbid_injection(@course, @student1)
       end
     end

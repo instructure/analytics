@@ -75,7 +75,7 @@ module Analytics
         # convert non-string keys from time objects to iso8601 strings since we
         # don't want to use Time#to_s on the keys in Hash#to_json
         buckets = {}
-        PageView.counters_by_context_and_hour(@course, @student).each do |bucket,count|
+        PageView.counters_by_context_and_hour(@course, @student).each do |bucket, count|
           bucket = bucket.is_a?(String) ? bucket : bucket.in_time_zone.iso8601
           buckets[bucket] = count
         end
@@ -97,12 +97,11 @@ module Analytics
         messages = {}
         unless shared_conversation_ids.empty?
           # TODO sharding
-          ConversationMessage.
-            where(:conversation_id => shared_conversation_ids).
-            where(:author_id => [@student, *instructors]).
-            select("DATE(created_at) AS day, author_id=#{@student.id} AS student, COUNT(*) AS ct").
-            group("DATE(created_at), author_id").each do |row|
-
+          ConversationMessage
+            .where(:conversation_id => shared_conversation_ids)
+            .where(:author_id => [@student, *instructors])
+            .select("DATE(created_at) AS day, author_id=#{@student.id} AS student, COUNT(*) AS ct")
+            .group("DATE(created_at), author_id").each do |row|
             day = row.day
             type = Canvas::Plugin.value_to_boolean(row.student) ?
               :studentMessages :
@@ -118,11 +117,11 @@ module Analytics
     end
 
     def my_submission(submissions)
-      submissions.detect{ |s| s.user_id == @student.id }
+      submissions.detect { |s| s.user_id == @student.id }
     end
 
     # Overriding this from Assignments to account for Variable Due Dates
-    def basic_assignment_data(assignment, submissions=nil)
+    def basic_assignment_data(assignment, submissions = nil)
       s = my_submission(submissions) if submissions
       assignment_submission = AssignmentSubmission.new(assignment, s)
       super.merge(
@@ -135,6 +134,7 @@ module Analytics
       submission = my_submission(submissions)
       return {} unless submission.present?
       return { excused: true } if submission.excused?
+
       assignment_submission = AssignmentSubmission.new(assignment, submission)
 
       {
@@ -151,22 +151,22 @@ module Analytics
       @course.grants_any_right?(@current_user, :manage_grades, :view_all_grades)
     end
 
-  private
+    private
 
     def cache_prefix
       [@course, @student]
     end
 
     def enrollment_scope
-      @enrollment_scope ||= @course.apply_enrollment_visibility(@course.all_student_enrollments, @current_user).
-        where(:workflow_state => ['active', 'completed'], :user_id => @student)
+      @enrollment_scope ||= @course.apply_enrollment_visibility(@course.all_student_enrollments, @current_user)
+                                   .where(:workflow_state => ['active', 'completed'], :user_id => @student)
     end
 
     def submissions(assignments)
       @course.shard.activate do
-        Submission.
-          select(Analytics::Assignments::SUBMISSION_COLUMNS_SELECT).
-          where(:assignment_id => assignments).to_a
+        Submission
+          .select(Analytics::Assignments::SUBMISSION_COLUMNS_SELECT)
+          .where(:assignment_id => assignments).to_a
       end
     end
 
@@ -177,26 +177,28 @@ module Analytics
     def student_conversation_ids
       # conversations related to this course in which the student has a hook
       # TODO: sharding
-      @student_conversation_ids ||= ConversationParticipant.
-        joins(:conversation).
-        where(Conversation.wildcard('conversations.tags', "course_#{@course.id}", :delimiter => ',')).
-        where(:user_id => @student).
-        select(:conversation_id).
-        distinct.
-        map(&:conversation_id)
+      @student_conversation_ids ||= ConversationParticipant
+                                    .joins(:conversation)
+                                    .where(Conversation.wildcard('conversations.tags', "course_#{@course.id}",
+                                                                 :delimiter => ','))
+                                    .where(:user_id => @student)
+                                    .select(:conversation_id)
+                                    .distinct
+                                    .map(&:conversation_id)
     end
 
     def shared_conversation_ids
       # subset of student conversations in which a course instructor also has a
       # hook
       return {} if student_conversation_ids.empty?
+
       # TODO: sharding
-      @shared_conversation_ids ||= ConversationParticipant.
-        where(:user_id => instructors).
-        where(:conversation_id => student_conversation_ids).
-        select(:conversation_id).
-        distinct.
-        map(&:conversation_id)
+      @shared_conversation_ids ||= ConversationParticipant
+                                   .where(:user_id => instructors)
+                                   .where(:conversation_id => student_conversation_ids)
+                                   .select(:conversation_id)
+                                   .distinct
+                                   .map(&:conversation_id)
     end
   end
 end

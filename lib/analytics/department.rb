@@ -57,20 +57,20 @@ module Analytics
 
     def participation_by_date
       secondaried(:cache_as => :participation_by_date) do
-        page_views_rollups.
-          select("date, SUM(views) AS views, SUM(participations) AS participations").
-          group(:date).
-          map{ |rollup| rollup.as_json[:page_views_rollup] }
+        page_views_rollups
+          .select("date, SUM(views) AS views, SUM(participations) AS participations")
+          .group(:date)
+          .map { |rollup| rollup.as_json[:page_views_rollup] }
       end
     end
 
     def participation_by_category
       secondaried(:cache_as => :participation_by_category) do
-        page_views_rollups.
-          select("category, SUM(views) AS views").
-          group(:category).
-          order(:category).
-          map{ |rollup| rollup.as_json[:page_views_rollup] }
+        page_views_rollups
+          .select("category, SUM(views) AS views")
+          .group(:category)
+          .order(:category)
+          .map { |rollup| rollup.as_json[:page_views_rollup] }
       end
     end
 
@@ -78,7 +78,7 @@ module Analytics
       secondaried(:cache_as => :grade_distribution) do
         result = {}
         distribution = cached_grade_distribution
-        (0..100).each{ |i| result[i] = distribution["s#{i}"] }
+        (0..100).each { |i| result[i] = distribution["s#{i}"] }
         result
       end
     end
@@ -122,7 +122,7 @@ module Analytics
       end
     end
 
-  protected
+    protected
 
     def cache_prefix
       [@account, @filter || @term]
@@ -136,14 +136,14 @@ module Analytics
       @account.sub_accounts
     end
 
-    def courses_for_term(term, workflow_state=['completed', 'available'])
+    def courses_for_term(term, workflow_state = ['completed', 'available'])
       # AFAICT, rows in course_account_associations that *don't* have a section
       # number associated are "really" associated with that account (i.e.
       # not via crosslisting)
-      @account.course_account_associations.
-        joins(:course).
-        where(:courses => { :enrollment_term_id => term, :workflow_state => workflow_state }).
-        where(:course_section_id => nil)
+      @account.course_account_associations
+              .joins(:course)
+              .where(:courses => { :enrollment_term_id => term, :workflow_state => workflow_state })
+              .where(:course_section_id => nil)
     end
 
     def courses_for_filter(filter)
@@ -162,7 +162,7 @@ module Analytics
     end
 
     def courses_for_subaccount(subaccount)
-      courses.where(:courses => { account_id: subaccount})
+      courses.where(:courses => { account_id: subaccount })
     end
 
     def courses_subselect
@@ -175,9 +175,10 @@ module Analytics
 
     def cached_grade_distribution
       # need to select a value for course_id here, or we get complaints about primary key missing_attribute
-      selects = ["NULL AS course_id"] + (0..100).map{ |i| "SUM(s#{i}) AS s#{i}" }
+      selects = ["NULL AS course_id"] + (0..100).map { |i| "SUM(s#{i}) AS s#{i}" }
       CachedGradeDistribution.connection.select_all(
-        CachedGradeDistribution.select(selects).where(course_id: courses_subselect)).to_a.first
+        CachedGradeDistribution.select(selects).where(course_id: courses_subselect)
+      ).to_a.first
     end
 
     def enrollments
@@ -185,7 +186,7 @@ module Analytics
     end
 
     def enrollments_for_subaccount(acct)
-      enrollments.joins(:course).where(:courses  => { account_id: acct } )
+      enrollments.joins(:course).where(:courses => { account_id: acct })
     end
 
     def teacher_enrollments
@@ -235,7 +236,7 @@ module Analytics
       select << 'MIN(courses.created_at) AS created_at' unless start_at
       select << 'MAX(courses.conclude_at) AS conclude_at' unless end_at
       unless select.empty?
-        if dates = secondaried{ ActiveRecord::Base.connection.select_all(courses.select(select)).to_a.first }
+        if (dates = secondaried { ActiveRecord::Base.connection.select_all(courses.select(select)).to_a.first })
           start_at ||= parse_utc_time(dates['created_at'])
           end_at ||= parse_utc_time(dates['conclude_at'])
         end
@@ -262,6 +263,7 @@ module Analytics
     def parse_utc_time(time_string)
       return unless time_string
       return time_string unless String === time_string
+
       Time.use_zone('UTC') { Time.zone.parse(time_string) }.in_time_zone
     end
   end

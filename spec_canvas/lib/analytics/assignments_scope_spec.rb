@@ -23,18 +23,17 @@ require_relative '../../spec_helper'
 require_dependency "analytics/assignments"
 
 module Analytics
-
   describe Assignments do
     let(:harness) { AssignmentsHarness.new }
     let(:course) { ::Course.create }
 
     describe '#assignment_scope' do
       before do
-        3.times{ course.assignments.create }
+        3.times { course.assignments.create }
         harness.instance_variable_set '@course', course
       end
 
-      it 'should have versions included' do
+      it 'has versions included' do
         assignments = harness.assignment_scope.to_a
 
         expect(assignments.size).to eq 3
@@ -43,7 +42,7 @@ module Analytics
         end
       end
 
-      it 'should only return published assignments' do
+      it 'only returns published assignments' do
         unpublished_assignment = course.assignments.first
         unpublished_assignment.update_attribute(:workflow_state, 'unpublished')
 
@@ -57,5 +56,4 @@ module Analytics
   class AssignmentsHarness
     include ::Analytics::Assignments
   end
-
 end
