@@ -69,7 +69,7 @@ module Analytics
     end
 
     def level(n, quartiles)
-      first, mean, third = quartiles
+      first, _mean, third = quartiles
 
       if n.nil? || n.zero?
         0
