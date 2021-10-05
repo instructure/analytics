@@ -42,7 +42,7 @@ module Analytics
 
     # We don't currently update the completion percentage on the progress model
     # while pulling this data. The analytics web UI only shows a spinner right now.
-    def assignments(progress = nil)
+    def assignments(_progress = nil)
       @assignments_cache ||=
         Rails.cache.fetch(assignments_cache_key, :expires_in => Analytics::Base.cache_expiry, :use_new_rails => false) {
           assignments_uncached
@@ -83,7 +83,7 @@ module Analytics
         ) { |p| p.cache_key_context = assignments_cache_key }
         progress.process_job(self, :assignments, {})
       end
-      return progress
+      progress
     end
   end
 end
