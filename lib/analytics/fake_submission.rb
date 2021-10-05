@@ -74,8 +74,6 @@ module Analytics
       @seconds_late_override = data['seconds_late_override']
     end
 
-    alias_method :excused?, :excused
-
     def self.from_scope(scope)
       ActiveRecord::Base.connection.select_all(scope).map { |data| new(data) }
     end

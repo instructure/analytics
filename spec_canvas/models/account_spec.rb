@@ -23,14 +23,12 @@
 require_relative '../../../../../spec/spec_helper'
 
 describe Account do
-  ROLE = 'TestAdmin'
-
   before :once do
     @account = Account.default
     @account.allowed_services = '+analytics'
     @account.save!
 
-    @role = custom_account_role(ROLE, :account => @account)
+    @role = custom_account_role('TestAdmin', :account => @account)
     RoleOverride.manage_role_override(@account, @role, 'read_course_list', :override => true)
     RoleOverride.manage_role_override(@account, @role, 'view_analytics', :override => true)
 

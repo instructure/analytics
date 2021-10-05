@@ -147,7 +147,7 @@ module Analytics::PageViewRoller
   # provided block. participations are those views which had participated true
   # and an asset_user_access_id. the category is the same as PageView#category
   def self.binned(scope)
-    scope = scope.group(:context_id, :category).select(<<-SQL)
+    scope = scope.group(:context_id, :category).select(<<~SQL.squish)
       context_id,
       CASE controller
         WHEN 'assignments'         THEN 'assignments'
