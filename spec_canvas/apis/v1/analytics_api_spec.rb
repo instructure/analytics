@@ -325,7 +325,7 @@ describe "Analytics API", :type => :request do
     it "fetches data for a student in the course" do
       # course with teacher and some students
       course_with_teacher(:active_all => true)
-      3.times { student_in_course(:active_all => true) }
+      3.times { |u| student_in_course(:active_all => true) }
       @user = @teacher
 
       # don't let the teacher see grades

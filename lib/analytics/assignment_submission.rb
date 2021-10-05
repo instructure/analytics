@@ -40,15 +40,17 @@ module Analytics
         # if we expect a submission return submitted_at because canvas expects a
         # submission to be submitted.
         submitted_at
-      elsif graded_at.nil? || (@submission.graded? && @submission.score == 0) # rubocop:disable Lint/DuplicateBranch https://github.com/rubocop/rubocop/issues/10153
+      elsif graded_at.nil? || (@submission.graded? && @submission.score == 0)
         # if graded_at is nil we know that due_at is in the future.  We know it
         # must be in the future because @submission.missing? above would have
         # been true.  With due_at in the future, means it has not been recorded yet.
         # if the submission has been graded at a grade of zero it has not been
         # submitted yet even if it has been graded.
         nil
-      elsif due_at.nil? || graded_at < due_at
+      elsif due_at.nil?
         # if due_at is nil and we know graded_at is not nil so return that.
+        graded_at
+      elsif graded_at < due_at
         # if graded_at is before due_at return graded_at which is the oldest date
         graded_at
       else
