@@ -62,12 +62,6 @@ module Analytics
             expect(data[:third_quartile]).to eq 72.0
           end
         end
-
-        it 'keeps the tardiness breakdown from the rollup' do
-        end
-
-        it 'uses the same assignment info as the rollup' do
-        end
       end
 
       describe 'aggregating rollups' do
