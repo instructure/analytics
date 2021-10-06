@@ -202,9 +202,9 @@ shared_examples_for "analytics tests" do
     get "/courses/#{@course.id}/users"
     wait_for_ajaximations
     if !exist
-      expect(f("#content")).not_to contain_css(ANALYTICS_ICON_CSS)
+      expect(f("#content")).not_to contain_css(analytics_icon_css)
     else
-      expect(ff(ANALYTICS_ICON_CSS).count).to eq student_roster.count
+      expect(ff(analytics_icon_css).count).to eq student_roster.count
     end
   end
 
