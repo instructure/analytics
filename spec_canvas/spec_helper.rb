@@ -22,7 +22,6 @@ def page_view(opts = {})
   course = opts[:course] || @course
   user = opts[:user] || @student
   controller = opts[:assignments] || 'assignments'
-  summarized = opts[:summarized] || nil
 
   page_view = PageView.new(
     :context => course,
