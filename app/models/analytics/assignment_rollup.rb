@@ -64,7 +64,9 @@ class Analytics::AssignmentRollup
       end
     end
 
-    stats_by_section.each_value(&:calculate)
+    stats_by_section.each do |section_id, rollup|
+      rollup.calculate(assignment)
+    end
 
     # make a new hash here to remove the default value block
     Hash[stats_by_section]
@@ -119,7 +121,7 @@ class Analytics::AssignmentRollup
     end
   end
 
-  def calculate
+  def calculate(assignment)
     tardiness                = tardiness_breakdown.as_hash_scaled(self.total_submissions)
     self.missing_submissions = tardiness[:missing]
     self.late_submissions    = tardiness[:late]
@@ -165,7 +167,7 @@ class Analytics::AssignmentRollup
     end
   end
 
-  def as_json(_options = nil)
+  def as_json(options = {})
     data
   end
 end

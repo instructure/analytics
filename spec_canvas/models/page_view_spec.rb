@@ -93,7 +93,7 @@ describe PageView do
     course = course_model
     expect(PageViewsRollup.bin_for(course, date, 'other').views).to eq 0
 
-    page_view(:context => course, :created_at => date)
+    view = page_view(:context => course, :created_at => date)
     expect(PageViewsRollup.bin_for(course, date, 'other').views).to eq 1
   end
 
@@ -101,7 +101,7 @@ describe PageView do
     # 2012-06-01 20:00:00 AKDT / 2012-06-02 04:00:00 UTC
     time = Time.zone.parse('2012-06-01 20:00:00-08:00').in_time_zone('Alaska')
     course = course_model
-    page_view(:context => course, :created_at => time)
+    view = page_view(:context => course, :created_at => time)
     expect(PageViewsRollup.bin_for(course, time.to_date, 'other').views).to eq 0
     expect(PageViewsRollup.bin_for(course, time.utc.to_date, 'other').views).to eq 1
   end
