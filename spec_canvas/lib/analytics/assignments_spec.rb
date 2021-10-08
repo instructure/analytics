@@ -182,8 +182,6 @@ module Analytics
       @current_user = user
     end
 
-    def secondaried(_options = {})
-      yield
-    end
+    def secondaried(options = {}); yield; end
   end
 end

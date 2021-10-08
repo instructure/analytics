@@ -24,9 +24,15 @@ require_relative '../../../../../spec/selenium/grades/pages/gradebook_cells_page
 require_relative 'analytics_common'
 
 describe "analytics course view" do
-  let(:initial_student_name) { "initial test student" }
-
   include_examples "analytics tests"
+
+  module StudentBars
+    PAGE_VIEWS = '#students .page_views .paper span'
+    SUBMISSIONS = '#students .submissions .paper span'
+    PARTICIPATION = '#students .participation .paper span'
+  end
+
+  INITIAL_STUDENT_NAME = 'initial test student'
 
   def get_bar(graph_selector, assignment_id)
     driver.execute_script("return $('#{graph_selector} .assignment_#{assignment_id}').prev()[0]")
@@ -38,7 +44,7 @@ describe "analytics course view" do
     course_with_teacher(active_all: true)
     @course.update(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
     @course.save!
-    student_in_course(name: initial_student_name, active_all: true)
+    student_in_course(name: INITIAL_STUDENT_NAME, active_all: true)
   end
 
   before(:each) { user_session(@teacher) }
@@ -117,7 +123,7 @@ describe "analytics course view" do
 
       go_to_analytics("/courses/#{@course.id}/analytics")
       expect(student_rows.count).to eq 1
-      expect(student_rows.first.text).to eq initial_student_name
+      expect(student_rows.first.text).to eq INITIAL_STUDENT_NAME
       add_students_to_course(2)
       refresh_page # in order to make new students show up
       wait_for_ajaximations # student rows are loaded asynchronously
