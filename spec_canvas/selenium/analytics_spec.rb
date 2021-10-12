@@ -22,9 +22,9 @@ require_relative '../../../../../spec/selenium/common'
 require_relative 'analytics_common'
 
 describe "analytics" do
-  include_examples "analytics tests"
+  let(:analytics_icon_css) { ".roster .icon-analytics" }
 
-  ANALYTICS_ICON_CSS = '.roster .icon-analytics'
+  include_examples "analytics tests"
 
   describe "course view" do
     describe "links" do

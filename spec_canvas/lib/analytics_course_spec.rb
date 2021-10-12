@@ -452,7 +452,7 @@ describe Analytics::Course do
         end
 
         it "counts participations for that student" do
-          view = page_view(:user => @student, :course => @course, :participated => true)
+          page_view(:user => @student, :course => @course, :participated => true)
           expect(student_summary[:participations]).to eq 1
         end
 
@@ -481,7 +481,6 @@ describe Analytics::Course do
         end
 
         it "can return results for specific students", priority: "1", test_id: 2997780 do
-          student1 = @student
           student2 = active_student(name: "Student2").user
           summaries = @teacher_analytics
                       .student_summaries(student_ids: [student2.id])
