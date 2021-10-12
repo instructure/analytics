@@ -112,7 +112,7 @@ module Analytics
       )
     end
 
-    def extended_assignment_data(assignment, _submissions)
+    def extended_assignment_data(assignment, submissions)
       { tardiness_breakdown: tardiness_breakdowns[:assignments][assignment.id].as_hash_scaled }
     end
 
