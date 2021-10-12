@@ -134,7 +134,7 @@ module Analytics
       hash
     end
 
-    def basic_assignment_data(assignment, _submissions = nil)
+    def basic_assignment_data(assignment, submissions = nil)
       {
         :assignment_id => assignment.id,
         :title => assignment.title,
