@@ -75,7 +75,7 @@ describe Analytics::StudentCollection do
                            @users[2].id => { :page_views => 60, :participations => 10 },
                          })
       students = collection.paginate(:page => 1, :per_page => 3)
-      expect(students).to eq([1, 0, 2].map { |i| @users[i] })
+      expect(students).to eq [1, 0, 2].map { |i| @users[i] }
     end
 
     it "passes the results through the formatter" do

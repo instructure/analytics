@@ -24,7 +24,7 @@ module Analytics::Extensions::CoursesController
   # subsequent inclusion won't make it higher priority than us
   include Api::V1::User
 
-  def user_json(user, current_user, session, includes = [], context = @context, enrollments = nil, excludes = [], **)
+  def user_json(user, current_user, session, includes = [], context = @context, enrollments = nil, excludes = [])
     super.tap do |json|
       # order of comparisons is meant to let the cheapest counters be
       # evalutated first, so the more expensive ones don't need to be evaluated
