@@ -22,7 +22,6 @@ require_relative '../../../../../../spec/spec_helper'
 require_dependency "analytics/assignments"
 
 module Analytics
-
   describe Assignments do
     let(:assignments) { AssignmentsHarness.new }
 
@@ -37,7 +36,8 @@ module Analytics
           :multiple_due_dates => false,
           :grading_type => "percent",
           :submission_types => "online",
-          :non_digital_submission? => false)
+          :non_digital_submission? => false
+        )
       end
 
       shared_examples_for "basic assignment data" do
@@ -63,14 +63,13 @@ module Analytics
       end
 
       describe '#assignment_data' do
-
-        let(:scores) { (1..5).map{|score| double(:score => score, :user_id => 123) } }
+        let(:scores) { (1..5).map { |score| double(:score => score, :user_id => 123) } }
 
         before do
-         allow(assignments).to receive(:fake_student_ids).and_return([])
-         allow(assignments).to receive(:allow_student_details?).and_return(true)
+          allow(assignments).to receive(:fake_student_ids).and_return([])
+          allow(assignments).to receive(:allow_student_details?).and_return(true)
         end
-        subject { OpenStruct.new( assignments.assignment_data(assignment, scores) ) }
+        subject { OpenStruct.new(assignments.assignment_data(assignment, scores)) }
 
         describe '#max_score' do
           subject { super().max_score }
@@ -106,18 +105,17 @@ module Analytics
       end
 
       describe '#base_data' do
-        subject { OpenStruct.new( assignments.basic_assignment_data(assignment) ) }
+        subject { OpenStruct.new(assignments.basic_assignment_data(assignment)) }
 
         include_examples 'basic assignment data'
       end
-
     end
 
     describe '#assignment_rollups_for' do
       let(:this_course) { course_shim }
       let(:sections) { this_course.course_sections }
       let(:section_ids) { sections.map(&:id) }
-      let!(:assignment) { this_course.assignments.create!(:points_possible=>100, :due_at => Date.today) }
+      let!(:assignment) { this_course.assignments.create!(:points_possible => 100, :due_at => Date.today) }
 
       before do
         3.times do
@@ -146,11 +144,11 @@ module Analytics
         assignments = AssignmentsHarness.new(this_course)
         data = assignments.assignment_rollups_for(section_ids)
         expect(data).to eq [{
-          :assignment_id=>assignment.id, :title=>assignment.title, :due_at=>assignment.due_at,
-          :muted=>assignment.muted, :points_possible=>assignment.points_possible,
-          :max_score=>95, :min_score=>95, :first_quartile=>94,
-          :median=>94, :third_quartile=>94, :tardiness_breakdown=>{
-            :missing=>0, :late=>0, :on_time=>1, :total=>1
+          :assignment_id => assignment.id, :title => assignment.title, :due_at => assignment.due_at,
+          :muted => assignment.muted, :points_possible => assignment.points_possible,
+          :max_score => 95, :min_score => 95, :first_quartile => 94,
+          :median => 94, :third_quartile => 94, :tardiness_breakdown => {
+            :missing => 0, :late => 0, :on_time => 1, :total => 1
           }
         }]
       end
@@ -179,13 +177,11 @@ module Analytics
   class AssignmentsHarness
     include ::Analytics::Assignments
 
-    def initialize(course_object=nil, user=nil)
+    def initialize(course_object = nil, user = nil)
       @course = course_object
       @current_user = user
     end
 
-    def secondaried(options={}); yield; end
+    def secondaried(options = {}); yield; end
   end
-
 end
-

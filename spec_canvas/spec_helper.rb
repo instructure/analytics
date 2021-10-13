@@ -18,7 +18,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-def page_view(opts={})
+def page_view(opts = {})
   course = opts[:course] || @course
   user = opts[:user] || @student
   controller = opts[:assignments] || 'assignments'
@@ -27,7 +27,8 @@ def page_view(opts={})
   page_view = PageView.new(
     :context => course,
     :user => user,
-    :controller => controller)
+    :controller => controller
+  )
 
   page_view.request_id = SecureRandom.uuid
 

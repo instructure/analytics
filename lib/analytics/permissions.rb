@@ -28,6 +28,7 @@ module Analytics::Permissions
     def require_analytics_enabled
       # does the account even have analytics enabled?
       raise ActiveRecord::RecordNotFound unless service_enabled?(:analytics)
+
       return true
     end
 
@@ -79,6 +80,7 @@ module Analytics::Permissions
     # user.
     def require_analytics_for_course
       return false unless require_course_with_analytics
+
       return authorized_action(@course, @current_user, :read_as_admin)
     end
 
