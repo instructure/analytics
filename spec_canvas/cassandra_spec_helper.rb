@@ -18,7 +18,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative '../../../../spec/cassandra_spec_helper'
+require 'cassandra_spec_helper'
 
 shared_examples_for "analytics cassandra page views" do
   include_examples "cassandra page views"
