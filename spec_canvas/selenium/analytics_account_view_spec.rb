@@ -18,7 +18,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative '../../../../../spec/selenium/common'
+require 'selenium/common'
 require_relative 'analytics_common'
 
 describe "analytics account view" do

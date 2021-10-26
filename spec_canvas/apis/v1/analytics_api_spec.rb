@@ -20,8 +20,7 @@
 
 # This file is part of the analytics engine
 
-require_relative '../../../../../../spec/apis/api_spec_helper'
-require_relative '../../spec_helper'
+require "apis/api_spec_helper"
 require_relative '../../cassandra_spec_helper'
 
 describe "Analytics API", :type => :request do
