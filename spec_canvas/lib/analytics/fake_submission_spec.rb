@@ -18,8 +18,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require 'spec_helper'
-require_relative '../../../../../../spec/spec_helper'
 require_dependency 'analytics/fake_submission'
 
 module Analytics
