@@ -75,7 +75,7 @@ module Analytics
     end
 
     describe "async" do
-      let(:permitted_course) { PermittedCourse.new(user_factory, course_shim) }
+      let(:permitted_course) { PermittedCourse.new(user_factory, course_factory) }
 
       it "reads and saves the data if available in cache" do
         expect(permitted_course).to receive(:assignments_uncached).never

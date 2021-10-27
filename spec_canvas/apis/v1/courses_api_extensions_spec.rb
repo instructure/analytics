@@ -21,6 +21,7 @@
 # This file is part of the analytics engine
 
 require "apis/api_spec_helper"
+
 describe "Courses API Extensions", :type => :request do
   before :each do
     @account = Account.default
