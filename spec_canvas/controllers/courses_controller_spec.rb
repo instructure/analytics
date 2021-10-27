@@ -20,6 +20,8 @@
 
 # This file is part of the analytics engine
 
+require_relative '../../../../../spec/spec_helper'
+
 describe CoursesController, :type => :controller do
   before :each do
     @account = Account.default

@@ -18,6 +18,8 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+require_relative '../../../../../spec/spec_helper'
+
 describe AnalyticsApiController do
   let(:params) { Hash.new }
   let(:controller) { AnalyticsApiController.new }

@@ -20,6 +20,8 @@
 
 # This file is part of the analytics engine
 
+require_relative '../../../../../spec/spec_helper'
+
 describe ContextController, :type => :controller do
   before :once do
     @account = Account.default

@@ -18,9 +18,9 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require 'selenium/common'
-require 'selenium/grades/pages/gradebook_page'
-require 'selenium/grades/pages/gradebook_cells_page'
+require_relative '../../../../../spec/selenium/common'
+require_relative '../../../../../spec/selenium/grades/pages/gradebook_page'
+require_relative '../../../../../spec/selenium/grades/pages/gradebook_cells_page'
 require_relative 'analytics_common'
 
 describe "analytics course view" do

@@ -18,6 +18,8 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+require_relative '../../../../../../spec/spec_helper'
+
 describe PageView::Pv4Client do
   let(:client) { PageView::Pv4Client.new('http://pv4/', 'token') }
 

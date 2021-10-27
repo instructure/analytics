@@ -18,6 +18,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+require_relative '../../../../../../../spec/spec_helper'
 require_dependency "analytics/rollups/assignment_rollup_aggregate"
 
 module Analytics
@@ -42,7 +43,7 @@ module Analytics
         }
       }
 
-      let(:the_course) { course_factory }
+      let(:the_course) { course_shim }
       let(:rollup) { AssignmentRollup.new(rollup_attrs) }
 
       describe 'data from a single rollup' do

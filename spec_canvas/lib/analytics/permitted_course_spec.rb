@@ -18,6 +18,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+require_relative '../../../../../../spec/spec_helper'
 require_dependency "analytics/permitted_course"
 
 module Analytics
@@ -75,7 +76,7 @@ module Analytics
     end
 
     describe "async" do
-      let(:permitted_course) { PermittedCourse.new(user_factory, course_factory) }
+      let(:permitted_course) { PermittedCourse.new(user_factory, course_shim) }
 
       it "reads and saves the data if available in cache" do
         expect(permitted_course).to receive(:assignments_uncached).never

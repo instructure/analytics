@@ -18,11 +18,12 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+require_relative '../../../../../../spec/spec_helper'
 require_dependency "analytics/assignment_submission"
 
 module Analytics
   describe AssignmentSubmission do
-    let(:assignment) { ::Assignment.create!({ :context => course_factory }) }
+    let(:assignment) { ::Assignment.create!({ :context => course_shim }) }
     let(:date) { Time.now.change(sec: 0) }
 
     context "with submission" do
