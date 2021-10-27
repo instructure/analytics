@@ -42,7 +42,7 @@ module Analytics
         }
       }
 
-      let(:the_course) { course_shim }
+      let(:the_course) { course_factory }
       let(:rollup) { AssignmentRollup.new(rollup_attrs) }
 
       describe 'data from a single rollup' do
