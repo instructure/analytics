@@ -34,14 +34,14 @@ describe Analytics::Department do
     end
 
     it "returns the number of courses, across all subaccounts" do
-      course_shim(account: @account, active_course: true)
-      course_shim(account: @account.sub_accounts.first, active_course: true)
+      course_factory(account: @account, active_course: true)
+      course_factory(account: @account.sub_accounts.first, active_course: true)
       expect(@acct_statistics.statistics[:courses]).to eq 2
     end
 
     it "does not count courses that are crosslisted" do
-      c1 = course_shim(account: @account.sub_accounts.first, active_all: true)
-      c2 = course_shim(account: @account.sub_accounts.second, active_all: true)
+      c1 = course_factory(account: @account.sub_accounts.first, active_all: true)
+      c2 = course_factory(account: @account.sub_accounts.second, active_all: true)
       c2.course_sections.create!({ :name => "section 2" })
       c2.course_sections.first.crosslist_to_course(c1)
       lst = @acct_statistics.statistics_by_subaccount.sort_by { |x| x[:id] }
@@ -51,10 +51,10 @@ describe Analytics::Department do
     end
 
     it "returns the number of courses, grouped by subaccount" do
-      course_shim(account: @account, active_course: true)
-      course_shim(account: @account.sub_accounts.first, active_course: true)
-      course_shim(account: @account.sub_accounts.second, active_course: true)
-      course_shim(account: @account.sub_accounts.second, active_course: true)
+      course_factory(account: @account, active_course: true)
+      course_factory(account: @account.sub_accounts.first, active_course: true)
+      course_factory(account: @account.sub_accounts.second, active_course: true)
+      course_factory(account: @account.sub_accounts.second, active_course: true)
       lst = @acct_statistics.statistics_by_subaccount.sort_by { |x| x[:id] }
       expect(lst[0][:courses]).to eq 1
       expect(lst[1][:courses]).to eq 1
@@ -62,8 +62,8 @@ describe Analytics::Department do
     end
 
     it "returns the number of teachers and students, across all subaccounts" do
-      c1 = course_shim(account: @account, active_all: true)
-      c2 = course_shim(account: @account.sub_accounts.first, active_all: true)
+      c1 = course_factory(account: @account, active_all: true)
+      c2 = course_factory(account: @account.sub_accounts.first, active_all: true)
       s1 = student_in_course(course: c1, active_all: true).user
       student_in_course(course: c2, active_all: true)
       student_in_course(course: c2, user: s1, active_all: true) # enroll student in both courses
@@ -73,10 +73,10 @@ describe Analytics::Department do
     end
 
     it "returns the number of teachers and students, grouped by subaccount" do
-      c1 = course_shim(account: @account, active_all: true)
-      c2 = course_shim(account: @account.sub_accounts.first, active_all: true)
-      c3 = course_shim(account: @account.sub_accounts.second, active_all: true)
-      c4 = course_shim(account: @account.sub_accounts.second, active_all: true)
+      c1 = course_factory(account: @account, active_all: true)
+      c2 = course_factory(account: @account.sub_accounts.first, active_all: true)
+      c3 = course_factory(account: @account.sub_accounts.second, active_all: true)
+      c4 = course_factory(account: @account.sub_accounts.second, active_all: true)
       student_in_course(course: c1, active_all: true)
       student_in_course(course: c2, active_all: true)
       student_in_course(course: c3, active_all: true)
