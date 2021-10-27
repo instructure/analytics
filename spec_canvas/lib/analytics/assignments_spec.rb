@@ -18,7 +18,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative '../../../../../../spec/spec_helper'
 require_dependency "analytics/assignments"
 
 module Analytics
@@ -112,7 +111,7 @@ module Analytics
     end
 
     describe '#assignment_rollups_for' do
-      let(:this_course) { course_shim }
+      let(:this_course) { course_factory }
       let(:sections) { this_course.course_sections }
       let(:section_ids) { sections.map(&:id) }
       let!(:assignment) { this_course.assignments.create!(:points_possible => 100, :due_at => Date.today) }

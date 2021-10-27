@@ -18,8 +18,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative '../../../../../spec/spec_helper.rb'
-
 describe Loaders::CourseStudentAnalyticsLoader do
   before do
     @account = Account.default
