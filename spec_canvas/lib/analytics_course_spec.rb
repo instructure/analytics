@@ -88,7 +88,7 @@ describe Analytics::Course do
     it "uses the same cache for users with the same visibility" do
       enable_cache do
         @ta_analytics.students
-        expect(@teacher_analytics).to receive(:student_scope).never
+        expect(@teacher_analytics).not_to receive(:student_scope)
         @teacher_analytics.students
       end
     end

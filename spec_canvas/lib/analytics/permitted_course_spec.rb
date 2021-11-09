@@ -78,7 +78,7 @@ module Analytics
       let(:permitted_course) { PermittedCourse.new(user_factory, course_factory) }
 
       it "reads and saves the data if available in cache" do
-        expect(permitted_course).to receive(:assignments_uncached).never
+        expect(permitted_course).not_to receive(:assignments_uncached)
         expect(Rails.cache).to receive(:read).once.and_return("data")
         expect(permitted_course.async_data_available?).to eq true
         expect(permitted_course.assignments).to eq "data"
