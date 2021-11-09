@@ -87,6 +87,7 @@ describe Analytics::StudentCollection do
 
   describe 'sort strategies' do
     let(:enrollment_count) { 3 }
+
     before :each do
       @course = Course.create! # no teacher, please
       @enrollments = Array.new(enrollment_count) { student_in_course(:active_all => true) }
@@ -144,6 +145,7 @@ describe Analytics::StudentCollection do
 
     describe Analytics::StudentCollection::SortStrategy::ByScore do
       let(:enrollment_count) { 4 }
+
       before :each do
         assigned_scores = [40, 20, nil, 60]
         assigned_scores.zip(@enrollments).each do |score, enrollment|

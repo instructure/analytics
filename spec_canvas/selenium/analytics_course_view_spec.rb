@@ -54,6 +54,7 @@ describe "analytics course view" do
   context "course graphs" do
     context "participation graph" do
       let(:analytics_url) { "/courses/#{@course.id}/analytics" }
+
       include_examples "participation graph specs"
     end
 

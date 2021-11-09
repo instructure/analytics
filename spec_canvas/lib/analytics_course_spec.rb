@@ -51,6 +51,7 @@ describe Analytics::Course do
           override.save!
         end
       end
+
       describe "when viewed by a teacher" do
         it "multiple_due_dates flag is true" do
           assignment.reload
