@@ -395,6 +395,7 @@ describe "Analytics API", :type => :request do
       course_with_teacher(active_all: true)
       course_with_student(course: @course, active_all: true)
     end
+
     s
     it "returns submission data when graded but not submitted" do
       assignment = assignment_model course: @course

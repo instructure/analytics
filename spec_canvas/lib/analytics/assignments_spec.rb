@@ -68,6 +68,7 @@ module Analytics
           allow(assignments).to receive(:fake_student_ids).and_return([])
           allow(assignments).to receive(:allow_student_details?).and_return(true)
         end
+
         subject { OpenStruct.new(assignments.assignment_data(assignment, scores)) }
 
         describe '#max_score' do
