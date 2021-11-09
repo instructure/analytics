@@ -64,6 +64,7 @@ describe "analytics" do
     context "as an admin" do
       describe "with analytics turned on" do
         let(:validate) { true }
+
         before(:each) do
           course_with_admin_logged_in
           enable_analytics
@@ -75,6 +76,7 @@ describe "analytics" do
 
       describe "with analytics turned off" do
         let(:validate) { false }
+
         before(:each) do
           course_with_admin_logged_in
           disable_analytics
@@ -88,6 +90,7 @@ describe "analytics" do
     context "as a teacher" do
       describe "with analytics permissions on" do
         let(:validate) { true }
+
         before(:each) do
           enable_analytics
           enable_teacher_permissions
@@ -100,6 +103,7 @@ describe "analytics" do
 
       describe "with analytics permissions off" do
         let(:validate) { false }
+
         before(:each) do
           enable_analytics
           disable_teacher_permissions
@@ -137,6 +141,7 @@ describe "analytics" do
 
     context 'participation view' do
       let(:analytics_url) { "/courses/#{@course.id}/analytics/users/#{@student.id}" }
+
       include_examples "participation graph specs"
     end
 
