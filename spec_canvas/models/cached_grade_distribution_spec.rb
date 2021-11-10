@@ -20,7 +20,7 @@
 
 describe CachedGradeDistribution do
   describe "#recalculate!" do
-    before :each do
+    before do
       @course = course_model
       @enrollment = student_in_course
       @enrollment.workflow_state = 'active'
@@ -115,7 +115,7 @@ describe CachedGradeDistribution do
   end
 
   describe "triggers" do
-    before :each do
+    before do
       @course = course_model
       @dist = @course.create_cached_grade_distribution
       allow_any_instantiation_of(@course).to receive(:cached_grade_distribution).and_return(@dist)
