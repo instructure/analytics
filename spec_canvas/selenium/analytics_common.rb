@@ -19,15 +19,15 @@
 #
 
 module GraphColors
-  FRAME = "#555555".freeze
-  BLUE = "#7eb5ce".freeze
-  LIGHT_BLUE = "#a9c8d6".freeze
-  DARK_BLUE = "#114055".freeze
-  SHARP_GREEN = "#70a80b".freeze
-  SHARP_YELLOW = "#e6bb00".freeze
-  SHARP_RED = "#ba1a17".freeze
-  NONE = "#cccccc".freeze
-  BACKGROUND = "#ffffff".freeze
+  FRAME = "#555555"
+  BLUE = "#7eb5ce"
+  LIGHT_BLUE = "#a9c8d6"
+  DARK_BLUE = "#114055"
+  SHARP_GREEN = "#70a80b"
+  SHARP_YELLOW = "#e6bb00"
+  SHARP_RED = "#ba1a17"
+  NONE = "#cccccc"
+  BACKGROUND = "#ffffff"
 end
 
 shared_examples_for "analytics tests" do
