@@ -21,12 +21,12 @@
 require_relative '../cassandra_spec_helper'
 
 describe PageView do
-  before :each do
+  before do
     Setting.set('enable_page_views', 'db')
   end
 
   describe "#category" do
-    before :each do
+    before do
       @view = page_view_model
     end
 

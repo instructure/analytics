@@ -28,7 +28,7 @@ describe "analytics" do
 
   describe "course view" do
     describe "links" do
-      before(:each) do
+      before do
         course_with_teacher_logged_in
         enable_analytics
         add_students_to_course(1)
@@ -64,7 +64,8 @@ describe "analytics" do
     context "as an admin" do
       describe "with analytics turned on" do
         let(:validate) { true }
-        before(:each) do
+
+        before do
           course_with_admin_logged_in
           enable_analytics
           add_students_to_course(5)
@@ -75,7 +76,8 @@ describe "analytics" do
 
       describe "with analytics turned off" do
         let(:validate) { false }
-        before(:each) do
+
+        before do
           course_with_admin_logged_in
           disable_analytics
           add_students_to_course(5)
@@ -88,7 +90,8 @@ describe "analytics" do
     context "as a teacher" do
       describe "with analytics permissions on" do
         let(:validate) { true }
-        before(:each) do
+
+        before do
           enable_analytics
           enable_teacher_permissions
           course_with_teacher_logged_in
@@ -100,7 +103,8 @@ describe "analytics" do
 
       describe "with analytics permissions off" do
         let(:validate) { false }
-        before(:each) do
+
+        before do
           enable_analytics
           disable_teacher_permissions
           course_with_teacher_logged_in
@@ -113,7 +117,7 @@ describe "analytics" do
   end
 
   describe "analytics view" do
-    before(:each) do
+    before do
       enable_analytics
       @teacher = course_with_teacher_logged_in.user
       @course.update(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
@@ -137,6 +141,7 @@ describe "analytics" do
 
     context 'participation view' do
       let(:analytics_url) { "/courses/#{@course.id}/analytics/users/#{@student.id}" }
+
       include_examples "participation graph specs"
     end
 

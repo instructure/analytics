@@ -91,7 +91,9 @@ module Analytics::Rollups
 
       describe 'stat counting on small buckets' do
         let(:buckets) { ScoreBuckets.new(5) }
+
         before { buckets << 1 << 1 << 2 << 5 << 3 << 2 << 1 }
+
         subject { buckets }
 
         describe '#max' do

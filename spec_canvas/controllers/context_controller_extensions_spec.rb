@@ -41,7 +41,7 @@ describe ContextController, :type => :controller do
       @enrollment.accept!
     end
 
-    before :each do
+    before do
       user_session(@teacher)
     end
 
@@ -108,7 +108,7 @@ describe ContextController, :type => :controller do
         @course.complete!
       end
 
-      before :each do
+      before do
         # teachers viewing analytics for a concluded course is currently
         # broken. so let an admin try it.
         user_session(account_admin_user)
@@ -171,7 +171,7 @@ describe ContextController, :type => :controller do
         RoleOverride.manage_role_override(@account, ta_role, 'view_analytics', :override => true)
       end
 
-      before :each do
+      before do
         user_session(@ta)
       end
 

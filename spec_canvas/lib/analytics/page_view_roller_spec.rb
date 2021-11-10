@@ -55,7 +55,7 @@ module Analytics
       page_view
     end
 
-    before :each do
+    before do
       @course = course_model
       @user = user_model
     end
@@ -135,7 +135,7 @@ module Analytics
       it "only bins page views on that day" do
         date = Date.today
         build_page_view(:created_at => date)
-        expect(PageViewsRollup).to receive(:augment!).never
+        expect(PageViewsRollup).not_to receive(:augment!)
         PageViewRoller.rollup_one(date - 1.day)
       end
 
@@ -165,8 +165,8 @@ module Analytics
         date = Date.today
         build_page_view(:created_at => date)
         mockbin(@course.id, date, 'other', false) do |bin|
-          expect(bin).to receive(:augment).never
-          expect(bin).to receive(:save!).never
+          expect(bin).not_to receive(:augment)
+          expect(bin).not_to receive(:save!)
         end
         PageViewRoller.rollup_one(date)
       end

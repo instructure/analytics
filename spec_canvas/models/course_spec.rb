@@ -20,7 +20,7 @@
 
 describe Course do
   describe "#recache_grade_distribution" do
-    before :each do
+    before do
       @course = course_model
       @enrollment = student_in_course
       @enrollment.workflow_state = 'active'

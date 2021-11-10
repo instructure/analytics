@@ -20,7 +20,7 @@
 
 describe CachedGradeDistribution do
   describe "#recalculate!" do
-    before :each do
+    before do
       @course = course_model
       @enrollment = student_in_course
       @enrollment.workflow_state = 'active'
@@ -115,7 +115,7 @@ describe CachedGradeDistribution do
   end
 
   describe "triggers" do
-    before :each do
+    before do
       @course = course_model
       @dist = @course.create_cached_grade_distribution
       allow_any_instantiation_of(@course).to receive(:cached_grade_distribution).and_return(@dist)
@@ -135,7 +135,7 @@ describe CachedGradeDistribution do
     end
 
     it "does not get recalculated when a fake student enrollment is added" do
-      expect(@dist).to receive(:recalculate!).never
+      expect(@dist).not_to receive(:recalculate!)
       @course.student_view_student
     end
 
@@ -143,7 +143,7 @@ describe CachedGradeDistribution do
       @course.student_view_student
       @enrollment = @course.student_view_enrollments.first
 
-      expect(@dist).to receive(:recalculate!).never
+      expect(@dist).not_to receive(:recalculate!)
       @enrollment.workflow_state = 'deleted'
       @enrollment.save
     end
@@ -157,13 +157,13 @@ describe CachedGradeDistribution do
 
     it "does not get recalculated after empty GradeCalculator.recompute_final_score" do
       # no-op because there are no enrollments in the course
-      expect(@dist).to receive(:recalculate!).never
+      expect(@dist).not_to receive(:recalculate!)
       GradeCalculator.recompute_final_score([], @course.id)
     end
 
     it "does not get recalculated if ignore_muted in GradeCalculator is false" do
       student_in_course
-      expect(@dist).to receive(:recalculate!).never
+      expect(@dist).not_to receive(:recalculate!)
       GradeCalculator.recompute_final_score([@student.id], @course.id, ignore_muted: false)
     end
 
@@ -177,7 +177,7 @@ describe CachedGradeDistribution do
         end_date: 10.days.from_now
       )
 
-      expect(@dist).to receive(:recalculate!).never
+      expect(@dist).not_to receive(:recalculate!)
       GradeCalculator.recompute_final_score([@student.id], @course.id, grading_period_id: gp.id,
                                                                        update_course_score: false)
     end
