@@ -150,11 +150,11 @@ shared_examples_for "analytics tests" do
   end
 
   def validate_element_fill(element, fill_hex_color)
-    expect(element.attribute('fill')).to eq "#{fill_hex_color}"
+    expect(element.attribute('fill')).to eq fill_hex_color
   end
 
   def validate_element_stroke(element, stroke_hex_color)
-    expect(element.attribute('stroke')).to eq "#{stroke_hex_color}"
+    expect(element.attribute('stroke')).to eq stroke_hex_color
   end
 
   def format_date(date)
