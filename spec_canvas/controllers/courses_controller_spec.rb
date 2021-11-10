@@ -21,7 +21,7 @@
 # This file is part of the analytics engine
 
 describe CoursesController, :type => :controller do
-  before :each do
+  before do
     @account = Account.default
     @account.allowed_services = '+analytics'
     @account.save!
@@ -36,7 +36,7 @@ describe CoursesController, :type => :controller do
       student_in_course(:active_all => true)
     end
 
-    before :each do
+    before do
       user_session(@teacher)
     end
 

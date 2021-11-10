@@ -41,7 +41,7 @@ describe "analytics course view" do
     student_in_course(name: initial_student_name, active_all: true)
   end
 
-  before(:each) { user_session(@teacher) }
+  before { user_session(@teacher) }
 
   context "course home page" do
     it 'shows the analytics button on the course home page' do

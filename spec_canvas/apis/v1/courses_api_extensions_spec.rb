@@ -23,7 +23,7 @@
 require "apis/api_spec_helper"
 
 describe "Courses API Extensions", :type => :request do
-  before :each do
+  before do
     @account = Account.default
     @account.allowed_services = '+analytics'
     @account.save!
@@ -33,7 +33,7 @@ describe "Courses API Extensions", :type => :request do
   end
 
   context "permissions" do
-    before :each do
+    before do
       @student1 = user_factory(active_all: true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
@@ -86,7 +86,7 @@ describe "Courses API Extensions", :type => :request do
     end
 
     context "nominal conditions" do
-      before :each do
+      before do
         @student2 = student_in_course(:active_all => true).user
         @user = @teacher
       end
@@ -97,7 +97,7 @@ describe "Courses API Extensions", :type => :request do
     end
 
     context "analytics disabled" do
-      before :each do
+      before do
         @account.allowed_services = '-analytics'
         @account.save!
       end
@@ -108,7 +108,7 @@ describe "Courses API Extensions", :type => :request do
     end
 
     context "unpublished course" do
-      before :each do
+      before do
         @course.workflow_state = 'created'
         @course.save!
       end
@@ -119,7 +119,7 @@ describe "Courses API Extensions", :type => :request do
     end
 
     context "no analytics permission" do
-      before :each do
+      before do
         RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => false)
       end
 
@@ -129,7 +129,7 @@ describe "Courses API Extensions", :type => :request do
     end
 
     context "no manage_grades or view_all_grades permission" do
-      before :each do
+      before do
         RoleOverride.manage_role_override(@account, student_role, 'view_analytics', :override => true)
         @student2 = student_in_course(:active_all => true).user
       end
@@ -144,7 +144,7 @@ describe "Courses API Extensions", :type => :request do
     end
 
     context "invited-only enrollments" do
-      before :each do
+      before do
         @enrollment.workflow_state = 'invited'
         @enrollment.save!
       end
@@ -155,7 +155,7 @@ describe "Courses API Extensions", :type => :request do
     end
 
     context "unreadable student" do
-      before :each do
+      before do
         # section limited ta in section other than student1
         @ta = user_factory(active_all: true)
         @enrollment = @course.enroll_ta(@ta)
@@ -176,7 +176,7 @@ describe "Courses API Extensions", :type => :request do
   end
 
   context "includes" do
-    before :each do
+    before do
       course_with_teacher(:active_all => true)
       @student = student_in_course(:active_all => true)
       @user = @teacher

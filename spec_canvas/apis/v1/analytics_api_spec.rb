@@ -24,7 +24,7 @@ require "apis/api_spec_helper"
 require_relative '../../cassandra_spec_helper'
 
 describe "Analytics API", :type => :request do
-  before :each do
+  before do
     @account = Account.default
     @account.allowed_services = '+analytics'
     @account.save!
@@ -58,7 +58,7 @@ describe "Analytics API", :type => :request do
   end
 
   context "permissions" do
-    before :each do
+    before do
       @student1 = user_factory(active_all: true)
       course_with_teacher(:active_all => true)
       @default_section = @course.default_section
@@ -391,7 +391,7 @@ describe "Analytics API", :type => :request do
   end
 
   context "#student_in_course_participation" do
-    before :each do
+    before do
       course_with_teacher(active_all: true)
       course_with_student(course: @course, active_all: true)
     end

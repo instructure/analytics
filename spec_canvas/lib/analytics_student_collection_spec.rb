@@ -52,7 +52,7 @@ describe Analytics::StudentCollection do
   end
 
   describe "#paginate" do
-    before :each do
+    before do
       @course = Course.create! # no teacher, please
       @enrollments = Array.new(3) { student_in_course(:active_all => true) }
       @users = @enrollments.map(&:user)
@@ -88,7 +88,7 @@ describe Analytics::StudentCollection do
   describe 'sort strategies' do
     let(:enrollment_count) { 3 }
 
-    before :each do
+    before do
       @course = Course.create! # no teacher, please
       @enrollments = Array.new(enrollment_count) { student_in_course(:active_all => true) }
       @users = @enrollments.map(&:user)
@@ -131,7 +131,7 @@ describe Analytics::StudentCollection do
     end
 
     describe Analytics::StudentCollection::SortStrategy::ByName do
-      before :each do
+      before do
         assigned_names = ['Student 2', 'Student 1', 'Student 3']
         assigned_names.zip(@users).each { |name, user| user.update_attribute(:sortable_name, name) }
         @scope = User.active
@@ -146,7 +146,7 @@ describe Analytics::StudentCollection do
     describe Analytics::StudentCollection::SortStrategy::ByScore do
       let(:enrollment_count) { 4 }
 
-      before :each do
+      before do
         assigned_scores = [40, 20, nil, 60]
         assigned_scores.zip(@enrollments).each do |score, enrollment|
           enrollment.scores.where(grading_period_id: nil).first_or_initialize.tap do |s|
@@ -169,7 +169,7 @@ describe Analytics::StudentCollection do
     end
 
     describe Analytics::StudentCollection::SortStrategy::ByPageViews do
-      before :each do
+      before do
         page_view_counts = {
           @users[0].id => { :page_views => 40, :participations => 10 },
           @users[1].id => { :page_views => 20, :participations => 10 },
@@ -185,7 +185,7 @@ describe Analytics::StudentCollection do
     end
 
     describe Analytics::StudentCollection::SortStrategy::ByParticipations do
-      before :each do
+      before do
         page_view_counts = {
           @users[0].id => { :participations => 40, :page_views => 100 },
           @users[1].id => { :participations => 20, :page_views => 100 },

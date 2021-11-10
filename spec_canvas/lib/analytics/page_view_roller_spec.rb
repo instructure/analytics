@@ -55,7 +55,7 @@ module Analytics
       page_view
     end
 
-    before :each do
+    before do
       @course = course_model
       @user = user_model
     end
