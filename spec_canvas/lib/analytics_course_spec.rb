@@ -755,7 +755,7 @@ describe Analytics::Course do
     breakdown = @teacher_analytics.assignments.first[:tardiness_breakdown]
     expected = expected_breakdown(bin)
 
-    if opts.has_key? :total
+    if opts.key? :total
       expected[:total] = opts[:total]
     end
 
