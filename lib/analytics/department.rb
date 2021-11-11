@@ -257,7 +257,7 @@ module Analytics
       # date
       end_at = [start_at, end_at].max
 
-      return start_at, end_at
+      [start_at, end_at]
     end
 
     def parse_utc_time(time_string)
