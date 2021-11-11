@@ -31,11 +31,11 @@ module Analytics::Rollups
 
       @points_possible = points_possible
 
-      if bucket_count <= 1
-        @bucket_size = 0
-      else
-        @bucket_size = points_possible.to_f / (bucket_count - 1)
-      end
+      @bucket_size = if bucket_count <= 1
+                       0
+                     else
+                       points_possible.to_f / (bucket_count - 1)
+                     end
 
       @buckets = Array.new([bucket_count, 1].max, 0)
       @counter = ::Stats::Counter.new

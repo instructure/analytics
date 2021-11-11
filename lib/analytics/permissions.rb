@@ -46,16 +46,16 @@ module Analytics::Permissions
       else
         # no term specified, use the default term
         @term = @account.root_account.default_enrollment_term
-        if ['current', 'completed'].include?(params[:filter])
-          # respect the requested filter on the default term
-          @filter = params[:filter]
-        elsif terms.count > 1
-          # default behavior for multiple terms is default term, no filter
-          @filter = nil
-        else
-          # default behavior for only one term is current courses filter
-          @filter = 'current'
-        end
+        @filter = if ['current', 'completed'].include?(params[:filter])
+                    # respect the requested filter on the default term
+                    params[:filter]
+                  elsif terms.count > 1
+                    # default behavior for multiple terms is default term, no filter
+                    nil
+                  else
+                    # default behavior for only one term is current courses filter
+                    'current'
+                  end
       end
 
       @department_analytics = Analytics::Department.new(@current_user, @account, @term, @filter)
