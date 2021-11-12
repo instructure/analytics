@@ -89,7 +89,7 @@ module Analytics
     end
 
     def graded?
-      @submission && @submission.graded?
+      @submission&.graded?
     end
 
     def graded_at
@@ -97,7 +97,7 @@ module Analytics
     end
 
     def submitted_at
-      @submission.submitted_at if @submission
+      @submission&.submitted_at
     end
 
     def non_digital_submission?

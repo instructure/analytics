@@ -23,7 +23,7 @@ module Analytics
     # required of host: submissions(assignments)
 
     SUBMISSION_COLUMNS_SELECT = [:id, :assignment_id, :score, :user_id, :submission_type,
-                                 :submitted_at, :grade, :graded_at, :updated_at, :workflow_state, :cached_due_date, :excused,
+                                 :submitted_at, :grade, :graded_at, :grader_id, :updated_at, :workflow_state, :cached_due_date, :excused,
                                  :late_policy_status, :cached_quiz_lti, :posted_at]
 
     [:accepted_at, :seconds_late_override].each do |column|
