@@ -29,7 +29,7 @@ module Analytics::Permissions
       # does the account even have analytics enabled?
       raise ActiveRecord::RecordNotFound unless service_enabled?(:analytics)
 
-      return true
+      true
     end
 
     def require_analytics_for_department
@@ -59,7 +59,7 @@ module Analytics::Permissions
       end
 
       @department_analytics = Analytics::Department.new(@current_user, @account, @term, @filter)
-      return true
+      true
     end
 
     # returns true iff any analytics pages related to this course (whether
@@ -73,7 +73,7 @@ module Analytics::Permissions
       @course_analytics = Analytics::Course.new(@current_user, @course)
       raise ActiveRecord::RecordNotFound unless @course_analytics.available?
 
-      return true
+      true
     end
 
     # returns true iff the course's analytics page can be viewed by the current
@@ -81,7 +81,7 @@ module Analytics::Permissions
     def require_analytics_for_course
       return false unless require_course_with_analytics
 
-      return authorized_action(@course, @current_user, :read_as_admin)
+      authorized_action(@course, @current_user, :read_as_admin)
     end
 
     # returns true iff the student's analytics in the course page can be viewed
@@ -98,7 +98,7 @@ module Analytics::Permissions
 
       return false unless authorized_action(@student_analytics.enrollment, @current_user, :read_grades)
 
-      return true
+      true
     end
   end
 
