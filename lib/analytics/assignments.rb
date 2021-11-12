@@ -37,7 +37,7 @@ module Analytics
       cache_array << @current_user if differentiated_assignments_applies?
       secondaried(:cache_as => cache_array) do
         assignments = assignment_scope.to_a
-        submissions = submissions(assignments).group_by { |s| s.assignment_id }
+        submissions = submissions(assignments).group_by(&:assignment_id)
         assignment_ids = assignments.map(&:id)
         course_module_tags = @course.context_module_tags.where(
           content_type: 'Assignment',

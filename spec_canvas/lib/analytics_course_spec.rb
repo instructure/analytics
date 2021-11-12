@@ -350,7 +350,7 @@ describe Analytics::Course do
         student_ids << @student.id
       end
 
-      expect(@teacher_analytics.students.map { |s| s.id }.sort).to eq student_ids.sort
+      expect(@teacher_analytics.students.map(&:id).sort).to eq student_ids.sort
     end
 
     it "includes each student only once" do
@@ -367,7 +367,7 @@ describe Analytics::Course do
 
       # should see both enrollments, but the student only once
       expect(@teacher_analytics.enrollments.size).to eq 2
-      expect(@teacher_analytics.students.map { |s| s.id }).to eq [@student.id]
+      expect(@teacher_analytics.students.map(&:id)).to eq [@student.id]
     end
 
     context "sharding" do
@@ -377,7 +377,7 @@ describe Analytics::Course do
         active_student
 
         @shard1.activate do
-          expect(@teacher_analytics.students.map { |s| s.id }).to eq [@student.id]
+          expect(@teacher_analytics.students.map(&:id)).to eq [@student.id]
 
           @other_student = User.create!
           @course.enroll_student(@other_student).accept!

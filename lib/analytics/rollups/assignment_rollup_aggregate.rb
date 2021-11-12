@@ -50,7 +50,7 @@ module Analytics::Rollups
     end
 
     def composite_bucket_list
-      @rollups.map { |r| r.score_buckets }.compact.transpose.map(&:sum)
+      @rollups.map(&:score_buckets).compact.transpose.map(&:sum)
     end
 
     def tardiness_summary
