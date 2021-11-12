@@ -40,9 +40,9 @@ module Analytics
     include Submission::Tardiness
 
     def initialize(data)
-      @assignment_id   = data['assignment_id']   && data['assignment_id'].to_i
-      @user_id         = data['user_id']         && data['user_id'].to_i
-      @score           = data['score']           && data['score'].to_i
+      @assignment_id   = data['assignment_id']&.to_i
+      @user_id         = data['user_id']&.to_i
+      @score           = data['score']&.to_i
       @excused         = data['excused']
       @submission_type = data['submission_type']
       @workflow_state  = data['workflow_state']
