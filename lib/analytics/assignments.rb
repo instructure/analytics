@@ -60,7 +60,7 @@ module Analytics
       assignments = assignment_scope.to_a
 
       @course.shard.activate do
-        assignments.map do |assignment|
+        assignments.filter_map do |assignment|
           # cache at this level, so that we cache for all sections and then
           # pick out the relevant sections from the cache below
           rollups = secondaried(:cache_as => [:assignment_rollups, assignment]) do
@@ -68,7 +68,7 @@ module Analytics
           end
           rollups = rollups.values_at(*section_ids).compact.reject { |r| r.total_submissions.zero? }
           Rollups::AssignmentRollupAggregate.new(rollups).data
-        end.compact
+        end
       end
     end
 
