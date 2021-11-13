@@ -28,7 +28,7 @@ module Analytics::Rollups
     describe 'defaults' do
       it 'defaults all array values to 0' do
         expect(buckets.to_a.size).to eq ScoreBuckets::BUCKET_COUNT
-        expect(buckets.to_a.select { |i| i != 0 }.size).to eq 0
+        expect(buckets.to_a.count { |i| i != 0 }).to eq 0
       end
 
       it 'sets a low number of buckets to the same number as the points' do
