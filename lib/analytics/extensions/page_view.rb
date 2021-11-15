@@ -85,5 +85,5 @@ module Analytics::Extensions::PageView
     :quiz_questions => :quizzes,
     :"quizzes/quiz_questions" => :quizzes,
     :gradebook_uploads => :grades
-  }
+  }.freeze
 end

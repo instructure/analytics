@@ -24,13 +24,7 @@ module Analytics
 
     SUBMISSION_COLUMNS_SELECT = [:id, :assignment_id, :score, :user_id, :submission_type,
                                  :submitted_at, :grade, :graded_at, :grader_id, :updated_at, :workflow_state, :cached_due_date, :excused,
-                                 :late_policy_status, :cached_quiz_lti, :posted_at]
-
-    [:accepted_at, :seconds_late_override].each do |column|
-      # this is temporary and will be cleaned up once the commit lands in canvas
-      # which adds seconds_late_override and removes accepted_at
-      SUBMISSION_COLUMNS_SELECT << column if Submission.column_names.include?(column.to_s)
-    end
+                                 :late_policy_status, :cached_quiz_lti, :posted_at, :seconds_late_override].freeze
 
     def assignments
       cache_array = [:assignments, allow_student_details?]
