@@ -33,7 +33,7 @@ module Analytics
       if level == :full || level == :sections
         visible_section_ids = level == :full ?
           @course.course_sections.active.pluck(:id) :
-          visibilities.map { |s| s[:course_section_id] }
+          visibilities.pluck(:course_section_id)
         course_analytics.assignment_rollups_for(visible_section_ids)
       else
         course_analytics.assignments

@@ -241,7 +241,7 @@ describe AnalyticsController, :type => :controller do
       students = [@student]
       3.times { students << student_in_course(:active_all => true).user }
       student_in_course_analytics
-      expect(assigns[:course_json][:students].map { |s| s[:id] }.sort).to eq students.map(&:id).sort
+      expect(assigns[:course_json][:students].pluck(:id).sort).to eq students.map(&:id).sort
     end
 
     it "includes only self for a student" do
@@ -249,7 +249,7 @@ describe AnalyticsController, :type => :controller do
       3.times { students << student_in_course(:active_all => true).user }
       user_session(@student)
       student_in_course_analytics
-      expect(assigns[:course_json][:students].map { |s| s[:id] }.sort).to eq [@student.id]
+      expect(assigns[:course_json][:students].pluck(:id).sort).to eq [@student.id]
     end
   end
 end
