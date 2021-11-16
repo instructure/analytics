@@ -31,7 +31,7 @@ module Analytics::Extensions::PageView::Pv4Client
   def counters_by_context_and_hour(context, user)
     json = user_in_course_participations(context, user)
 
-    Hash[json['page_views'].map { |(k, v)| [Time.zone.parse(k), v] }]
+    json['page_views'].map { |(k, v)| [Time.zone.parse(k), v] }.to_h
   end
 
   # Takes a context (right now, only a Course is valid), and a list of User

@@ -67,7 +67,7 @@ class Analytics::AssignmentRollup
     stats_by_section.each_value(&:calculate)
 
     # make a new hash here to remove the default value block
-    Hash[stats_by_section]
+    stats_by_section.to_h
   end
 
   def self.build(course, assignment)
