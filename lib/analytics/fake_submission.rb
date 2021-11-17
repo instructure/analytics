@@ -50,7 +50,7 @@ module Analytics
       @grader_id       = data['grader_id']
       @cached_due_date = data['cached_due_date']
       @late_policy_status = data['late_policy_status']
-      @cached_quiz_lti = data['cached_quiz_lti'].present? ? data['cached_quiz_lti'] : false
+      @cached_quiz_lti = data['cached_quiz_lti'].presence || false
 
       # submissions without a submission_type do not have a meaningful
       # submitted_at; see Submission#submitted_at
