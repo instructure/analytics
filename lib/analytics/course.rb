@@ -213,8 +213,8 @@ module Analytics
         @tardiness_breakdowns ||= secondaried(:cache_as => cache_array) do
           # initialize breakdown tallies
           breakdowns = {
-            assignments: Hash[raw_assignments.map { |a| [a.id, TardinessBreakdown.new] }],
-            students: Hash[student_ids.map { |s_id| [s_id, TardinessBreakdown.new] }]
+            assignments: raw_assignments.map(&:id).index_with { TardinessBreakdown.new },
+            students: student_ids.index_with { TardinessBreakdown.new }
           }
 
           # load submissions and index them by (assignment, student) tuple
