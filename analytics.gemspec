@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-$:.push File.expand_path("../lib", __FILE__)
-
-require 'analytics/version'
+require_relative 'lib/analytics/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "analytics"
