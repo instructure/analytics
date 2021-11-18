@@ -61,6 +61,7 @@ describe Analytics::Course do
           expect(data[:multiple_due_dates]).to be_truthy
         end
       end
+
       describe "when viewed by a student" do
         it "multiple_due_dates flag is false" do
           assignment.reload

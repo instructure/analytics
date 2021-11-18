@@ -27,26 +27,31 @@ module Analytics
 
       describe '#missing' do
         subject { super().missing }
+
         it { is_expected.to eq 0 }
       end
 
       describe '#late' do
         subject { super().late }
+
         it { is_expected.to eq 0 }
       end
 
       describe '#on_time' do
         subject { super().on_time }
+
         it { is_expected.to eq 0 }
       end
 
       describe '#floating' do
         subject { super().floating }
+
         it { is_expected.to eq 0 }
       end
 
       describe '#total' do
         subject { super().total }
+
         it { is_expected.to eq 0 }
       end
     end
