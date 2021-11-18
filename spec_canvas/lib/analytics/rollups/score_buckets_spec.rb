@@ -65,26 +65,31 @@ module Analytics::Rollups
 
         describe '#max' do
           subject { super().max }
+
           it { is_expected.to eq 100 }
         end
 
         describe '#min' do
           subject { super().min }
+
           it { is_expected.to eq 1 }
         end
 
         describe '#first_quartile' do
           subject { super().first_quartile }
+
           it { is_expected.to eq 2 }
         end
 
         describe '#third_quartile' do
           subject { super().third_quartile }
+
           it { is_expected.to eq 99 }
         end
 
         describe '#median' do
           subject { super().median }
+
           it { is_expected.to eq 50 }
         end
       end
@@ -98,26 +103,31 @@ module Analytics::Rollups
 
         describe '#max' do
           subject { super().max }
+
           it { is_expected.to eq 5 }
         end
 
         describe '#min' do
           subject { super().min }
+
           it { is_expected.to eq 1 }
         end
 
         describe '#first_quartile' do
           subject { super().first_quartile }
+
           it { is_expected.to eq 1.0 }
         end
 
         describe '#third_quartile' do
           subject { super().third_quartile }
+
           it { is_expected.to eq 3 }
         end
 
         describe '#median' do
           subject { super().median }
+
           it { is_expected.to eq 2 }
         end
       end
@@ -197,26 +207,31 @@ module Analytics::Rollups
 
       describe '#max' do
         subject { super().max }
+
         it { is_expected.to eq 5 }
       end
 
       describe '#min' do
         subject { super().min }
+
         it { is_expected.to eq 1 }
       end
 
       describe '#first_quartile' do
         subject { super().first_quartile }
+
         it { is_expected.to eq 1.5 }
       end
 
       describe '#third_quartile' do
         subject { super().third_quartile }
+
         it { is_expected.to eq 4.5 }
       end
 
       describe '#median' do
         subject { super().median }
+
         it { is_expected.to eq 3 }
       end
     end
