@@ -33,7 +33,7 @@ describe AnalyticsApiController do
 
   describe '#course_student_summaries' do
     let(:course) { double(grants_any_right?: false).as_null_object }
-    let(:user) { double().as_null_object }
+    let(:user) { double.as_null_object }
     let(:analytics) { double(:student_summaries => ['summary1']).as_null_object }
 
     before do
