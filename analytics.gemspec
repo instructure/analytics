@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Jacob Fugal"]
   spec.email         = ["jacob@instructure.com"]
   spec.homepage      = "http://www.instructure.com"
-  spec.summary       = %q{Analytics engine for the canvas-lms platform}
+  spec.summary       = 'Analytics engine for the canvas-lms platform'
   spec.license       = "AGPL-3.0"
 
   spec.files = Dir["{app,config,db,lib,public}/**/*"]
