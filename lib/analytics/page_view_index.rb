@@ -29,19 +29,13 @@ module Analytics::PageViewIndex
     end
   end
 
-  def participations_for_context(context, user)
-    analytics_index_backing.participations_for_context(context, user)
-  end
+  delegate :participations_for_context, to: :analytics_index_backing
 
-  def counters_by_context_and_hour(context, user)
-    analytics_index_backing.counters_by_context_and_hour(context, user)
-  end
+  delegate :counters_by_context_and_hour, to: :analytics_index_backing
 
   # Takes a context (right now, only a Course is valid), and a list of User
   # ids. Returns a hash of { user_id => { :page_views => count, :participations => count } }
-  def counters_by_context_for_users(context, user_ids)
-    analytics_index_backing.counters_by_context_for_users(context, user_ids)
-  end
+  delegate :counters_by_context_for_users, to: :analytics_index_backing
 
   module EventStream
     def self.database
