@@ -114,7 +114,7 @@ shared_examples_for "analytics tests" do
       assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100,
                                                       :due_at => Time.now.utc, :submission_types => "online")
       assignment.submit_homework(student)
-      assignment.grade_student(student, grade: rand(100) + 1, grader: teacher)
+      assignment.grade_student(student, grade: rand(1..100), grader: teacher)
       graded_assignments.push(assignment)
     end
     graded_assignments
