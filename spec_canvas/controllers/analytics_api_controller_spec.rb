@@ -19,7 +19,7 @@
 #
 
 describe AnalyticsApiController do
-  let(:params) { Hash.new }
+  let(:params) { {} }
   let(:controller) { AnalyticsApiController.new }
 
   before do
