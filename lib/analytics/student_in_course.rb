@@ -96,16 +96,18 @@ module Analytics
       secondaried(:cache_as => :messages) do
         messages = {}
         unless shared_conversation_ids.empty?
-          # TODO sharding
+          # TODO: sharding
           ConversationMessage
             .where(:conversation_id => shared_conversation_ids)
             .where(:author_id => [@student, *instructors])
             .select("DATE(created_at) AS day, author_id=#{@student.id} AS student, COUNT(*) AS ct")
             .group("DATE(created_at), author_id").each do |row|
             day = row.day
-            type = Canvas::Plugin.value_to_boolean(row.student) ?
-              :studentMessages :
-              :instructorMessages
+            type = if Canvas::Plugin.value_to_boolean(row.student)
+                     :studentMessages
+                   else
+                     :instructorMessages
+                   end
             count = row.ct.to_i
 
             messages[day] ||= {}
