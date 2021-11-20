@@ -262,7 +262,7 @@ module Analytics
 
     def parse_utc_time(time_string)
       return unless time_string
-      return time_string unless String === time_string
+      return time_string unless time_string.is_a?(String)
 
       Time.use_zone('UTC') { Time.zone.parse(time_string) }.in_time_zone
     end
