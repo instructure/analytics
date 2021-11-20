@@ -75,7 +75,7 @@ module Analytics
       status == :on_time
     end
 
-    # Note: We *think* "floating" means "future" or "not submitted yet" -- Venk
+    # NOTE: We *think* "floating" means "future" or "not submitted yet" -- Venk
     def floating?
       status == :floating
     end

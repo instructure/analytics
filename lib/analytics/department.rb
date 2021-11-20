@@ -83,7 +83,7 @@ module Analytics
       end
     end
 
-    # Note: we had to remove statistics for discussion_replies and submissions
+    # NOTE: we had to remove statistics for discussion_replies and submissions
     # because the queries were too slow.  If we bring them back, we need to
     # find a way to make them performant.
     def statistics

@@ -44,7 +44,7 @@ module Analytics
     end
 
     def start_date
-      # TODO the javascript will break if this comes back nil, so we need a
+      # TODO: the javascript will break if this comes back nil, so we need a
       # sensible default. using "now" for the time being, but there's gotta be
       # something better
       secondaried(:cache_as => :start_date) do
@@ -62,7 +62,7 @@ module Analytics
     end
 
     def end_date
-      # TODO ditto. "now" makes more sense this time, but it could also make
+      # TODO: ditto. "now" makes more sense this time, but it could also make
       # sense to go past "now" if the course has assignments due in the future,
       # for instance.
       secondaried(:cache_as => :end_date) do
