@@ -156,9 +156,11 @@ module Analytics
     end
 
     def courses
-      @filter ?
-        courses_for_filter(@filter) :
+      if @filter
+        courses_for_filter(@filter)
+      else
         courses_for_term(@term)
+      end
     end
 
     def courses_for_subaccount(subaccount)

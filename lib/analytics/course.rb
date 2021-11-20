@@ -129,9 +129,11 @@ module Analytics
       # wrap up the students for pagination, and then tell it how to sort them
       # and format them
       collection = Analytics::StudentCollection.new(
-        student_ids ?
-          student_scope.where(users: { id: student_ids }) :
+        if student_ids
+          student_scope.where(users: { id: student_ids })
+        else
           student_scope
+        end
       )
       collection.sort_by(sort_column, :page_view_counts => page_view_counts)
 
