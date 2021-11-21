@@ -83,7 +83,7 @@ module Analytics
       end
     end
 
-    # Note: we had to remove statistics for discussion_replies and submissions
+    # NOTE: we had to remove statistics for discussion_replies and submissions
     # because the queries were too slow.  If we bring them back, we need to
     # find a way to make them performant.
     def statistics
@@ -156,9 +156,11 @@ module Analytics
     end
 
     def courses
-      @filter ?
-        courses_for_filter(@filter) :
+      if @filter
+        courses_for_filter(@filter)
+      else
         courses_for_term(@term)
+      end
     end
 
     def courses_for_subaccount(subaccount)

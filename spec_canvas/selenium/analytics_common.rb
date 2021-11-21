@@ -201,10 +201,10 @@ shared_examples_for "analytics tests" do
   def validate_analytics_icons_exist(exist = true)
     get "/courses/#{@course.id}/users"
     wait_for_ajaximations
-    if !exist
-      expect(f("#content")).not_to contain_css(analytics_icon_css)
-    else
+    if exist
       expect(ff(analytics_icon_css).count).to eq student_roster.count
+    else
+      expect(f("#content")).not_to contain_css(analytics_icon_css)
     end
   end
 
