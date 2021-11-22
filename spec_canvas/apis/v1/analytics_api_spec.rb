@@ -49,7 +49,7 @@ describe "Analytics API", type: :request do
               student_id: student.id.to_s },
             {}, {}, opts]
 
-    if user then
+    if user
       api_call_as_user(user, *args)
     else
       api_call(*args)
