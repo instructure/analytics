@@ -130,8 +130,10 @@ shared_examples_for "analytics tests" do
   def setup_variety_assignments(add_no_due_date = true)
     @missed_assignment = @course.assignments.create!(title: "missed assignment", due_at: 5.days.ago,
                                                      points_possible: 10, submission_types: "online_url")
-    @no_due_date_assignment = @course.assignments.create!(title: "no due date assignment", due_at: nil,
-                                                          points_possible: 20, submission_types: "online_url") if add_no_due_date
+    if add_no_due_date
+      @no_due_date_assignment = @course.assignments.create!(title: "no due date assignment", due_at: nil,
+                                                            points_possible: 20, submission_types: "online_url")
+    end
     @late_assignment = @course.assignments.create!(title: "late assignment", due_at: 1.day.ago,
                                                    points_possible: 20, submission_types: "online_url")
     @late_assignment.submit_homework(@student, submission_type: "online_url")
