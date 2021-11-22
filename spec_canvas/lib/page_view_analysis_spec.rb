@@ -25,11 +25,11 @@ module Analytics
   describe PageViewAnalysis do
     let(:page_view_counts) do
       {
-        'User 1' => { :page_views => 2, :participations => 4 },
-        'User 2' => { :page_views => 4, :participations => 16 },
-        'User 3' => { :page_views => 6, :participations => 32 },
-        'User 4' => { :page_views => 8, :participations => 8 },
-        'User 5' => { :page_views => 10, :participations => 2 }
+        'User 1' => { page_views: 2, participations: 4 },
+        'User 2' => { page_views: 4, participations: 16 },
+        'User 3' => { page_views: 6, participations: 32 },
+        'User 4' => { page_views: 8, participations: 8 },
+        'User 5' => { page_views: 10, participations: 2 }
       }
     end
 

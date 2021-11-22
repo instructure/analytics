@@ -54,7 +54,7 @@ module Analytics
       # TODO: the javascript will break if this comes back nil, so we need a
       # sensible default. using "now" for the time being, but there's gotta be
       # something better
-      secondaried(:cache_as => :start_date) do
+      secondaried(cache_as: :start_date) do
         enrollment.effective_start_at || Time.zone.now
       end
     end
@@ -63,7 +63,7 @@ module Analytics
       # TODO: ditto. "now" makes more sense this time, but it could also make
       # sense to go past "now" if the course has assignments due in the future,
       # for instance.
-      secondaried(:cache_as => :end_date) do
+      secondaried(cache_as: :end_date) do
         enrollment.effective_end_at || Time.zone.now
       end
     end
@@ -71,7 +71,7 @@ module Analytics
     include Analytics::Assignments
 
     def page_views
-      secondaried(:cache_as => :page_views) do
+      secondaried(cache_as: :page_views) do
         # convert non-string keys from time objects to iso8601 strings since we
         # don't want to use Time#to_s on the keys in Hash#to_json
         buckets = {}
@@ -84,7 +84,7 @@ module Analytics
     end
 
     def participations
-      secondaried(:cache_as => :participations) do
+      secondaried(cache_as: :participations) do
         PageView.participations_for_context(@course, @student)
       end
     end
@@ -93,13 +93,13 @@ module Analytics
       # count up the messages from those conversations authored by the student
       # or by an instructor, binned by day and whether it was the student or an
       # instructor that sent it
-      secondaried(:cache_as => :messages) do
+      secondaried(cache_as: :messages) do
         messages = {}
         unless shared_conversation_ids.empty?
           # TODO: sharding
           ConversationMessage
-            .where(:conversation_id => shared_conversation_ids)
-            .where(:author_id => [@student, *instructors])
+            .where(conversation_id: shared_conversation_ids)
+            .where(author_id: [@student, *instructors])
             .select("DATE(created_at) AS day, author_id=#{@student.id} AS student, COUNT(*) AS ct")
             .group("DATE(created_at), author_id").each do |row|
             day = row.day
@@ -127,8 +127,8 @@ module Analytics
       s = my_submission(submissions) if submissions
       assignment_submission = AssignmentSubmission.new(assignment, s)
       super.merge(
-        :due_at => assignment_submission.due_at,
-        :status => assignment_submission.status
+        due_at: assignment_submission.due_at,
+        status: assignment_submission.status
       )
     end
 
@@ -161,14 +161,14 @@ module Analytics
 
     def enrollment_scope
       @enrollment_scope ||= @course.apply_enrollment_visibility(@course.all_student_enrollments, @current_user)
-                                   .where(:workflow_state => ['active', 'completed'], :user_id => @student)
+                                   .where(workflow_state: ['active', 'completed'], user_id: @student)
     end
 
     def submissions(assignments)
       @course.shard.activate do
         Submission
           .select(Analytics::Assignments::SUBMISSION_COLUMNS_SELECT)
-          .where(:assignment_id => assignments).to_a
+          .where(assignment_id: assignments).to_a
       end
     end
 
@@ -182,8 +182,8 @@ module Analytics
       @student_conversation_ids ||= ConversationParticipant
                                     .joins(:conversation)
                                     .where(Conversation.wildcard('conversations.tags', "course_#{@course.id}",
-                                                                 :delimiter => ','))
-                                    .where(:user_id => @student)
+                                                                 delimiter: ','))
+                                    .where(user_id: @student)
                                     .select(:conversation_id)
                                     .distinct
                                     .map(&:conversation_id)
@@ -196,8 +196,8 @@ module Analytics
 
       # TODO: sharding
       @shared_conversation_ids ||= ConversationParticipant
-                                   .where(:user_id => instructors)
-                                   .where(:conversation_id => student_conversation_ids)
+                                   .where(user_id: instructors)
+                                   .where(conversation_id: student_conversation_ids)
                                    .select(:conversation_id)
                                    .distinct
                                    .map(&:conversation_id)

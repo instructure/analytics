@@ -35,9 +35,9 @@ describe Analytics::StudentCollection do
 
     it "passes along options" do
       id = 5
-      page_view_counts = { id => { :page_views => 0, :participations => 0 } }
+      page_view_counts = { id => { page_views: 0, participations: 0 } }
       collection = Analytics::StudentCollection.new(User)
-      collection.sort_by(:page_views, :page_view_counts => page_view_counts)
+      collection.sort_by(:page_views, page_view_counts: page_view_counts)
       expect(collection.sort_strategy.sorted_ids).to eq [id]
     end
   end
@@ -54,33 +54,33 @@ describe Analytics::StudentCollection do
   describe "#paginate" do
     before do
       @course = Course.create! # no teacher, please
-      @enrollments = Array.new(3) { student_in_course(:active_all => true) }
+      @enrollments = Array.new(3) { student_in_course(active_all: true) }
       @users = @enrollments.map(&:user)
       # hide fixtures
-      User.where.not(:id => @users).update_all(workflow_state: 'deleted')
+      User.where.not(id: @users).update_all(workflow_state: 'deleted')
     end
 
     it "paginates values from the initial scope" do
       collection = Analytics::StudentCollection.new(User.active)
-      students = collection.paginate(:page => 1, :per_page => 3)
+      students = collection.paginate(page: 1, per_page: 3)
       expect(students.map(&:id).sort).to eq @users.map(&:id).sort
     end
 
     it "uses the specified sort strategy" do
       collection = Analytics::StudentCollection.new(User.active)
-      collection.sort_by(:page_views, :page_view_counts => {
-                           @users[0].id => { :page_views => 40, :participations => 10 },
-                           @users[1].id => { :page_views => 20, :participations => 10 },
-                           @users[2].id => { :page_views => 60, :participations => 10 },
+      collection.sort_by(:page_views, page_view_counts: {
+                           @users[0].id => { page_views: 40, participations: 10 },
+                           @users[1].id => { page_views: 20, participations: 10 },
+                           @users[2].id => { page_views: 60, participations: 10 },
                          })
-      students = collection.paginate(:page => 1, :per_page => 3)
+      students = collection.paginate(page: 1, per_page: 3)
       expect(students).to eq([1, 0, 2].map { |i| @users[i] })
     end
 
     it "passes the results through the formatter" do
       collection = Analytics::StudentCollection.new(User.active)
       collection.format { "formatted" }
-      students = collection.paginate(:page => 1, :per_page => 3)
+      students = collection.paginate(page: 1, per_page: 3)
       expect(students).to eq Array.new(3) { "formatted" }
     end
   end
@@ -90,10 +90,10 @@ describe Analytics::StudentCollection do
 
     before do
       @course = Course.create! # no teacher, please
-      @enrollments = Array.new(enrollment_count) { student_in_course(:active_all => true) }
+      @enrollments = Array.new(enrollment_count) { student_in_course(active_all: true) }
       @users = @enrollments.map(&:user)
       # hide fixtures
-      User.where.not(:id => @users).update_all(workflow_state: 'deleted')
+      User.where.not(id: @users).update_all(workflow_state: 'deleted')
       @pager = PaginatedCollection::Collection.new
       @pager.current_page = 1
       @pager.per_page = 10
@@ -171,9 +171,9 @@ describe Analytics::StudentCollection do
     describe Analytics::StudentCollection::SortStrategy::ByPageViews do
       before do
         page_view_counts = {
-          @users[0].id => { :page_views => 40, :participations => 10 },
-          @users[1].id => { :page_views => 20, :participations => 10 },
-          @users[2].id => { :page_views => 60, :participations => 10 },
+          @users[0].id => { page_views: 40, participations: 10 },
+          @users[1].id => { page_views: 20, participations: 10 },
+          @users[2].id => { page_views: 60, participations: 10 },
         }
         @scope = User.active
         @strategy = Analytics::StudentCollection::SortStrategy::ByPageViews.new(page_view_counts)
@@ -187,9 +187,9 @@ describe Analytics::StudentCollection do
     describe Analytics::StudentCollection::SortStrategy::ByParticipations do
       before do
         page_view_counts = {
-          @users[0].id => { :participations => 40, :page_views => 100 },
-          @users[1].id => { :participations => 20, :page_views => 100 },
-          @users[2].id => { :participations => 60, :page_views => 100 },
+          @users[0].id => { participations: 40, page_views: 100 },
+          @users[1].id => { participations: 20, page_views: 100 },
+          @users[2].id => { participations: 60, page_views: 100 },
         }
         @scope = User.active
         @strategy = Analytics::StudentCollection::SortStrategy::ByParticipations.new(page_view_counts)
@@ -237,35 +237,35 @@ describe Analytics::StudentCollection do
       end
 
       it "recognizes :page_views" do
-        strategy = Analytics::StudentCollection::SortStrategy.for(:page_views, :page_view_counts => {})
+        strategy = Analytics::StudentCollection::SortStrategy.for(:page_views, page_view_counts: {})
         expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByPageViews)
       end
 
       it "recognizes :page_views_ascending" do
-        strategy = Analytics::StudentCollection::SortStrategy.for(:page_views_ascending, :page_view_counts => {})
+        strategy = Analytics::StudentCollection::SortStrategy.for(:page_views_ascending, page_view_counts: {})
         expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByPageViews)
         expect(strategy.direction).to eq :ascending
       end
 
       it "recognizes :page_views_descending" do
-        strategy = Analytics::StudentCollection::SortStrategy.for(:page_views_descending, :page_view_counts => {})
+        strategy = Analytics::StudentCollection::SortStrategy.for(:page_views_descending, page_view_counts: {})
         expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByPageViews)
         expect(strategy.direction).to eq :descending
       end
 
       it "recognizes :participations" do
-        strategy = Analytics::StudentCollection::SortStrategy.for(:participations, :page_view_counts => {})
+        strategy = Analytics::StudentCollection::SortStrategy.for(:participations, page_view_counts: {})
         expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByParticipations)
       end
 
       it "recognizes :participations_ascending" do
-        strategy = Analytics::StudentCollection::SortStrategy.for(:participations_ascending, :page_view_counts => {})
+        strategy = Analytics::StudentCollection::SortStrategy.for(:participations_ascending, page_view_counts: {})
         expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByParticipations)
         expect(strategy.direction).to eq :ascending
       end
 
       it "recognizes :participations_descending" do
-        strategy = Analytics::StudentCollection::SortStrategy.for(:participations_descending, :page_view_counts => {})
+        strategy = Analytics::StudentCollection::SortStrategy.for(:participations_descending, page_view_counts: {})
         expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByParticipations)
         expect(strategy.direction).to eq :descending
       end
@@ -287,16 +287,16 @@ describe Analytics::StudentCollection do
 
       it "passes :page_view_counts to ByPageViews" do
         id = 5
-        page_view_counts = { id => { :page_views => 0, :participations => 0 } }
-        strategy = Analytics::StudentCollection::SortStrategy.for(:page_views, :page_view_counts => page_view_counts)
+        page_view_counts = { id => { page_views: 0, participations: 0 } }
+        strategy = Analytics::StudentCollection::SortStrategy.for(:page_views, page_view_counts: page_view_counts)
         expect(strategy.sorted_ids).to eq [id]
       end
 
       it "passes :page_view_counts to ByParticipations" do
         id = 5
-        page_view_counts = { id => { :page_views => 0, :participations => 0 } }
+        page_view_counts = { id => { page_views: 0, participations: 0 } }
         strategy = Analytics::StudentCollection::SortStrategy.for(:participations,
-                                                                  :page_view_counts => page_view_counts)
+                                                                  page_view_counts: page_view_counts)
         expect(strategy.sorted_ids).to eq [id]
       end
     end

@@ -24,9 +24,9 @@ def page_view(opts = {})
   controller = opts[:assignments] || 'assignments'
 
   page_view = PageView.new(
-    :context => course,
-    :user => user,
-    :controller => controller
+    context: course,
+    user: user,
+    controller: controller
   )
 
   page_view.request_id = SecureRandom.uuid

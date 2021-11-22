@@ -26,9 +26,9 @@ module Analytics::Extensions
 
       if analytics_enabled_course? && analytics_enabled_student?(user)
         links << {
-          :url => analytics_student_in_course_path(:course_id => @context.id, :student_id => user.id),
-          :icon_class => 'icon-analytics',
-          :text => I18n.t("Analytics")
+          url: analytics_student_in_course_path(course_id: @context.id, student_id: user.id),
+          icon_class: 'icon-analytics',
+          text: I18n.t("Analytics")
         }
       end
       links
@@ -40,9 +40,9 @@ module Analytics::Extensions
 
       if analytics_enabled_course? && @context.grants_right?(@current_user, :read_as_admin)
         links << {
-          :url => analytics_course_path(:course_id => @context.id),
-          :icon_class => 'icon-analytics',
-          :text => I18n.t("View Course Analytics")
+          url: analytics_course_path(course_id: @context.id),
+          icon_class: 'icon-analytics',
+          text: I18n.t("View Course Analytics")
         }
       end
       links

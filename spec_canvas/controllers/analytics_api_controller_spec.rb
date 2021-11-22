@@ -23,18 +23,18 @@ describe AnalyticsApiController do
   let(:controller) { AnalyticsApiController.new }
 
   before do
-    allow(controller).to receive_messages(:api_request? => true,
-                                          :require_analytics_for_course => true,
-                                          :render => "RENDERED!",
-                                          :params => params,
-                                          :api_v1_course_student_summaries_url => '/',
-                                          :session => nil)
+    allow(controller).to receive_messages(api_request?: true,
+                                          require_analytics_for_course: true,
+                                          render: "RENDERED!",
+                                          params: params,
+                                          api_v1_course_student_summaries_url: '/',
+                                          session: nil)
   end
 
   describe '#course_student_summaries' do
     let(:course) { double(grants_any_right?: false).as_null_object }
     let(:user) { double.as_null_object }
-    let(:analytics) { double(:student_summaries => ['summary1']).as_null_object }
+    let(:analytics) { double(student_summaries: ['summary1']).as_null_object }
 
     before do
       controller.instance_variable_set(:@current_user, user)

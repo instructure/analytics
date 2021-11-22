@@ -28,7 +28,7 @@ module Analytics
     end
 
     def dates
-      secondaried(:cache_as => :dates) { @filter ? dates_for_filter(@filter) : dates_for_term(@term) }
+      secondaried(cache_as: :dates) { @filter ? dates_for_filter(@filter) : dates_for_term(@term) }
     end
 
     def start_date
@@ -56,7 +56,7 @@ module Analytics
     end
 
     def participation_by_date
-      secondaried(:cache_as => :participation_by_date) do
+      secondaried(cache_as: :participation_by_date) do
         page_views_rollups
           .select("date, SUM(views) AS views, SUM(participations) AS participations")
           .group(:date)
@@ -65,7 +65,7 @@ module Analytics
     end
 
     def participation_by_category
-      secondaried(:cache_as => :participation_by_category) do
+      secondaried(cache_as: :participation_by_category) do
         page_views_rollups
           .select("category, SUM(views) AS views")
           .group(:category)
@@ -75,7 +75,7 @@ module Analytics
     end
 
     def grade_distribution
-      secondaried(:cache_as => :grade_distribution) do
+      secondaried(cache_as: :grade_distribution) do
         result = {}
         distribution = cached_grade_distribution
         (0..100).each { |i| result[i] = distribution["s#{i}"] }
@@ -87,16 +87,16 @@ module Analytics
     # because the queries were too slow.  If we bring them back, we need to
     # find a way to make them performant.
     def statistics
-      secondaried(:cache_as => :statistics) do
+      secondaried(cache_as: :statistics) do
         {
-          :courses => courses.distinct.count("courses.id"),
-          :subaccounts => subaccounts.count,
-          :teachers => count_users_for_enrollments(teacher_enrollments),
-          :students => count_users_for_enrollments(student_enrollments),
-          :discussion_topics => discussion_topics.count,
-          :media_objects => media_objects.count,
-          :attachments => attachments.count,
-          :assignments => assignments.count,
+          courses: courses.distinct.count("courses.id"),
+          subaccounts: subaccounts.count,
+          teachers: count_users_for_enrollments(teacher_enrollments),
+          students: count_users_for_enrollments(student_enrollments),
+          discussion_topics: discussion_topics.count,
+          media_objects: media_objects.count,
+          attachments: attachments.count,
+          assignments: assignments.count,
         }
       end
     end
@@ -104,19 +104,19 @@ module Analytics
     def statistics_by_subaccount
       # TODO: Determine proper counts if sections are crosslisted to a
       # different subaccounts
-      secondaried(:cache_as => :statistics_by_subaccount) do
+      secondaried(cache_as: :statistics_by_subaccount) do
         # TODO: y u no paginate?
         ([@account] + subaccounts).map do |a|
           {
-            :name => a.name,
-            :id => a.id,
-            :courses => courses_for_subaccount(a).distinct.count("courses.id"),
-            :teachers => count_users_for_enrollments(teacher_enrollments_for_subaccount(a)),
-            :students => count_users_for_enrollments(student_enrollments_for_subaccount(a)),
-            :discussion_topics => 0,
-            :media_objects => 0,
-            :attachments => 0,
-            :assignments => 0
+            name: a.name,
+            id: a.id,
+            courses: courses_for_subaccount(a).distinct.count("courses.id"),
+            teachers: count_users_for_enrollments(teacher_enrollments_for_subaccount(a)),
+            students: count_users_for_enrollments(student_enrollments_for_subaccount(a)),
+            discussion_topics: 0,
+            media_objects: 0,
+            attachments: 0,
+            assignments: 0
           }
         end
       end
@@ -142,8 +142,8 @@ module Analytics
       # not via crosslisting)
       @account.course_account_associations
               .joins(:course)
-              .where(:courses => { :enrollment_term_id => term, :workflow_state => workflow_state })
-              .where(:course_section_id => nil)
+              .where(courses: { enrollment_term_id: term, workflow_state: workflow_state })
+              .where(course_section_id: nil)
     end
 
     def courses_for_filter(filter)
@@ -164,7 +164,7 @@ module Analytics
     end
 
     def courses_for_subaccount(subaccount)
-      courses.where(:courses => { account_id: subaccount })
+      courses.where(courses: { account_id: subaccount })
     end
 
     def courses_subselect
@@ -188,23 +188,23 @@ module Analytics
     end
 
     def enrollments_for_subaccount(acct)
-      enrollments.joins(:course).where(:courses => { account_id: acct })
+      enrollments.joins(:course).where(courses: { account_id: acct })
     end
 
     def teacher_enrollments
-      enrollments.where(:type => 'TeacherEnrollment')
+      enrollments.where(type: 'TeacherEnrollment')
     end
 
     def teacher_enrollments_for_subaccount(acct)
-      enrollments_for_subaccount(acct).where(:type => 'TeacherEnrollment')
+      enrollments_for_subaccount(acct).where(type: 'TeacherEnrollment')
     end
 
     def student_enrollments
-      enrollments.where(:type => 'StudentEnrollment')
+      enrollments.where(type: 'StudentEnrollment')
     end
 
     def student_enrollments_for_subaccount(acct)
-      enrollments_for_subaccount(acct).where(:type => 'StudentEnrollment')
+      enrollments_for_subaccount(acct).where(type: 'StudentEnrollment')
     end
 
     def count_users_for_enrollments(enrollments_scope)

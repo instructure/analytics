@@ -25,20 +25,20 @@ module Analytics
     describe AssignmentRollupAggregate do
       let(:rollup_attrs) {
         {
-          :assignment_id => Assignment.create!(:context => the_course).id,
-          :title => 'Some Assignment',
-          :course_section_id => CourseSection.create!(:course => the_course).id,
-          :max_score => 100,
-          :min_score => 0,
-          :first_quartile_score => 25,
-          :median_score => 48.0,
-          :third_quartile_score => 75,
-          :points_possible => 100,
-          :score_buckets => [1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1],
-          :total_submissions => 7,
-          :on_time_submissions => 4.0 / 7.0,
-          :late_submissions => 2.0 / 7.0,
-          :missing_submissions => 1.0 / 7.0
+          assignment_id: Assignment.create!(context: the_course).id,
+          title: 'Some Assignment',
+          course_section_id: CourseSection.create!(course: the_course).id,
+          max_score: 100,
+          min_score: 0,
+          first_quartile_score: 25,
+          median_score: 48.0,
+          third_quartile_score: 75,
+          points_possible: 100,
+          score_buckets: [1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1],
+          total_submissions: 7,
+          on_time_submissions: 4.0 / 7.0,
+          late_submissions: 2.0 / 7.0,
+          missing_submissions: 1.0 / 7.0
         }
       }
 
@@ -66,25 +66,25 @@ module Analytics
       describe 'aggregating rollups' do
         let(:rollup1) {
           AssignmentRollup.new(rollup_attrs.merge({
-                                                    :max_score => 32,
-                                                    :min_score => 6,
-                                                    :first_quartile_score => 9,
-                                                    :median_score => 16,
-                                                    :third_quartile_score => 30,
-                                                    :score_buckets => [0, 2, 0, 0, 0, 0, 5, 1, 2, 1, 0, 0, 0,
-                                                                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                                    max_score: 32,
+                                                    min_score: 6,
+                                                    first_quartile_score: 9,
+                                                    median_score: 16,
+                                                    third_quartile_score: 30,
+                                                    score_buckets: [0, 2, 0, 0, 0, 0, 5, 1, 2, 1, 0, 0, 0,
+                                                                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                                   }))
         }
 
         let(:rollup2) {
           AssignmentRollup.new(rollup_attrs.merge({
-                                                    :max_score => 62,
-                                                    :min_score => 30,
-                                                    :first_quartile_score => 35,
-                                                    :median_score => 40,
-                                                    :third_quartile_score => 45,
-                                                    :score_buckets => [0, 0, 0, 0, 0, 0, 0, 2, 2, 4, 6, 1, 1,
-                                                                       2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                                    max_score: 62,
+                                                    min_score: 30,
+                                                    first_quartile_score: 35,
+                                                    median_score: 40,
+                                                    third_quartile_score: 45,
+                                                    score_buckets: [0, 0, 0, 0, 0, 0, 0, 2, 2, 4, 6, 1, 1,
+                                                                    2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                                   }))
         }
 

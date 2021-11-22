@@ -77,9 +77,9 @@ describe CachedGradeDistribution do
     it "counts same grade only once per student" do
       other_section = @course.course_sections.create!
       @second_enrollment = @course.enroll_student(@student,
-                                                  :enrollment_state => 'active',
-                                                  :section => other_section,
-                                                  :allow_multiple_enrollments => true)
+                                                  enrollment_state: 'active',
+                                                  section: other_section,
+                                                  allow_multiple_enrollments: true)
       score = @second_enrollment.scores.find_or_create_by!(grading_period_id: nil)
       score.update!(current_score: 12)
       @dist.recalculate!

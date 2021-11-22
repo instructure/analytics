@@ -27,15 +27,15 @@ module Analytics
     describe 'building assigment data' do
       let(:assignment) do
         double(
-          :id => 2,
-          :title => 'title',
-          :unlock_at => '2/2/2',
-          :points_possible => 5,
-          :muted? => true,
-          :multiple_due_dates => false,
-          :grading_type => "percent",
-          :submission_types => "online",
-          :non_digital_submission? => false
+          id: 2,
+          title: 'title',
+          unlock_at: '2/2/2',
+          points_possible: 5,
+          muted?: true,
+          multiple_due_dates: false,
+          grading_type: "percent",
+          submission_types: "online",
+          non_digital_submission?: false
         )
       end
 
@@ -66,7 +66,7 @@ module Analytics
       end
 
       describe '#assignment_data' do
-        let(:scores) { (1..5).map { |score| double(:score => score, :user_id => 123) } }
+        let(:scores) { (1..5).map { |score| double(score: score, user_id: 123) } }
 
         before do
           allow(assignments).to receive(:fake_student_ids).and_return([])
@@ -125,7 +125,7 @@ module Analytics
       let(:this_course) { course_factory }
       let(:sections) { this_course.course_sections }
       let(:section_ids) { sections.map(&:id) }
-      let!(:assignment) { this_course.assignments.create!(:points_possible => 100, :due_at => Date.today) }
+      let!(:assignment) { this_course.assignments.create!(points_possible: 100, due_at: Date.today) }
 
       before do
         3.times do
@@ -144,8 +144,8 @@ module Analytics
       it 'retrieves a hash that looks like assignments if there are rollups' do
         skip("requires the submission cached_due_at updating code")
         user = User.create!
-        enrollment = StudentEnrollment.create!(:user => user, :course => this_course, :course_section => sections.first)
-        Enrollment.where(:id => enrollment).update_all(:workflow_state => 'active')
+        enrollment = StudentEnrollment.create!(user: user, course: this_course, course_section: sections.first)
+        Enrollment.where(id: enrollment).update_all(workflow_state: 'active')
         submission = assignment.submissions.find_or_create_by!(user: user).update! score: 95
         submission.submitted_at = 2.days.ago
         submission.graded_at = 2.days.ago
@@ -154,11 +154,11 @@ module Analytics
         assignments = AssignmentsHarness.new(this_course)
         data = assignments.assignment_rollups_for(section_ids)
         expect(data).to eq [{
-          :assignment_id => assignment.id, :title => assignment.title, :due_at => assignment.due_at,
-          :muted => assignment.muted, :points_possible => assignment.points_possible,
-          :max_score => 95, :min_score => 95, :first_quartile => 94,
-          :median => 94, :third_quartile => 94, :tardiness_breakdown => {
-            :missing => 0, :late => 0, :on_time => 1, :total => 1
+          assignment_id: assignment.id, title: assignment.title, due_at: assignment.due_at,
+          muted: assignment.muted, points_possible: assignment.points_possible,
+          max_score: 95, min_score: 95, first_quartile: 94,
+          median: 94, third_quartile: 94, tardiness_breakdown: {
+            missing: 0, late: 0, on_time: 1, total: 1
           }
         }]
       end

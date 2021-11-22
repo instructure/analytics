@@ -46,13 +46,13 @@ module Analytics
     # while pulling this data. The analytics web UI only shows a spinner right now.
     def assignments(_progress = nil)
       @assignments_cache ||=
-        Rails.cache.fetch(assignments_cache_key, :expires_in => Analytics::Base.cache_expiry, :use_new_rails => false) {
+        Rails.cache.fetch(assignments_cache_key, expires_in: Analytics::Base.cache_expiry, use_new_rails: false) {
           assignments_uncached
         }
     end
 
     def async_data_available?
-      @assignments_cache ||= Rails.cache.read(assignments_cache_key, :use_new_rails => false)
+      @assignments_cache ||= Rails.cache.read(assignments_cache_key, use_new_rails: false)
       !!@assignments_cache
     end
 
@@ -66,8 +66,8 @@ module Analytics
 
     def current_progress
       Progress.where(
-        :context_id => @course, :context_type => @course.class.to_s,
-        :cache_key_context => assignments_cache_key
+        context_id: @course, context_type: @course.class.to_s,
+        cache_key_context: assignments_cache_key
       ).order('created_at').first
     end
 
@@ -80,8 +80,8 @@ module Analytics
 
       unless progress
         progress = Progress.create!(
-          :context => @course,
-          :tag => tag
+          context: @course,
+          tag: tag
         ) { |p| p.cache_key_context = assignments_cache_key }
         progress.process_job(self, :assignments, {})
       end
