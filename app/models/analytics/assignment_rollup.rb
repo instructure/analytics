@@ -42,7 +42,7 @@ class Analytics::AssignmentRollup
       rollup.missing_submissions = 0
       rollup.late_submissions    = 0
       rollup.on_time_submissions = 0
-      rollup.tardiness_breakdown = Analytics::TardinessBreakdown.new()
+      rollup.tardiness_breakdown = Analytics::TardinessBreakdown.new
       if assignment.points_possible
         rollup.buckets = Analytics::Rollups::ScoreBuckets.new(assignment.points_possible)
       end
@@ -67,7 +67,7 @@ class Analytics::AssignmentRollup
     stats_by_section.each_value(&:calculate)
 
     # make a new hash here to remove the default value block
-    Hash[stats_by_section]
+    stats_by_section.to_h
   end
 
   def self.build(course, assignment)

@@ -8,7 +8,4 @@ class DropSubmissionCachedTardyStatusIfExists < ActiveRecord::Migration[4.2]
       remove_column :submissions, :cached_tardy_status
     end
   end
-
-  def self.down
-  end
 end

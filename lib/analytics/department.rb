@@ -83,7 +83,7 @@ module Analytics
       end
     end
 
-    # Note: we had to remove statistics for discussion_replies and submissions
+    # NOTE: we had to remove statistics for discussion_replies and submissions
     # because the queries were too slow.  If we bring them back, we need to
     # find a way to make them performant.
     def statistics
@@ -156,9 +156,11 @@ module Analytics
     end
 
     def courses
-      @filter ?
-        courses_for_filter(@filter) :
+      if @filter
+        courses_for_filter(@filter)
+      else
         courses_for_term(@term)
+      end
     end
 
     def courses_for_subaccount(subaccount)
@@ -235,11 +237,9 @@ module Analytics
       select = []
       select << 'MIN(courses.created_at) AS created_at' unless start_at
       select << 'MAX(courses.conclude_at) AS conclude_at' unless end_at
-      unless select.empty?
-        if (dates = secondaried { ActiveRecord::Base.connection.select_all(courses.select(select)).to_a.first })
-          start_at ||= parse_utc_time(dates['created_at'])
-          end_at ||= parse_utc_time(dates['conclude_at'])
-        end
+      if !select.empty? && (dates = secondaried { ActiveRecord::Base.connection.select_all(courses.select(select)).to_a.first })
+        start_at ||= parse_utc_time(dates['created_at'])
+        end_at ||= parse_utc_time(dates['conclude_at'])
       end
 
       # unless otherwise specified, end at current date. never go past current
@@ -257,12 +257,12 @@ module Analytics
       # date
       end_at = [start_at, end_at].max
 
-      return start_at, end_at
+      [start_at, end_at]
     end
 
     def parse_utc_time(time_string)
       return unless time_string
-      return time_string unless String === time_string
+      return time_string unless time_string.is_a?(String)
 
       Time.use_zone('UTC') { Time.zone.parse(time_string) }.in_time_zone
     end

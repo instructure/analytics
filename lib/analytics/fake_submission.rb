@@ -31,8 +31,8 @@ module Analytics
     attr_accessor :assignment
     attr_reader   :assignment_id, :user_id, :score, :submission_type,
                   :workflow_state, :excused, :submitted_at, :cached_due_date,
-                  :graded_at, :late_policy_status, :accepted_at, :seconds_late_override,
-                  :cached_quiz_lti
+                  :graded_at, :grader_id, :late_policy_status, :accepted_at,
+                  :seconds_late_override, :cached_quiz_lti
 
     alias_method :excused?, :excused
     alias_method :cached_quiz_lti?, :cached_quiz_lti
@@ -40,16 +40,17 @@ module Analytics
     include Submission::Tardiness
 
     def initialize(data)
-      @assignment_id   = data['assignment_id']   && data['assignment_id'].to_i
-      @user_id         = data['user_id']         && data['user_id'].to_i
-      @score           = data['score']           && data['score'].to_i
+      @assignment_id   = data['assignment_id']&.to_i
+      @user_id         = data['user_id']&.to_i
+      @score           = data['score']&.to_i
       @excused         = data['excused']
       @submission_type = data['submission_type']
       @workflow_state  = data['workflow_state']
       @graded_at       = data['graded_at']
+      @grader_id       = data['grader_id']
       @cached_due_date = data['cached_due_date']
       @late_policy_status = data['late_policy_status']
-      @cached_quiz_lti = data['cached_quiz_lti'].present? ? data['cached_quiz_lti'] : false
+      @cached_quiz_lti = data['cached_quiz_lti'].presence || false
 
       # submissions without a submission_type do not have a meaningful
       # submitted_at; see Submission#submitted_at
