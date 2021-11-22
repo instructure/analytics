@@ -492,7 +492,7 @@ describe Analytics::Course do
           end
         end
 
-        it "can return results for specific students", priority: "1", test_id: 2997780 do
+        it "can return results for specific students", priority: "1" do
           student2 = active_student(name: "Student2").user
           summaries = @teacher_analytics
                       .student_summaries(student_ids: [student2.id])
