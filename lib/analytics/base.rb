@@ -33,7 +33,7 @@ module Analytics
     include Slave
 
     def cache(key, &block)
-      Rails.cache.fetch(['analytics', cache_prefix, key].cache_key, :expires_in => Analytics::Base.cache_expiry, &block)
+      Rails.cache.fetch(['analytics', cache_prefix, key].cache_key, expires_in: Analytics::Base.cache_expiry, &block)
     end
 
     def secondaried(opts = {})

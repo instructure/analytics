@@ -20,22 +20,22 @@
 
 # This file is part of the analytics engine
 
-describe AnalyticsController, :type => :controller do
+describe AnalyticsController, type: :controller do
   before do
     @account = Account.default
     @account.allowed_services = '+analytics'
     @account.save!
 
-    @role = custom_account_role('TestAdmin', :account => @account)
-    RoleOverride.manage_role_override(@account, @role, 'view_analytics', :override => true)
-    @admin = account_admin_user(:account => @account, :role => @role, :active_all => true)
+    @role = custom_account_role('TestAdmin', account: @account)
+    RoleOverride.manage_role_override(@account, @role, 'view_analytics', override: true)
+    @admin = account_admin_user(account: @account, role: @role, active_all: true)
     user_session(@admin)
   end
 
   describe "department" do
     def department_analytics(opts = {})
       account = opts[:account] || @account
-      get 'department', params: { :account_id => account.id }
+      get 'department', params: { account_id: account.id }
     end
 
     it "sets @department_analytics on success" do
@@ -60,7 +60,7 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "404s without view_analytics permission" do
-      RoleOverride.manage_role_override(@account, @role, 'view_analytics', :override => false)
+      RoleOverride.manage_role_override(@account, @role, 'view_analytics', override: false)
       department_analytics
       assert_unauthorized
     end
@@ -68,13 +68,13 @@ describe AnalyticsController, :type => :controller do
 
   describe "course" do
     before do
-      course_with_teacher_logged_in(:active_all => true)
-      student_in_course(:active_all => true)
+      course_with_teacher_logged_in(active_all: true)
+      student_in_course(active_all: true)
     end
 
     def course_analytics(opts = {})
       course = opts[:course] || @course
-      get 'course', params: { :course_id => course.id }
+      get 'course', params: { course_id: course.id }
     end
 
     it "sets @course_analytics on success" do
@@ -110,7 +110,7 @@ describe AnalyticsController, :type => :controller do
       # so let the admin do it. but since he's got a unique role, we need to
       # give him permissions.
       user_session(@admin)
-      RoleOverride.manage_role_override(@account, @role, 'view_all_grades', :override => true)
+      RoleOverride.manage_role_override(@account, @role, 'view_all_grades', override: true)
 
       @course.complete!
       course_analytics
@@ -118,7 +118,7 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "404s without view_analytics permission" do
-      RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', override: false)
       course_analytics
       assert_unauthorized
     end
@@ -140,8 +140,8 @@ describe AnalyticsController, :type => :controller do
       course_analytics
       expect(assigns[:course_json][:students]).not_to be_nil
 
-      RoleOverride.manage_role_override(@account, teacher_role, 'manage_grades', :override => false)
-      RoleOverride.manage_role_override(@account, teacher_role, 'view_all_grades', :override => false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'manage_grades', override: false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'view_all_grades', override: false)
 
       @account.clear_permissions_cache(@user)
       course_analytics
@@ -151,15 +151,15 @@ describe AnalyticsController, :type => :controller do
 
   describe "student_in_course" do
     before do
-      RoleOverride.manage_role_override(@account, student_role, 'view_analytics', :override => true)
-      course_with_teacher_logged_in(:active_all => true)
-      student_in_course(:active_all => true)
+      RoleOverride.manage_role_override(@account, student_role, 'view_analytics', override: true)
+      course_with_teacher_logged_in(active_all: true)
+      student_in_course(active_all: true)
     end
 
     def student_in_course_analytics(opts = {})
       course = opts[:course] || @course
       student = opts[:student] || @student
-      get 'student_in_course', params: { :course_id => course.id, :student_id => student.id }
+      get 'student_in_course', params: { course_id: course.id, student_id: student.id }
     end
 
     it "sets @course_analytics and @student_analytics on success" do
@@ -196,7 +196,7 @@ describe AnalyticsController, :type => :controller do
       # so let the admin do it. but since he's got a unique role, we need to
       # give him permissions.
       user_session(@admin)
-      RoleOverride.manage_role_override(@account, @role, 'view_all_grades', :override => true)
+      RoleOverride.manage_role_override(@account, @role, 'view_all_grades', override: true)
 
       @course.complete!
       student_in_course_analytics
@@ -204,7 +204,7 @@ describe AnalyticsController, :type => :controller do
     end
 
     it "404s without view_analytics permission" do
-      RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', :override => false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', override: false)
       student_in_course_analytics
       assert_unauthorized
     end
@@ -217,7 +217,7 @@ describe AnalyticsController, :type => :controller do
 
     it "404s for a non-student" do
       skip 'OREO-768 (03/24/2021)'
-      student_in_course_analytics(:student => @teacher)
+      student_in_course_analytics(student: @teacher)
       assert_status(404)
     end
 
@@ -232,21 +232,21 @@ describe AnalyticsController, :type => :controller do
     it "404s for without read_grades permission" do
       # log in with original student, but view analytics for a different student
       user_session(@student)
-      student_in_course(:active_all => true)
+      student_in_course(active_all: true)
       student_in_course_analytics
       assert_unauthorized
     end
 
     it "includes all students for a teacher" do
       students = [@student]
-      3.times { students << student_in_course(:active_all => true).user }
+      3.times { students << student_in_course(active_all: true).user }
       student_in_course_analytics
       expect(assigns[:course_json][:students].pluck(:id).sort).to eq students.map(&:id).sort
     end
 
     it "includes only self for a student" do
       students = [@student]
-      3.times { students << student_in_course(:active_all => true).user }
+      3.times { students << student_in_course(active_all: true).user }
       user_session(@student)
       student_in_course_analytics
       expect(assigns[:course_json][:students].pluck(:id).sort).to eq [@student.id]

@@ -33,12 +33,12 @@ describe "analytics account view" do
   before do
     enable_analytics
     course_with_admin_logged_in.user
-    @course.update(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
+    @course.update(start_at: 15.days.ago, conclude_at: 2.days.from_now)
     @course.save!
   end
 
   it "validates course drop down" do
-    concluded_course = Course.create!(:name => 'concluded course', :account => Account.default)
+    concluded_course = Course.create!(name: 'concluded course', account: Account.default)
     concluded_course.offer!
     create_users_in_course(concluded_course, 10)
     concluded_course.complete
@@ -55,14 +55,14 @@ describe "analytics account view" do
   context "graphs" do
     it "validates activity by date graph with no action taken" do
       page_view_count = 10
-      page_view_count.times { page_view(:user => @student, :course => @course) }
+      page_view_count.times { page_view(user: @student, course: @course) }
       go_to_analytics("/accounts/#{account_id}/analytics")
       validate_tooltip_text(date_selector(Time.now, '#participating-date-graph'), page_view_count.to_s + ' page views')
       validate_element_fill(get_rectangle(Time.now, '#participating-date-graph'), GraphColors::LIGHT_BLUE)
     end
 
     it "validates activity by date graph with action taken" do
-      page_view(:user => @student, :course => @course, :participated => true)
+      page_view(user: @student, course: @course, participated: true)
       expected_text = %w[1 page view 1 participation]
       go_to_analytics("/accounts/#{account_id}/analytics")
       expected_text.each { |text| validate_tooltip_text(date_selector(Time.now, '#participating-date-graph'), text) }
@@ -71,7 +71,7 @@ describe "analytics account view" do
 
     it "validates activity by category graph" do
       controllers = %w[files gradebook2 groups assignments]
-      controllers.each { |controller| page_view(:user => @student, :course => @course, :controller => controller) }
+      controllers.each { |controller| page_view(user: @student, course: @course, controller: controller) }
       go_to_analytics("/accounts/#{account_id}/analytics")
       controllers.each { |controller|
         validate_tooltip_text("#participating-category-graph .#{controller}", '1 page view')
@@ -90,19 +90,19 @@ describe "analytics account view" do
   context "bottom data points with all data" do
     before do
       students = add_students_to_course(1)
-      assignment = @course.active_assignments.create!(:title => 'new assignment')
+      assignment = @course.active_assignments.create!(title: 'new assignment')
       assignment.submit_homework(students[0])
-      topic = @course.discussion_topics.create!(:title => 'new discussion topic')
-      topic.reply_from(:user => students[0], :text => 'hai')
+      topic = @course.discussion_topics.create!(title: 'new discussion topic')
+      topic.reply_from(user: students[0], text: 'hai')
       attachment = @course.attachments.build
       attachment.filename = "image.png"
       attachment.file_state = 'available'
       attachment.content_type = 'image/png'
       attachment.save!
-      media_object = @course.media_objects.build(:media_id => 'asdf', :title => 'asdf')
-      media_object.data = { :extensions => { :mp4 => {
-        :size => 100,
-        :extension => 'mp4'
+      media_object = @course.media_objects.build(media_id: 'asdf', title: 'asdf')
+      media_object.data = { extensions: { mp4: {
+        size: 100,
+        extension: 'mp4'
       } } }
       media_object.save!
       go_to_analytics("/accounts/#{account_id}/analytics")

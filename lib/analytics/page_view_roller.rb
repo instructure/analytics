@@ -66,7 +66,7 @@ module Analytics::PageViewRoller
   #     amounts if set to 'flood')
   def self.rollup_one(day, opts = {})
     # scope the page views down to just that day
-    page_views = PAGE_VIEWS.where(:created_at => day..(day + 1.day))
+    page_views = PAGE_VIEWS.where(created_at: day..(day + 1.day))
 
     # bin them by course id and category, and insert a rollup row for each
     # result. if a row for the bin already exists, assume all views for that

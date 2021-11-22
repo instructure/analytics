@@ -36,7 +36,7 @@ describe "analytics course view" do
     enable_analytics
     enable_teacher_permissions
     course_with_teacher(active_all: true)
-    @course.update(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
+    @course.update(start_at: 15.days.ago, conclude_at: 2.days.from_now)
     @course.save!
     student_in_course(name: initial_student_name, active_all: true)
   end
@@ -105,8 +105,8 @@ describe "analytics course view" do
 
   context "students display" do
     it "is absent unless the user has permission to see grades" do
-      RoleOverride.manage_role_override(@account, teacher_role, 'manage_grades', :override => false)
-      RoleOverride.manage_role_override(@account, teacher_role, 'view_all_grades', :override => false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'manage_grades', override: false)
+      RoleOverride.manage_role_override(@account, teacher_role, 'view_all_grades', override: false)
       go_to_analytics("/courses/#{@course.id}/analytics")
       expect(f('#content')).not_to contain_css('#students')
     end
@@ -133,14 +133,14 @@ describe "analytics course view" do
 
     it "displays student activity for tomorrow" do
       tomorrow = Time.now.utc + 1.day
-      page_view(:user => @student, :course => @course, :participated => true, :created_at => tomorrow)
+      page_view(user: @student, course: @course, participated: true, created_at: tomorrow)
 
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
       expect(fj("rect.#{tomorrow.strftime("%Y-%m-%d")}")).to be_displayed
     end
 
     it "counts pageviews" do
-      3.times { page_view(:user => @student, :course => @course) }
+      3.times { page_view(user: @student, course: @course) }
       go_to_analytics("/courses/#{@course.id}/analytics")
       expect(find("#student_#{@student.id} .page_views")).to include_text('3')
     end
@@ -163,8 +163,8 @@ describe "analytics course view" do
       @enrollment.update_attribute(:last_activity_at, Time.zone.now)
       @student2 = @student
       Timecop.freeze(1.day.ago) do
-        3.times { page_view(:user => @student1, :course => @course, :participated => true) }
-        3.times { page_view(:user => @student2, :course => @course, :participated => true) }
+        3.times { page_view(user: @student1, course: @course, participated: true) }
+        3.times { page_view(user: @student2, course: @course, participated: true) }
       end
       randomly_grade_assignments(8)
       create_past_due(3, 2)

@@ -23,8 +23,8 @@ require_dependency "analytics/student_in_course"
 module Analytics
   describe StudentInCourse do
     before do
-      course_with_teacher(:active_all => 1)
-      student_in_course(:course => @course, :active_all => 1)
+      course_with_teacher(active_all: 1)
+      student_in_course(course: @course, active_all: 1)
     end
 
     describe "#enrollment" do
@@ -66,13 +66,13 @@ module Analytics
       let(:assignment) { double('assignment').as_null_object }
       let(:submission) {
         double('submission',
-               :assignment_id => assignment.id,
-               :assigment => assignment,
-               :user_id => @student.id,
-               :cached_due_date => due_at,
-               :missing? => false,
-               :late? => false,
-               :submitted_at => submitted_at)
+               assignment_id: assignment.id,
+               assigment: assignment,
+               user_id: @student.id,
+               cached_due_date: due_at,
+               missing?: false,
+               late?: false,
+               submitted_at: submitted_at)
       }
 
       it 'lets overridden_for determine the due_at value' do

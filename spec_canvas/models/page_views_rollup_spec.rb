@@ -35,8 +35,8 @@ describe PageViewsRollup do
 
     it "works for a single date" do
       today = Date.today
-      rollup = create_rollup(:course => @course, :date => today, :category => 'other')
-      other = create_rollup(:course => @course, :date => today - 1.day, :category => 'other')
+      rollup = create_rollup(course: @course, date: today, category: 'other')
+      other = create_rollup(course: @course, date: today - 1.day, category: 'other')
       expect(PageViewsRollup.for_dates(today)).to include(rollup)
       expect(PageViewsRollup.for_dates(today)).not_to include(other)
     end
@@ -46,10 +46,10 @@ describe PageViewsRollup do
       start_day = end_day - 3.days
 
       rollups = (start_day..end_day).map do |day|
-        create_rollup(:course => @course, :date => day, :category => 'other')
+        create_rollup(course: @course, date: day, category: 'other')
       end
-      before_start = create_rollup(:course => @course, :date => start_day - 1.day, :category => 'other')
-      after_end = create_rollup(:course => @course, :date => end_day + 1.day, :category => 'other')
+      before_start = create_rollup(course: @course, date: start_day - 1.day, category: 'other')
+      after_end = create_rollup(course: @course, date: end_day + 1.day, category: 'other')
 
       rollups.each do |rollup|
         expect(PageViewsRollup.for_dates(start_day..end_day)).to include(rollup)
@@ -66,15 +66,15 @@ describe PageViewsRollup do
     end
 
     it "includes all rollups for that category" do
-      rollup1 = create_rollup(:course => @course, :date => @today, :category => 'first')
-      rollup2 = create_rollup(:course => course_model, :date => @today, :category => 'first')
+      rollup1 = create_rollup(course: @course, date: @today, category: 'first')
+      rollup2 = create_rollup(course: course_model, date: @today, category: 'first')
       expect(PageViewsRollup.for_category('first')).to include(rollup1)
       expect(PageViewsRollup.for_category('first')).to include(rollup2)
     end
 
     it "only includes rollups for that category" do
-      rollup1 = create_rollup(:course => @course, :date => @today, :category => 'first')
-      rollup2 = create_rollup(:course => @course, :date => @today, :category => 'second')
+      rollup1 = create_rollup(course: @course, date: @today, category: 'first')
+      rollup2 = create_rollup(course: @course, date: @today, category: 'second')
       expect(PageViewsRollup.for_category('first')).to include(rollup1)
       expect(PageViewsRollup.for_category('first')).not_to include(rollup2)
     end

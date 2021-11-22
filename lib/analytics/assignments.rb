@@ -29,7 +29,7 @@ module Analytics
     def assignments
       cache_array = [:assignments, allow_student_details?]
       cache_array << @current_user if differentiated_assignments_applies?
-      secondaried(:cache_as => cache_array) do
+      secondaried(cache_as: cache_array) do
         assignments = assignment_scope.to_a
         submissions = submissions(assignments).group_by(&:assignment_id)
         assignment_ids = assignments.map(&:id)
@@ -57,7 +57,7 @@ module Analytics
         assignments.filter_map do |assignment|
           # cache at this level, so that we cache for all sections and then
           # pick out the relevant sections from the cache below
-          rollups = secondaried(:cache_as => [:assignment_rollups, assignment]) do
+          rollups = secondaried(cache_as: [:assignment_rollups, assignment]) do
             AssignmentRollup.build(@course, assignment)
           end
           rollups = rollups.values_at(*section_ids).compact.reject { |r| r.total_submissions.zero? }
@@ -102,7 +102,7 @@ module Analytics
       end
 
       hash = basic_assignment_data(assignment, submissions)
-             .merge(:muted => muted(assignment))
+             .merge(muted: muted(assignment))
 
       unless muted(assignment) || suppressed_due_to_few_submissions(real_submissions) || suppressed_due_to_course_setting
         scores = Stats::Counter.new
@@ -112,12 +112,12 @@ module Analytics
         quartiles = scores.quartiles
 
         hash.merge!(
-          :max_score => scores.max,
-          :min_score => scores.min,
-          :first_quartile => quartiles[0],
-          :median => quartiles[1],
-          :third_quartile => quartiles[2],
-          :module_ids => module_ids
+          max_score: scores.max,
+          min_score: scores.min,
+          first_quartile: quartiles[0],
+          median: quartiles[1],
+          third_quartile: quartiles[2],
+          module_ids: module_ids
         )
       end
 
@@ -130,12 +130,12 @@ module Analytics
 
     def basic_assignment_data(assignment, _submissions = nil)
       {
-        :assignment_id => assignment.id,
-        :title => assignment.title,
-        :unlock_at => assignment.unlock_at,
-        :points_possible => assignment.points_possible,
-        :non_digital_submission => assignment.non_digital_submission?,
-        :multiple_due_dates => false # can be overridden in submodules
+        assignment_id: assignment.id,
+        title: assignment.title,
+        unlock_at: assignment.unlock_at,
+        points_possible: assignment.points_possible,
+        non_digital_submission: assignment.non_digital_submission?,
+        multiple_due_dates: false # can be overridden in submodules
       }
     end
 

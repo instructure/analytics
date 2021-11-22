@@ -27,11 +27,11 @@ class PageViewsRollup < ActiveRecord::Base
 
   class << self
     def for_dates(date_range)
-      where(:date => date_range)
+      where(date: date_range)
     end
 
     def for_category(category)
-      where(:category => category)
+      where(category: category)
     end
 
     def bin_scope_for(course)
@@ -40,7 +40,7 @@ class PageViewsRollup < ActiveRecord::Base
       else
         course_id, shard = Shard.local_id_for(course)
         shard ||= Shard.current
-        shard.activate { where(:course_id => course_id) }
+        shard.activate { where(course_id: course_id) }
       end
     end
 

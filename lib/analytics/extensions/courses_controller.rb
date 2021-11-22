@@ -40,7 +40,7 @@ module Analytics::Extensions::CoursesController
         if enrollment
           # add the analytics url
           json[:analytics_url] =
-            analytics_student_in_course_path :course_id => enrollment.course_id, :student_id => enrollment.user_id
+            analytics_student_in_course_path course_id: enrollment.course_id, student_id: enrollment.user_id
         end
       end
     end

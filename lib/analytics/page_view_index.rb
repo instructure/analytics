@@ -121,8 +121,8 @@ module Analytics::PageViewIndex
       counters = {}
       user_ids.each do |id|
         counters[id] = {
-          :page_views => 0,
-          :participations => 0
+          page_views: 0,
+          participations: 0
         }
       end
 
@@ -132,8 +132,8 @@ module Analytics::PageViewIndex
       ).fetch do |row|
         if (id = id_map[row['user_id']])
           counters[id] = {
-            :page_views => row['page_view_count'].to_i,
-            :participations => row['participation_count'].to_i
+            page_views: row['page_view_count'].to_i,
+            participations: row['participation_count'].to_i
           }
         end
       end
@@ -153,8 +153,8 @@ module Analytics::PageViewIndex
         .select("created_at, url")
         .where("participated AND asset_user_access_id IS NOT NULL").map do |participation|
         {
-          :created_at => participation.created_at,
-          :url => participation.url,
+          created_at: participation.created_at,
+          url: participation.url,
         }.with_indifferent_access
       end
     end
@@ -171,8 +171,8 @@ module Analytics::PageViewIndex
       counters = {}
       user_ids.each do |id|
         counters[id] = {
-          :page_views => 0,
-          :participations => 0
+          page_views: 0,
+          participations: 0
         }
       end
 

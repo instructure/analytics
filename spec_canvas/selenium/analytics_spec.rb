@@ -120,7 +120,7 @@ describe "analytics" do
     before do
       enable_analytics
       @teacher = course_with_teacher_logged_in.user
-      @course.update(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
+      @course.update(start_at: 15.days.ago, conclude_at: 2.days.from_now)
       @course.save!
       add_students_to_course(1)
       @student = StudentEnrollment.last.user
@@ -158,7 +158,7 @@ describe "analytics" do
       @teachers_id = [@teacher.id]
 
       [@teacher, @student].each do |user|
-        channel = user.communication_channels.create(:path => "test_channel_email_#{user.id}", :path_type => "email")
+        channel = user.communication_channels.create(path: "test_channel_email_#{user.id}", path_type: "email")
         channel.confirm
       end
 
@@ -167,7 +167,7 @@ describe "analytics" do
       add_message(@teacher_conversation, 1)
       add_message(@student_conversation, 1)
 
-      ConversationParticipant.where(:id => cp).update_all(:tags => "") # don't use the participants, their tags are unreliable
+      ConversationParticipant.where(id: cp).update_all(tags: "") # don't use the participants, their tags are unreliable
 
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
@@ -211,7 +211,7 @@ describe "analytics" do
     end
 
     it "validates a non-graded assignment on graph" do
-      @course.assignments.create!(:title => 'new assignment', :points_possible => 10)
+      @course.assignments.create!(title: 'new assignment', points_possible: 10)
       first_assignment = @course.active_assignments.first
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
@@ -221,8 +221,8 @@ describe "analytics" do
     end
 
     it "shows assignments on submissions graph" do
-      assmt = @course.assignments.create!(:title => 'new assignment', :points_possible => 10,
-                                          :submission_types => 'online_url')
+      assmt = @course.assignments.create!(title: 'new assignment', points_possible: 10,
+                                          submission_types: 'online_url')
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
       expect(f('#assignment-finishing-graph')).to contain_css(".assignment_#{assmt.id}.cover")
@@ -235,8 +235,8 @@ describe "analytics" do
         teacher = User.create!
         @course.enroll_teacher(teacher)
       end
-      assmt = @course.assignments.create!(:title => 'new assignment', :points_possible => 10,
-                                          :submission_types => 'online_url')
+      assmt = @course.assignments.create!(title: 'new assignment', points_possible: 10,
+                                          submission_types: 'online_url')
       assmt.grade_student(@student, excuse: true, grader: teacher)
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
