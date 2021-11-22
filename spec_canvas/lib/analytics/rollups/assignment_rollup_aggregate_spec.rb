@@ -26,7 +26,7 @@ module Analytics
       let(:rollup_attrs) {
         {
           assignment_id: Assignment.create!(context: the_course).id,
-          title: 'Some Assignment',
+          title: "Some Assignment",
           course_section_id: CourseSection.create!(course: the_course).id,
           max_score: 100,
           min_score: 0,
@@ -45,17 +45,17 @@ module Analytics
       let(:the_course) { course_factory }
       let(:rollup) { AssignmentRollup.new(rollup_attrs) }
 
-      describe 'data from a single rollup' do
+      describe "data from a single rollup" do
         let(:aggregate) { AssignmentRollupAggregate.new([rollup]) }
         let(:data) { aggregate.data }
 
-        describe 'scores' do
-          it 'keeps the max/min from the rollup' do
+        describe "scores" do
+          it "keeps the max/min from the rollup" do
             expect(data[:max_score]).to eq rollup.max_score
             expect(data[:min_score]).to eq rollup.min_score
           end
 
-          it 'gets the quartiles from the buckets' do
+          it "gets the quartiles from the buckets" do
             expect(data[:first_quartile]).to eq 24.0
             expect(data[:median]).to eq rollup.median_score
             expect(data[:third_quartile]).to eq 72.0
@@ -63,7 +63,7 @@ module Analytics
         end
       end
 
-      describe 'aggregating rollups' do
+      describe "aggregating rollups" do
         let(:rollup1) {
           AssignmentRollup.new(rollup_attrs.merge({
                                                     max_score: 32,
@@ -92,20 +92,20 @@ module Analytics
         let(:aggregate) { AssignmentRollupAggregate.new([rollup1, rollup2, rollup3]) }
         let(:data) { aggregate.data }
 
-        describe 'scores' do
-          it 'finds the real max min' do
+        describe "scores" do
+          it "finds the real max min" do
             expect(data[:max_score]).to eq 100
             expect(data[:min_score]).to eq 0
           end
 
-          it 'gets the quartiles from the buckets' do
+          it "gets the quartiles from the buckets" do
             expect(data[:first_quartile]).to eq 27.0
             expect(data[:median]).to eq 36.0
             expect(data[:third_quartile]).to eq 45.0
           end
         end
 
-        it 'has the assignment id and name' do
+        it "has the assignment id and name" do
           expect(data[:assignment_id]).to eq rollup_attrs[:assignment_id]
           expect(data[:title]).to eq rollup_attrs[:title]
         end

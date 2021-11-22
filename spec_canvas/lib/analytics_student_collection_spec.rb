@@ -18,7 +18,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative '../cassandra_spec_helper'
+require_relative "../cassandra_spec_helper"
 
 describe Analytics::StudentCollection do
   it "defaults sort_strategy to Default" do
@@ -57,7 +57,7 @@ describe Analytics::StudentCollection do
       @enrollments = Array.new(3) { student_in_course(active_all: true) }
       @users = @enrollments.map(&:user)
       # hide fixtures
-      User.where.not(id: @users).update_all(workflow_state: 'deleted')
+      User.where.not(id: @users).update_all(workflow_state: "deleted")
     end
 
     it "paginates values from the initial scope" do
@@ -85,7 +85,7 @@ describe Analytics::StudentCollection do
     end
   end
 
-  describe 'sort strategies' do
+  describe "sort strategies" do
     let(:enrollment_count) { 3 }
 
     before do
@@ -93,7 +93,7 @@ describe Analytics::StudentCollection do
       @enrollments = Array.new(enrollment_count) { student_in_course(active_all: true) }
       @users = @enrollments.map(&:user)
       # hide fixtures
-      User.where.not(id: @users).update_all(workflow_state: 'deleted')
+      User.where.not(id: @users).update_all(workflow_state: "deleted")
       @pager = PaginatedCollection::Collection.new
       @pager.current_page = 1
       @pager.per_page = 10
@@ -103,11 +103,11 @@ describe Analytics::StudentCollection do
       # @scope, @expected_sort, @strategy, and @reverse_strategy expected to be
       # set up in a before block
 
-      it 'orders the students as expected' do
+      it "orders the students as expected" do
         expect(@strategy.paginate(@scope, @pager)).to eq @expected_sort
       end
 
-      it 'respects pagination' do
+      it "respects pagination" do
         @pager.per_page = 1
         @users.size.times do |i|
           @pager.current_page = i + 1
@@ -115,24 +115,24 @@ describe Analytics::StudentCollection do
         end
       end
 
-      it 'handles accidental pagination past the end' do
+      it "handles accidental pagination past the end" do
         @pager.current_page = @users.size + 1
         @pager.per_page = 1
         expect { @strategy.paginate(@scope, @pager) }.to raise_error Folio::InvalidPage
       end
 
-      it 'returns a WillPaginate-style object' do
+      it "returns a WillPaginate-style object" do
         expect(@strategy.paginate(@scope, @pager)).to respond_to(:current_page)
       end
 
-      it 'implements direction' do
+      it "implements direction" do
         expect(@reverse_strategy.paginate(@scope, @pager)).to eq @expected_sort.reverse
       end
     end
 
     describe Analytics::StudentCollection::SortStrategy::ByName do
       before do
-        assigned_names = ['Student 2', 'Student 1', 'Student 3']
+        assigned_names = ["Student 2", "Student 1", "Student 3"]
         assigned_names.zip(@users).each { |name, user| user.update_attribute(:sortable_name, name) }
         @scope = User.active
         @strategy = Analytics::StudentCollection::SortStrategy::ByName.new
@@ -201,7 +201,7 @@ describe Analytics::StudentCollection do
       include_examples "paginated sort strategy"
     end
 
-    describe '.for(strategy_name)' do
+    describe ".for(strategy_name)" do
       it "recognizes :name" do
         strategy = Analytics::StudentCollection::SortStrategy.for(:name)
         expect(strategy).to be_a(Analytics::StudentCollection::SortStrategy::ByName)

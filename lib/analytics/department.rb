@@ -51,7 +51,7 @@ module Analytics
     def dates_for_filter(filter)
       # always calculate start_at. calculate end_at for 'completed', but use
       # the present for 'current'
-      end_at = Time.zone.now unless filter == 'complete'
+      end_at = Time.zone.now unless filter == "complete"
       calculate_and_clamp_dates(nil, end_at, courses_for_filter(filter))
     end
 
@@ -136,7 +136,7 @@ module Analytics
       @account.sub_accounts
     end
 
-    def courses_for_term(term, workflow_state = ['completed', 'available'])
+    def courses_for_term(term, workflow_state = ["completed", "available"])
       # AFAICT, rows in course_account_associations that *don't* have a section
       # number associated are "really" associated with that account (i.e.
       # not via crosslisting)
@@ -149,8 +149,8 @@ module Analytics
     def courses_for_filter(filter)
       workflow_state =
         case filter
-        when 'completed' then 'completed'
-        when 'current' then 'available'
+        when "completed" then "completed"
+        when "current" then "available"
         end
       courses_for_term(default_term, workflow_state)
     end
@@ -184,7 +184,7 @@ module Analytics
     end
 
     def enrollments
-      Enrollment.where(workflow_state: ['active', 'completed'], course_id: courses_subselect)
+      Enrollment.where(workflow_state: ["active", "completed"], course_id: courses_subselect)
     end
 
     def enrollments_for_subaccount(acct)
@@ -192,54 +192,54 @@ module Analytics
     end
 
     def teacher_enrollments
-      enrollments.where(type: 'TeacherEnrollment')
+      enrollments.where(type: "TeacherEnrollment")
     end
 
     def teacher_enrollments_for_subaccount(acct)
-      enrollments_for_subaccount(acct).where(type: 'TeacherEnrollment')
+      enrollments_for_subaccount(acct).where(type: "TeacherEnrollment")
     end
 
     def student_enrollments
-      enrollments.where(type: 'StudentEnrollment')
+      enrollments.where(type: "StudentEnrollment")
     end
 
     def student_enrollments_for_subaccount(acct)
-      enrollments_for_subaccount(acct).where(type: 'StudentEnrollment')
+      enrollments_for_subaccount(acct).where(type: "StudentEnrollment")
     end
 
     def count_users_for_enrollments(enrollments_scope)
-      enrollments_scope.distinct.count('user_id')
+      enrollments_scope.distinct.count("user_id")
     end
 
     def discussion_topics
       DiscussionTopic.active.where(context_id: courses_subselect,
-                                   context_type: 'Course')
+                                   context_type: "Course")
     end
 
     def media_objects
       MediaObject.active.where(context_id: courses_subselect,
-                               context_type: 'Course')
+                               context_type: "Course")
     end
 
     def attachments
       Attachment.active.where(context_id: courses_subselect,
-                              context_type: 'Course')
+                              context_type: "Course")
     end
 
     def assignments
       Assignment.active.where(context_id: courses_subselect,
-                              context_type: 'Course')
+                              context_type: "Course")
     end
 
     def calculate_and_clamp_dates(start_at, end_at, courses)
       # default start_at to the earliest created_at and end_at to the latest
       # conclude_at
       select = []
-      select << 'MIN(courses.created_at) AS created_at' unless start_at
-      select << 'MAX(courses.conclude_at) AS conclude_at' unless end_at
+      select << "MIN(courses.created_at) AS created_at" unless start_at
+      select << "MAX(courses.conclude_at) AS conclude_at" unless end_at
       if !select.empty? && (dates = secondaried { ActiveRecord::Base.connection.select_all(courses.select(select)).to_a.first })
-        start_at ||= parse_utc_time(dates['created_at'])
-        end_at ||= parse_utc_time(dates['conclude_at'])
+        start_at ||= parse_utc_time(dates["created_at"])
+        end_at ||= parse_utc_time(dates["conclude_at"])
       end
 
       # unless otherwise specified, end at current date. never go past current
@@ -264,7 +264,7 @@ module Analytics
       return unless time_string
       return time_string unless time_string.is_a?(String)
 
-      Time.use_zone('UTC') { Time.zone.parse(time_string) }.in_time_zone
+      Time.use_zone("UTC") { Time.zone.parse(time_string) }.in_time_zone
     end
   end
 end

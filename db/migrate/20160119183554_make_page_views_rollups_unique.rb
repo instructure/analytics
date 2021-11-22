@@ -16,16 +16,16 @@ class MakePageViewsRollupsUnique < ActiveRecord::Migration[4.2]
       end
     end
 
-    rename_index :page_views_rollups, 'index_page_views_rollups_on_course_id_and_date_and_category',
-                 'index_page_views_rollups_deprecated'
+    rename_index :page_views_rollups, "index_page_views_rollups_on_course_id_and_date_and_category",
+                 "index_page_views_rollups_deprecated"
     add_index :page_views_rollups, %i[course_id date category], unique: true, algorithm: :concurrently
-    remove_index :page_views_rollups, name: 'index_page_views_rollups_deprecated'
+    remove_index :page_views_rollups, name: "index_page_views_rollups_deprecated"
   end
 
   def down
-    rename_index :page_views_rollups, 'index_page_views_rollups_on_course_id_and_date_and_category',
-                 'index_page_views_rollups_deprecated'
+    rename_index :page_views_rollups, "index_page_views_rollups_on_course_id_and_date_and_category",
+                 "index_page_views_rollups_deprecated"
     add_index :page_views_rollups, %i[course_id date category], algorithm: :concurrently
-    remove_index :page_views_rollups, name: 'index_page_views_rollups_deprecated'
+    remove_index :page_views_rollups, name: "index_page_views_rollups_deprecated"
   end
 end

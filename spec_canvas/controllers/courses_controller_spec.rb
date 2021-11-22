@@ -23,11 +23,11 @@
 describe CoursesController, type: :controller do
   before do
     @account = Account.default
-    @account.allowed_services = '+analytics'
+    @account.allowed_services = "+analytics"
     @account.save!
 
     # give all teachers in the account canvalytics permissions for now
-    RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', override: true)
+    RoleOverride.manage_role_override(@account, teacher_role, "view_analytics", override: true)
   end
 
   context "permissions" do
@@ -42,13 +42,13 @@ describe CoursesController, type: :controller do
 
     def expect_injection(opts = {})
       course = opts[:course] || @course
-      get 'show', params: { id: course.id }
+      get "show", params: { id: course.id }
       expect(controller.course_custom_links.pluck(:url)).to include "/courses/#{course.id}/analytics"
     end
 
     def forbid_injection(opts = {})
       course = opts[:course] || @course
-      get 'show', params: { id: course.id }
+      get "show", params: { id: course.id }
       expect(controller.course_custom_links.pluck(:url)).not_to include "/courses/#{course.id}/analytics"
     end
 
@@ -62,13 +62,13 @@ describe CoursesController, type: :controller do
     end
 
     it "does not inject an analytics button with analytics disabled" do
-      @account.allowed_services = '-analytics'
+      @account.allowed_services = "-analytics"
       @account.save!
       forbid_injection
     end
 
     it "does not inject an analytics button on an unpublished course" do
-      @course.workflow_state = 'created'
+      @course.workflow_state = "created"
       @course.save!
       forbid_injection
     end
@@ -89,18 +89,18 @@ describe CoursesController, type: :controller do
     end
 
     it "does not inject an analytics button without the analytics permission" do
-      RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', override: false)
+      RoleOverride.manage_role_override(@account, teacher_role, "view_analytics", override: false)
       forbid_injection
     end
 
     it "does not inject an analytics button without the read_as_admin permission" do
-      RoleOverride.manage_role_override(@account, student_role, 'view_analytics', override: true)
+      RoleOverride.manage_role_override(@account, student_role, "view_analytics", override: true)
       user_session(@student)
       forbid_injection
     end
 
     it "does not inject an analytics button without active/completed enrollments in the course" do
-      @enrollment.workflow_state = 'invited'
+      @enrollment.workflow_state = "invited"
       @enrollment.save!
       forbid_injection
     end

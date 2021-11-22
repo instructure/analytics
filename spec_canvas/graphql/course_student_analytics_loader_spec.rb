@@ -21,7 +21,7 @@
 describe Loaders::CourseStudentAnalyticsLoader do
   before do
     @account = Account.default
-    @account.allowed_services = '+analytics'
+    @account.allowed_services = "+analytics"
     @account.save!
   end
 

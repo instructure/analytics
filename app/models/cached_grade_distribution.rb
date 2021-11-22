@@ -58,7 +58,7 @@ class CachedGradeDistribution < ActiveRecord::Base
               scores.workflow_state <> 'deleted'")
                                        .select("COUNT(DISTINCT enrollments.user_id) AS user_count, ROUND(scores.current_score) AS score")
                                        .where(workflow_state: [:active, :completed], type: "StudentEnrollment")
-                                       .group('score')
+                                       .group("score")
                                        .to_sql
 
         self.class.connection.select_rows(grade_distribution_sql)

@@ -48,10 +48,10 @@ shared_examples_for "analytics tests" do
   end
 
   def page_view(opts = {})
-    Setting.set('enable_page_views', 'db')
+    Setting.set("enable_page_views", "db")
     course = opts[:course] || @course
     user = opts[:user] || @student || User.create!
-    controller = opts[:controller] || 'assignments'
+    controller = opts[:controller] || "assignments"
     summarized = opts[:summarized] || nil
 
     page_view = PageView.new(
@@ -67,7 +67,7 @@ shared_examples_for "analytics tests" do
     if opts[:participated]
       page_view.participated = true
       access = page_view.build_asset_user_access
-      access.display_name = 'Some Asset'
+      access.display_name = "Some Asset"
     end
 
     page_view.store
@@ -75,13 +75,13 @@ shared_examples_for "analytics tests" do
   end
 
   def enable_teacher_permissions
-    RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', override: true)
-    Rails.cache.delete(['context_permissions', @course, @teacher].cache_key)
+    RoleOverride.manage_role_override(@account, teacher_role, "view_analytics", override: true)
+    Rails.cache.delete(["context_permissions", @course, @teacher].cache_key)
   end
 
   def disable_teacher_permissions
-    RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', override: false)
-    Rails.cache.delete(['context_permissions', @course, @teacher].cache_key)
+    RoleOverride.manage_role_override(@account, teacher_role, "view_analytics", override: false)
+    Rails.cache.delete(["context_permissions", @course, @teacher].cache_key)
   end
 
   def add_students_to_course(number_to_add)
@@ -122,22 +122,22 @@ shared_examples_for "analytics tests" do
 
   def validate_tooltip_text(css_selector, text)
     driver.execute_script("$('#{css_selector}').mouseover()")
-    tooltip = find('.analytics-tooltip')
+    tooltip = find(".analytics-tooltip")
     expect(tooltip).to include_text(text)
     tooltip
   end
 
   def setup_variety_assignments(add_no_due_date = true)
     @missed_assignment = @course.assignments.create!(title: "missed assignment", due_at: 5.days.ago,
-                                                     points_possible: 10, submission_types: 'online_url')
-    @no_due_date_assignment = @course.assignments.create!(title: 'no due date assignment', due_at: nil,
-                                                          points_possible: 20, submission_types: 'online_url') if add_no_due_date
-    @late_assignment = @course.assignments.create!(title: 'late assignment', due_at: 1.day.ago,
-                                                   points_possible: 20, submission_types: 'online_url')
-    @late_assignment.submit_homework(@student, submission_type: 'online_url')
-    @on_time_assignment = @course.assignments.create!(title: 'on time submission', due_at: 2.days.from_now,
-                                                      points_possible: 10, submission_types: 'online_url')
-    @on_time_assignment.submit_homework(@student, submission_type: 'online_url')
+                                                     points_possible: 10, submission_types: "online_url")
+    @no_due_date_assignment = @course.assignments.create!(title: "no due date assignment", due_at: nil,
+                                                          points_possible: 20, submission_types: "online_url") if add_no_due_date
+    @late_assignment = @course.assignments.create!(title: "late assignment", due_at: 1.day.ago,
+                                                   points_possible: 20, submission_types: "online_url")
+    @late_assignment.submit_homework(@student, submission_type: "online_url")
+    @on_time_assignment = @course.assignments.create!(title: "on time submission", due_at: 2.days.from_now,
+                                                      points_possible: 10, submission_types: "online_url")
+    @on_time_assignment.submit_homework(@student, submission_type: "online_url")
   end
 
   def current_student_score
@@ -150,22 +150,22 @@ shared_examples_for "analytics tests" do
   end
 
   def validate_element_fill(element, fill_hex_color)
-    expect(element.attribute('fill')).to eq fill_hex_color
+    expect(element.attribute("fill")).to eq fill_hex_color
   end
 
   def validate_element_stroke(element, stroke_hex_color)
-    expect(element.attribute('stroke')).to eq stroke_hex_color
+    expect(element.attribute("stroke")).to eq stroke_hex_color
   end
 
   def format_date(date)
     date.strftime("%Y-%m-%d")
   end
 
-  def date_selector(date, graph_selector = '#participating-graph')
+  def date_selector(date, graph_selector = "#participating-graph")
     "#{graph_selector} .#{format_date(date)}"
   end
 
-  def get_rectangle(date, graph_selector = '#participating-graph')
+  def get_rectangle(date, graph_selector = "#participating-graph")
     driver.execute_script("return $('#{date_selector(date, graph_selector)}').prev()[0]")
   end
 
@@ -174,16 +174,16 @@ shared_examples_for "analytics tests" do
   end
 
   def student_roster
-    ff('.roster .StudentEnrollment')
+    ff(".roster .StudentEnrollment")
   end
 
   def right_nav_buttons
-    ff('#right_nav a')
+    ff("#right_nav a")
   end
 
   def analytics_nav_button
     right_nav_buttons.detect do |button|
-      button.text.strip.include? 'Analytics'
+      button.text.strip.include? "Analytics"
     end
   end
 
@@ -209,7 +209,7 @@ shared_examples_for "analytics tests" do
   end
 
   def validate_student_display(student_name)
-    expect(find('.student_summary')).to include_text(student_name)
+    expect(find(".student_summary")).to include_text(student_name)
   end
 
   def create_past_due(number_assignments, number_graded, student = @student)
@@ -248,14 +248,14 @@ shared_examples_for "analytics tests" do
     it "validates participating graph with a single page view" do
       page_view(user: @student, course: @course)
       go_to_analytics(analytics_url)
-      validate_tooltip_text(date_selector(Time.now), '1 page view')
+      validate_tooltip_text(date_selector(Time.now), "1 page view")
     end
 
     it "validates participating graph with multiple page views" do
       page_view_count = 10
       page_view_count.times { page_view(user: @student, course: @course) }
       go_to_analytics(analytics_url)
-      validate_tooltip_text(date_selector(Time.now), page_view_count.to_s + ' page views')
+      validate_tooltip_text(date_selector(Time.now), page_view_count.to_s + " page views")
     end
 
     it "validates participating graph with multiple page views on multiple days" do
@@ -267,14 +267,14 @@ shared_examples_for "analytics tests" do
         page_view(user: @student, course: @course, created_at: old_page_views_date)
       }
       go_to_analytics(analytics_url)
-      dates.each { |date| validate_tooltip_text(date_selector(date), number_of_page_views.to_s + ' page views') }
+      dates.each { |date| validate_tooltip_text(date_selector(date), number_of_page_views.to_s + " page views") }
     end
 
     it "validates the graph color when a student took action on that day" do
       page_view(user: @student, course: @course, participated: true)
       go_to_analytics(analytics_url)
       validate_element_fill(get_rectangle(Time.now), GraphColors::DARK_BLUE)
-      validate_tooltip_text(date_selector(Time.now), '1 participation')
+      validate_tooltip_text(date_selector(Time.now), "1 participation")
     end
 
     it "validates the participation and non participation display" do
