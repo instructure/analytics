@@ -74,7 +74,7 @@ class Analytics::AssignmentRollup
     # explicitly give the :type here, because student_enrollments scope also
     # includes StudentViewEnrollment which we want to exclude
     enrollments_scope = course.enrollments.where(workflow_state: %w[active completed],
-                                                 type: 'StudentEnrollment').except(:preload)
+                                                 type: "StudentEnrollment").except(:preload)
     init(assignment, enrollments_scope)
   end
 

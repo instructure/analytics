@@ -34,7 +34,7 @@ module Analytics::Extensions::PageView
   def store
     self.summarized = true
     result = super
-    if context_id && context_type == 'Course'
+    if context_id && context_type == "Course"
       PageViewsRollup.increment!(context_id, created_at, category, participated && asset_user_access)
     end
     result
@@ -46,7 +46,7 @@ module Analytics::Extensions::PageView
   module EventStreamExtension
     def initialize(&block)
       super(&block)
-      if table == 'page_views'
+      if table == "page_views"
         on_insert do |page_view|
           Analytics::PageViewIndex::EventStream.update(page_view, true)
         end

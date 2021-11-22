@@ -34,9 +34,9 @@ module Analytics
         submissions = submissions(assignments).group_by(&:assignment_id)
         assignment_ids = assignments.map(&:id)
         course_module_tags = @course.context_module_tags.where(
-          content_type: 'Assignment',
+          content_type: "Assignment",
           content_id: assignment_ids,
-          tag_type: 'context_module'
+          tag_type: "context_module"
         ).select([:content_id, :context_module_id]).reorder(:context_module_id).distinct
         course_module_tags_hash = {}
         course_module_tags.each do |t|

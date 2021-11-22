@@ -53,7 +53,7 @@ module Analytics
           @course.sections_visible_to(@current_user).minimum(:start_at),
           @course.start_at,
           @course.enrollment_term.start_at,
-          @course.enrollment_term.enrollment_dates_overrides.where(enrollment_type: 'StudentEnrollment').minimum(:start_at),
+          @course.enrollment_term.enrollment_dates_overrides.where(enrollment_type: "StudentEnrollment").minimum(:start_at),
         ].compact.min ||
           @course.sections_visible_to(@current_user).minimum(:created_at) ||
           @course.created_at ||
@@ -71,7 +71,7 @@ module Analytics
           @course.sections_visible_to(@current_user).maximum(:end_at),
           @course.conclude_at,
           @course.enrollment_term.end_at,
-          @course.enrollment_term.enrollment_dates_overrides.where(enrollment_type: 'StudentEnrollment').maximum(:end_at),
+          @course.enrollment_term.enrollment_dates_overrides.where(enrollment_type: "StudentEnrollment").maximum(:end_at),
         ].compact.max || Time.zone.now
       end
     end
@@ -167,7 +167,7 @@ module Analytics
 
     def enrollment_scope
       @enrollment_scope ||= @course.apply_enrollment_visibility(@course.all_student_enrollments, @current_user)
-                                   .where(enrollments: { workflow_state: ['active', 'completed'] })
+                                   .where(enrollments: { workflow_state: ["active", "completed"] })
     end
 
     def submissions(assignments, student_ids = self.student_ids)

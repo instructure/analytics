@@ -161,7 +161,7 @@ module Analytics
 
     def enrollment_scope
       @enrollment_scope ||= @course.apply_enrollment_visibility(@course.all_student_enrollments, @current_user)
-                                   .where(workflow_state: ['active', 'completed'], user_id: @student)
+                                   .where(workflow_state: ["active", "completed"], user_id: @student)
     end
 
     def submissions(assignments)
@@ -181,8 +181,8 @@ module Analytics
       # TODO: sharding
       @student_conversation_ids ||= ConversationParticipant
                                     .joins(:conversation)
-                                    .where(Conversation.wildcard('conversations.tags', "course_#{@course.id}",
-                                                                 delimiter: ','))
+                                    .where(Conversation.wildcard("conversations.tags", "course_#{@course.id}",
+                                                                 delimiter: ","))
                                     .where(user_id: @student)
                                     .select(:conversation_id)
                                     .distinct

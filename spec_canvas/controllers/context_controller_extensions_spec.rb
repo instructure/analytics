@@ -23,11 +23,11 @@
 describe ContextController, type: :controller do
   before :once do
     @account = Account.default
-    @account.allowed_services = '+analytics'
+    @account.allowed_services = "+analytics"
     @account.save!
 
     # give all teachers in the account canvalytics permissions for now
-    RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', override: true)
+    RoleOverride.manage_role_override(@account, teacher_role, "view_analytics", override: true)
   end
 
   context "permissions" do
@@ -35,9 +35,9 @@ describe ContextController, type: :controller do
       @student1 = user_factory(active_all: true)
       course_with_teacher(active_all: true)
       @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, sis_source_id: 'my-section-sis-id',
-                                                                            name: 'section2')
-      @enrollment = @course.enroll_user(@student1, 'StudentEnrollment', section: @section)
+      @section = factory_with_protected_attributes(@course.course_sections, sis_source_id: "my-section-sis-id",
+                                                                            name: "section2")
+      @enrollment = @course.enroll_user(@student1, "StudentEnrollment", section: @section)
       @enrollment.accept!
     end
 
@@ -47,13 +47,13 @@ describe ContextController, type: :controller do
 
     def expect_injection(course, student)
       expected_link = "/courses/#{course.id}/analytics/users/#{student.id}"
-      get 'roster_user', params: { course_id: course.id, id: student.id }
+      get "roster_user", params: { course_id: course.id, id: student.id }
       expect(controller.roster_user_custom_links(student).pluck(:url)).to include expected_link
     end
 
     def forbid_injection(course, student)
       analytics_link = "/courses/#{course.id}/analytics/users/#{student.id}"
-      get 'roster_user', params: { course_id: course.id, id: student.id }
+      get "roster_user", params: { course_id: course.id, id: student.id }
       expect(controller.roster_user_custom_links(student).pluck(:url)).not_to include analytics_link
     end
 
@@ -83,7 +83,7 @@ describe ContextController, type: :controller do
 
     context "analytics disabled" do
       before :once do
-        @account.allowed_services = '-analytics'
+        @account.allowed_services = "-analytics"
         @account.save!
       end
 
@@ -94,7 +94,7 @@ describe ContextController, type: :controller do
 
     context "unpublished course" do
       before :once do
-        @course.workflow_state = 'created'
+        @course.workflow_state = "created"
         @course.save!
       end
 
@@ -121,7 +121,7 @@ describe ContextController, type: :controller do
 
     context "no analytics permission" do
       before :once do
-        RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', override: false)
+        RoleOverride.manage_role_override(@account, teacher_role, "view_analytics", override: false)
       end
 
       it "does not inject an analytics button on the roster_user page" do
@@ -131,7 +131,7 @@ describe ContextController, type: :controller do
 
     context "no manage_grades or view_all_grades permission" do
       before :once do
-        RoleOverride.manage_role_override(@account, student_role, 'view_analytics', override: true)
+        RoleOverride.manage_role_override(@account, student_role, "view_analytics", override: true)
         @student2 = student_in_course(active_all: true).user
       end
 
@@ -148,7 +148,7 @@ describe ContextController, type: :controller do
 
     context "invited-only enrollments" do
       before :once do
-        @enrollment.workflow_state = 'invited'
+        @enrollment.workflow_state = "invited"
         @enrollment.save!
       end
 
@@ -163,12 +163,12 @@ describe ContextController, type: :controller do
         @ta = user_factory(active_all: true)
         @enrollment = @course.enroll_ta(@ta)
         @enrollment.course = @course # set the reverse association
-        @enrollment.workflow_state = 'active'
+        @enrollment.workflow_state = "active"
         @enrollment.limit_privileges_to_course_section = true
         @enrollment.course_section = @default_section
         @enrollment.save!
 
-        RoleOverride.manage_role_override(@account, ta_role, 'view_analytics', override: true)
+        RoleOverride.manage_role_override(@account, ta_role, "view_analytics", override: true)
       end
 
       before do

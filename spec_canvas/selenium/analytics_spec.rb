@@ -18,8 +18,8 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require 'selenium/common'
-require_relative 'analytics_common'
+require "selenium/common"
+require_relative "analytics_common"
 
 describe "analytics" do
   let(:analytics_icon_css) { ".roster .icon-analytics" }
@@ -39,7 +39,7 @@ describe "analytics" do
         get "/courses/#{@course.id}/users"
         expect_new_page_load do
           student_roster[0].find_element(:css, ".al-trigger").click
-          f('.al-options .ui-menu-item .icon-analytics').find_element(:xpath, '..').click
+          f(".al-options .ui-menu-item .icon-analytics").find_element(:xpath, "..").click
         end
         validate_student_display(@student.name)
       end
@@ -136,18 +136,18 @@ describe "analytics" do
       randomly_grade_assignments(5)
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
-      expect(find('.student_summary')).to include_text(current_student_score)
+      expect(find(".student_summary")).to include_text(current_student_score)
     end
 
-    context 'participation view' do
+    context "participation view" do
       let(:analytics_url) { "/courses/#{@course.id}/analytics/users/#{@student.id}" }
 
       include_examples "participation graph specs"
     end
 
     it "validates responsiveness graph" do
-      single_message = '1 message'
-      multiple_message = '3 messages'
+      single_message = "1 message"
+      multiple_message = "3 messages"
       users_css = ["#responsiveness-graph .student", "#responsiveness-graph .instructor"]
 
       def add_message(conversation, number_to_add)
@@ -202,7 +202,7 @@ describe "analytics" do
       randomly_grade_assignments(10)
       first_assignment = @course.active_assignments.first
       first_submission_score = first_assignment.submissions.first.score.to_i.to_s
-      validation_text = ['Score: ' + first_submission_score + ' / 100', first_assignment.title]
+      validation_text = ["Score: " + first_submission_score + " / 100", first_assignment.title]
       setup_for_grades_graph
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
       validation_text.each { |text|
@@ -211,7 +211,7 @@ describe "analytics" do
     end
 
     it "validates a non-graded assignment on graph" do
-      @course.assignments.create!(title: 'new assignment', points_possible: 10)
+      @course.assignments.create!(title: "new assignment", points_possible: 10)
       first_assignment = @course.active_assignments.first
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
@@ -221,11 +221,11 @@ describe "analytics" do
     end
 
     it "shows assignments on submissions graph" do
-      assmt = @course.assignments.create!(title: 'new assignment', points_possible: 10,
-                                          submission_types: 'online_url')
+      assmt = @course.assignments.create!(title: "new assignment", points_possible: 10,
+                                          submission_types: "online_url")
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
-      expect(f('#assignment-finishing-graph')).to contain_css(".assignment_#{assmt.id}.cover")
+      expect(f("#assignment-finishing-graph")).to contain_css(".assignment_#{assmt.id}.cover")
     end
 
     it "does not show an excused assignment on submissions graph" do
@@ -235,20 +235,20 @@ describe "analytics" do
         teacher = User.create!
         @course.enroll_teacher(teacher)
       end
-      assmt = @course.assignments.create!(title: 'new assignment', points_possible: 10,
-                                          submission_types: 'online_url')
+      assmt = @course.assignments.create!(title: "new assignment", points_possible: 10,
+                                          submission_types: "online_url")
       assmt.grade_student(@student, excuse: true, grader: teacher)
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
-      expect(f('#assignment-finishing-graph')).to_not contain_css(".assignment_#{assmt.id}.cover")
+      expect(f("#assignment-finishing-graph")).to_not contain_css(".assignment_#{assmt.id}.cover")
     end
 
     describe "student combo box" do
       def validate_combobox_presence(is_present = true)
         if is_present
-          expect(find('.ui-combobox')).to be_displayed
+          expect(find(".ui-combobox")).to be_displayed
         else
-          expect(f('body')).not_to contain_css('.ui-combobox')
+          expect(f("body")).not_to contain_css(".ui-combobox")
         end
       end
 
@@ -271,7 +271,7 @@ describe "analytics" do
         end
 
         def validate_combobox_name(student_name)
-          select = Selenium::WebDriver::Support::Select.new(find('.students_box select'))
+          select = Selenium::WebDriver::Support::Select.new(find(".students_box select"))
           wait = Selenium::WebDriver::Wait.new(timeout: 5)
           wait.until do
             expect(select.first_selected_option).to include_text(student_name)
@@ -281,7 +281,7 @@ describe "analytics" do
         def validate_first_students_grade_graph
           first_assignment = @graded_assignments.first
           first_submission_score = first_assignment.submissions.find_by(user: @student).score.to_i.to_s
-          validation_text = ['Score: ' + first_submission_score + ' / 100', first_assignment.title]
+          validation_text = ["Score: " + first_submission_score + " / 100", first_assignment.title]
           validation_text.each { |text|
             validate_tooltip_text("#grades-graph .assignment_#{first_assignment.id}.cover", text)
           }
@@ -290,8 +290,8 @@ describe "analytics" do
         added_students = add_students_to_course(1)
         @graded_assignments = randomly_grade_assignments(5)
         go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
-        next_button = find('.ui-combobox-next')
-        prev_button = find('.ui-combobox-prev')
+        next_button = find(".ui-combobox-next")
+        prev_button = find(".ui-combobox-prev")
 
         # check that first student in course is selected
         expect(driver.current_url).to include(@student.id.to_s)

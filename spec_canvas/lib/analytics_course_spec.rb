@@ -18,15 +18,15 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative '../cassandra_spec_helper'
+require_relative "../cassandra_spec_helper"
 
 describe Analytics::Course do
   before do
     # set @course, @teacher, @teacher_enrollment
     course_factory(active_course: true)
-    @teacher_enrollment = course_with_teacher(course: @course, name: 'Teacher', active_all: true)
+    @teacher_enrollment = course_with_teacher(course: @course, name: "Teacher", active_all: true)
     @teacher_analytics = Analytics::Course.new(@teacher, @course)
-    Setting.set('enable_page_views', 'db')
+    Setting.set("enable_page_views", "db")
   end
 
   describe "extended_assignment_data" do
@@ -79,7 +79,7 @@ describe Analytics::Course do
       active_student
 
       add_section("Section")
-      @ta_enrollment = course_with_ta(course: @course, name: 'TA', active_all: true)
+      @ta_enrollment = course_with_ta(course: @course, name: "TA", active_all: true)
       @ta_enrollment.course_section = @course_section
       @ta_enrollment.save!
 
@@ -158,13 +158,13 @@ describe Analytics::Course do
       end
     end
 
-    describe '#page_views_by_student' do
-      it 'delegates to the PageView' do
+    describe "#page_views_by_student" do
+      it "delegates to the PageView" do
         allow(PageView).to receive_messages(counters_by_context_for_users: { 1 => 2 })
         expect(@teacher_analytics.page_views_by_student).to eq({ 1 => 2 })
       end
 
-      it 'passes the course and students array to the page view' do
+      it "passes the course and students array to the page view" do
         expect(PageView).to receive(:counters_by_context_for_users).with(@course,
                                                                          @teacher_analytics.students).and_return(nil)
         @teacher_analytics.page_views_by_student
@@ -199,7 +199,7 @@ describe Analytics::Course do
         @sectionA = @course_section
         add_section("Section B")
         @sectionB = @course_section
-        @ta_enrollment = course_with_ta(course: @course, name: 'Section B TA', active_all: true)
+        @ta_enrollment = course_with_ta(course: @course, name: "Section B TA", active_all: true)
         @ta_enrollment.course_section = @sectionB
         @ta_enrollment.limit_privileges_to_course_section = true
         @ta_enrollment.save!
@@ -241,7 +241,7 @@ describe Analytics::Course do
         @sectionA = @course_section
         add_section("Section B")
         @sectionB = @course_section
-        @ta_enrollment = course_with_ta(course: @course, name: 'Section B TA', active_all: true)
+        @ta_enrollment = course_with_ta(course: @course, name: "Section B TA", active_all: true)
         @ta_enrollment.course_section = @sectionB
         @ta_enrollment.limit_privileges_to_course_section = true
         @ta_enrollment.save!
@@ -283,7 +283,7 @@ describe Analytics::Course do
         @sectionA = @course_section
         add_section("Section B")
         @sectionB = @course_section
-        @ta_enrollment = course_with_ta(course: @course, name: 'Section B TA', active_all: true)
+        @ta_enrollment = course_with_ta(course: @course, name: "Section B TA", active_all: true)
         @ta_enrollment.course_section = @sectionB
         @ta_enrollment.limit_privileges_to_course_section = true
         @ta_enrollment.save!
@@ -362,7 +362,7 @@ describe Analytics::Course do
       @second_enrollment = @course.enroll_student(@student, section: @course_section,
                                                             allow_multiple_enrollments: true)
       @second_enrollment.course = @course
-      @second_enrollment.workflow_state = 'active'
+      @second_enrollment.workflow_state = "active"
       @second_enrollment.save!
       @course.reload
 
@@ -430,7 +430,7 @@ describe Analytics::Course do
     describe "Validations" do
       it "does not include submissions with workflow_state deleted" do
         active_student
-        @assignment.submissions.find_or_create_by!(user: @student).update! workflow_state: 'deleted'
+        @assignment.submissions.find_or_create_by!(user: @student).update! workflow_state: "deleted"
         expect(Analytics::Course.submission_scope_for([@assignment])).to be_empty
       end
     end
@@ -440,8 +440,8 @@ describe Analytics::Course do
     it "includes only course_score, not assignment group scores" do
       active_student
 
-      ag = @course.assignment_groups.create! name: '1'
-      assign = @course.assignments.create! title: '1', assignment_group: ag, points_possible: 100
+      ag = @course.assignment_groups.create! name: "1"
+      assign = @course.assignments.create! title: "1", assignment_group: ag, points_possible: 100
       @submission = assign.submissions.find_or_create_by!(user: @student)
       submit_submission
       grade_submission
@@ -455,7 +455,7 @@ describe Analytics::Course do
     shared_examples_for "#student_summaries" do
       describe "a student's summary" do
         before do
-          active_student(name: 'Student1')
+          active_student(name: "Student1")
         end
 
         it "counts page_views for that student" do
@@ -524,7 +524,7 @@ describe Analytics::Course do
 
   describe ":tardiness_breakdown" do
     before do
-      active_student(name: 'Student1')
+      active_student(name: "Student1")
       @teacher = User.create!
       @course.enroll_teacher(@teacher)
     end
@@ -536,7 +536,7 @@ describe Analytics::Course do
 
     it "has appropriate data per student" do
       @student1 = @student
-      active_student(name: 'Student2')
+      active_student(name: "Student2")
       @student2 = @student
 
       @assignment = @course.assignments.active.create!(due_at: 1.day.ago, submission_types: "online",
@@ -594,7 +594,7 @@ describe Analytics::Course do
 
         context "when the assignment does not expect a submission" do
           before do
-            @assignment.submission_types = 'none'
+            @assignment.submission_types = "none"
             @assignment.save!
           end
 
@@ -617,7 +617,7 @@ describe Analytics::Course do
 
         context "when the assignment expects an online submission" do
           before do
-            @assignment.submission_types = 'online_text_entry'
+            @assignment.submission_types = "online_text_entry"
             @assignment.save!
           end
 
@@ -704,7 +704,7 @@ describe Analytics::Course do
     # sets @student and @student_enrollment
     @student_enrollment = course_with_student(
       course: course,
-      name: opts[:name] || 'Student',
+      name: opts[:name] || "Student",
       active_user: true
     )
 
@@ -725,28 +725,28 @@ describe Analytics::Course do
   end
 
   def active_student(opts = {})
-    student({ name: 'Active Student', enrollment_state: 'active' }.merge(opts))
+    student({ name: "Active Student", enrollment_state: "active" }.merge(opts))
   end
 
   def completed_student(opts = {})
-    student({ name: 'Completed Student', enrollment_state: 'completed' }.merge(opts))
+    student({ name: "Completed Student", enrollment_state: "completed" }.merge(opts))
   end
 
   def invited_student(opts = {})
-    student({ name: 'Invited Student', enrollment_state: 'invited' }.merge(opts))
+    student({ name: "Invited Student", enrollment_state: "invited" }.merge(opts))
   end
 
   def grade_submission
-    @submission.grade = 'A'
+    @submission.grade = "A"
     @submission.grader = @teacher
-    @submission.score = '1'
+    @submission.score = "1"
     @submission.grade_matches_current_submission = true
     @submission.save!
   end
 
   def submit_submission(opts = {})
     submission = opts[:submission] || @submission
-    submission.submission_type = 'online_text_entry'
+    submission.submission_type = "online_text_entry"
     submission.submitted_at = opts[:submitted_at] if opts[:submitted_at]
     submission.save!
   end

@@ -21,30 +21,30 @@
 # This file is part of the analytics engine
 
 require "apis/api_spec_helper"
-require_relative '../../cassandra_spec_helper'
+require_relative "../../cassandra_spec_helper"
 
 describe "Analytics API", type: :request do
   before do
     @account = Account.default
-    @account.allowed_services = '+analytics'
+    @account.allowed_services = "+analytics"
     @account.save!
 
     # give all teachers in the account canvalytics permissions for now
-    RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', override: true)
+    RoleOverride.manage_role_override(@account, teacher_role, "view_analytics", override: true)
   end
 
   def analytics_api_call(action, course, student, opts = {})
     action, suffix = {
-      participation: ['student_in_course_participation', "/activity"],
-      assignments: ['student_in_course_assignments', "/assignments"],
-      messaging: ['student_in_course_messaging', "/communication"],
+      participation: ["student_in_course_participation", "/activity"],
+      assignments: ["student_in_course_assignments", "/assignments"],
+      messaging: ["student_in_course_messaging", "/communication"],
     }[action]
     user = opts.delete(:user)
     args = [:get,
             "/api/v1/courses/#{course.id}/analytics/users/#{student.id}" + suffix,
-            { controller: 'analytics_api',
+            { controller: "analytics_api",
               action: action,
-              format: 'json',
+              format: "json",
               course_id: course.id.to_s,
               student_id: student.id.to_s },
             {}, {}, opts]
@@ -61,9 +61,9 @@ describe "Analytics API", type: :request do
       @student1 = user_factory(active_all: true)
       course_with_teacher(active_all: true)
       @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, sis_source_id: 'my-section-sis-id',
-                                                                            name: 'section2')
-      @course.enroll_user(@student1, 'StudentEnrollment', section: @section).accept!
+      @section = factory_with_protected_attributes(@course.course_sections, sis_source_id: "my-section-sis-id",
+                                                                            name: "section2")
+      @course.enroll_user(@student1, "StudentEnrollment", section: @section).accept!
     end
 
     # each of these is nominal aside from the condition in the description
@@ -74,7 +74,7 @@ describe "Analytics API", type: :request do
     end
 
     it "404s with analytics disabled" do
-      @account.allowed_services = '-analytics'
+      @account.allowed_services = "-analytics"
       @account.save!
 
       analytics_api_call(:participation, @course, @student1, expected_status: 404)
@@ -92,7 +92,7 @@ describe "Analytics API", type: :request do
     end
 
     it "401s with out analytics permission" do
-      RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', override: false)
+      RoleOverride.manage_role_override(@account, teacher_role, "view_analytics", override: false)
 
       analytics_api_call(:participation, @course, @student1, expected_status: 401)
       analytics_api_call(:assignments, @course, @student1, expected_status: 401)
@@ -104,12 +104,12 @@ describe "Analytics API", type: :request do
       @ta = user_factory(active_all: true)
       @enrollment = @course.enroll_ta(@ta)
       @enrollment.course = @course # set the reverse association
-      @enrollment.workflow_state = 'active'
+      @enrollment.workflow_state = "active"
       @enrollment.limit_privileges_to_course_section = true
       @enrollment.course_section = @default_section
       @enrollment.save!
 
-      RoleOverride.manage_role_override(@account, ta_role, 'view_analytics', override: true)
+      RoleOverride.manage_role_override(@account, ta_role, "view_analytics", override: true)
 
       analytics_api_call(:participation, @course, @student1, expected_status: 404)
       analytics_api_call(:assignments, @course, @student1, expected_status: 404)
@@ -131,17 +131,17 @@ describe "Analytics API", type: :request do
       @student1 = user_factory(active_all: true)
       course_with_teacher(active_all: true)
       @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, sis_source_id: 'my-section-sis-id',
-                                                                            name: 'section2')
-      @course.enroll_user(@student1, 'StudentEnrollment', section: @section).accept!
+      @section = factory_with_protected_attributes(@course.course_sections, sis_source_id: "my-section-sis-id",
+                                                                            name: "section2")
+      @course.enroll_user(@student1, "StudentEnrollment", section: @section).accept!
 
-      quiz = quiz_klass.create!(title: 'quiz1', context: @course, points_possible: 10)
+      quiz = quiz_klass.create!(title: "quiz1", context: @course, points_possible: 10)
       quiz.did_edit!
       quiz.offer!
       @a1 = quiz.assignment
       sub = @a1.find_or_create_submission(@student1)
-      sub.submission_type = 'online_quiz'
-      sub.workflow_state = 'submitted'
+      sub.submission_type = "online_quiz"
+      sub.workflow_state = "submitted"
       sub.score = 9
       sub.save!
       @submitted_at = sub.submitted_at
@@ -183,7 +183,7 @@ describe "Analytics API", type: :request do
 
   context "course with multiple assignments and multiple students with scores" do
     before do
-      skip 'OREO-435 (10/14/2020)'
+      skip "OREO-435 (10/14/2020)"
 
       # num_students = 5
       # num_assignments = 5
@@ -253,7 +253,7 @@ describe "Analytics API", type: :request do
       # the false negative, but a more robust solution should eventually be developed.
       @assignments[2].submissions.reject { |s| s.user == @students[1] }[0].destroy
       # Allow user to see analytics page
-      RoleOverride.manage_role_override(@account, student_role, 'view_analytics', override: true)
+      RoleOverride.manage_role_override(@account, student_role, "view_analytics", override: true)
       # Log in as the user for this API call
       json = analytics_api_call(:assignments, @course, @students[1], user: @students[1])
       expect(response_assignment(json, @assignments[2])["submission"]["score"]).to eq 27
@@ -265,7 +265,7 @@ describe "Analytics API", type: :request do
       @course.settings = { hide_distribution_graphs: true }
       @course.save!
       # Allow user to see analytics page
-      RoleOverride.manage_role_override(@account, student_role, 'view_analytics', override: true)
+      RoleOverride.manage_role_override(@account, student_role, "view_analytics", override: true)
       # Log in as the user for this API call
       json = analytics_api_call(:assignments, @course, @students[1], user: @students[1])
       expect(response_assignment(json, @assignments[2])["submission"]["score"]).to eq 27
@@ -327,12 +327,12 @@ describe "Analytics API", type: :request do
       @user = @teacher
 
       # don't let the teacher see grades
-      RoleOverride.manage_role_override(Account.default, teacher_role, 'manage_grades', override: false)
-      RoleOverride.manage_role_override(Account.default, teacher_role, 'view_all_grades', override: false)
+      RoleOverride.manage_role_override(Account.default, teacher_role, "manage_grades", override: false)
+      RoleOverride.manage_role_override(Account.default, teacher_role, "view_all_grades", override: false)
 
       # should fail
       raw_api_call(:get, "/api/v1/courses/#{@course.id}/analytics/student_summaries",
-                   controller: 'analytics_api', action: 'course_student_summaries', format: 'json',
+                   controller: "analytics_api", action: "course_student_summaries", format: "json",
                    course_id: @course.id.to_s)
       expect(response.status.to_i).to eq 401 # Unauthorized
     end
@@ -348,9 +348,9 @@ describe "Analytics API", type: :request do
     let(:url) { "/api/v1/courses/#{@course.id}/analytics/assignments" }
     let(:course_assignments_route) do
       {
-        controller: 'analytics_api',
-        action: 'course_assignments',
-        format: 'json',
+        controller: "analytics_api",
+        action: "course_assignments",
+        format: "json",
         course_id: @course.id.to_s
       }
     end
@@ -366,7 +366,7 @@ describe "Analytics API", type: :request do
       json = api_call(:get, url, course_assignments_route)
       expect(response.status.to_i).to eq 200
       expect(json.size).to eq 1
-      expect(json.first.keys).to include('assignment_id')
+      expect(json.first.keys).to include("assignment_id")
     end
 
     context "with async" do
@@ -374,8 +374,8 @@ describe "Analytics API", type: :request do
         enable_cache do
           json = api_call(:get, url, course_assignments_route, async: 1.to_s)
           expect(response.status.to_i).to eq 200
-          expect(json.keys).to include('progress_url')
-          expect(json['progress_url']).to match(%r{http://www.example.com/api/v1/progress/\d+})
+          expect(json.keys).to include("progress_url")
+          expect(json["progress_url"]).to match(%r{http://www.example.com/api/v1/progress/\d+})
         end
       end
 
@@ -401,7 +401,7 @@ describe "Analytics API", type: :request do
       assignment.grade_student(@student, grade: 1, grader: @teacher)
 
       json = analytics_api_call(:assignments, @course, @student, user: @teacher)
-      expect(json.first['submission']['score']).to eq 1
+      expect(json.first["submission"]["score"]).to eq 1
     end
 
     context "cassandra" do
@@ -412,7 +412,7 @@ describe "Analytics API", type: :request do
         bucket = Analytics::PageViewIndex::EventStream.bucket_for_time(pv.created_at)
         expected = Time.zone.at(bucket).iso8601
         json = analytics_api_call(:participation, @course, @student, user: @teacher)
-        expect(json['page_views'].keys).to eq [expected]
+        expect(json["page_views"].keys).to eq [expected]
       end
     end
 
@@ -420,9 +420,9 @@ describe "Analytics API", type: :request do
       it "has date string page_views keys" do
         pv = page_view(user: @student, course: @course)
         pv.save!
-        expected = pv.created_at.to_date.strftime('%Y-%m-%d')
+        expected = pv.created_at.to_date.strftime("%Y-%m-%d")
         json = analytics_api_call(:participation, @course, @student, user: @teacher)
-        expect(json['page_views'].keys).to eq [expected]
+        expect(json["page_views"].keys).to eq [expected]
       end
     end
   end

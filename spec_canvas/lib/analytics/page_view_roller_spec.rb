@@ -47,7 +47,7 @@ module Analytics
       if opts[:participated]
         page_view.participated = true
         access = page_view.build_asset_user_access unless opts[:exclude_asset_user_access]
-        access.display_name = 'Some Asset'
+        access.display_name = "Some Asset"
         needs_save = true
       end
 
@@ -92,7 +92,7 @@ module Analytics
         date1 = Date.today - 1.day
         date2 = Date.today - 2.days
         build_page_view(created_at: date2)
-        [date1, date2].each { |date| PageViewsRollup.bin_for(@course, date, 'other').save }
+        [date1, date2].each { |date| PageViewsRollup.bin_for(@course, date, "other").save }
         expect(PageViewRoller.end_day).to eq date2
       end
 
@@ -106,14 +106,14 @@ module Analytics
         date1 = Date.today - 1.day
         date2 = Date.today - 2.days
         build_page_view(created_at: date2)
-        [date1, date2].each { |date| PageViewsRollup.bin_for(@course, date, 'other').save }
+        [date1, date2].each { |date| PageViewsRollup.bin_for(@course, date, "other").save }
         expect(PageViewRoller.end_day(start_day: date1)).to eq date1
       end
     end
 
     describe "#rollup_one" do
       def mockbin(course, date, category, new_record = true)
-        mockbin = double('fake bin')
+        mockbin = double("fake bin")
         expect(PageViewsRollup).to receive(:bin_for).with(course, date, category).once.and_return(mockbin)
         allow(mockbin).to receive(:new_record?).and_return(new_record)
         allow(mockbin).to receive(:save!)
@@ -125,7 +125,7 @@ module Analytics
         date = Date.today
         build_page_view(created_at: date)
         build_page_view(created_at: date)
-        mockbin(@course.id, date, 'other') do |bin|
+        mockbin(@course.id, date, "other") do |bin|
           expect(bin).to receive(:augment).with(2, 0).once
           expect(bin).to receive(:save!).once
         end
@@ -146,25 +146,25 @@ module Analytics
         build_page_view(context: first_course, created_at: date)
         build_page_view(context: first_course, created_at: date)
         build_page_view(context: second_course, created_at: date)
-        expect(mockbin(first_course.id, date, 'other')).to receive(:augment).with(2, 0).once
-        expect(mockbin(second_course.id, date, 'other')).to receive(:augment).with(1, 0).once
+        expect(mockbin(first_course.id, date, "other")).to receive(:augment).with(2, 0).once
+        expect(mockbin(second_course.id, date, "other")).to receive(:augment).with(1, 0).once
         PageViewRoller.rollup_one(date)
       end
 
       it "bins by category" do
         date = Date.today
-        build_page_view(controller: 'gradebooks', created_at: date)
-        build_page_view(controller: 'discussion_topics', created_at: date)
-        build_page_view(controller: 'discussion_topics', created_at: date)
-        expect(mockbin(@course.id, date, 'grades')).to receive(:augment).with(1, 0).once
-        expect(mockbin(@course.id, date, 'discussions')).to receive(:augment).with(2, 0).once
+        build_page_view(controller: "gradebooks", created_at: date)
+        build_page_view(controller: "discussion_topics", created_at: date)
+        build_page_view(controller: "discussion_topics", created_at: date)
+        expect(mockbin(@course.id, date, "grades")).to receive(:augment).with(1, 0).once
+        expect(mockbin(@course.id, date, "discussions")).to receive(:augment).with(2, 0).once
         PageViewRoller.rollup_one(date)
       end
 
       it "skips existing bins" do
         date = Date.today
         build_page_view(created_at: date)
-        mockbin(@course.id, date, 'other', false) do |bin|
+        mockbin(@course.id, date, "other", false) do |bin|
           expect(bin).not_to receive(:augment)
           expect(bin).not_to receive(:save!)
         end
@@ -174,7 +174,7 @@ module Analytics
       it "recognizes participations" do
         date = Date.today
         build_page_view(participated: true, created_at: date)
-        expect(mockbin(@course.id, date, 'other')).to receive(:augment).with(1, 1).once
+        expect(mockbin(@course.id, date, "other")).to receive(:augment).with(1, 1).once
         PageViewRoller.rollup_one(date)
       end
     end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'graphql/graphql_spec_helper'
+require "graphql/graphql_spec_helper"
 
 describe Types::UserType do
   let_once(:user) { student_in_course(active_all: true).user }
@@ -36,7 +36,7 @@ describe Types::UserType do
 
     it "is nil for teachers without permission" do
       RoleOverride.manage_role_override(
-        Account.default, teacher_role, 'view_analytics',
+        Account.default, teacher_role, "view_analytics",
         override: false
       )
       expect(

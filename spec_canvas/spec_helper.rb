@@ -21,7 +21,7 @@
 def page_view(opts = {})
   course = opts[:course] || @course
   user = opts[:user] || @student
-  controller = opts[:assignments] || 'assignments'
+  controller = opts[:assignments] || "assignments"
 
   page_view = PageView.new(
     context: course,
@@ -35,8 +35,8 @@ def page_view(opts = {})
     page_view.participated = true
     access = AssetUserAccess.new
     access.context = page_view.context
-    access.display_name = 'Some Asset'
-    access.action_level = 'participate'
+    access.display_name = "Some Asset"
+    access.action_level = "participate"
     access.participate_score = 1
     access.user = page_view.user
     access.save!

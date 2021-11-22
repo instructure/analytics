@@ -20,7 +20,7 @@
 
 module Analytics
   class Engine < ::Rails::Engine
-    config.paths['lib'].eager_load!
+    config.paths["lib"].eager_load!
 
     Autoextend.hook(:AccountServices, after_load: true) do
       AccountServices.register_service :analytics,
@@ -51,7 +51,7 @@ module Analytics
     Autoextend.hook(:Permissions, after_load: true) do
       ::Permissions.register :view_analytics,
                              label: lambda {
-                                      I18n.t('#role_override.permissions.view_analytics', "Analytics - view pages")
+                                      I18n.t("#role_override.permissions.view_analytics", "Analytics - view pages")
                                     },
                              available_to: %w[AccountAdmin TaEnrollment TeacherEnrollment StudentEnrollment
                                               AccountMembership],

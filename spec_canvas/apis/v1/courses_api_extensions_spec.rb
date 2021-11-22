@@ -25,11 +25,11 @@ require "apis/api_spec_helper"
 describe "Courses API Extensions", type: :request do
   before do
     @account = Account.default
-    @account.allowed_services = '+analytics'
+    @account.allowed_services = "+analytics"
     @account.save!
 
     # give all teachers in the account canvalytics permissions for now
-    RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', override: true)
+    RoleOverride.manage_role_override(@account, teacher_role, "view_analytics", override: true)
   end
 
   context "permissions" do
@@ -37,9 +37,9 @@ describe "Courses API Extensions", type: :request do
       @student1 = user_factory(active_all: true)
       course_with_teacher(active_all: true)
       @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, sis_source_id: 'my-section-sis-id',
-                                                                            name: 'section2')
-      @enrollment = @course.enroll_user(@student1, 'StudentEnrollment', section: @section)
+      @section = factory_with_protected_attributes(@course.course_sections, sis_source_id: "my-section-sis-id",
+                                                                            name: "section2")
+      @enrollment = @course.enroll_user(@student1, "StudentEnrollment", section: @section)
       @enrollment.accept!
       @user = @teacher
     end
@@ -49,18 +49,18 @@ describe "Courses API Extensions", type: :request do
                       controller: "courses",
                       action: "users",
                       course_id: course.id.to_s,
-                      include: ['enrollments'],
+                      include: ["enrollments"],
                       format: "json")
 
       # each student's json should have the expected analytics url or lack thereof
       seen_students = []
       json.each do |student_json|
-        student = students.detect { |s| s.id == student_json['id'] }
+        student = students.detect { |s| s.id == student_json["id"] }
         if student
-          expect(student_json['analytics_url']).to eq "/courses/#{course.id}/analytics/users/#{student.id}"
+          expect(student_json["analytics_url"]).to eq "/courses/#{course.id}/analytics/users/#{student.id}"
           seen_students << student
         else
-          expect(student_json).not_to have_key('analytics_url')
+          expect(student_json).not_to have_key("analytics_url")
         end
       end
 
@@ -73,14 +73,14 @@ describe "Courses API Extensions", type: :request do
                       controller: "courses",
                       action: "users",
                       course_id: course.id.to_param,
-                      include: ['enrollments'],
+                      include: ["enrollments"],
                       format: "json")
 
       # for the students we're interested in, make sure they don't have an url
       json.each do |student_json|
-        student = students.detect { |s| s.id == student_json['id'] }
+        student = students.detect { |s| s.id == student_json["id"] }
         if student
-          expect(student_json['analytics_url']).to be_falsey
+          expect(student_json["analytics_url"]).to be_falsey
         end
       end
     end
@@ -98,7 +98,7 @@ describe "Courses API Extensions", type: :request do
 
     context "analytics disabled" do
       before do
-        @account.allowed_services = '-analytics'
+        @account.allowed_services = "-analytics"
         @account.save!
       end
 
@@ -109,7 +109,7 @@ describe "Courses API Extensions", type: :request do
 
     context "unpublished course" do
       before do
-        @course.workflow_state = 'created'
+        @course.workflow_state = "created"
         @course.save!
       end
 
@@ -120,7 +120,7 @@ describe "Courses API Extensions", type: :request do
 
     context "no analytics permission" do
       before do
-        RoleOverride.manage_role_override(@account, teacher_role, 'view_analytics', override: false)
+        RoleOverride.manage_role_override(@account, teacher_role, "view_analytics", override: false)
       end
 
       it "does not inject analytics buttons on the roster page" do
@@ -130,7 +130,7 @@ describe "Courses API Extensions", type: :request do
 
     context "no manage_grades or view_all_grades permission" do
       before do
-        RoleOverride.manage_role_override(@account, student_role, 'view_analytics', override: true)
+        RoleOverride.manage_role_override(@account, student_role, "view_analytics", override: true)
         @student2 = student_in_course(active_all: true).user
       end
 
@@ -145,7 +145,7 @@ describe "Courses API Extensions", type: :request do
 
     context "invited-only enrollments" do
       before do
-        @enrollment.workflow_state = 'invited'
+        @enrollment.workflow_state = "invited"
         @enrollment.save!
       end
 
@@ -160,13 +160,13 @@ describe "Courses API Extensions", type: :request do
         @ta = user_factory(active_all: true)
         @enrollment = @course.enroll_ta(@ta)
         @enrollment.course = @course # set the reverse association
-        @enrollment.workflow_state = 'active'
+        @enrollment.workflow_state = "active"
         @enrollment.limit_privileges_to_course_section = true
         @enrollment.course_section = @default_section
         @enrollment.save!
         @user = @ta
 
-        RoleOverride.manage_role_override(@account, ta_role, 'view_analytics', override: true)
+        RoleOverride.manage_role_override(@account, ta_role, "view_analytics", override: true)
       end
 
       it "does not inject analytics buttons on the roster page" do
@@ -187,7 +187,7 @@ describe "Courses API Extensions", type: :request do
                    controller: "courses",
                    action: "users",
                    course_id: @course.id.to_s,
-                   include: ['enrollments', 'analytics_url'],
+                   include: ["enrollments", "analytics_url"],
                    format: "json")
 
       # one each for first/last/next
