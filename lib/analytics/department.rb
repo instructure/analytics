@@ -237,11 +237,9 @@ module Analytics
       select = []
       select << 'MIN(courses.created_at) AS created_at' unless start_at
       select << 'MAX(courses.conclude_at) AS conclude_at' unless end_at
-      unless select.empty?
-        if (dates = secondaried { ActiveRecord::Base.connection.select_all(courses.select(select)).to_a.first })
-          start_at ||= parse_utc_time(dates['created_at'])
-          end_at ||= parse_utc_time(dates['conclude_at'])
-        end
+      if !select.empty? && (dates = secondaried { ActiveRecord::Base.connection.select_all(courses.select(select)).to_a.first })
+        start_at ||= parse_utc_time(dates['created_at'])
+        end_at ||= parse_utc_time(dates['conclude_at'])
       end
 
       # unless otherwise specified, end at current date. never go past current
