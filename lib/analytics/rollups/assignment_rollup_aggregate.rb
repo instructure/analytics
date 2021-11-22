@@ -24,7 +24,7 @@ module Analytics::Rollups
       @rollups = rollups
     end
 
-    STABLE_ATTRS = [:assignment_id, :title, :due_at, :muted, :points_possible, :non_digital_submission].freeze
+    STABLE_ATTRS = %i[assignment_id title due_at muted points_possible non_digital_submission].freeze
 
     def data
       return nil if @rollups.blank?

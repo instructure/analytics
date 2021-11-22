@@ -16,7 +16,7 @@ class PageViewsRollups < ActiveRecord::Migration[4.2]
       t.integer  :views,          :default => 0, :null => false
       t.integer  :participations, :default => 0, :null => false
     end
-    add_index :page_views_rollups, [:course_id, :date, :category]
+    add_index :page_views_rollups, %i[course_id date category]
     add_index :page_views_rollups, [:course_id]
 
     add_foreign_key :page_views_rollups, :courses, :column => :course_id

@@ -119,11 +119,11 @@ module Analytics
         end
       end
 
-      KNOWN_STRATEGIES = [
-        :name, :name_ascending, :name_descending,
-        :score, :score_ascending, :score_descending,
-        :participations, :participations_ascending, :participations_descending,
-        :page_views, :page_views_ascending, :page_views_descending
+      KNOWN_STRATEGIES = %i[
+        name name_ascending name_descending
+        score score_ascending score_descending
+        participations participations_ascending participations_descending
+        page_views page_views_ascending page_views_descending
       ].freeze
       DEFAULT_STRATEGY = :name
 
