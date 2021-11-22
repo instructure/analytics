@@ -34,12 +34,11 @@ describe "Analytics API", :type => :request do
   end
 
   def analytics_api_call(action, course, student, opts = {})
-    action, suffix =
-      case action
-      when :participation then ['student_in_course_participation', "/activity"]
-      when :assignments then ['student_in_course_assignments', "/assignments"]
-      when :messaging then ['student_in_course_messaging', "/communication"]
-      end
+    action, suffix = {
+      participation: ['student_in_course_participation', "/activity"],
+      assignments: ['student_in_course_assignments', "/assignments"],
+      messaging: ['student_in_course_messaging', "/communication"],
+    }[action]
     user = opts.delete(:user)
     args = [:get,
             "/api/v1/courses/#{course.id}/analytics/users/#{student.id}" + suffix,
