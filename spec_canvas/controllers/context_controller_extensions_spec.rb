@@ -48,13 +48,13 @@ describe ContextController, :type => :controller do
     def expect_injection(course, student)
       expected_link = "/courses/#{course.id}/analytics/users/#{student.id}"
       get 'roster_user', params: { :course_id => course.id, :id => student.id }
-      expect(controller.roster_user_custom_links(student).pluck(:url)).to include expected_link
+      expect(controller.roster_user_custom_links(student).map { |link| link[:url] }).to include expected_link
     end
 
     def forbid_injection(course, student)
       analytics_link = "/courses/#{course.id}/analytics/users/#{student.id}"
       get 'roster_user', params: { :course_id => course.id, :id => student.id }
-      expect(controller.roster_user_custom_links(student).pluck(:url)).not_to include analytics_link
+      expect(controller.roster_user_custom_links(student).map { |link| link[:url] }).not_to include analytics_link
     end
 
     context "nominal conditions" do

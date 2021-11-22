@@ -24,7 +24,7 @@ module Analytics::Rollups
       @rollups = rollups
     end
 
-    STABLE_ATTRS = [:assignment_id, :title, :due_at, :muted, :points_possible, :non_digital_submission].freeze
+    STABLE_ATTRS = [:assignment_id, :title, :due_at, :muted, :points_possible, :non_digital_submission]
 
     def data
       return nil if @rollups.blank?
@@ -38,8 +38,8 @@ module Analytics::Rollups
       if @rollups.first.points_possible
         buckets = ScoreBuckets.parse(@rollups.first.points_possible, composite_bucket_list)
         {
-          :max_score => @rollups.filter_map(&:max_score).max,
-          :min_score => @rollups.filter_map(&:min_score).min,
+          :max_score => @rollups.map(&:max_score).compact.max,
+          :min_score => @rollups.map(&:min_score).compact.min,
           :first_quartile => buckets.first_quartile,
           :median => buckets.median,
           :third_quartile => buckets.third_quartile,
@@ -50,14 +50,14 @@ module Analytics::Rollups
     end
 
     def composite_bucket_list
-      @rollups.filter_map(&:score_buckets).transpose.map(&:sum)
+      @rollups.map { |r| r.score_buckets }.compact.transpose.map(&:sum)
     end
 
     def tardiness_summary
-      total = @rollups.sum(&:total_submissions)
-      missing = @rollups.sum(&:unscaled_missing_submissions)
-      late = @rollups.sum(&:unscaled_late_submissions)
-      on_time = @rollups.sum(&:unscaled_on_time_submissions)
+      total = @rollups.map(&:total_submissions).sum
+      missing = @rollups.map(&:unscaled_missing_submissions).sum
+      late = @rollups.map(&:unscaled_late_submissions).sum
+      on_time = @rollups.map(&:unscaled_on_time_submissions).sum
       if total > 0
         Analytics::TardinessBreakdown.new(missing, late, on_time).as_hash_scaled(total).merge(:total => total)
       else

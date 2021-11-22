@@ -43,7 +43,7 @@ describe "analytics account view" do
     create_users_in_course(concluded_course, 10)
     concluded_course.complete
     go_to_analytics("/accounts/#{account_id}/analytics")
-    data_points = %w[Courses Students]
+    data_points = %w(Courses Students)
     validate_data_point(data_points[0], '1')
     validate_data_point(data_points[1], '0')
     find('.ui-combobox-next').click
@@ -63,14 +63,14 @@ describe "analytics account view" do
 
     it "validates activity by date graph with action taken" do
       page_view(:user => @student, :course => @course, :participated => true)
-      expected_text = %w[1 page view 1 participation]
+      expected_text = %w(1 page view 1 participation)
       go_to_analytics("/accounts/#{account_id}/analytics")
       expected_text.each { |text| validate_tooltip_text(date_selector(Time.now, '#participating-date-graph'), text) }
       validate_element_fill(get_rectangle(Time.now, '#participating-date-graph'), GraphColors::DARK_BLUE)
     end
 
     it "validates activity by category graph" do
-      controllers = %w[files gradebook2 groups assignments]
+      controllers = %w(files gradebook2 groups assignments)
       controllers.each { |controller| page_view(:user => @student, :course => @course, :controller => controller) }
       go_to_analytics("/accounts/#{account_id}/analytics")
       controllers.each { |controller|
@@ -109,7 +109,7 @@ describe "analytics account view" do
     end
 
     it "validates data points" do
-      %w[Courses Teachers Students Assignments Topics Attachments Media].each do |data_point|
+      %w(Courses Teachers Students Assignments Topics Attachments Media).each do |data_point|
         validate_data_point(data_point)
       end
     end

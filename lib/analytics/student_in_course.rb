@@ -51,7 +51,7 @@ module Analytics
     end
 
     def start_date
-      # TODO: the javascript will break if this comes back nil, so we need a
+      # TODO the javascript will break if this comes back nil, so we need a
       # sensible default. using "now" for the time being, but there's gotta be
       # something better
       secondaried(:cache_as => :start_date) do
@@ -60,7 +60,7 @@ module Analytics
     end
 
     def end_date
-      # TODO: ditto. "now" makes more sense this time, but it could also make
+      # TODO ditto. "now" makes more sense this time, but it could also make
       # sense to go past "now" if the course has assignments due in the future,
       # for instance.
       secondaried(:cache_as => :end_date) do
@@ -96,18 +96,16 @@ module Analytics
       secondaried(:cache_as => :messages) do
         messages = {}
         unless shared_conversation_ids.empty?
-          # TODO: sharding
+          # TODO sharding
           ConversationMessage
             .where(:conversation_id => shared_conversation_ids)
             .where(:author_id => [@student, *instructors])
             .select("DATE(created_at) AS day, author_id=#{@student.id} AS student, COUNT(*) AS ct")
             .group("DATE(created_at), author_id").each do |row|
             day = row.day
-            type = if Canvas::Plugin.value_to_boolean(row.student)
-                     :studentMessages
-                   else
-                     :instructorMessages
-                   end
+            type = Canvas::Plugin.value_to_boolean(row.student) ?
+              :studentMessages :
+              :instructorMessages
             count = row.ct.to_i
 
             messages[day] ||= {}

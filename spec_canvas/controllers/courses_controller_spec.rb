@@ -43,13 +43,13 @@ describe CoursesController, :type => :controller do
     def expect_injection(opts = {})
       course = opts[:course] || @course
       get 'show', params: { :id => course.id }
-      expect(controller.course_custom_links.pluck(:url)).to include "/courses/#{course.id}/analytics"
+      expect(controller.course_custom_links.map { |link| link[:url] }).to include "/courses/#{course.id}/analytics"
     end
 
     def forbid_injection(opts = {})
       course = opts[:course] || @course
       get 'show', params: { :id => course.id }
-      expect(controller.course_custom_links.pluck(:url)).not_to include "/courses/#{course.id}/analytics"
+      expect(controller.course_custom_links.map { |link| link[:url] }).not_to include "/courses/#{course.id}/analytics"
     end
 
     it "injects an analytics button under nominal conditions" do

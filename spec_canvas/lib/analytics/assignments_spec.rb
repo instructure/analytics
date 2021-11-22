@@ -42,25 +42,21 @@ module Analytics
       shared_examples_for "basic assignment data" do
         describe '#points_possible' do
           subject { super().points_possible }
-
           it { is_expected.to eq assignment.points_possible }
         end
 
         describe '#unlock_at' do
           subject { super().unlock_at }
-
           it { is_expected.to eq assignment.unlock_at }
         end
 
         describe '#assignment_id' do
           subject { super().assignment_id }
-
           it { is_expected.to eq assignment.id }
         end
 
         describe '#title' do
           subject { super().title }
-
           it { is_expected.to eq assignment.title }
         end
       end
@@ -77,37 +73,31 @@ module Analytics
 
         describe '#max_score' do
           subject { super().max_score }
-
           it { is_expected.to eq 5 }
         end
 
         describe '#min_score' do
           subject { super().min_score }
-
           it { is_expected.to eq 1 }
         end
 
         describe '#muted' do
           subject { super().muted }
-
           it { is_expected.to be_falsey }
         end
 
         describe '#first_quartile' do
           subject { super().first_quartile }
-
           it { is_expected.to eq 1.5 }
         end
 
         describe '#median' do
           subject { super().median }
-
           it { is_expected.to eq 3 }
         end
 
         describe '#third_quartile' do
           subject { super().third_quartile }
-
           it { is_expected.to eq 4.5 }
         end
 

@@ -195,7 +195,7 @@ module Analytics::PageViewRoller
     ActiveRecord::Base.logger
   end
 
-  def self.secondaried(&block)
-    GuardRail.activate(:secondary, &block)
+  def self.secondaried
+    GuardRail.activate(:secondary) { yield }
   end
 end

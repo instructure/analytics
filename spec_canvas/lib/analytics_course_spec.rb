@@ -61,7 +61,6 @@ describe Analytics::Course do
           expect(data[:multiple_due_dates]).to be_truthy
         end
       end
-
       describe "when viewed by a student" do
         it "multiple_due_dates flag is false" do
           assignment.reload
@@ -195,10 +194,8 @@ describe Analytics::Course do
     context "when the user is section limited" do
       before do
         # set @sectionA, @sectionB, @ta, @ta_enrollment
-        add_section("Section A")
-        @sectionA = @course_section
-        add_section("Section B")
-        @sectionB = @course_section
+        add_section("Section A"); @sectionA = @course_section
+        add_section("Section B"); @sectionB = @course_section
         @ta_enrollment = course_with_ta(:course => @course, :name => 'Section B TA', :active_all => true)
         @ta_enrollment.course_section = @sectionB
         @ta_enrollment.limit_privileges_to_course_section = true
@@ -237,10 +234,8 @@ describe Analytics::Course do
     context "when the user is section limited" do
       before do
         # set @sectionA, @sectionB, @ta, @ta_enrollment
-        add_section("Section A")
-        @sectionA = @course_section
-        add_section("Section B")
-        @sectionB = @course_section
+        add_section("Section A"); @sectionA = @course_section
+        add_section("Section B"); @sectionB = @course_section
         @ta_enrollment = course_with_ta(:course => @course, :name => 'Section B TA', :active_all => true)
         @ta_enrollment.course_section = @sectionB
         @ta_enrollment.limit_privileges_to_course_section = true
@@ -279,10 +274,8 @@ describe Analytics::Course do
     context "when the user is section limited" do
       before do
         # set @sectionA, @sectionB, @ta, @ta_enrollment
-        add_section("Section A")
-        @sectionA = @course_section
-        add_section("Section B")
-        @sectionB = @course_section
+        add_section("Section A"); @sectionA = @course_section
+        add_section("Section B"); @sectionB = @course_section
         @ta_enrollment = course_with_ta(:course => @course, :name => 'Section B TA', :active_all => true)
         @ta_enrollment.course_section = @sectionB
         @ta_enrollment.limit_privileges_to_course_section = true
@@ -305,10 +298,7 @@ describe Analytics::Course do
   describe "#start_date" do
     it "is the earliest effective_start_at of any of Analytics::Course#enrollments" do
       dates = [1.day.ago, 5.days.ago, 3.days.ago]
-      dates.each { |d|
-        e = active_student
-        e.update_attribute(:start_at, d)
-      }
+      dates.each { |d| e = active_student; e.update_attribute(:start_at, d) }
 
       expect(@teacher_analytics.start_date).to eq dates.min
     end
@@ -324,10 +314,7 @@ describe Analytics::Course do
   describe "#end_date" do
     it "is the latest effective_end_at of any of Analytics::Course#enrollments" do
       dates = [1.day.from_now, 5.days.from_now, 3.days.from_now]
-      dates.each { |d|
-        e = active_student
-        e.update_attribute(:end_at, d)
-      }
+      dates.each { |d| e = active_student; e.update_attribute(:end_at, d) }
 
       expect(@teacher_analytics.end_date).to eq dates.max
     end
@@ -351,7 +338,7 @@ describe Analytics::Course do
         student_ids << @student.id
       end
 
-      expect(@teacher_analytics.students.map(&:id).sort).to eq student_ids.sort
+      expect(@teacher_analytics.students.map { |s| s.id }.sort).to eq student_ids.sort
     end
 
     it "includes each student only once" do
@@ -368,7 +355,7 @@ describe Analytics::Course do
 
       # should see both enrollments, but the student only once
       expect(@teacher_analytics.enrollments.size).to eq 2
-      expect(@teacher_analytics.students.map(&:id)).to eq [@student.id]
+      expect(@teacher_analytics.students.map { |s| s.id }).to eq [@student.id]
     end
 
     context "sharding" do
@@ -378,7 +365,7 @@ describe Analytics::Course do
         active_student
 
         @shard1.activate do
-          expect(@teacher_analytics.students.map(&:id)).to eq [@student.id]
+          expect(@teacher_analytics.students.map { |s| s.id }).to eq [@student.id]
 
           @other_student = User.create!
           @course.enroll_student(@other_student).accept!
@@ -768,7 +755,7 @@ describe Analytics::Course do
     breakdown = @teacher_analytics.assignments.first[:tardiness_breakdown]
     expected = expected_breakdown(bin)
 
-    if opts.key? :total
+    if opts.has_key? :total
       expected[:total] = opts[:total]
     end
 

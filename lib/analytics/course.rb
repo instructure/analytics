@@ -44,7 +44,7 @@ module Analytics
     end
 
     def start_date
-      # TODO: the javascript will break if this comes back nil, so we need a
+      # TODO the javascript will break if this comes back nil, so we need a
       # sensible default. using "now" for the time being, but there's gotta be
       # something better
       secondaried(:cache_as => :start_date) do
@@ -62,7 +62,7 @@ module Analytics
     end
 
     def end_date
-      # TODO: ditto. "now" makes more sense this time, but it could also make
+      # TODO ditto. "now" makes more sense this time, but it could also make
       # sense to go past "now" if the course has assignments due in the future,
       # for instance.
       secondaried(:cache_as => :end_date) do
@@ -129,11 +129,9 @@ module Analytics
       # wrap up the students for pagination, and then tell it how to sort them
       # and format them
       collection = Analytics::StudentCollection.new(
-        if student_ids
-          student_scope.where(users: { id: student_ids })
-        else
+        student_ids ?
+          student_scope.where(users: { id: student_ids }) :
           student_scope
-        end
       )
       collection.sort_by(sort_column, :page_view_counts => page_view_counts)
 
@@ -190,12 +188,12 @@ module Analytics
         subselect = enrollment_scope.select([:id, :user_id]).to_sql
         User.shard(@course.shard)
             .select("DISTINCT (users.id), users.*, scores.current_score as computed_current_score")
-            .joins(@course.send(:sanitize_sql, [<<~SQL.squish, true]))
-              INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id = users.id
-              LEFT JOIN #{Score.quoted_table_name} scores ON
-                scores.enrollment_id = enrollments.id AND
-                scores.course_score = ? AND
-                scores.workflow_state <> 'deleted'
+            .joins(@course.send(:sanitize_sql, [<<-SQL, true]))
+            INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id = users.id
+            LEFT JOIN #{Score.quoted_table_name} scores ON
+              scores.enrollment_id = enrollments.id AND
+              scores.course_score = ? AND
+              scores.workflow_state <> 'deleted'
             SQL
       end
     end
@@ -215,8 +213,8 @@ module Analytics
         @tardiness_breakdowns ||= secondaried(:cache_as => cache_array) do
           # initialize breakdown tallies
           breakdowns = {
-            assignments: raw_assignments.map(&:id).index_with { TardinessBreakdown.new },
-            students: student_ids.index_with { TardinessBreakdown.new }
+            assignments: Hash[raw_assignments.map { |a| [a.id, TardinessBreakdown.new] }],
+            students: Hash[student_ids.map { |s_id| [s_id, TardinessBreakdown.new] }]
           }
 
           # load submissions and index them by (assignment, student) tuple

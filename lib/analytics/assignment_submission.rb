@@ -75,7 +75,7 @@ module Analytics
       status == :on_time
     end
 
-    # NOTE: We *think* "floating" means "future" or "not submitted yet" -- Venk
+    # Note: We *think* "floating" means "future" or "not submitted yet" -- Venk
     def floating?
       status == :floating
     end
@@ -89,7 +89,7 @@ module Analytics
     end
 
     def graded?
-      @submission&.graded?
+      @submission && @submission.graded?
     end
 
     def graded_at
@@ -97,7 +97,7 @@ module Analytics
     end
 
     def submitted_at
-      @submission&.submitted_at
+      @submission.submitted_at if @submission
     end
 
     def non_digital_submission?

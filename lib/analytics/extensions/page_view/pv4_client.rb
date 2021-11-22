@@ -31,7 +31,7 @@ module Analytics::Extensions::PageView::Pv4Client
   def counters_by_context_and_hour(context, user)
     json = user_in_course_participations(context, user)
 
-    json['page_views'].map { |(k, v)| [Time.zone.parse(k), v] }.to_h
+    Hash[json['page_views'].map { |(k, v)| [Time.zone.parse(k), v] }]
   end
 
   # Takes a context (right now, only a Course is valid), and a list of User
@@ -42,13 +42,13 @@ module Analytics::Extensions::PageView::Pv4Client
                               "Authorization" => "Bearer #{@access_token}")
 
     json = JSON.parse(response.body)
-    json['users'].filter_map do |entry|
+    Hash[json['users'].map do |entry|
       user_id = Shard.relative_id_for(entry['user_id'], Shard.default, context.shard)
       next unless user_ids.include?(user_id)
 
       [user_id,
        { page_views: entry['page_views'], participations: entry['participations'] }]
-    end.to_h
+    end.compact]
   end
 
   private

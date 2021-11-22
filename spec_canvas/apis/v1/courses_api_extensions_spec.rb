@@ -60,7 +60,7 @@ describe "Courses API Extensions", :type => :request do
           expect(student_json['analytics_url']).to eq "/courses/#{course.id}/analytics/users/#{student.id}"
           seen_students << student
         else
-          expect(student_json).not_to have_key('analytics_url')
+          expect(student_json.has_key?('analytics_url')).to be_falsey
         end
       end
 

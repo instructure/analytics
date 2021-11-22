@@ -94,7 +94,7 @@ module Analytics
 
           paged_ids = @sorted_ids[offset, pager.per_page]
           student_map = scope.where(:id => paged_ids).index_by(&:id)
-          pager.replace(paged_ids.filter_map { |id| student_map[id] })
+          pager.replace paged_ids.map { |id| student_map[id] }.compact
         end
 
         def set_pages(pager)
@@ -124,7 +124,7 @@ module Analytics
         :score, :score_ascending, :score_descending,
         :participations, :participations_ascending, :participations_descending,
         :page_views, :page_views_ascending, :page_views_descending
-      ].freeze
+      ]
       DEFAULT_STRATEGY = :name
 
       def self.for(strategy, options = {})

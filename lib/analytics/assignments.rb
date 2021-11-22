@@ -23,15 +23,21 @@ module Analytics
     # required of host: submissions(assignments)
 
     SUBMISSION_COLUMNS_SELECT = [:id, :assignment_id, :score, :user_id, :submission_type,
-                                 :submitted_at, :grade, :graded_at, :grader_id, :updated_at, :workflow_state, :cached_due_date, :excused,
-                                 :late_policy_status, :cached_quiz_lti, :posted_at, :seconds_late_override].freeze
+                                 :submitted_at, :grade, :graded_at, :updated_at, :workflow_state, :cached_due_date, :excused,
+                                 :late_policy_status, :cached_quiz_lti, :posted_at]
+
+    [:accepted_at, :seconds_late_override].each do |column|
+      # this is temporary and will be cleaned up once the commit lands in canvas
+      # which adds seconds_late_override and removes accepted_at
+      SUBMISSION_COLUMNS_SELECT << column if Submission.column_names.include?(column.to_s)
+    end
 
     def assignments
       cache_array = [:assignments, allow_student_details?]
       cache_array << @current_user if differentiated_assignments_applies?
       secondaried(:cache_as => cache_array) do
         assignments = assignment_scope.to_a
-        submissions = submissions(assignments).group_by(&:assignment_id)
+        submissions = submissions(assignments).group_by { |s| s.assignment_id }
         assignment_ids = assignments.map(&:id)
         course_module_tags = @course.context_module_tags.where(
           content_type: 'Assignment',
@@ -54,7 +60,7 @@ module Analytics
       assignments = assignment_scope.to_a
 
       @course.shard.activate do
-        assignments.filter_map do |assignment|
+        assignments.map do |assignment|
           # cache at this level, so that we cache for all sections and then
           # pick out the relevant sections from the cache below
           rollups = secondaried(:cache_as => [:assignment_rollups, assignment]) do
@@ -62,7 +68,7 @@ module Analytics
           end
           rollups = rollups.values_at(*section_ids).compact.reject { |r| r.total_submissions.zero? }
           Rollups::AssignmentRollupAggregate.new(rollups).data
-        end
+        end.compact
       end
     end
 

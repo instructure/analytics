@@ -116,7 +116,7 @@ describe PageView do
       page_view(:user => @user, :context => @course)
       parts = PageView.participations_for_context(@course, @user)
       expect(parts.size).to eq 2
-      expect(parts).to all(have_key(:created_at))
+      parts.each { |p| expect(p.key?(:created_at)).to be_truthy }
     end
 
     it "updates when participating on a group context" do

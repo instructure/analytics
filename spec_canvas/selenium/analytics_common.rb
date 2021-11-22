@@ -114,7 +114,7 @@ shared_examples_for "analytics tests" do
       assignment = @course.active_assignments.create!(:title => "new assignment #{i}", :points_possible => 100,
                                                       :due_at => Time.now.utc, :submission_types => "online")
       assignment.submit_homework(student)
-      assignment.grade_student(student, grade: rand(1..100), grader: teacher)
+      assignment.grade_student(student, grade: rand(100) + 1, grader: teacher)
       graded_assignments.push(assignment)
     end
     graded_assignments
@@ -201,10 +201,10 @@ shared_examples_for "analytics tests" do
   def validate_analytics_icons_exist(exist = true)
     get "/courses/#{@course.id}/users"
     wait_for_ajaximations
-    if exist
-      expect(ff(analytics_icon_css).count).to eq student_roster.count
-    else
+    if !exist
       expect(f("#content")).not_to contain_css(analytics_icon_css)
+    else
+      expect(ff(analytics_icon_css).count).to eq student_roster.count
     end
   end
 
