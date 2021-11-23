@@ -73,9 +73,9 @@ describe "analytics account view" do
       controllers = %w[files gradebook2 groups assignments]
       controllers.each { |controller| page_view(user: @student, course: @course, controller: controller) }
       go_to_analytics("/accounts/#{account_id}/analytics")
-      controllers.each { |controller|
+      controllers.each do |controller|
         validate_tooltip_text("#participating-category-graph .#{controller}", "1 page view")
-      }
+      end
     end
 
     it "validates grade distribution graph" do

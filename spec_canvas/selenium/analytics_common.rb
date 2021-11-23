@@ -265,9 +265,9 @@ shared_examples_for "analytics tests" do
       dates = [old_page_views_date, Time.now]
       number_of_page_views = 5
       number_of_page_views.times { page_view(user: @student, course: @course) }
-      number_of_page_views.times {
+      number_of_page_views.times do
         page_view(user: @student, course: @course, created_at: old_page_views_date)
-      }
+      end
       go_to_analytics(analytics_url)
       dates.each { |date| validate_tooltip_text(date_selector(date), number_of_page_views.to_s + " page views") }
     end

@@ -76,9 +76,9 @@ describe "analytics course view" do
       # validate first bar tooltip info
       validation_text = [@missed_assignment.title, "Due: " + TextHelper.date_string(@missed_assignment.due_at),
                          "Missing: 100%"]
-      validation_text.each { |text|
+      validation_text.each do |text|
         validate_tooltip_text("#{finishing_graph_css} .assignment_#{@missed_assignment.id}.cover", text)
-      }
+      end
     end
 
     it "validates grades graph" do
@@ -86,9 +86,9 @@ describe "analytics course view" do
       validation_text = ["High: " + @first_submission_score.to_i.to_s, @first_assignment.title]
       go_to_analytics("/courses/#{@course.id}/analytics")
 
-      validation_text.each { |text|
+      validation_text.each do |text|
         validate_tooltip_text("#grades-graph .assignment_#{@first_assignment.id}.cover", text)
-      }
+      end
     end
 
     describe "graph toggle switch" do

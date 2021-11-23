@@ -6,10 +6,10 @@ describe Types::UserType do
   let_once(:user) { student_in_course(active_all: true).user }
   let(:student_type) { GraphQLTypeTester.new(user, current_user: @teacher) }
 
-  before {
+  before do
     Account.default.enable_service(:analytics)
     Account.default.save!
-  }
+  end
 
   context "summaryAnalytics" do
     it "works" do
