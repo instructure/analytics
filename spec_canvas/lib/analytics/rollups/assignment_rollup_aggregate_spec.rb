@@ -23,7 +23,7 @@ require_dependency "analytics/rollups/assignment_rollup_aggregate"
 module Analytics
   module Rollups
     describe AssignmentRollupAggregate do
-      let(:rollup_attrs) {
+      let(:rollup_attrs) do
         {
           assignment_id: Assignment.create!(context: the_course).id,
           title: "Some Assignment",
@@ -40,7 +40,7 @@ module Analytics
           late_submissions: 2.0 / 7.0,
           missing_submissions: 1.0 / 7.0
         }
-      }
+      end
 
       let(:the_course) { course_factory }
       let(:rollup) { AssignmentRollup.new(rollup_attrs) }
@@ -64,7 +64,7 @@ module Analytics
       end
 
       describe "aggregating rollups" do
-        let(:rollup1) {
+        let(:rollup1) do
           AssignmentRollup.new(rollup_attrs.merge({
                                                     max_score: 32,
                                                     min_score: 6,
@@ -74,9 +74,9 @@ module Analytics
                                                     score_buckets: [0, 2, 0, 0, 0, 0, 5, 1, 2, 1, 0, 0, 0,
                                                                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                                   }))
-        }
+        end
 
-        let(:rollup2) {
+        let(:rollup2) do
           AssignmentRollup.new(rollup_attrs.merge({
                                                     max_score: 62,
                                                     min_score: 30,
@@ -86,7 +86,7 @@ module Analytics
                                                     score_buckets: [0, 0, 0, 0, 0, 0, 0, 2, 2, 4, 6, 1, 1,
                                                                     2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                                   }))
-        }
+        end
 
         let(:rollup3) { AssignmentRollup.new(rollup_attrs) }
         let(:aggregate) { AssignmentRollupAggregate.new([rollup1, rollup2, rollup3]) }

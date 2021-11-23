@@ -154,9 +154,9 @@ module Analytics
 
     def suppressed_due_to_few_submissions(submissions)
       # Need to make sure the submissions are actually submitted.
-      !allow_student_details? && submissions.count { |submission|
+      !allow_student_details? && submissions.count do |submission|
         submission.has_submission? || submission.graded?
-      } < 5
+      end < 5
     end
 
     def suppressed_due_to_course_setting

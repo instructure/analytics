@@ -30,9 +30,9 @@ describe Loaders::CourseStudentAnalyticsLoader do
     GraphQL::Batch.batch do
       Loaders::CourseStudentAnalyticsLoader
         .for(@course.id, current_user: @teacher, session: nil)
-        .load(@student).then { |result|
+        .load(@student).then do |result|
           expect(result).to be_a(Analytics::StudentSummary)
-        }
+        end
     end
   end
 
@@ -41,9 +41,9 @@ describe Loaders::CourseStudentAnalyticsLoader do
     GraphQL::Batch.batch do
       Loaders::CourseStudentAnalyticsLoader
         .for(@course.id, current_user: @teacher, session: nil)
-        .load(@student).then { |result|
+        .load(@student).then do |result|
           expect(result).to be_nil
-        }
+        end
     end
   end
 end

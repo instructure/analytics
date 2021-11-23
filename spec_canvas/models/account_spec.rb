@@ -33,9 +33,9 @@ describe Account do
     @admin = account_admin_user(account: @account, role: @role, active_all: true)
   end
 
-  let(:analytics_tab_opts) {
+  let(:analytics_tab_opts) do
     { label: "Analytics", css_class: "analytics_plugin", href: :analytics_department_path }
-  }
+  end
 
   context "Analytics Tab" do
     it "injects an analytics tab under nominal conditions" do
