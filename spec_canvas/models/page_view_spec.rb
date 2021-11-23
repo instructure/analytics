@@ -178,11 +178,11 @@ describe PageView do
   # buckets instead of 24-hour buckets, to solve the problem of people viewing
   # analytics from different timezones.
   describe ".counters_by_context_and_hour cassandra" do
-    include_examples "analytics cassandra page views"
-
     before do
       student_in_course(active_all: true)
     end
+
+    include_examples "analytics cassandra page views"
 
     it "returns user page view counts in the course by hour" do
       timewarp = Time.parse("2012-12-26T19:15:00Z")
