@@ -170,7 +170,7 @@ describe "analytics course view" do
       create_past_due(3, 2)
     end
 
-    it "displays context card content", priority: "1", test_id: 3109484 do
+    it "displays context card content", priority: "1" do
       Gradebook.visit(@course)
       Gradebook::Cells.student_cell_name_link(@student2).click
       expect(f(".StudentContextTray-Header__Name h2 a")).to include_text("initial test student")
@@ -189,7 +189,7 @@ describe "analytics course view" do
       expect(f("body")).to contain_jqcss(".StudentContextTray-Header__Content:contains(Last login)")
     end
 
-    it "switches student displayed in tray", priority: "1", test_id: 3022079 do
+    it "switches student displayed in tray", priority: "1" do
       enable_cache do
         Gradebook.visit(@course)
         Gradebook::Cells.student_cell_name_link(@student1).click
