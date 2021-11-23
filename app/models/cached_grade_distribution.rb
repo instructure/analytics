@@ -43,7 +43,7 @@ class CachedGradeDistribution < ActiveRecord::Base
 
   def update_score(score, value)
     # ignore anomalous scores, we don't have columns for it
-    return unless 0 <= score && score <= 100
+    return unless (0..100).cover?(score)
 
     send("s#{score}=", value)
   end
