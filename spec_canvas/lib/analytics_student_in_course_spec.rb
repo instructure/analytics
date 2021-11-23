@@ -64,7 +64,7 @@ module Analytics
 
       let(:analytics) { StudentInCourse.new(@teacher, @course, @student) }
       let(:assignment) { double("assignment").as_null_object }
-      let(:submission) {
+      let(:submission) do
         double("submission",
                assignment_id: assignment.id,
                assigment: assignment,
@@ -73,7 +73,7 @@ module Analytics
                missing?: false,
                late?: false,
                submitted_at: submitted_at)
-      }
+      end
 
       it "lets overridden_for determine the due_at value" do
         expect(analytics.basic_assignment_data(assignment, [submission])[:due_at]).to eq due_at.change(sec: 0)

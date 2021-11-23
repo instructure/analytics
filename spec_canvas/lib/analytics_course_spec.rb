@@ -305,10 +305,10 @@ describe Analytics::Course do
   describe "#start_date" do
     it "is the earliest effective_start_at of any of Analytics::Course#enrollments" do
       dates = [1.day.ago, 5.days.ago, 3.days.ago]
-      dates.each { |d|
+      dates.each do |d|
         e = active_student
         e.update_attribute(:start_at, d)
-      }
+      end
 
       expect(@teacher_analytics.start_date).to eq dates.min
     end
@@ -324,10 +324,10 @@ describe Analytics::Course do
   describe "#end_date" do
     it "is the latest effective_end_at of any of Analytics::Course#enrollments" do
       dates = [1.day.from_now, 5.days.from_now, 3.days.from_now]
-      dates.each { |d|
+      dates.each do |d|
         e = active_student
         e.update_attribute(:end_at, d)
-      }
+      end
 
       expect(@teacher_analytics.end_date).to eq dates.max
     end
@@ -335,9 +335,9 @@ describe Analytics::Course do
     it "is 'now' if none of the enrollments have an effective_end_at" do
       dates = [nil, nil, nil]
       dates.each { active_student }
-      @teacher_analytics.enrollments.zip(dates).each { |e, date|
+      @teacher_analytics.enrollments.zip(dates).each do |e, date|
         allow(e).to receive(:effective_end_at).and_return(date)
-      }
+      end
 
       expect(@teacher_analytics.end_date).not_to be_nil
     end
@@ -548,12 +548,12 @@ describe Analytics::Course do
       submit_submission(submission: @submission2, submitted_at: @assignment.due_at + 1.day)
 
       @summaries = @teacher_analytics.student_summaries.paginate(page: 1, per_page: 2)
-      expect(@summaries.detect { |s|
+      expect(@summaries.detect do |s|
                s[:id] == @submission1.user_id
-             }             [:tardiness_breakdown]).to eq expected_breakdown(:on_time)
-      expect(@summaries.detect { |s|
+             end             [:tardiness_breakdown]).to eq expected_breakdown(:on_time)
+      expect(@summaries.detect do |s|
                s[:id] == @submission2.user_id
-             }             [:tardiness_breakdown]).to eq expected_breakdown(:late)
+             end             [:tardiness_breakdown]).to eq expected_breakdown(:late)
     end
 
     context "an assignment that has a due date" do

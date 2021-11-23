@@ -205,9 +205,9 @@ describe "analytics" do
       validation_text = ["Score: " + first_submission_score + " / 100", first_assignment.title]
       setup_for_grades_graph
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
-      validation_text.each { |text|
+      validation_text.each do |text|
         validate_tooltip_text("#grades-graph .assignment_#{first_assignment.id}.cover", text)
-      }
+      end
     end
 
     it "validates a non-graded assignment on graph" do
@@ -282,9 +282,9 @@ describe "analytics" do
           first_assignment = @graded_assignments.first
           first_submission_score = first_assignment.submissions.find_by(user: @student).score.to_i.to_s
           validation_text = ["Score: " + first_submission_score + " / 100", first_assignment.title]
-          validation_text.each { |text|
+          validation_text.each do |text|
             validate_tooltip_text("#grades-graph .assignment_#{first_assignment.id}.cover", text)
-          }
+          end
         end
 
         added_students = add_students_to_course(1)
