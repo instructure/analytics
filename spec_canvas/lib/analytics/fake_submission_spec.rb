@@ -18,7 +18,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_dependency 'analytics/fake_submission'
+require_dependency "analytics/fake_submission"
 
 module Analytics
   describe FakeSubmission do

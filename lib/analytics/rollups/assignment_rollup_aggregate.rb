@@ -24,25 +24,25 @@ module Analytics::Rollups
       @rollups = rollups
     end
 
-    STABLE_ATTRS = [:assignment_id, :title, :due_at, :muted, :points_possible, :non_digital_submission].freeze
+    STABLE_ATTRS = %i[assignment_id title due_at muted points_possible non_digital_submission].freeze
 
     def data
       return nil if @rollups.blank?
 
       hash = @rollups.first.data.slice(*STABLE_ATTRS)
       hash.merge!(score_summary)
-      hash.merge({ :tardiness_breakdown => tardiness_summary })
+      hash.merge({ tardiness_breakdown: tardiness_summary })
     end
 
     def score_summary
       if @rollups.first.points_possible
         buckets = ScoreBuckets.parse(@rollups.first.points_possible, composite_bucket_list)
         {
-          :max_score => @rollups.filter_map(&:max_score).max,
-          :min_score => @rollups.filter_map(&:min_score).min,
-          :first_quartile => buckets.first_quartile,
-          :median => buckets.median,
-          :third_quartile => buckets.third_quartile,
+          max_score: @rollups.filter_map(&:max_score).max,
+          min_score: @rollups.filter_map(&:min_score).min,
+          first_quartile: buckets.first_quartile,
+          median: buckets.median,
+          third_quartile: buckets.third_quartile,
         }
       else
         Hash.new(0)
@@ -59,9 +59,9 @@ module Analytics::Rollups
       late = @rollups.sum(&:unscaled_late_submissions)
       on_time = @rollups.sum(&:unscaled_on_time_submissions)
       if total > 0
-        Analytics::TardinessBreakdown.new(missing, late, on_time).as_hash_scaled(total).merge(:total => total)
+        Analytics::TardinessBreakdown.new(missing, late, on_time).as_hash_scaled(total).merge(total: total)
       else
-        { :missing => 0, :late => 0, :on_time => 0, :total => 0 }
+        { missing: 0, late: 0, on_time: 0, total: 0 }
       end
     end
   end

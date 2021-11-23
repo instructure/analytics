@@ -66,7 +66,7 @@ module Analytics::PageViewRoller
   #     amounts if set to 'flood')
   def self.rollup_one(day, opts = {})
     # scope the page views down to just that day
-    page_views = PAGE_VIEWS.where(:created_at => day..(day + 1.day))
+    page_views = PAGE_VIEWS.where(created_at: day..(day + 1.day))
 
     # bin them by course id and category, and insert a rollup row for each
     # result. if a row for the bin already exists, assume all views for that
@@ -83,7 +83,7 @@ module Analytics::PageViewRoller
           bin.save!
         end
       end
-      logger.info "Rolled up page views for #{course_id}/#{day}/#{category}." if opts[:verbose] == 'flood'
+      logger.info "Rolled up page views for #{course_id}/#{day}/#{category}." if opts[:verbose] == "flood"
     end
     logger.info "Rolled up page views for #{day}." if opts[:verbose]
   end
@@ -102,11 +102,11 @@ module Analytics::PageViewRoller
       day = Date.new(2010, 11)
       today = Date.today
       loop do
-        logger.info "Looking for oldest page view before #{day}." if opts[:verbose] == 'flood'
+        logger.info "Looking for oldest page view before #{day}." if opts[:verbose] == "flood"
         row = PAGE_VIEWS.where("created_at<=?", day).minimum(:created_at)
         return row.to_date if row
 
-        logger.info "No page views before #{day}." if opts[:verbose] == 'flood'
+        logger.info "No page views before #{day}." if opts[:verbose] == "flood"
 
         # break here rather than at the start of loop so we still attempt the
         # first time day >= today
@@ -137,7 +137,7 @@ module Analytics::PageViewRoller
       opts[:start_day] ||= start_day(opts)
       return nil unless opts[:start_day]
 
-      logger.info "Looking for oldest roll up on or after #{opts[:start_day]}." if opts[:verbose] == 'flood'
+      logger.info "Looking for oldest roll up on or after #{opts[:start_day]}." if opts[:verbose] == "flood"
       date = PageViewsRollup.where("date>=?", opts[:start_day]).minimum(:date)
       date || Date.today
     end

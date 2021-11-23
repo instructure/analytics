@@ -21,7 +21,7 @@
 module Analytics::GradeDistributionCacher
   def self.recache_grade_distributions
     Course.find_ids_in_batches do |ids|
-      Course.select(:id).where(:id => ids).each do |course|
+      Course.select(:id).where(id: ids).each do |course|
         course.recache_grade_distribution(synchronous: true)
       end
     end

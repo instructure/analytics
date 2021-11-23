@@ -22,22 +22,22 @@ require_dependency "analytics/permitted_course"
 
 module Analytics
   describe PermittedCourse do
-    describe '#assignments' do
+    describe "#assignments" do
       let(:analytics) do
-        double('course_analytics',
-               assignment_rollups_for: ['SECTIONAL_ROLLUP'],
-               assignments: ['ASSIGNMENT_DATA'])
+        double("course_analytics",
+               assignment_rollups_for: ["SECTIONAL_ROLLUP"],
+               assignments: ["ASSIGNMENT_DATA"])
       end
 
-      let(:user) { double('user') }
-      let(:shard) { double('shard') }
+      let(:user) { double("user") }
+      let(:shard) { double("shard") }
       let(:course) do
-        double('course',
+        double("course",
                shard: shard,
-               section_visibilities_for: [{ course_section_id: 'SECTION_ID1' }],
-               course_sections: double('course_sections',
-                                       active: double('active_course_sections',
-                                                      pluck: ['SECTION_ID1', 'SECTION_ID2'])))
+               section_visibilities_for: [{ course_section_id: "SECTION_ID1" }],
+               course_sections: double("course_sections",
+                                       active: double("active_course_sections",
+                                                      pluck: ["SECTION_ID1", "SECTION_ID2"])))
       end
       let(:permitted_course) { PermittedCourse.new(user, course) }
 
@@ -46,31 +46,31 @@ module Analytics
         allow(shard).to receive(:activate).and_yield
       end
 
-      it 'uses the full rollups when visibility level is full' do
+      it "uses the full rollups when visibility level is full" do
         allow(course).to receive(:enrollment_visibility_level_for).and_return(:full)
-        expect(permitted_course.assignments_uncached).to eq ['SECTIONAL_ROLLUP']
+        expect(permitted_course.assignments_uncached).to eq ["SECTIONAL_ROLLUP"]
       end
 
-      it 'uses tallied rollups for section visibility' do
+      it "uses tallied rollups for section visibility" do
         allow(course).to receive(:enrollment_visibility_level_for).and_return(:sections)
-        expect(permitted_course.assignments_uncached).to eq ['SECTIONAL_ROLLUP']
+        expect(permitted_course.assignments_uncached).to eq ["SECTIONAL_ROLLUP"]
       end
 
-      it 'includes all sections for full visibility users regardless of enrollments' do
+      it "includes all sections for full visibility users regardless of enrollments" do
         allow(course).to receive(:enrollment_visibility_level_for).and_return(:full)
-        expect(analytics).to receive(:assignment_rollups_for).with(['SECTION_ID1', 'SECTION_ID2'])
+        expect(analytics).to receive(:assignment_rollups_for).with(["SECTION_ID1", "SECTION_ID2"])
         permitted_course.assignments_uncached
       end
 
-      it 'limits to visible sections for section visibility users' do
+      it "limits to visible sections for section visibility users" do
         allow(course).to receive(:enrollment_visibility_level_for).and_return(:sections)
-        expect(analytics).to receive(:assignment_rollups_for).with(['SECTION_ID1'])
+        expect(analytics).to receive(:assignment_rollups_for).with(["SECTION_ID1"])
         permitted_course.assignments_uncached
       end
 
-      it 'tallys assignments for direct visibility' do
+      it "tallys assignments for direct visibility" do
         allow(course).to receive(:enrollment_visibility_level_for).and_return(:users)
-        expect(permitted_course.assignments_uncached).to eq ['ASSIGNMENT_DATA']
+        expect(permitted_course.assignments_uncached).to eq ["ASSIGNMENT_DATA"]
       end
     end
 
@@ -106,7 +106,7 @@ module Analytics
       it "unifies cache check between rails3 and rails4" do
         enable_cache do
           assignments = [{ id: 1 }]
-          Rails.cache.write(permitted_course.assignments_cache_key, assignments, :use_new_rails => false)
+          Rails.cache.write(permitted_course.assignments_cache_key, assignments, use_new_rails: false)
           expect(permitted_course.async_data_available?).to be_truthy
         end
       end
@@ -114,7 +114,7 @@ module Analytics
       it "unifies cache lookup between rails3 and rails4" do
         enable_cache do
           assignments = [{ id: 1 }]
-          Rails.cache.write(permitted_course.assignments_cache_key, assignments, :use_new_rails => false)
+          Rails.cache.write(permitted_course.assignments_cache_key, assignments, use_new_rails: false)
           expect(permitted_course.assignments).to eq assignments
         end
       end

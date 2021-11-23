@@ -22,7 +22,7 @@ require_dependency "analytics/assignment_submission"
 
 module Analytics
   describe AssignmentSubmission do
-    let(:assignment) { ::Assignment.create!({ :context => course_factory }) }
+    let(:assignment) { ::Assignment.create!({ context: course_factory }) }
     let(:date) { Time.now.change(sec: 0) }
 
     context "with submission" do

@@ -25,7 +25,7 @@ module Analytics
     end
 
     def self.cache_expiry
-      Setting.get('analytics_cache_expiry', 12.hours.to_s).to_i
+      Setting.get("analytics_cache_expiry", 12.hours.to_s).to_i
     end
 
     private
@@ -33,7 +33,7 @@ module Analytics
     include Slave
 
     def cache(key, &block)
-      Rails.cache.fetch(['analytics', cache_prefix, key].cache_key, :expires_in => Analytics::Base.cache_expiry, &block)
+      Rails.cache.fetch(["analytics", cache_prefix, key].cache_key, expires_in: Analytics::Base.cache_expiry, &block)
     end
 
     def secondaried(opts = {})

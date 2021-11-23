@@ -40,21 +40,21 @@ module Analytics
     include Submission::Tardiness
 
     def initialize(data)
-      @assignment_id   = data['assignment_id']&.to_i
-      @user_id         = data['user_id']&.to_i
-      @score           = data['score']&.to_i
-      @excused         = data['excused']
-      @submission_type = data['submission_type']
-      @workflow_state  = data['workflow_state']
-      @graded_at       = data['graded_at']
-      @grader_id       = data['grader_id']
-      @cached_due_date = data['cached_due_date']
-      @late_policy_status = data['late_policy_status']
-      @cached_quiz_lti = data['cached_quiz_lti'].presence || false
+      @assignment_id   = data["assignment_id"]&.to_i
+      @user_id         = data["user_id"]&.to_i
+      @score           = data["score"]&.to_i
+      @excused         = data["excused"]
+      @submission_type = data["submission_type"]
+      @workflow_state  = data["workflow_state"]
+      @graded_at       = data["graded_at"]
+      @grader_id       = data["grader_id"]
+      @cached_due_date = data["cached_due_date"]
+      @late_policy_status = data["late_policy_status"]
+      @cached_quiz_lti = data["cached_quiz_lti"].presence || false
 
       # submissions without a submission_type do not have a meaningful
       # submitted_at; see Submission#submitted_at
-      @submitted_at    = @submission_type ? data['submitted_at'] : nil
+      @submitted_at    = @submission_type ? data["submitted_at"] : nil
 
       # Time.zone.parse would be more correct here, but that's significantly
       # more expensive (and this is used in a tight loop that may have very
@@ -64,15 +64,15 @@ module Analytics
       # lack time zone information but are guaranteed to actually mean UTC. we
       # add the zulu marker before using Time.parse to make sure they're
       # correctly interpreted regardless of the system time zone
-      @submitted_at    = Time.parse(@submitted_at + 'Z')    if @submitted_at.is_a?(String)
-      @graded_at       = Time.parse(@graded_at + 'Z')       if @graded_at.is_a?(String)
-      @cached_due_date = Time.parse(@cached_due_date + 'Z') if @cached_due_date.is_a?(String)
-      @accepted_at = if data['accepted_at'].present?
-                       data['accepted_at'].is_a?(String) ? Time.parse(data['accepted_at'] + 'Z') : data['accepted_at']
+      @submitted_at    = Time.parse(@submitted_at + "Z")    if @submitted_at.is_a?(String)
+      @graded_at       = Time.parse(@graded_at + "Z")       if @graded_at.is_a?(String)
+      @cached_due_date = Time.parse(@cached_due_date + "Z") if @cached_due_date.is_a?(String)
+      @accepted_at = if data["accepted_at"].present?
+                       data["accepted_at"].is_a?(String) ? Time.parse(data["accepted_at"] + "Z") : data["accepted_at"]
                      else
                        @submitted_at
                      end
-      @seconds_late_override = data['seconds_late_override']
+      @seconds_late_override = data["seconds_late_override"]
     end
 
     def self.from_scope(scope)

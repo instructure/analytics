@@ -74,7 +74,7 @@ class Analytics::AssignmentRollup
     # explicitly give the :type here, because student_enrollments scope also
     # includes StudentViewEnrollment which we want to exclude
     enrollments_scope = course.enrollments.where(workflow_state: %w[active completed],
-                                                 type: 'StudentEnrollment').except(:preload)
+                                                 type: "StudentEnrollment").except(:preload)
     init(assignment, enrollments_scope)
   end
 
@@ -138,27 +138,27 @@ class Analytics::AssignmentRollup
 
   def data
     {
-      :assignment_id => assignment_id,
-      :title => title,
-      :due_at => due_at,
-      :muted => muted,
-      :first_quartile => first_quartile_score,
-      :max_score => max_score,
-      :median => median_score,
-      :min_score => min_score,
-      :points_possible => points_possible,
-      :third_quartile => third_quartile_score,
-      :non_digital_submission => non_digital_submission,
-      :tardiness_breakdown => {
-        :late => late_submissions,
-        :missing => missing_submissions,
-        :on_time => on_time_submissions,
-        :total => total_submissions
+      assignment_id: assignment_id,
+      title: title,
+      due_at: due_at,
+      muted: muted,
+      first_quartile: first_quartile_score,
+      max_score: max_score,
+      median: median_score,
+      min_score: min_score,
+      points_possible: points_possible,
+      third_quartile: third_quartile_score,
+      non_digital_submission: non_digital_submission,
+      tardiness_breakdown: {
+        late: late_submissions,
+        missing: missing_submissions,
+        on_time: on_time_submissions,
+        total: total_submissions
       }
     }
   end
 
-  [:late, :missing, :on_time].each do |submission_type|
+  %i[late missing on_time].each do |submission_type|
     base_method_name = "#{submission_type}_submissions".to_sym
     define_method "unscaled_#{base_method_name}".to_sym do
       send(base_method_name) * total_submissions

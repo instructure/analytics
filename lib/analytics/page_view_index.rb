@@ -52,10 +52,10 @@ module Analytics::PageViewIndex
 
     def self.update(page_view, new_record)
       context = case page_view.context_type
-                when 'Course'
+                when "Course"
                   page_view.context
-                when 'Group'
-                  if page_view.context.context_type == 'Course'
+                when "Group"
+                  if page_view.context.context_type == "Course"
                     page_view.context.context
                   end
                 end
@@ -71,7 +71,7 @@ module Analytics::PageViewIndex
       counts_updates << "participation_count = participation_count + 1" if participation
 
       unless counts_updates.empty?
-        counts_update = counts_updates.join(', ')
+        counts_update = counts_updates.join(", ")
         bucket = bucket_for_time(page_view.created_at)
         database.update_counter(
           "UPDATE page_views_counters_by_context_and_hour SET #{counts_update} WHERE context = ? AND hour_bucket = ?", "#{context.global_asset_string}/#{user.global_asset_string}", bucket
@@ -109,9 +109,9 @@ module Analytics::PageViewIndex
       database.execute(
         "SELECT hour_bucket, page_view_count FROM page_views_counters_by_context_and_hour %CONSISTENCY% WHERE context = ?", "#{context.global_asset_string}/#{user.global_asset_string}", consistency: read_consistency_level
       ).fetch do |row|
-        time = row['hour_bucket'].to_i
+        time = row["hour_bucket"].to_i
         if time > 0
-          counts[Time.at(time)] = row['page_view_count'] || 0
+          counts[Time.at(time)] = row["page_view_count"] || 0
         end
       end
       counts
@@ -121,8 +121,8 @@ module Analytics::PageViewIndex
       counters = {}
       user_ids.each do |id|
         counters[id] = {
-          :page_views => 0,
-          :participations => 0
+          page_views: 0,
+          participations: 0
         }
       end
 
@@ -130,10 +130,10 @@ module Analytics::PageViewIndex
       database.execute(
         "SELECT user_id, page_view_count, participation_count FROM page_views_counters_by_context_and_user %CONSISTENCY% WHERE context = ?", context.global_asset_string, consistency: read_consistency_level
       ).fetch do |row|
-        if (id = id_map[row['user_id']])
+        if (id = id_map[row["user_id"]])
           counters[id] = {
-            :page_views => row['page_view_count'].to_i,
-            :participations => row['participation_count'].to_i
+            page_views: row["page_view_count"].to_i,
+            participations: row["participation_count"].to_i
           }
         end
       end
@@ -153,8 +153,8 @@ module Analytics::PageViewIndex
         .select("created_at, url")
         .where("participated AND asset_user_access_id IS NOT NULL").map do |participation|
         {
-          :created_at => participation.created_at,
-          :url => participation.url,
+          created_at: participation.created_at,
+          url: participation.url,
         }.with_indifferent_access
       end
     end
@@ -171,8 +171,8 @@ module Analytics::PageViewIndex
       counters = {}
       user_ids.each do |id|
         counters[id] = {
-          :page_views => 0,
-          :participations => 0
+          page_views: 0,
+          participations: 0
         }
       end
 

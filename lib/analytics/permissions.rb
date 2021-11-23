@@ -46,7 +46,7 @@ module Analytics::Permissions
       else
         # no term specified, use the default term
         @term = @account.root_account.default_enrollment_term
-        @filter = if ['current', 'completed'].include?(params[:filter])
+        @filter = if ["current", "completed"].include?(params[:filter])
                     # respect the requested filter on the default term
                     params[:filter]
                   elsif terms.count > 1
@@ -54,7 +54,7 @@ module Analytics::Permissions
                     nil
                   else
                     # default behavior for only one term is current courses filter
-                    'current'
+                    "current"
                   end
       end
 
@@ -66,7 +66,7 @@ module Analytics::Permissions
     # course or student in course) can be viewed by the current user.
     def require_course_with_analytics
       # do you have permission to use them?
-      scope = Course.where(:workflow_state => ['available', 'completed'])
+      scope = Course.where(workflow_state: ["available", "completed"])
       @course = api_find(scope, params[:course_id])
       return false unless authorized_action(@course, @current_user, :view_analytics)
 
