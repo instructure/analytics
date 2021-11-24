@@ -26,9 +26,9 @@ module Analytics::Extensions
 
       if analytics_enabled_course? && analytics_enabled_student?(user)
         links << {
-          :url => analytics_student_in_course_path(:course_id => @context.id, :student_id => user.id),
-          :icon_class => 'icon-analytics',
-          :text => I18n.t("Analytics")
+          url: analytics_student_in_course_path(course_id: @context.id, student_id: user.id),
+          icon_class: "icon-analytics",
+          text: I18n.t("Analytics")
         }
       end
       links
@@ -40,9 +40,9 @@ module Analytics::Extensions
 
       if analytics_enabled_course? && @context.grants_right?(@current_user, :read_as_admin)
         links << {
-          :url => analytics_course_path(:course_id => @context.id),
-          :icon_class => 'icon-analytics',
-          :text => I18n.t("View Course Analytics")
+          url: analytics_course_path(course_id: @context.id),
+          icon_class: "icon-analytics",
+          text: I18n.t("View Course Analytics")
         }
       end
       links
@@ -53,9 +53,9 @@ module Analytics::Extensions
     # is the context a course with the necessary conditions to view analytics in
     # the course?
     def analytics_enabled_course?
-      RequestCache.cache('analytics_enabled_course', @context) do
+      RequestCache.cache("analytics_enabled_course", @context) do
         @context.is_a?(Course) &&
-          ['available', 'completed'].include?(@context.workflow_state) &&
+          ["available", "completed"].include?(@context.workflow_state) &&
           service_enabled?(:analytics) &&
           @context.grants_right?(@current_user, session, :view_analytics) &&
           Analytics::Course.available_for?(@current_user, @context)

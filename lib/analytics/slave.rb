@@ -20,12 +20,12 @@
 
 module Analytics
   module Slave
-    def self.secondaried
-      GuardRail.activate(:secondary) { yield }
+    def self.secondaried(&block)
+      GuardRail.activate(:secondary, &block)
     end
 
-    def secondaried
-      Analytics::Slave.secondaried { yield }
+    def secondaried(&block)
+      Analytics::Slave.secondaried(&block)
     end
   end
 end

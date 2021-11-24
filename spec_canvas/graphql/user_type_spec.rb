@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require 'graphql/graphql_spec_helper'
+require "graphql/graphql_spec_helper"
 
 describe Types::UserType do
   let_once(:user) { student_in_course(active_all: true).user }
   let(:student_type) { GraphQLTypeTester.new(user, current_user: @teacher) }
 
-  before {
+  before do
     Account.default.enable_service(:analytics)
     Account.default.save!
-  }
+  end
 
   context "summaryAnalytics" do
     it "works" do
@@ -36,7 +36,7 @@ describe Types::UserType do
 
     it "is nil for teachers without permission" do
       RoleOverride.manage_role_override(
-        Account.default, teacher_role, 'view_analytics',
+        Account.default, teacher_role, "view_analytics",
         override: false
       )
       expect(
