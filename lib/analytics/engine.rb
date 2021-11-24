@@ -20,14 +20,14 @@
 
 module Analytics
   class Engine < ::Rails::Engine
-    config.paths["lib"].eager_load!
+    config.paths['lib'].eager_load!
 
     Autoextend.hook(:AccountServices, after_load: true) do
       AccountServices.register_service :analytics,
-                                       name: "Analytics",
-                                       description: "",
-                                       expose_to_ui: :setting,
-                                       default: false
+                                       :name => "Analytics",
+                                       :description => "",
+                                       :expose_to_ui => :setting,
+                                       :default => false
     end
     Autoextend.hook(:Account,
                     :"Analytics::Extensions::Account",
@@ -50,11 +50,13 @@ module Analytics
                     method: :prepend)
     Autoextend.hook(:Permissions, after_load: true) do
       ::Permissions.register :view_analytics,
-                             label: -> { I18n.t("#role_override.permissions.view_analytics", "Analytics - view pages") },
-                             available_to: %w[AccountAdmin TaEnrollment TeacherEnrollment StudentEnrollment
-                                              AccountMembership],
-                             true_for: %w[AccountAdmin TaEnrollment TeacherEnrollment],
-                             applies_to_concluded: true
+                             :label => lambda {
+                                         I18n.t('#role_override.permissions.view_analytics', "Analytics - view pages")
+                                       },
+                             :available_to => %w(AccountAdmin TaEnrollment TeacherEnrollment StudentEnrollment
+                                                 AccountMembership),
+                             :true_for => %w(AccountAdmin TaEnrollment TeacherEnrollment),
+                             :applies_to_concluded => true
     end
     Autoextend.hook(:PageView,
                     :"Analytics::Extensions::PageView",

@@ -86,9 +86,9 @@ class AnalyticsApiController < ApplicationController
   def department_participation
     return unless require_analytics_for_department
 
-    render json: {
-      by_date: @department_analytics.participation_by_date,
-      by_category: @department_analytics.participation_by_category
+    render :json => {
+      :by_date => @department_analytics.participation_by_date,
+      :by_category => @department_analytics.participation_by_category
     }
   end
 
@@ -136,7 +136,7 @@ class AnalyticsApiController < ApplicationController
   def department_grades
     return unless require_analytics_for_department
 
-    render json: @department_analytics.grade_distribution
+    render :json => @department_analytics.grade_distribution
   end
 
   # @API Get department-level statistics
@@ -170,7 +170,7 @@ class AnalyticsApiController < ApplicationController
   def department_statistics
     return unless require_analytics_for_department
 
-    render json: @department_analytics.statistics
+    render :json => @department_analytics.statistics
   end
 
   # @API Get department-level statistics, broken down by subaccount
@@ -207,7 +207,7 @@ class AnalyticsApiController < ApplicationController
   def department_statistics_by_subaccount
     return unless require_analytics_for_department
 
-    render json: { accounts: @department_analytics.statistics_by_subaccount }
+    render :json => { accounts: @department_analytics.statistics_by_subaccount }
   end
 
   # @API Get course-level participation data
@@ -234,7 +234,7 @@ class AnalyticsApiController < ApplicationController
   def course_participation
     return unless require_analytics_for_course
 
-    render json: @course_analytics.participation
+    render :json => @course_analytics.participation
   end
 
   # @API Get course-level assignment data
@@ -303,11 +303,11 @@ class AnalyticsApiController < ApplicationController
 
     if async_request && !permitted_course.async_data_available?
       progress = permitted_course.progress_for_background_assignments
-      render json: { progress_url: polymorphic_url([:api_v1, progress]) }
+      render :json => { :progress_url => polymorphic_url([:api_v1, progress]) }
       return
     end
 
-    render json: permitted_course.assignments
+    render :json => permitted_course.assignments
   end
 
   # @API Get course-level student summary data
@@ -367,7 +367,7 @@ class AnalyticsApiController < ApplicationController
 
     student_ids = [params[:student_id]] unless params[:student_id].blank?
     summaries = @course_analytics.student_summaries(sort_column: params[:sort_column], student_ids: student_ids)
-    render json: Api.paginate(summaries, self, api_v1_course_student_summaries_url(@course))
+    render :json => Api.paginate(summaries, self, api_v1_course_student_summaries_url(@course))
   end
 
   # @API Get user-in-a-course-level participation data
@@ -404,9 +404,9 @@ class AnalyticsApiController < ApplicationController
   def student_in_course_participation
     return unless require_analytics_for_student_in_course
 
-    render json: {
-      page_views: @student_analytics.page_views,
-      participations: @student_analytics.participations
+    render :json => {
+      :page_views => @student_analytics.page_views,
+      :participations => @student_analytics.participations
     }
   end
 
@@ -470,7 +470,7 @@ class AnalyticsApiController < ApplicationController
   def student_in_course_assignments
     return unless require_analytics_for_student_in_course
 
-    render json: @student_analytics.assignments
+    render :json => @student_analytics.assignments
   end
 
   # @API Get user-in-a-course-level messaging data
@@ -499,7 +499,7 @@ class AnalyticsApiController < ApplicationController
   def student_in_course_messaging
     return unless require_analytics_for_student_in_course
 
-    render json: @student_analytics.messages
+    render :json => @student_analytics.messages
   end
 
   protected

@@ -23,7 +23,7 @@ describe Course do
     before do
       @course = course_model
       @enrollment = student_in_course
-      @enrollment.workflow_state = "active"
+      @enrollment.workflow_state = 'active'
       @enrollment.scores.create!(current_score: 12)
       @enrollment.save!
     end

@@ -23,19 +23,19 @@
 describe Account do
   before :once do
     @account = Account.default
-    @account.allowed_services = "+analytics"
+    @account.allowed_services = '+analytics'
     @account.save!
 
-    @role = custom_account_role("TestAdmin", account: @account)
-    RoleOverride.manage_role_override(@account, @role, "read_course_list", override: true)
-    RoleOverride.manage_role_override(@account, @role, "view_analytics", override: true)
+    @role = custom_account_role('TestAdmin', :account => @account)
+    RoleOverride.manage_role_override(@account, @role, 'read_course_list', :override => true)
+    RoleOverride.manage_role_override(@account, @role, 'view_analytics', :override => true)
 
-    @admin = account_admin_user(account: @account, role: @role, active_all: true)
+    @admin = account_admin_user(:account => @account, :role => @role, :active_all => true)
   end
 
-  let(:analytics_tab_opts) do
-    { label: "Analytics", css_class: "analytics_plugin", href: :analytics_department_path }
-  end
+  let(:analytics_tab_opts) {
+    { :label => "Analytics", :css_class => "analytics_plugin", :href => :analytics_department_path }
+  }
 
   context "Analytics Tab" do
     it "injects an analytics tab under nominal conditions" do
@@ -48,13 +48,13 @@ describe Account do
     end
 
     it "does not inject an analytics tab when analytics is disabled" do
-      @account.allowed_services = "-analytics"
+      @account.allowed_services = '-analytics'
       @account.save!
       expect(@account.tabs_available(@admin)[-2]).not_to include(analytics_tab_opts)
     end
 
     it "does not inject an analytics tab without the analytics permission" do
-      RoleOverride.manage_role_override(@account, @role, "view_analytics", override: false)
+      RoleOverride.manage_role_override(@account, @role, 'view_analytics', :override => false)
       expect(@account.tabs_available(@admin)[-2]).not_to include(analytics_tab_opts)
     end
   end
