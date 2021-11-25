@@ -59,9 +59,9 @@ module Analytics::Rollups
       end
 
       describe "stat counting" do
-        before { buckets << 1 << 2 << 3 << 50 << 98 << 99 << 100 }
-
         subject { buckets }
+
+        before { buckets << 1 << 2 << 3 << 50 << 98 << 99 << 100 }
 
         describe "#max" do
           subject { super().max }
@@ -95,11 +95,11 @@ module Analytics::Rollups
       end
 
       describe "stat counting on small buckets" do
+        subject { buckets }
+
         let(:buckets) { ScoreBuckets.new(5) }
 
         before { buckets << 1 << 1 << 2 << 5 << 3 << 2 << 1 }
-
-        subject { buckets }
 
         describe "#max" do
           subject { super().max }
@@ -187,6 +187,8 @@ module Analytics::Rollups
     end
 
     describe "a bucket with 0 points possible" do
+      subject { buckets }
+
       let(:buckets) { ScoreBuckets.new(0) }
 
       before do
@@ -202,8 +204,6 @@ module Analytics::Rollups
           expect(buckets.index_for(value)).to eq 0
         end
       end
-
-      subject { buckets }
 
       describe "#max" do
         subject { super().max }

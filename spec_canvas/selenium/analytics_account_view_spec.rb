@@ -22,19 +22,19 @@ require "selenium/common"
 require_relative "analytics_common"
 
 describe "analytics account view" do
-  include_examples "analytics tests"
-
   let(:account_id) { Account.default.id }
-
-  def validate_data_point(data_point, expected_count = "1")
-    expect(find(".AnalyticsStats__#{data_point}").find(".AnalyticsStats__Count").text).to eq expected_count
-  end
 
   before do
     enable_analytics
     course_with_admin_logged_in.user
     @course.update(start_at: 15.days.ago, conclude_at: 2.days.from_now)
     @course.save!
+  end
+
+  include_examples "analytics tests"
+
+  def validate_data_point(data_point, expected_count = "1")
+    expect(find(".AnalyticsStats__#{data_point}").find(".AnalyticsStats__Count").text).to eq expected_count
   end
 
   it "validates course drop down" do

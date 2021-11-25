@@ -26,11 +26,7 @@ require_relative "analytics_common"
 describe "analytics course view" do
   let(:initial_student_name) { "initial test student" }
 
-  include_examples "analytics tests"
-
-  def get_bar(graph_selector, assignment_id)
-    driver.execute_script("return $('#{graph_selector} .assignment_#{assignment_id}').prev()[0]")
-  end
+  before { user_session(@teacher) }
 
   before(:once) do
     enable_analytics
@@ -41,7 +37,11 @@ describe "analytics course view" do
     student_in_course(name: initial_student_name, active_all: true)
   end
 
-  before { user_session(@teacher) }
+  include_examples "analytics tests"
+
+  def get_bar(graph_selector, assignment_id)
+    driver.execute_script("return $('#{graph_selector} .assignment_#{assignment_id}').prev()[0]")
+  end
 
   context "course home page" do
     it "shows the analytics button on the course home page" do

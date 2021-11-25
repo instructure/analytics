@@ -66,14 +66,14 @@ module Analytics
       end
 
       describe "#assignment_data" do
+        subject { OpenStruct.new(assignments.assignment_data(assignment, scores)) }
+
         let(:scores) { (1..5).map { |score| double(score: score, user_id: 123) } }
 
         before do
           allow(assignments).to receive(:fake_student_ids).and_return([])
           allow(assignments).to receive(:allow_student_details?).and_return(true)
         end
-
-        subject { OpenStruct.new(assignments.assignment_data(assignment, scores)) }
 
         describe "#max_score" do
           subject { super().max_score }
