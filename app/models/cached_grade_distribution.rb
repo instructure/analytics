@@ -43,7 +43,7 @@ class CachedGradeDistribution < ActiveRecord::Base
 
   def update_score(score, value)
     # ignore anomalous scores, we don't have columns for it
-    return unless (0..100).cover?(score)
+    return unless 0 <= score && score <= 100
 
     send("s#{score}=", value)
   end
@@ -58,7 +58,7 @@ class CachedGradeDistribution < ActiveRecord::Base
               scores.workflow_state <> 'deleted'")
                                        .select("COUNT(DISTINCT enrollments.user_id) AS user_count, ROUND(scores.current_score) AS score")
                                        .where(workflow_state: [:active, :completed], type: "StudentEnrollment")
-                                       .group("score")
+                                       .group('score')
                                        .to_sql
 
         self.class.connection.select_rows(grade_distribution_sql)
