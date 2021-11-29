@@ -31,11 +31,11 @@ module Analytics::Rollups
 
       @points_possible = points_possible
 
-      if bucket_count <= 1
-        @bucket_size = 0
-      else
-        @bucket_size = points_possible.to_f / (bucket_count - 1)
-      end
+      @bucket_size = if bucket_count <= 1
+                       0
+                     else
+                       points_possible.to_f / (bucket_count - 1)
+                     end
 
       @buckets = Array.new([bucket_count, 1].max, 0)
       @counter = ::Stats::Counter.new
@@ -69,15 +69,25 @@ module Analytics::Rollups
       ((value / @bucket_size) + 0.5).floor
     end
 
-    def max; @counter.max; end
+    def max
+      @counter.max
+    end
 
-    def min; @counter.min; end
+    def min
+      @counter.min
+    end
 
-    def first_quartile; @counter.quartiles[0]; end
+    def first_quartile
+      @counter.quartiles[0]
+    end
 
-    def median; @counter.quartiles[1]; end
+    def median
+      @counter.quartiles[1]
+    end
 
-    def third_quartile; @counter.quartiles[2]; end
+    def third_quartile
+      @counter.quartiles[2]
+    end
 
     private
 
