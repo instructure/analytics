@@ -23,7 +23,7 @@ describe CachedGradeDistribution do
     before do
       @course = course_model
       @enrollment = student_in_course
-      @enrollment.workflow_state = "active"
+      @enrollment.workflow_state = 'active'
       @enrollment.scores.create!(current_score: 12)
       @enrollment.save!
       @dist = @course.cached_grade_distribution
@@ -35,7 +35,7 @@ describe CachedGradeDistribution do
     end
 
     it "counts grades from completed student enrollments" do
-      @enrollment.workflow_state = "completed"
+      @enrollment.workflow_state = 'completed'
       @enrollment.save!
 
       @dist.recalculate!
@@ -43,7 +43,7 @@ describe CachedGradeDistribution do
     end
 
     it "does not count grades from invited student enrollments" do
-      @enrollment.workflow_state = "invited"
+      @enrollment.workflow_state = 'invited'
       @enrollment.save!
 
       @dist.recalculate!
@@ -51,7 +51,7 @@ describe CachedGradeDistribution do
     end
 
     it "does not count grades from deleted student enrollments" do
-      @enrollment.workflow_state = "deleted"
+      @enrollment.workflow_state = 'deleted'
       @enrollment.save!
 
       @dist.recalculate!
@@ -59,7 +59,7 @@ describe CachedGradeDistribution do
     end
 
     it "does not count grades from fake student enrollments" do
-      @enrollment.type = "StudentViewEnrollment"
+      @enrollment.type = 'StudentViewEnrollment'
       @enrollment.save!
 
       @dist.recalculate!
@@ -67,7 +67,7 @@ describe CachedGradeDistribution do
     end
 
     it "does not count grades from teacher enrollments" do
-      @enrollment.type = "TeacherEnrollment"
+      @enrollment.type = 'TeacherEnrollment'
       @enrollment.save!
 
       @dist.recalculate!
@@ -77,9 +77,9 @@ describe CachedGradeDistribution do
     it "counts same grade only once per student" do
       other_section = @course.course_sections.create!
       @second_enrollment = @course.enroll_student(@student,
-                                                  enrollment_state: "active",
-                                                  section: other_section,
-                                                  allow_multiple_enrollments: true)
+                                                  :enrollment_state => 'active',
+                                                  :section => other_section,
+                                                  :allow_multiple_enrollments => true)
       score = @second_enrollment.scores.find_or_create_by!(grading_period_id: nil)
       score.update!(current_score: 12)
       @dist.recalculate!
@@ -130,7 +130,7 @@ describe CachedGradeDistribution do
       @enrollment = student_in_course
 
       expect(@dist).to receive(:recalculate!).once
-      @enrollment.workflow_state = "deleted"
+      @enrollment.workflow_state = 'deleted'
       @enrollment.save
     end
 
@@ -144,7 +144,7 @@ describe CachedGradeDistribution do
       @enrollment = @course.student_view_enrollments.first
 
       expect(@dist).not_to receive(:recalculate!)
-      @enrollment.workflow_state = "deleted"
+      @enrollment.workflow_state = 'deleted'
       @enrollment.save
     end
 
