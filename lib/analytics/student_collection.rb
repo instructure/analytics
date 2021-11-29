@@ -53,13 +53,13 @@ module Analytics
         end
 
         def paginate(scope, pager)
-          scope.paginate(:page => pager.current_page, :per_page => pager.per_page)
+          scope.paginate(page: pager.current_page, per_page: pager.per_page)
         end
       end
 
       class ByName < Default
         def paginate(scope, pager)
-          super scope.order_by_sortable_name(:direction => @direction), pager
+          super scope.order_by_sortable_name(direction: @direction), pager
         end
       end
 
@@ -93,8 +93,8 @@ module Analytics
           raise Folio::InvalidPage if pager.current_page > 1 && offset >= @sorted_ids.size
 
           paged_ids = @sorted_ids[offset, pager.per_page]
-          student_map = scope.where(:id => paged_ids).index_by(&:id)
-          pager.replace paged_ids.map { |id| student_map[id] }.compact
+          student_map = scope.where(id: paged_ids).index_by(&:id)
+          pager.replace(paged_ids.filter_map { |id| student_map[id] })
         end
 
         def set_pages(pager)
@@ -119,12 +119,12 @@ module Analytics
         end
       end
 
-      KNOWN_STRATEGIES = [
-        :name, :name_ascending, :name_descending,
-        :score, :score_ascending, :score_descending,
-        :participations, :participations_ascending, :participations_descending,
-        :page_views, :page_views_ascending, :page_views_descending
-      ]
+      KNOWN_STRATEGIES = %i[
+        name name_ascending name_descending
+        score score_ascending score_descending
+        participations participations_ascending participations_descending
+        page_views page_views_ascending page_views_descending
+      ].freeze
       DEFAULT_STRATEGY = :name
 
       def self.for(strategy, options = {})

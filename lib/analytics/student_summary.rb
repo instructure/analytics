@@ -32,14 +32,14 @@ module Analytics
       participations = self.participations
 
       {
-        :id => @student.id,
-        :page_views => page_views[:total],
-        :max_page_views => page_views[:max],
-        :page_views_level => page_views[:level],
-        :participations => participations[:total],
-        :max_participations => participations[:max],
-        :participations_level => participations[:level],
-        :tardiness_breakdown => tardiness_breakdown,
+        id: @student.id,
+        page_views: page_views[:total],
+        max_page_views: page_views[:max],
+        page_views_level: page_views[:level],
+        participations: participations[:total],
+        max_participations: participations[:max],
+        participations_level: participations[:level],
+        tardiness_breakdown: tardiness_breakdown,
       }
     end
 
