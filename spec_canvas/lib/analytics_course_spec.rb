@@ -18,15 +18,15 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative '../cassandra_spec_helper'
+require_relative "../cassandra_spec_helper"
 
 describe Analytics::Course do
   before do
     # set @course, @teacher, @teacher_enrollment
-    course_factory(:active_course => true)
-    @teacher_enrollment = course_with_teacher(:course => @course, :name => 'Teacher', :active_all => true)
+    course_factory(active_course: true)
+    @teacher_enrollment = course_with_teacher(course: @course, name: "Teacher", active_all: true)
     @teacher_analytics = Analytics::Course.new(@teacher, @course)
-    Setting.set('enable_page_views', 'db')
+    Setting.set("enable_page_views", "db")
   end
 
   describe "extended_assignment_data" do
@@ -61,6 +61,7 @@ describe Analytics::Course do
           expect(data[:multiple_due_dates]).to be_truthy
         end
       end
+
       describe "when viewed by a student" do
         it "multiple_due_dates flag is false" do
           assignment.reload
@@ -78,7 +79,7 @@ describe Analytics::Course do
       active_student
 
       add_section("Section")
-      @ta_enrollment = course_with_ta(:course => @course, :name => 'TA', :active_all => true)
+      @ta_enrollment = course_with_ta(course: @course, name: "TA", active_all: true)
       @ta_enrollment.course_section = @course_section
       @ta_enrollment.save!
 
@@ -141,29 +142,29 @@ describe Analytics::Course do
       end
 
       it "includes student's page views in the course" do
-        page_view(:user => @student, :course => @course)
+        page_view(user: @student, course: @course)
         expect(@teacher_analytics.participation).not_to be_empty
       end
 
       it "includes teacher's page views in the course" do
-        page_view(:user => @teacher, :course => @course)
+        page_view(user: @teacher, course: @course)
         expect(@teacher_analytics.participation).not_to be_empty
       end
 
       it "does not include student's page views from outside the course" do
-        @other_course = course_factory(:active_course => true)
-        page_view(:user => @student, :course => @other_course)
+        @other_course = course_factory(active_course: true)
+        page_view(user: @student, course: @other_course)
         expect(@teacher_analytics.participation).to be_empty
       end
     end
 
-    describe '#page_views_by_student' do
-      it 'delegates to the PageView' do
-        allow(PageView).to receive_messages(:counters_by_context_for_users => { 1 => 2 })
+    describe "#page_views_by_student" do
+      it "delegates to the PageView" do
+        allow(PageView).to receive_messages(counters_by_context_for_users: { 1 => 2 })
         expect(@teacher_analytics.page_views_by_student).to eq({ 1 => 2 })
       end
 
-      it 'passes the course and students array to the page view' do
+      it "passes the course and students array to the page view" do
         expect(PageView).to receive(:counters_by_context_for_users).with(@course,
                                                                          @teacher_analytics.students).and_return(nil)
         @teacher_analytics.page_views_by_student
@@ -194,9 +195,11 @@ describe Analytics::Course do
     context "when the user is section limited" do
       before do
         # set @sectionA, @sectionB, @ta, @ta_enrollment
-        add_section("Section A"); @sectionA = @course_section
-        add_section("Section B"); @sectionB = @course_section
-        @ta_enrollment = course_with_ta(:course => @course, :name => 'Section B TA', :active_all => true)
+        add_section("Section A")
+        @sectionA = @course_section
+        add_section("Section B")
+        @sectionB = @course_section
+        @ta_enrollment = course_with_ta(course: @course, name: "Section B TA", active_all: true)
         @ta_enrollment.course_section = @sectionB
         @ta_enrollment.limit_privileges_to_course_section = true
         @ta_enrollment.save!
@@ -204,12 +207,12 @@ describe Analytics::Course do
       end
 
       it "includes enrollments from the user's sections" do
-        active_student(:section => @sectionB)
+        active_student(section: @sectionB)
         expect(@ta_analytics.enrollments).to include(@student_enrollment)
       end
 
       it "does not include enrollments from other sections" do
-        active_student(:section => @sectionA)
+        active_student(section: @sectionA)
         expect(@ta_analytics.enrollments).not_to include(@student_enrollment)
       end
     end
@@ -234,9 +237,11 @@ describe Analytics::Course do
     context "when the user is section limited" do
       before do
         # set @sectionA, @sectionB, @ta, @ta_enrollment
-        add_section("Section A"); @sectionA = @course_section
-        add_section("Section B"); @sectionB = @course_section
-        @ta_enrollment = course_with_ta(:course => @course, :name => 'Section B TA', :active_all => true)
+        add_section("Section A")
+        @sectionA = @course_section
+        add_section("Section B")
+        @sectionB = @course_section
+        @ta_enrollment = course_with_ta(course: @course, name: "Section B TA", active_all: true)
         @ta_enrollment.course_section = @sectionB
         @ta_enrollment.limit_privileges_to_course_section = true
         @ta_enrollment.save!
@@ -244,12 +249,12 @@ describe Analytics::Course do
       end
 
       it "is true with an enrollment in the user's section" do
-        active_student(:section => @sectionB)
+        active_student(section: @sectionB)
         expect(Analytics::Course.available_for?(@ta, @course)).to be_truthy
       end
 
       it "is false with no enrollments in the user's section" do
-        active_student(:section => @sectionA)
+        active_student(section: @sectionA)
         expect(Analytics::Course.available_for?(@ta, @course)).to be_falsey
       end
     end
@@ -274,9 +279,11 @@ describe Analytics::Course do
     context "when the user is section limited" do
       before do
         # set @sectionA, @sectionB, @ta, @ta_enrollment
-        add_section("Section A"); @sectionA = @course_section
-        add_section("Section B"); @sectionB = @course_section
-        @ta_enrollment = course_with_ta(:course => @course, :name => 'Section B TA', :active_all => true)
+        add_section("Section A")
+        @sectionA = @course_section
+        add_section("Section B")
+        @sectionB = @course_section
+        @ta_enrollment = course_with_ta(course: @course, name: "Section B TA", active_all: true)
         @ta_enrollment.course_section = @sectionB
         @ta_enrollment.limit_privileges_to_course_section = true
         @ta_enrollment.save!
@@ -284,12 +291,12 @@ describe Analytics::Course do
       end
 
       it "is true with an enrollment in the user's section" do
-        active_student(:section => @sectionB)
+        active_student(section: @sectionB)
         expect(@ta_analytics).to be_available
       end
 
       it "is false with no enrollments in the user's section" do
-        active_student(:section => @sectionA)
+        active_student(section: @sectionA)
         expect(@ta_analytics).not_to be_available
       end
     end
@@ -298,7 +305,10 @@ describe Analytics::Course do
   describe "#start_date" do
     it "is the earliest effective_start_at of any of Analytics::Course#enrollments" do
       dates = [1.day.ago, 5.days.ago, 3.days.ago]
-      dates.each { |d| e = active_student; e.update_attribute(:start_at, d) }
+      dates.each do |d|
+        e = active_student
+        e.update_attribute(:start_at, d)
+      end
 
       expect(@teacher_analytics.start_date).to eq dates.min
     end
@@ -314,7 +324,10 @@ describe Analytics::Course do
   describe "#end_date" do
     it "is the latest effective_end_at of any of Analytics::Course#enrollments" do
       dates = [1.day.from_now, 5.days.from_now, 3.days.from_now]
-      dates.each { |d| e = active_student; e.update_attribute(:end_at, d) }
+      dates.each do |d|
+        e = active_student
+        e.update_attribute(:end_at, d)
+      end
 
       expect(@teacher_analytics.end_date).to eq dates.max
     end
@@ -322,9 +335,9 @@ describe Analytics::Course do
     it "is 'now' if none of the enrollments have an effective_end_at" do
       dates = [nil, nil, nil]
       dates.each { active_student }
-      @teacher_analytics.enrollments.zip(dates).each { |e, date|
+      @teacher_analytics.enrollments.zip(dates).each do |e, date|
         allow(e).to receive(:effective_end_at).and_return(date)
-      }
+      end
 
       expect(@teacher_analytics.end_date).not_to be_nil
     end
@@ -338,7 +351,7 @@ describe Analytics::Course do
         student_ids << @student.id
       end
 
-      expect(@teacher_analytics.students.map { |s| s.id }.sort).to eq student_ids.sort
+      expect(@teacher_analytics.students.map(&:id).sort).to eq student_ids.sort
     end
 
     it "includes each student only once" do
@@ -346,16 +359,16 @@ describe Analytics::Course do
 
       # add a second enrollment in another section
       add_section("Other Section")
-      @second_enrollment = @course.enroll_student(@student, :section => @course_section,
-                                                            :allow_multiple_enrollments => true)
+      @second_enrollment = @course.enroll_student(@student, section: @course_section,
+                                                            allow_multiple_enrollments: true)
       @second_enrollment.course = @course
-      @second_enrollment.workflow_state = 'active'
+      @second_enrollment.workflow_state = "active"
       @second_enrollment.save!
       @course.reload
 
       # should see both enrollments, but the student only once
       expect(@teacher_analytics.enrollments.size).to eq 2
-      expect(@teacher_analytics.students.map { |s| s.id }).to eq [@student.id]
+      expect(@teacher_analytics.students.map(&:id)).to eq [@student.id]
     end
 
     context "sharding" do
@@ -365,14 +378,14 @@ describe Analytics::Course do
         active_student
 
         @shard1.activate do
-          expect(@teacher_analytics.students.map { |s| s.id }).to eq [@student.id]
+          expect(@teacher_analytics.students.map(&:id)).to eq [@student.id]
 
           @other_student = User.create!
           @course.enroll_student(@other_student).accept!
         end
-        expect(@teacher_analytics.student_scope.where(:id => [@student.id,
-                                                              @other_student.id]).to_a).to match_array([@student,
-                                                                                                        @other_student])
+        expect(@teacher_analytics.student_scope.where(id: [@student.id,
+                                                           @other_student.id]).to_a).to match_array([@student,
+                                                                                                     @other_student])
       end
     end
   end
@@ -405,8 +418,8 @@ describe Analytics::Course do
         active_student
 
         # enroll the student in another course and create a submission there
-        @other_course = course_factory(:active_course => true)
-        course_with_student(:course => @other_course, :user => @student, :active_enrollment => true)
+        @other_course = course_factory(active_course: true)
+        course_with_student(course: @other_course, user: @student, active_enrollment: true)
         @other_assignment = @other_course.assignments.active.create!
         @other_assignment.submissions.find_or_create_by!(user: @student).update! score: 1
 
@@ -417,7 +430,7 @@ describe Analytics::Course do
     describe "Validations" do
       it "does not include submissions with workflow_state deleted" do
         active_student
-        @assignment.submissions.find_or_create_by!(user: @student).update! workflow_state: 'deleted'
+        @assignment.submissions.find_or_create_by!(user: @student).update! workflow_state: "deleted"
         expect(Analytics::Course.submission_scope_for([@assignment])).to be_empty
       end
     end
@@ -427,8 +440,8 @@ describe Analytics::Course do
     it "includes only course_score, not assignment group scores" do
       active_student
 
-      ag = @course.assignment_groups.create! :name => '1'
-      assign = @course.assignments.create! :title => '1', :assignment_group => ag, :points_possible => 100
+      ag = @course.assignment_groups.create! name: "1"
+      assign = @course.assignments.create! title: "1", assignment_group: ag, points_possible: 100
       @submission = assign.submissions.find_or_create_by!(user: @student)
       submit_submission
       grade_submission
@@ -442,16 +455,16 @@ describe Analytics::Course do
     shared_examples_for "#student_summaries" do
       describe "a student's summary" do
         before do
-          active_student(:name => 'Student1')
+          active_student(name: "Student1")
         end
 
         it "counts page_views for that student" do
-          page_view(:user => @student, :course => @course)
+          page_view(user: @student, course: @course)
           expect(student_summary[:page_views]).to eq 1
         end
 
         it "counts participations for that student" do
-          page_view(:user => @student, :course => @course, :participated => true)
+          page_view(user: @student, course: @course, participated: true)
           expect(student_summary[:participations]).to eq 1
         end
 
@@ -463,7 +476,7 @@ describe Analytics::Course do
           end
 
           it "returns 'level' for page_views / participation" do
-            page_view(:user => @student1, :course => @course, :participated => true)
+            page_view(user: @student1, course: @course, participated: true)
             3.times { page_view(user: @student2, course: @course, participated: true) }
             2.times { page_view(user: @student2, course: @course, participated: false) }
             summaries = @teacher_analytics.student_summaries.paginate(per_page: 100)
@@ -479,7 +492,7 @@ describe Analytics::Course do
           end
         end
 
-        it "can return results for specific students", priority: "1", test_id: 2997780 do
+        it "can return results for specific students", priority: "1" do
           student2 = active_student(name: "Student2").user
           summaries = @teacher_analytics
                       .student_summaries(student_ids: [student2.id])
@@ -491,9 +504,9 @@ describe Analytics::Course do
         it "is able to sort by page view even with superfluous counts" do
           old_page_view_counts = @teacher_analytics.page_views_by_student
           allow(@teacher_analytics).to receive(:page_views_by_student)
-            .and_return(old_page_view_counts.merge(user_factory.id => { :page_views => 0, :participations => 0 }))
-          result = @teacher_analytics.student_summaries(sort_column: "page_views_ascending").paginate(:page => 1,
-                                                                                                      :per_page => 2).first
+            .and_return(old_page_view_counts.merge(user_factory.id => { page_views: 0, participations: 0 }))
+          result = @teacher_analytics.student_summaries(sort_column: "page_views_ascending").paginate(page: 1,
+                                                                                                      per_page: 2).first
           expect(result[:id]).to eq @student.id
         end
       end
@@ -511,41 +524,41 @@ describe Analytics::Course do
 
   describe ":tardiness_breakdown" do
     before do
-      active_student(:name => 'Student1')
+      active_student(name: "Student1")
       @teacher = User.create!
       @course.enroll_teacher(@teacher)
     end
 
     it "includes the number of assignments" do
-      5.times { @course.assignments.active.create!(:submission_types => "online", :grading_type => "percent") }
+      5.times { @course.assignments.active.create!(submission_types: "online", grading_type: "percent") }
       expect(student_summary[:tardiness_breakdown][:total]).to eq 5
     end
 
     it "has appropriate data per student" do
       @student1 = @student
-      active_student(:name => 'Student2')
+      active_student(name: "Student2")
       @student2 = @student
 
-      @assignment = @course.assignments.active.create!(:due_at => 1.day.ago, :submission_types => "online",
-                                                       :grading_type => "percent")
+      @assignment = @course.assignments.active.create!(due_at: 1.day.ago, submission_types: "online",
+                                                       grading_type: "percent")
       @submission1 = @assignment.submissions.find_or_create_by!(user: @student1)
       @submission2 = @assignment.submissions.find_or_create_by!(user: @student2)
 
-      submit_submission(:submission => @submission1, :submitted_at => @assignment.due_at - 1.day)
-      submit_submission(:submission => @submission2, :submitted_at => @assignment.due_at + 1.day)
+      submit_submission(submission: @submission1, submitted_at: @assignment.due_at - 1.day)
+      submit_submission(submission: @submission2, submitted_at: @assignment.due_at + 1.day)
 
-      @summaries = @teacher_analytics.student_summaries.paginate(:page => 1, :per_page => 2)
-      expect(@summaries.detect { |s|
+      @summaries = @teacher_analytics.student_summaries.paginate(page: 1, per_page: 2)
+      expect(@summaries.detect do |s|
                s[:id] == @submission1.user_id
-             }             [:tardiness_breakdown]).to eq expected_breakdown(:on_time)
-      expect(@summaries.detect { |s|
+             end             [:tardiness_breakdown]).to eq expected_breakdown(:on_time)
+      expect(@summaries.detect do |s|
                s[:id] == @submission2.user_id
-             }             [:tardiness_breakdown]).to eq expected_breakdown(:late)
+             end             [:tardiness_breakdown]).to eq expected_breakdown(:late)
     end
 
     context "an assignment that has a due date" do
       before do
-        @assignment = @course.assignments.active.create!(:submission_types => "online", :grading_type => "percent")
+        @assignment = @course.assignments.active.create!(submission_types: "online", grading_type: "percent")
         @submission = @assignment.submissions.find_or_create_by!(user: @student)
 
         @assignment.due_at = 1.day.ago
@@ -581,7 +594,7 @@ describe Analytics::Course do
 
         context "when the assignment does not expect a submission" do
           before do
-            @assignment.submission_types = 'none'
+            @assignment.submission_types = "none"
             @assignment.save!
           end
 
@@ -604,7 +617,7 @@ describe Analytics::Course do
 
         context "when the assignment expects an online submission" do
           before do
-            @assignment.submission_types = 'online_text_entry'
+            @assignment.submission_types = "online_text_entry"
             @assignment.save!
           end
 
@@ -631,7 +644,7 @@ describe Analytics::Course do
           @assignment.due_at = 1.day.from_now
           @assignment.save!
 
-          expect_assignment_breakdown(:floating, :total => 1)
+          expect_assignment_breakdown(:floating, total: 1)
           expect_summary_breakdown(:floating)
         end
       end
@@ -639,13 +652,13 @@ describe Analytics::Course do
 
     context "an assignment that has no due date" do
       before do
-        @assignment = @course.assignments.active.create!(:submission_types => "online", :grading_type => "percent")
+        @assignment = @course.assignments.active.create!(submission_types: "online", grading_type: "percent")
         @submission = @assignment.submissions.find_or_create_by!(user: @student)
       end
 
       context "when the assignment expects a submission" do
         it "counts as on time when the student submitted something" do
-          submit_submission(:submitted_at => 1.day.ago)
+          submit_submission(submitted_at: 1.day.ago)
           expect_assignment_breakdown(:on_time)
           expect_summary_breakdown(:on_time)
         end
@@ -690,9 +703,9 @@ describe Analytics::Course do
 
     # sets @student and @student_enrollment
     @student_enrollment = course_with_student(
-      :course => course,
-      :name => opts[:name] || 'Student',
-      :active_user => true
+      course: course,
+      name: opts[:name] || "Student",
+      active_user: true
     )
 
     needs_save = false
@@ -712,38 +725,38 @@ describe Analytics::Course do
   end
 
   def active_student(opts = {})
-    student({ :name => 'Active Student', :enrollment_state => 'active' }.merge(opts))
+    student({ name: "Active Student", enrollment_state: "active" }.merge(opts))
   end
 
   def completed_student(opts = {})
-    student({ :name => 'Completed Student', :enrollment_state => 'completed' }.merge(opts))
+    student({ name: "Completed Student", enrollment_state: "completed" }.merge(opts))
   end
 
   def invited_student(opts = {})
-    student({ :name => 'Invited Student', :enrollment_state => 'invited' }.merge(opts))
+    student({ name: "Invited Student", enrollment_state: "invited" }.merge(opts))
   end
 
   def grade_submission
-    @submission.grade = 'A'
+    @submission.grade = "A"
     @submission.grader = @teacher
-    @submission.score = '1'
+    @submission.score = "1"
     @submission.grade_matches_current_submission = true
     @submission.save!
   end
 
   def submit_submission(opts = {})
     submission = opts[:submission] || @submission
-    submission.submission_type = 'online_text_entry'
+    submission.submission_type = "online_text_entry"
     submission.submitted_at = opts[:submitted_at] if opts[:submitted_at]
     submission.save!
   end
 
   def student_summary(analytics = @teacher_analytics)
-    analytics.student_summaries.paginate(:page => 1, :per_page => 1).first
+    analytics.student_summaries.paginate(page: 1, per_page: 1).first
   end
 
   def expected_breakdown(bin)
-    expected = { :on_time => 0, :late => 0, :missing => 0, :floating => 0, :total => 0 }
+    expected = { on_time: 0, late: 0, missing: 0, floating: 0, total: 0 }
     if bin != :none
       expected[bin] = 1
       expected[:total] = 1
@@ -755,7 +768,7 @@ describe Analytics::Course do
     breakdown = @teacher_analytics.assignments.first[:tardiness_breakdown]
     expected = expected_breakdown(bin)
 
-    if opts.has_key? :total
+    if opts.key? :total
       expected[:total] = opts[:total]
     end
 

@@ -10,16 +10,16 @@ class PageViewsRollups < ActiveRecord::Migration[4.2]
     # will always be <= views) is non-zero; an absent row implies a count of
     # zero.
     create_table :page_views_rollups do |t|
-      t.integer  :course_id, :limit => 8, :null => false
-      t.date     :date,                          :null => false
-      t.string   :category,                      :null => false
-      t.integer  :views,          :default => 0, :null => false
-      t.integer  :participations, :default => 0, :null => false
+      t.integer  :course_id, limit: 8, null: false
+      t.date     :date,                          null: false
+      t.string   :category,                      null: false
+      t.integer  :views,          default: 0, null: false
+      t.integer  :participations, default: 0, null: false
     end
-    add_index :page_views_rollups, [:course_id, :date, :category]
+    add_index :page_views_rollups, %i[course_id date category]
     add_index :page_views_rollups, [:course_id]
 
-    add_foreign_key :page_views_rollups, :courses, :column => :course_id
+    add_foreign_key :page_views_rollups, :courses, column: :course_id
   end
 
   def self.down
