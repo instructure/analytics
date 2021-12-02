@@ -42,7 +42,7 @@ describe Analytics::Department do
     it "does not count courses that are crosslisted" do
       c1 = course_factory(account: @account.sub_accounts.first, active_all: true)
       c2 = course_factory(account: @account.sub_accounts.second, active_all: true)
-      c2.course_sections.create!({ name: "section 2" })
+      c2.course_sections.create!({ :name => "section 2" })
       c2.course_sections.first.crosslist_to_course(c1)
       lst = @acct_statistics.statistics_by_subaccount.sort_by { |x| x[:id] }
       expect(lst[0][:courses]).to eq 0

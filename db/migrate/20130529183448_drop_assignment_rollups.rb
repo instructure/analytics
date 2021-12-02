@@ -9,10 +9,10 @@ class DropAssignmentRollups < ActiveRecord::Migration[4.2]
 
   def self.down
     create_table :assignment_rollups do |t|
-      t.integer  :assignment_id,     limit: 8, null: false
-      t.integer  :course_section_id, limit: 8
+      t.integer  :assignment_id,     :limit => 8, :null => false
+      t.integer  :course_section_id, :limit => 8
       t.datetime :due_at
-      t.string   :title, null: false
+      t.string   :title, :null => false
       t.boolean  :muted
       t.float    :max_score
       t.float    :first_quartile_score
@@ -28,6 +28,6 @@ class DropAssignmentRollups < ActiveRecord::Migration[4.2]
     end
     add_index :assignment_rollups, [:assignment_id]
     add_index :assignment_rollups, [:course_section_id]
-    add_foreign_key :assignment_rollups, :assignments, column: :assignment_id
+    add_foreign_key :assignment_rollups, :assignments, :column => :assignment_id
   end
 end

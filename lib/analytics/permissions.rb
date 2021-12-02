@@ -29,7 +29,7 @@ module Analytics::Permissions
       # does the account even have analytics enabled?
       raise ActiveRecord::RecordNotFound unless service_enabled?(:analytics)
 
-      true
+      return true
     end
 
     def require_analytics_for_department
@@ -46,34 +46,34 @@ module Analytics::Permissions
       else
         # no term specified, use the default term
         @term = @account.root_account.default_enrollment_term
-        @filter = if ["current", "completed"].include?(params[:filter])
-                    # respect the requested filter on the default term
-                    params[:filter]
-                  elsif terms.count > 1
-                    # default behavior for multiple terms is default term, no filter
-                    nil
-                  else
-                    # default behavior for only one term is current courses filter
-                    "current"
-                  end
+        if ['current', 'completed'].include?(params[:filter])
+          # respect the requested filter on the default term
+          @filter = params[:filter]
+        elsif terms.count > 1
+          # default behavior for multiple terms is default term, no filter
+          @filter = nil
+        else
+          # default behavior for only one term is current courses filter
+          @filter = 'current'
+        end
       end
 
       @department_analytics = Analytics::Department.new(@current_user, @account, @term, @filter)
-      true
+      return true
     end
 
     # returns true iff any analytics pages related to this course (whether
     # course or student in course) can be viewed by the current user.
     def require_course_with_analytics
       # do you have permission to use them?
-      scope = Course.where(workflow_state: ["available", "completed"])
+      scope = Course.where(:workflow_state => ['available', 'completed'])
       @course = api_find(scope, params[:course_id])
       return false unless authorized_action(@course, @current_user, :view_analytics)
 
       @course_analytics = Analytics::Course.new(@current_user, @course)
       raise ActiveRecord::RecordNotFound unless @course_analytics.available?
 
-      true
+      return true
     end
 
     # returns true iff the course's analytics page can be viewed by the current
@@ -81,7 +81,7 @@ module Analytics::Permissions
     def require_analytics_for_course
       return false unless require_course_with_analytics
 
-      authorized_action(@course, @current_user, :read_as_admin)
+      return authorized_action(@course, @current_user, :read_as_admin)
     end
 
     # returns true iff the student's analytics in the course page can be viewed
@@ -98,7 +98,7 @@ module Analytics::Permissions
 
       return false unless authorized_action(@student_analytics.enrollment, @current_user, :read_grades)
 
-      true
+      return true
     end
   end
 

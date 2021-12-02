@@ -31,11 +31,9 @@ module Analytics
       course_analytics = Analytics::Course.new(@user, @course)
 
       if level == :full || level == :sections
-        visible_section_ids = if level == :full
-                                @course.course_sections.active.pluck(:id)
-                              else
-                                visibilities.pluck(:course_section_id)
-                              end
+        visible_section_ids = level == :full ?
+          @course.course_sections.active.pluck(:id) :
+          visibilities.map { |s| s[:course_section_id] }
         course_analytics.assignment_rollups_for(visible_section_ids)
       else
         course_analytics.assignments
@@ -46,13 +44,13 @@ module Analytics
     # while pulling this data. The analytics web UI only shows a spinner right now.
     def assignments(_progress = nil)
       @assignments_cache ||=
-        Rails.cache.fetch(assignments_cache_key, expires_in: Analytics::Base.cache_expiry, use_new_rails: false) do
+        Rails.cache.fetch(assignments_cache_key, :expires_in => Analytics::Base.cache_expiry, :use_new_rails => false) {
           assignments_uncached
-        end
+        }
     end
 
     def async_data_available?
-      @assignments_cache ||= Rails.cache.read(assignments_cache_key, use_new_rails: false)
+      @assignments_cache ||= Rails.cache.read(assignments_cache_key, :use_new_rails => false)
       !!@assignments_cache
     end
 
@@ -66,9 +64,9 @@ module Analytics
 
     def current_progress
       Progress.where(
-        context_id: @course, context_type: @course.class.to_s,
-        cache_key_context: assignments_cache_key
-      ).order("created_at").first
+        :context_id => @course, :context_type => @course.class.to_s,
+        :cache_key_context => assignments_cache_key
+      ).order('created_at').first
     end
 
     def progress_for_background_assignments
@@ -80,8 +78,8 @@ module Analytics
 
       unless progress
         progress = Progress.create!(
-          context: @course,
-          tag: tag
+          :context => @course,
+          :tag => tag
         ) { |p| p.cache_key_context = assignments_cache_key }
         progress.process_job(self, :assignments, {})
       end

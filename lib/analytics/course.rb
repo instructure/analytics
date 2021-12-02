@@ -38,22 +38,22 @@ module Analytics
     def enrollments
       @enrollments ||= secondaried do
         rows = enrollment_scope.to_a
-        ActiveRecord::Associations::Preloader.new.preload(rows, [:course_section, { course: :enrollment_term }])
+        ActiveRecord::Associations::Preloader.new.preload(rows, [:course_section, { :course => :enrollment_term }])
         rows
       end
     end
 
     def start_date
-      # TODO: the javascript will break if this comes back nil, so we need a
+      # TODO the javascript will break if this comes back nil, so we need a
       # sensible default. using "now" for the time being, but there's gotta be
       # something better
-      secondaried(cache_as: :start_date) do
+      secondaried(:cache_as => :start_date) do
         [
           enrollment_scope.minimum(:start_at),
           @course.sections_visible_to(@current_user).minimum(:start_at),
           @course.start_at,
           @course.enrollment_term.start_at,
-          @course.enrollment_term.enrollment_dates_overrides.where(enrollment_type: "StudentEnrollment").minimum(:start_at),
+          @course.enrollment_term.enrollment_dates_overrides.where(enrollment_type: 'StudentEnrollment').minimum(:start_at),
         ].compact.min ||
           @course.sections_visible_to(@current_user).minimum(:created_at) ||
           @course.created_at ||
@@ -62,33 +62,33 @@ module Analytics
     end
 
     def end_date
-      # TODO: ditto. "now" makes more sense this time, but it could also make
+      # TODO ditto. "now" makes more sense this time, but it could also make
       # sense to go past "now" if the course has assignments due in the future,
       # for instance.
-      secondaried(cache_as: :end_date) do
+      secondaried(:cache_as => :end_date) do
         [
           enrollment_scope.maximum(:end_at),
           @course.sections_visible_to(@current_user).maximum(:end_at),
           @course.conclude_at,
           @course.enrollment_term.end_at,
-          @course.enrollment_term.enrollment_dates_overrides.where(enrollment_type: "StudentEnrollment").maximum(:end_at),
+          @course.enrollment_term.enrollment_dates_overrides.where(enrollment_type: 'StudentEnrollment').maximum(:end_at),
         ].compact.max || Time.zone.now
       end
     end
 
     def students
-      secondaried(cache_as: :students) { student_scope.order_by_sortable_name.to_a }
+      secondaried(:cache_as => :students) { student_scope.order_by_sortable_name.to_a }
     end
 
     def student_ids
-      secondaried(cache_as: :student_ids) do
+      secondaried(:cache_as => :student_ids) do
         # id of any user with an enrollment, order unimportant
         enrollment_scope.distinct.pluck(:user_id)
       end
     end
 
     def participation
-      secondaried(cache_as: :participation) do
+      secondaried(:cache_as => :participation) do
         @course.page_views_rollups
                .select("date, SUM(views) AS views, SUM(participations) AS participations")
                .group(:date)
@@ -106,9 +106,9 @@ module Analytics
     def basic_assignment_data(assignment, submissions = nil)
       vdd = overridden_assignment(assignment, @current_user)
       super.merge(
-        due_at: vdd.due_at,
-        multiple_due_dates: vdd.multiple_due_dates_apply_to?(@current_user),
-        non_digital_submission: assignment.non_digital_submission?
+        :due_at => vdd.due_at,
+        :multiple_due_dates => vdd.multiple_due_dates_apply_to?(@current_user),
+        :non_digital_submission => assignment.non_digital_submission?
       )
     end
 
@@ -129,13 +129,11 @@ module Analytics
       # wrap up the students for pagination, and then tell it how to sort them
       # and format them
       collection = Analytics::StudentCollection.new(
-        if student_ids
-          student_scope.where(users: { id: student_ids })
-        else
+        student_ids ?
+          student_scope.where(users: { id: student_ids }) :
           student_scope
-        end
       )
-      collection.sort_by(sort_column, page_view_counts: page_view_counts)
+      collection.sort_by(sort_column, :page_view_counts => page_view_counts)
 
       student_summaries = StudentSummaries.new(self, page_view_counts)
       collection.format do |student|
@@ -146,13 +144,13 @@ module Analytics
     end
 
     def page_views_by_student
-      secondaried(cache_as: :page_views_by_student) do
+      secondaried(:cache_as => :page_views_by_student) do
         PageView.counters_by_context_for_users(@course, student_ids)
       end
     end
 
     def page_view_analysis(page_view_counts)
-      secondaried(cache_as: :page_view_analysis) do
+      secondaried(:cache_as => :page_view_analysis) do
         PageViewAnalysis.new(page_view_counts).hash
       end
     end
@@ -167,7 +165,7 @@ module Analytics
 
     def enrollment_scope
       @enrollment_scope ||= @course.apply_enrollment_visibility(@course.all_student_enrollments, @current_user)
-                                   .where(enrollments: { workflow_state: ["active", "completed"] })
+                                   .where(:enrollments => { :workflow_state => ['active', 'completed'] })
     end
 
     def submissions(assignments, student_ids = self.student_ids)
@@ -190,12 +188,12 @@ module Analytics
         subselect = enrollment_scope.select([:id, :user_id]).to_sql
         User.shard(@course.shard)
             .select("DISTINCT (users.id), users.*, scores.current_score as computed_current_score")
-            .joins(@course.send(:sanitize_sql, [<<~SQL.squish, true]))
-              INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id = users.id
-              LEFT JOIN #{Score.quoted_table_name} scores ON
-                scores.enrollment_id = enrollments.id AND
-                scores.course_score = ? AND
-                scores.workflow_state <> 'deleted'
+            .joins(@course.send(:sanitize_sql, [<<-SQL, true]))
+            INNER JOIN (#{subselect}) AS enrollments ON enrollments.user_id = users.id
+            LEFT JOIN #{Score.quoted_table_name} scores ON
+              scores.enrollment_id = enrollments.id AND
+              scores.course_score = ? AND
+              scores.workflow_state <> 'deleted'
             SQL
       end
     end
@@ -203,7 +201,7 @@ module Analytics
     def raw_assignments
       cache_array = [:raw_assignments]
       cache_array << @current_user if differentiated_assignments_applies?
-      secondaried(cache_as: cache_array) do
+      secondaried(:cache_as => cache_array) do
         assignment_scope.to_a
       end
     end
@@ -212,11 +210,11 @@ module Analytics
       @course.shard.activate do
         cache_array = [:tardiness_breakdowns]
         cache_array << @current_user if differentiated_assignments_applies?
-        @tardiness_breakdowns ||= secondaried(cache_as: cache_array) do
+        @tardiness_breakdowns ||= secondaried(:cache_as => cache_array) do
           # initialize breakdown tallies
           breakdowns = {
-            assignments: raw_assignments.map(&:id).index_with { TardinessBreakdown.new },
-            students: student_ids.index_with { TardinessBreakdown.new }
+            assignments: Hash[raw_assignments.map { |a| [a.id, TardinessBreakdown.new] }],
+            students: Hash[student_ids.map { |s_id| [s_id, TardinessBreakdown.new] }]
           }
 
           # load submissions and index them by (assignment, student) tuple

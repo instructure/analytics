@@ -29,18 +29,18 @@ module Analytics::Extensions::CoursesController
       # order of comparisons is meant to let the cheapest counters be
       # evalutated first, so the more expensive ones don't need to be evaluated
       # if a cheap one fails
-      if includes.include?("analytics_url") && service_enabled?(:analytics)
+      if includes.include?('analytics_url') && service_enabled?(:analytics)
         enrollment = (enrollments || []).detect do |e|
-          ["active", "completed"].include?(e.workflow_state) &&
-            ["StudentEnrollment"].include?(e.type) &&
-            ["available", "completed"].include?(context.workflow_state) &&
+          ['active', 'completed'].include?(e.workflow_state) &&
+            ['StudentEnrollment'].include?(e.type) &&
+            ['available', 'completed'].include?(context.workflow_state) &&
             context.grants_right?(current_user, session, :view_analytics) &&
             e.grants_right?(current_user, session, :read_grades)
         end
         if enrollment
           # add the analytics url
           json[:analytics_url] =
-            analytics_student_in_course_path course_id: enrollment.course_id, student_id: enrollment.user_id
+            analytics_student_in_course_path :course_id => enrollment.course_id, :student_id => enrollment.user_id
         end
       end
     end
@@ -51,7 +51,7 @@ module Analytics::Extensions::CoursesController
     # "", [], or nil => []. if it's not one of those, it
     # should already be a non-empty array
     params[:include] = [] if params[:include].blank?
-    params[:include] << "analytics_url" unless params[:include].include? "analytics_url"
+    params[:include] << 'analytics_url' unless params[:include].include? 'analytics_url'
     super
   end
 end
