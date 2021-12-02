@@ -20,7 +20,7 @@
 
 module Analytics
   class TardinessBreakdown
-    # Note: We *think* floating means "future", or "not submitted yet" -- Venk
+    # NOTE: We *think* floating means "future", or "not submitted yet" -- Venk
     attr_accessor :missing, :late, :on_time, :floating
 
     def initialize(missing = 0, late = 0, on_time = 0, floating = 0)
@@ -37,25 +37,25 @@ module Analytics
     def as_hash_scaled(denominator = nil)
       denominator ||= total
       if denominator <= 0
-        { :missing => 0, :late => 0, :on_time => 0, :floating => 0, :total => 0 }
+        { missing: 0, late: 0, on_time: 0, floating: 0, total: 0 }
       else
         {
-          :missing => @missing / denominator.to_f,
-          :late => @late / denominator.to_f,
-          :on_time => @on_time / denominator.to_f,
-          :floating => @floating / denominator.to_f,
-          :total => denominator
+          missing: @missing / denominator.to_f,
+          late: @late / denominator.to_f,
+          on_time: @on_time / denominator.to_f,
+          floating: @floating / denominator.to_f,
+          total: denominator
         }
       end
     end
 
     def as_hash
       {
-        :missing => @missing,
-        :late => @late,
-        :on_time => @on_time,
-        :floating => @floating,
-        :total => total
+        missing: @missing,
+        late: @late,
+        on_time: @on_time,
+        floating: @floating,
+        total: total
       }
     end
 

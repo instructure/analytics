@@ -27,7 +27,7 @@ module Analytics::Extensions::Account
       new_tab = {
         id: TAB_ANALYTICS,
         label: t("Analytics"),
-        css_class: 'analytics_plugin',
+        css_class: "analytics_plugin",
         href: :analytics_department_path
       }
       # insert right before the settings tab

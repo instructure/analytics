@@ -22,27 +22,21 @@ module Analytics
   module Assignments
     # required of host: submissions(assignments)
 
-    SUBMISSION_COLUMNS_SELECT = [:id, :assignment_id, :score, :user_id, :submission_type,
-                                 :submitted_at, :grade, :graded_at, :updated_at, :workflow_state, :cached_due_date, :excused,
-                                 :late_policy_status, :cached_quiz_lti, :posted_at]
-
-    [:accepted_at, :seconds_late_override].each do |column|
-      # this is temporary and will be cleaned up once the commit lands in canvas
-      # which adds seconds_late_override and removes accepted_at
-      SUBMISSION_COLUMNS_SELECT << column if Submission.column_names.include?(column.to_s)
-    end
+    SUBMISSION_COLUMNS_SELECT = %i[id assignment_id score user_id submission_type
+                                   submitted_at grade graded_at grader_id updated_at workflow_state cached_due_date excused
+                                   late_policy_status cached_quiz_lti posted_at seconds_late_override].freeze
 
     def assignments
       cache_array = [:assignments, allow_student_details?]
       cache_array << @current_user if differentiated_assignments_applies?
-      secondaried(:cache_as => cache_array) do
+      secondaried(cache_as: cache_array) do
         assignments = assignment_scope.to_a
-        submissions = submissions(assignments).group_by { |s| s.assignment_id }
+        submissions = submissions(assignments).group_by(&:assignment_id)
         assignment_ids = assignments.map(&:id)
         course_module_tags = @course.context_module_tags.where(
-          content_type: 'Assignment',
+          content_type: "Assignment",
           content_id: assignment_ids,
-          tag_type: 'context_module'
+          tag_type: "context_module"
         ).select([:content_id, :context_module_id]).reorder(:context_module_id).distinct
         course_module_tags_hash = {}
         course_module_tags.each do |t|
@@ -60,15 +54,15 @@ module Analytics
       assignments = assignment_scope.to_a
 
       @course.shard.activate do
-        assignments.map do |assignment|
+        assignments.filter_map do |assignment|
           # cache at this level, so that we cache for all sections and then
           # pick out the relevant sections from the cache below
-          rollups = secondaried(:cache_as => [:assignment_rollups, assignment]) do
+          rollups = secondaried(cache_as: [:assignment_rollups, assignment]) do
             AssignmentRollup.build(@course, assignment)
           end
           rollups = rollups.values_at(*section_ids).compact.reject { |r| r.total_submissions.zero? }
           Rollups::AssignmentRollupAggregate.new(rollups).data
-        end.compact
+        end
       end
     end
 
@@ -108,7 +102,7 @@ module Analytics
       end
 
       hash = basic_assignment_data(assignment, submissions)
-             .merge(:muted => muted(assignment))
+             .merge(muted: muted(assignment))
 
       unless muted(assignment) || suppressed_due_to_few_submissions(real_submissions) || suppressed_due_to_course_setting
         scores = Stats::Counter.new
@@ -118,12 +112,12 @@ module Analytics
         quartiles = scores.quartiles
 
         hash.merge!(
-          :max_score => scores.max,
-          :min_score => scores.min,
-          :first_quartile => quartiles[0],
-          :median => quartiles[1],
-          :third_quartile => quartiles[2],
-          :module_ids => module_ids
+          max_score: scores.max,
+          min_score: scores.min,
+          first_quartile: quartiles[0],
+          median: quartiles[1],
+          third_quartile: quartiles[2],
+          module_ids: module_ids
         )
       end
 
@@ -136,12 +130,12 @@ module Analytics
 
     def basic_assignment_data(assignment, _submissions = nil)
       {
-        :assignment_id => assignment.id,
-        :title => assignment.title,
-        :unlock_at => assignment.unlock_at,
-        :points_possible => assignment.points_possible,
-        :non_digital_submission => assignment.non_digital_submission?,
-        :multiple_due_dates => false # can be overridden in submodules
+        assignment_id: assignment.id,
+        title: assignment.title,
+        unlock_at: assignment.unlock_at,
+        points_possible: assignment.points_possible,
+        non_digital_submission: assignment.non_digital_submission?,
+        multiple_due_dates: false # can be overridden in submodules
       }
     end
 
@@ -160,9 +154,9 @@ module Analytics
 
     def suppressed_due_to_few_submissions(submissions)
       # Need to make sure the submissions are actually submitted.
-      !allow_student_details? && submissions.count { |submission|
+      !allow_student_details? && submissions.count do |submission|
         submission.has_submission? || submission.graded?
-      } < 5
+      end < 5
     end
 
     def suppressed_due_to_course_setting

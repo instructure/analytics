@@ -35,8 +35,8 @@ module Analytics
     end
 
     def hash
-      page_view_stats = ::Stats::Counter.new(page_view_counts.values.map { |x| x[:page_views] })
-      participation_stats = ::Stats::Counter.new(page_view_counts.values.map { |x| x[:participations] })
+      page_view_stats = ::Stats::Counter.new(page_view_counts.values.pluck(:page_views))
+      participation_stats = ::Stats::Counter.new(page_view_counts.values.pluck(:participations))
       {
         max_page_views: page_view_stats.max,
         page_views_quartiles: page_view_stats.quartiles,
