@@ -34,7 +34,7 @@ module Analytics::Extensions::PageView
   def store
     self.summarized = true
     result = super
-    if context_id && context_type == "Course"
+    if context_id && context_type == 'Course'
       PageViewsRollup.increment!(context_id, created_at, category, participated && asset_user_access)
     end
     result
@@ -46,7 +46,7 @@ module Analytics::Extensions::PageView
   module EventStreamExtension
     def initialize(&block)
       super(&block)
-      if table == "page_views"
+      if table == 'page_views'
         on_insert do |page_view|
           Analytics::PageViewIndex::EventStream.update(page_view, true)
         end
@@ -60,30 +60,30 @@ module Analytics::Extensions::PageView
   ::EventStream::Stream.prepend(EventStreamExtension)
 
   CONTROLLER_TO_ACTION = {
-    assignments: :assignments,
-    courses: :general,
-    quizzes: :quizzes,
-    "quizzes/quizzes": :quizzes,
-    "quizzes/quizzes_api": :quizzes,
-    wiki_pages: :pages,
-    gradebooks: :grades,
-    submissions: :assignments,
-    discussion_topics: :discussions,
-    files: :files,
-    context_modules: :modules,
-    announcements: :announcements,
-    collaborations: :collaborations,
-    conferences: :conferences,
-    groups: :groups,
-    question_banks: :quizzes,
-    gradebook2: :grades,
-    wiki_page_revisions: :pages,
-    folders: :files,
-    grading_standards: :grades,
-    discussion_entries: :discussions,
-    assignment_groups: :assignments,
-    quiz_questions: :quizzes,
-    "quizzes/quiz_questions": :quizzes,
-    gradebook_uploads: :grades
-  }.freeze
+    :assignments => :assignments,
+    :courses => :general,
+    :quizzes => :quizzes,
+    :"quizzes/quizzes" => :quizzes,
+    :"quizzes/quizzes_api" => :quizzes,
+    :wiki_pages => :pages,
+    :gradebooks => :grades,
+    :submissions => :assignments,
+    :discussion_topics => :discussions,
+    :files => :files,
+    :context_modules => :modules,
+    :announcements => :announcements,
+    :collaborations => :collaborations,
+    :conferences => :conferences,
+    :groups => :groups,
+    :question_banks => :quizzes,
+    :gradebook2 => :grades,
+    :wiki_page_revisions => :pages,
+    :folders => :files,
+    :grading_standards => :grades,
+    :discussion_entries => :discussions,
+    :assignment_groups => :assignments,
+    :quiz_questions => :quizzes,
+    :"quizzes/quiz_questions" => :quizzes,
+    :gradebook_uploads => :grades
+  }
 end
