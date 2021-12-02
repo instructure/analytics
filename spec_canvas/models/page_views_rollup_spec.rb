@@ -29,7 +29,7 @@ describe PageViewsRollup do
   end
 
   describe ".for_dates" do
-    before :each do
+    before do
       @course = course_model
     end
 
@@ -60,7 +60,7 @@ describe PageViewsRollup do
   end
 
   describe ".for_category" do
-    before :each do
+    before do
       @course = course_model
       @today = Date.today
     end
@@ -81,14 +81,14 @@ describe PageViewsRollup do
   end
 
   describe ".bin_for" do
-    before :each do
+    before do
       @course = course_model
       @today = Date.today
       @category = 'other'
     end
 
     context "new bin" do
-      before :each do
+      before do
         @bin = PageViewsRollup.bin_for(@course, @today, @category)
       end
 
@@ -106,7 +106,7 @@ describe PageViewsRollup do
     end
 
     context "existing bin" do
-      before :each do
+      before do
         @initial = PageViewsRollup.bin_for(@course, @today, @category)
         @initial.views = 5
         @initial.participations = 2
@@ -170,7 +170,7 @@ describe PageViewsRollup do
     end
 
     context "non-Date dates" do
-      before :each do
+      before do
         @expected_date = Date.new(2016, 6, 21)
         # Jun 21, 2016 at 3am UTC
         as_timestamp = @expected_date.in_time_zone('UTC') + 3.hours
@@ -192,7 +192,7 @@ describe PageViewsRollup do
   end
 
   describe "#augment" do
-    before :each do
+    before do
       @bin = PageViewsRollup.bin_for(course_model, Date.today, 'other')
     end
 
@@ -269,7 +269,7 @@ describe PageViewsRollup do
 
   if Canvas.redis_enabled?
     context "with redis" do
-      before(:each) do
+      before do
         Setting.set("page_view_rollups_method", "redis")
       end
 

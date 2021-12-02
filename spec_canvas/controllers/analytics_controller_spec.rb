@@ -21,7 +21,7 @@
 # This file is part of the analytics engine
 
 describe AnalyticsController, :type => :controller do
-  before :each do
+  before do
     @account = Account.default
     @account.allowed_services = '+analytics'
     @account.save!
@@ -67,7 +67,7 @@ describe AnalyticsController, :type => :controller do
   end
 
   describe "course" do
-    before :each do
+    before do
       course_with_teacher_logged_in(:active_all => true)
       student_in_course(:active_all => true)
     end
@@ -150,7 +150,7 @@ describe AnalyticsController, :type => :controller do
   end
 
   describe "student_in_course" do
-    before :each do
+    before do
       RoleOverride.manage_role_override(@account, student_role, 'view_analytics', :override => true)
       course_with_teacher_logged_in(:active_all => true)
       student_in_course(:active_all => true)

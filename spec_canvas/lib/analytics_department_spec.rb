@@ -18,7 +18,7 @@
 #
 
 describe Analytics::Department do
-  before :each do
+  before do
     @account = Account.default
     @account.sub_accounts.create!(name: "Some department")
     @account.sub_accounts.create!(name: "Some other department")

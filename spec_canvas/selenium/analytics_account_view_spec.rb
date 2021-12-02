@@ -30,7 +30,7 @@ describe "analytics account view" do
     expect(find(".AnalyticsStats__#{data_point}").find(".AnalyticsStats__Count").text).to eq expected_count
   end
 
-  before(:each) do
+  before do
     enable_analytics
     course_with_admin_logged_in.user
     @course.update(:start_at => 15.days.ago, :conclude_at => 2.days.from_now)
@@ -88,7 +88,7 @@ describe "analytics account view" do
   end
 
   context "bottom data points with all data" do
-    before(:each) do
+    before do
       students = add_students_to_course(1)
       assignment = @course.active_assignments.create!(:title => 'new assignment')
       assignment.submit_homework(students[0])

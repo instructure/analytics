@@ -21,7 +21,7 @@
 require_relative '../cassandra_spec_helper'
 
 describe Analytics::Course do
-  before :each do
+  before do
     # set @course, @teacher, @teacher_enrollment
     course_factory(:active_course => true)
     @teacher_enrollment = course_with_teacher(:course => @course, :name => 'Teacher', :active_all => true)
@@ -51,6 +51,7 @@ describe Analytics::Course do
           override.save!
         end
       end
+
       describe "when viewed by a teacher" do
         it "multiple_due_dates flag is true" do
           assignment.reload
@@ -73,7 +74,7 @@ describe Analytics::Course do
   end
 
   describe "caching" do
-    before :each do
+    before do
       active_student
 
       add_section("Section")
@@ -87,7 +88,7 @@ describe Analytics::Course do
     it "uses the same cache for users with the same visibility" do
       enable_cache do
         @ta_analytics.students
-        expect(@teacher_analytics).to receive(:student_scope).never
+        expect(@teacher_analytics).not_to receive(:student_scope)
         @teacher_analytics.students
       end
     end
@@ -135,7 +136,7 @@ describe Analytics::Course do
 
   describe "page views" do
     describe "#page_views" do
-      before :each do
+      before do
         active_student
       end
 
@@ -191,7 +192,7 @@ describe Analytics::Course do
     end
 
     context "when the user is section limited" do
-      before :each do
+      before do
         # set @sectionA, @sectionB, @ta, @ta_enrollment
         add_section("Section A"); @sectionA = @course_section
         add_section("Section B"); @sectionB = @course_section
@@ -231,7 +232,7 @@ describe Analytics::Course do
     end
 
     context "when the user is section limited" do
-      before :each do
+      before do
         # set @sectionA, @sectionB, @ta, @ta_enrollment
         add_section("Section A"); @sectionA = @course_section
         add_section("Section B"); @sectionB = @course_section
@@ -271,7 +272,7 @@ describe Analytics::Course do
     end
 
     context "when the user is section limited" do
-      before :each do
+      before do
         # set @sectionA, @sectionB, @ta, @ta_enrollment
         add_section("Section A"); @sectionA = @course_section
         add_section("Section B"); @sectionB = @course_section
@@ -377,7 +378,7 @@ describe Analytics::Course do
   end
 
   describe "#assignments" do
-    before :each do
+    before do
       @assignment = @course.assignments.active.create!
     end
 
@@ -440,7 +441,7 @@ describe Analytics::Course do
   describe "student summaries" do
     shared_examples_for "#student_summaries" do
       describe "a student's summary" do
-        before :each do
+        before do
           active_student(:name => 'Student1')
         end
 
@@ -455,7 +456,7 @@ describe Analytics::Course do
         end
 
         context "levels" do
-          before :each do
+          before do
             @student1 = @student
             @student2 = active_student.user
             @student3 = active_student.user
@@ -509,7 +510,7 @@ describe Analytics::Course do
   end
 
   describe ":tardiness_breakdown" do
-    before :each do
+    before do
       active_student(:name => 'Student1')
       @teacher = User.create!
       @course.enroll_teacher(@teacher)
@@ -543,7 +544,7 @@ describe Analytics::Course do
     end
 
     context "an assignment that has a due date" do
-      before :each do
+      before do
         @assignment = @course.assignments.active.create!(:submission_types => "online", :grading_type => "percent")
         @submission = @assignment.submissions.find_or_create_by!(user: @student)
 
@@ -552,7 +553,7 @@ describe Analytics::Course do
       end
 
       context "when the student submitted something" do
-        before :each do
+        before do
           submit_submission
         end
 
@@ -574,12 +575,12 @@ describe Analytics::Course do
       end
 
       context "when the student hasn't submitted anything but was graded" do
-        before :each do
+        before do
           grade_submission
         end
 
         context "when the assignment does not expect a submission" do
-          before :each do
+          before do
             @assignment.submission_types = 'none'
             @assignment.save!
           end
@@ -602,7 +603,7 @@ describe Analytics::Course do
         end
 
         context "when the assignment expects an online submission" do
-          before :each do
+          before do
             @assignment.submission_types = 'online_text_entry'
             @assignment.save!
           end
@@ -637,7 +638,7 @@ describe Analytics::Course do
     end
 
     context "an assignment that has no due date" do
-      before :each do
+      before do
         @assignment = @course.assignments.active.create!(:submission_types => "online", :grading_type => "percent")
         @submission = @assignment.submissions.find_or_create_by!(user: @student)
       end
@@ -657,7 +658,7 @@ describe Analytics::Course do
       end
 
       context "when the assignment does not expect a submission" do
-        before :each do
+        before do
           @assignment.submission_types = "none"
           @assignment.save!
         end
