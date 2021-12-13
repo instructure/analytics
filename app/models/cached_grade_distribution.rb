@@ -19,7 +19,9 @@
 #
 
 class CachedGradeDistribution < ActiveRecord::Base
-  self.primary_key = :course_id
+  def self.primary_key
+    :course_id
+  end
 
   belongs_to :course
 
