@@ -27,11 +27,11 @@ class PageViewsRollup < ActiveRecord::Base
 
   class << self
     def for_dates(date_range)
-      where(:date => date_range)
+      where(date: date_range)
     end
 
     def for_category(category)
-      where(:category => category)
+      where(category: category)
     end
 
     def bin_scope_for(course)
@@ -40,7 +40,7 @@ class PageViewsRollup < ActiveRecord::Base
       else
         course_id, shard = Shard.local_id_for(course)
         shard ||= Shard.current
-        shard.activate { where(:course_id => course_id) }
+        shard.activate { where(course_id: course_id) }
       end
     end
 
@@ -49,7 +49,7 @@ class PageViewsRollup < ActiveRecord::Base
 
       # ensure just the date portion, and that relative to UTC
       if date.is_a?(ActiveSupport::TimeWithZone)
-        date = date.in_time_zone('UTC').to_date
+        date = date.in_time_zone("UTC").to_date
       end
 
       # they passed a course
@@ -212,20 +212,20 @@ class PageViewsRollup < ActiveRecord::Base
     end
 
     def course_id_from_page_views_rollup_key(key)
-      key.split(':')[2].to_i
+      key.split(":")[2].to_i
     end
 
     def data_key_from_date_and_category(date, category, participation: false)
       components = [
         category,
-        (date.is_a?(Date) ? date.in_time_zone('UTC') : date.utc.at_beginning_of_day).to_i.to_s
+        (date.is_a?(Date) ? date.in_time_zone("UTC") : date.utc.at_beginning_of_day).to_i.to_s
       ]
       components << "participation" if participation
       components.join ":"
     end
 
     def date_and_category_from_data_key(key)
-      category, date, participation = key.split(':')
+      category, date, participation = key.split(":")
       # participation keys are skipped, so don't bother doing the (fairly)
       # expensive timezone calculations on it.
       return [nil, nil] if participation
