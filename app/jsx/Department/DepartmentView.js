@@ -18,7 +18,6 @@ export default class DepartmentView extends Backbone.View {
     // filter combobox
     this.filterBox = new DepartmentFilterBox(this.model)
     this.$('#filter_box').append(this.filterBox.$el)
-    $('.Button').attr("role", "button")
 
     // add graph subview
     new DepartmentGraphView({
