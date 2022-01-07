@@ -64,8 +64,7 @@ module Analytics
     end
 
     def tardiness_breakdown
-      usefix = Setting.get("tardiness_breakdowns_timeout_fix", "false") == "true"
-      breakdown = usefix ? @course.tardiness_breakdowns_for_students([@student.id])[:students][@student.id] : @course.tardiness_breakdowns[:students][@student.id]
+      breakdown = @course.tardiness_breakdowns([@student.id])[:students][@student.id]
       breakdown.nil? ? {} : breakdown.as_hash
     end
 
