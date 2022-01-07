@@ -208,17 +208,7 @@ module Analytics
       end
     end
 
-    def tardiness_breakdowns
-      @course.shard.activate do
-        cache_array = [:tardiness_breakdowns]
-        cache_array << @current_user if differentiated_assignments_applies?
-        @tardiness_breakdowns ||= secondaried(cache_as: cache_array) do
-          tardiness_breakdowns_for_students
-        end
-      end
-    end
-
-    def tardiness_breakdowns_for_students(ids = student_ids)
+    def tardiness_breakdowns(ids = student_ids)
       @course.shard.activate do
         # initialize breakdown tallies
         breakdowns = {
