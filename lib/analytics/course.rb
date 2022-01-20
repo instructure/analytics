@@ -208,36 +208,32 @@ module Analytics
       end
     end
 
-    def tardiness_breakdowns
+    def tardiness_breakdowns(ids = student_ids)
       @course.shard.activate do
-        cache_array = [:tardiness_breakdowns]
-        cache_array << @current_user if differentiated_assignments_applies?
-        @tardiness_breakdowns ||= secondaried(cache_as: cache_array) do
-          # initialize breakdown tallies
-          breakdowns = {
-            assignments: raw_assignments.map(&:id).index_with { TardinessBreakdown.new },
-            students: student_ids.index_with { TardinessBreakdown.new }
-          }
+        # initialize breakdown tallies
+        breakdowns = {
+          assignments: raw_assignments.map(&:id).index_with { TardinessBreakdown.new },
+          students: ids.index_with { TardinessBreakdown.new }
+        }
 
-          # load submissions and index them by (assignment, student) tuple
-          submissions = FakeSubmission.from_scope(submission_scope(raw_assignments))
-          submissions = submissions.index_by { |s| [s.assignment_id, s.user_id] }
+        # load submissions and index them by (assignment, student) tuple
+        submissions = FakeSubmission.from_scope(submission_scope(raw_assignments, ids))
+        submissions = submissions.index_by { |s| [s.assignment_id, s.user_id] }
 
-          # tally each submission (or lack thereof) into the columns and rows of
-          # the breakdown
-          raw_assignments.each do |assignment|
-            student_ids.each do |student_id|
-              submission = submissions[[assignment.id, student_id]]
-              submission.assignment = assignment if submission
-              assignment_submission = AssignmentSubmission.new(assignment, submission)
-              breakdowns[:assignments][assignment.id].tally!(assignment_submission)
-              breakdowns[:students][student_id].tally!(assignment_submission)
-            end
+        # tally each submission (or lack thereof) into the columns and rows of
+        # the breakdown
+        raw_assignments.each do |assignment|
+          ids.each do |student_id|
+            submission = submissions[[assignment.id, student_id]]
+            submission.assignment = assignment if submission
+            assignment_submission = AssignmentSubmission.new(assignment, submission)
+            breakdowns[:assignments][assignment.id].tally!(assignment_submission)
+            breakdowns[:students][student_id].tally!(assignment_submission)
           end
-
-          # done
-          breakdowns
         end
+
+        # done
+        breakdowns
       end
     end
   end
