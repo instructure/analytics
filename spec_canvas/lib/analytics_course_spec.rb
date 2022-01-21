@@ -624,9 +624,13 @@ describe Analytics::Course do
           it "counts only when submitted" do
             @submission.graded_at = @assignment.due_at + 1.day
             @submission.save!
-
-            expect_assignment_breakdown(:missing)
-            expect_summary_breakdown(:missing)
+            if Account.site_admin.feature_enabled?(:remove_missing_status_when_graded)
+              expect_assignment_breakdown(:floating)
+              expect_summary_breakdown(:floating)
+            else
+              expect_assignment_breakdown(:missing)
+              expect_summary_breakdown(:missing)
+            end
           end
         end
       end
