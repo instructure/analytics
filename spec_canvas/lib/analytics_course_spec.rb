@@ -625,8 +625,8 @@ describe Analytics::Course do
             @submission.graded_at = @assignment.due_at + 1.day
             @submission.save!
 
-            expect_assignment_breakdown(:missing)
-            expect_summary_breakdown(:missing)
+            expect_assignment_breakdown(:floating)
+            expect_summary_breakdown(:floating)
           end
         end
       end
