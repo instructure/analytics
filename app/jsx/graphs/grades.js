@@ -4,7 +4,9 @@ import Cover from '../graphs/cover'
 import ScaleByBins from '../graphs/ScaleByBins'
 import YAxis from '../graphs/YAxis'
 import htmlEscape from 'html-escape'
-import I18n from 'i18n!analytics_grades'
+import { useScope as useI18nScope } from '@canvas/i18n';
+
+const I18n = useI18nScope('analytics_grades');
 
 // #
 // Grades visualizes the student's scores on assignments compared to the

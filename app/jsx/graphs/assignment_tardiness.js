@@ -2,8 +2,10 @@ import _ from 'underscore'
 import DateAlignedGraph from '../graphs/DateAlignedGraph'
 import Cover from '../graphs/cover'
 import helpers from '../helpers'
-import I18n from 'i18n!time'
+import { useScope as useI18nScope } from '@canvas/i18n';
 import htmlEscape from 'html-escape'
+
+const I18n = useI18nScope('time');
 
 // #
 // AssignmentTardiness visualizes the student's ability to turn in assignments
