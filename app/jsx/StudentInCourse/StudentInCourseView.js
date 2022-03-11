@@ -10,13 +10,15 @@ import AssignmentTardiness from '../graphs/assignment_tardiness'
 import Grades from '../graphs/grades'
 import colors from '../graphs/colors'
 import StudentComboBox from '../StudentInCourse/StudentComboBox'
-import I18n from 'i18n!student_in_course_view'
+import { useScope as useI18nScope } from '@canvas/i18n';
 import util from '../graphs/util'
 import ActivitiesTable from '../components/ActivitiesTable'
 import StudentSubmissionsTable from '../components/StudentSubmissionsTable'
 import GradesTable from '../components/GradesTable'
 import ResponsivenessTable from '../components/ResponsivenessTable'
 import helpers from '../helpers'
+
+const I18n = useI18nScope('student_in_course_view');
 
 export default class StudentInCourseView extends Backbone.View {
   initialize() {
