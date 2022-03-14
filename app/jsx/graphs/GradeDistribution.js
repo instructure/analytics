@@ -2,9 +2,7 @@ import _ from 'underscore'
 import Base from '../graphs/base'
 import Cover from '../graphs/cover'
 import YAxis from '../graphs/YAxis'
-import { useScope as useI18nScope } from '@canvas/i18n';
-
-const I18n = useI18nScope('grade_distribution');
+import I18n from 'i18n!grade_distribution'
 
 // #
 // GradeDistribution visualizes the distribution of grades across all students
