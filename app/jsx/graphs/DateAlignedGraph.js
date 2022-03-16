@@ -5,9 +5,7 @@ import WeekBinner from '../graphs/WeekBinner'
 import MonthBinner from '../graphs/MonthBinner'
 import ScaleByBins from '../graphs/ScaleByBins'
 import helpers from '../helpers'
-import { useScope as useI18nScope } from '@canvas/i18n';
-
-const I18n = useI18nScope('page_views');
+import I18n from 'i18n!page_views'
 
 // #
 // Parent class for all graphs that have a date-aligned x-axis. Note: Left
