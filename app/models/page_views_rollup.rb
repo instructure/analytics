@@ -83,8 +83,8 @@ class PageViewsRollup < ActiveRecord::Base
           begin
             bin.transaction(requires_new: true) do
               bin.save!
-              return
             end
+            return
           rescue ActiveRecord::RecordNotUnique
             bin = bin_for(scope, date, category)
             raise if bin.new_record?
