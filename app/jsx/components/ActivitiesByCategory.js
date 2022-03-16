@@ -1,9 +1,7 @@
 import React from 'react'
 import ReactBootstrapTable from '../../../public/javascripts/react-bootstrap-table'
-import { useScope as useI18nScope } from '@canvas/i18n';
+import I18n from 'i18n!analytics'
 import helpers from '../helpers'
-
-const I18n = useI18nScope('analytics');
 
 const {BootstrapTable, TableHeaderColumn} = ReactBootstrapTable
 
@@ -20,14 +18,14 @@ export default class ActivitiesByCategory extends React.Component {
   formatDate = (cell, row) => I18n.l('date.formats.default', cell)
 
   formatStyle = (styles = {}) =>
-    (function(cell, row) {
+    function(cell, row) {
       return <span style={styles}>{cell}</span>
-    })
+    }
 
   formatNumber = (styles = {}) =>
-    (function(cell, row) {
+    function(cell, row) {
       return <span style={styles}>{helpers.formatNumber(cell)}</span>
-    })
+    }
 
   render() {
     return (

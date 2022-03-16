@@ -2,10 +2,8 @@ import _ from 'underscore'
 import DateAlignedGraph from '../graphs/DateAlignedGraph'
 import Cover from '../graphs/cover'
 import {delimit} from '@canvas/util/TextHelper.coffee'
-import { useScope as useI18nScope } from '@canvas/i18n';
+import I18n from 'i18n!responsiveness'
 import htmlEscape from 'html-escape'
-
-const I18n = useI18nScope('responsiveness');
 
 // #
 // Responsiveness visualizes the student's communication frequency with the

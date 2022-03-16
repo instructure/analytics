@@ -4,9 +4,7 @@ import template from '../../views/jst/department.handlebars'
 import DepartmentFilterBox from '../Department/DepartmentFilterBox'
 import DepartmentGraphView from '../Department/DepartmentGraphView'
 import StatisticsView from '../Department/StatisticsView'
-import { useScope as useI18nScope } from '@canvas/i18n';
-
-const I18n = useI18nScope('department_view');
+import I18n from 'i18n!department_view'
 
 // #
 // Aggregate view for the Department Analytics page.
