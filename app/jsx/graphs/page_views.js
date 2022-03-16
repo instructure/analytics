@@ -2,8 +2,10 @@ import _ from 'underscore'
 import DateAlignedGraph from '../graphs/DateAlignedGraph'
 import Cover from '../graphs/cover'
 import YAxis from '../graphs/YAxis'
-import I18n from 'i18n!page_views'
+import { useScope as useI18nScope } from '@canvas/i18n';
 import htmlEscape from 'html-escape'
+
+const I18n = useI18nScope('page_views');
 
 // #
 // PageViews visualizes the student's activity within the course. Each bar

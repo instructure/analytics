@@ -1,6 +1,8 @@
 import $ from 'jquery'
-import I18n from 'i18n!analytics'
+import { useScope as useI18nScope } from '@canvas/i18n';
 import 'date'
+
+const I18n = useI18nScope('analytics');
 
 // returns midnight for the given datetime. with mode 'floor' (the default)
 // it's the nearest preceding (or equal) midnight. with mode 'ceil' it's the
