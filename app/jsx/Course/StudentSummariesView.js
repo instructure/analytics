@@ -1,6 +1,8 @@
-import I18n from 'i18n!student_summary'
+import { useScope as useI18nScope } from '@canvas/i18n';
 import PaginatedView from '@canvas/pagination/backbone/views/PaginatedView.coffee'
 import StudentSummaryView from '../Course/StudentSummaryView'
+
+const I18n = useI18nScope('student_summary');
 
 export default class StudentSummariesView extends PaginatedView {
   initialize() {

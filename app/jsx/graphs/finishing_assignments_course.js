@@ -3,8 +3,10 @@ import Base from '../graphs/base'
 import Cover from '../graphs/cover'
 import ScaleByBins from '../graphs/ScaleByBins'
 import YAxis from '../graphs/YAxis'
-import I18n from 'i18n!finishing_assignments'
+import { useScope as useI18nScope } from '@canvas/i18n';
 import htmlEscape from 'html-escape'
+
+const I18n = useI18nScope('finishing_assignments');
 
 // #
 // FinishingAssignmentCourse visualizes the proportion of students that are
