@@ -120,7 +120,7 @@ class AnalyticsController < ApplicationController
       { pseudonyms: :account },
       { pseudonym: :account }
     ]
-    ActiveRecord::Associations::Preloader.new.preload(students, associations)
+    ActiveRecord::Associations.preload(students, associations)
     students.map { |student| student_json(student) }
   end
 
