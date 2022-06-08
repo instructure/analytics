@@ -18,8 +18,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_dependency "analytics/assignment_submission"
-
 module Analytics
   describe AssignmentSubmission do
     let(:assignment) { ::Assignment.create!({ context: course_factory }) }
