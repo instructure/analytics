@@ -18,8 +18,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_dependency "analytics/student_summary"
-
 module Analytics
   describe StudentSummary do
     describe "#tardiness_breakdown" do
