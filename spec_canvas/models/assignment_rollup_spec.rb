@@ -18,8 +18,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_dependency "analytics/assignment_rollup"
-
 module Analytics
   describe AssignmentRollup do
     describe "build" do # rubocop:todo RSpec/EmptyExampleGroup

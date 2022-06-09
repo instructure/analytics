@@ -18,8 +18,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_dependency "analytics/assignments"
-
 module Analytics
   describe Assignments do
     let(:assignments) { AssignmentsHarness.new }
