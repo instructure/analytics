@@ -1,9 +1,11 @@
 import $ from 'jquery'
 import DateAlignedGraph from '../../../app/jsx/graphs/DateAlignedGraph'
-import 'translations/_core_en'
+import coreTranslations from 'translations/en.json'
+import {useTranslations} from '@canvas/i18n'
 
 QUnit.module('DateAlignedGraph', {
   setup() {
+    useTranslations('en', coreTranslations)
     this.$el = $('<div/>')
   }
 })
