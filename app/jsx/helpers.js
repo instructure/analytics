@@ -1,6 +1,6 @@
 import $ from 'jquery'
 import { useScope as useI18nScope } from '@canvas/i18n';
-import 'date'
+import 'date-js'
 
 const I18n = useI18nScope('analytics');
 
