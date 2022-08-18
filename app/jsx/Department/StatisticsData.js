@@ -1,6 +1,5 @@
 import _ from 'underscore'
 import BaseData from '../BaseData'
-import '@canvas/util/TextHelper.coffee'
 
 // #
 // Loads the statistics data for the current account/filter. Exposes
