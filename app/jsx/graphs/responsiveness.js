@@ -1,7 +1,6 @@
 import _ from 'underscore'
 import DateAlignedGraph from '../graphs/DateAlignedGraph'
 import Cover from '../graphs/cover'
-import {delimit} from '@canvas/util/TextHelper.coffee'
 import { useScope as useI18nScope } from '@canvas/i18n';
 import htmlEscape from 'html-escape'
 
