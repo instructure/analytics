@@ -12,7 +12,7 @@ Dependencies
 ------------
 
  * Canvas LMS (https://github.com/instructure/canvas-lms)
- * Cassandra (http://www.datastax.com/docs/1.1/index)
+ * Cassandra 3.11 or older (https://cassandra.apache.org/_/download.html)
 
 Cassandra is already an optional component of installing the Canvas LMS,
 but it is **strongly encouraged** when running this analytics package.
