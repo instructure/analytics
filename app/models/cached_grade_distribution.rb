@@ -36,7 +36,7 @@ class CachedGradeDistribution < ActiveRecord::Base
   private
 
   def reset_score_counts
-    (0..100).each { |score| update_score(score, 0) }
+    101.times { |score| update_score(score, 0) }
   end
 
   def update_score(score, value)

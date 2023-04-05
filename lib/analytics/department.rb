@@ -78,7 +78,7 @@ module Analytics
       secondaried(cache_as: :grade_distribution) do
         result = {}
         distribution = cached_grade_distribution
-        (0..100).each { |i| result[i] = distribution["s#{i}"] }
+        101.times { |i| result[i] = distribution["s#{i}"] }
         result
       end
     end
