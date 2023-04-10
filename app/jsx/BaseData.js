@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import ProgressModel from '@canvas/content-migrations/backbone/models/ContentMigrationProgress.coffee'
+import ProgressModel from '@canvas/content-migrations/backbone/models/ContentMigrationProgress'
 import '@canvas/jquery/jquery.ajaxJSON'
 
 // #
