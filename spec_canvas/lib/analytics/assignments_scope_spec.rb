@@ -26,7 +26,7 @@ module Analytics
     describe "#assignment_scope" do
       before do
         3.times { course.assignments.create }
-        harness.instance_variable_set "@course", course
+        harness.instance_variable_set :@course, course
       end
 
       it "has versions included" do
