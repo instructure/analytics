@@ -99,8 +99,8 @@ module Analytics
 
         def set_pages(pager)
           pager.current_page = (pager.current_page || 1).to_i
-          pager.previous_page = pager.current_page > 1 ? pager.current_page - 1 : nil
-          pager.next_page = pager.current_page * pager.per_page < @sorted_ids.size ? pager.current_page + 1 : nil
+          pager.previous_page = (pager.current_page > 1) ? pager.current_page - 1 : nil
+          pager.next_page = (pager.current_page * pager.per_page < @sorted_ids.size) ? pager.current_page + 1 : nil
           pager.total_entries = (@sorted_ids.size / pager.per_page.to_f).ceil
         end
       end

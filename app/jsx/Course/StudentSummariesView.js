@@ -1,5 +1,5 @@
 import { useScope as useI18nScope } from '@canvas/i18n';
-import PaginatedView from '@canvas/pagination/backbone/views/PaginatedView.coffee'
+import PaginatedView from '@canvas/pagination/backbone/views/PaginatedView'
 import StudentSummaryView from '../Course/StudentSummaryView'
 
 const I18n = useI18nScope('student_summary');

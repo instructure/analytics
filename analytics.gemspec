@@ -12,7 +12,6 @@ Gem::Specification.new do |spec|
   spec.license       = "AGPL-3.0"
 
   spec.files = Dir["{app,config,db,lib,public}/**/*"]
-  spec.test_files = Dir["spec_canvas/**/*"]
 
   spec.add_dependency "autoextend", "~>1.0.0"
   spec.add_dependency "rails", ">= 3.2"

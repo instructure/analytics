@@ -78,18 +78,18 @@ module Analytics
       it "reads and saves the data if available in cache" do
         expect(permitted_course).not_to receive(:assignments_uncached)
         expect(Rails.cache).to receive(:read).once.and_return("data")
-        expect(permitted_course.async_data_available?).to eq true
+        expect(permitted_course.async_data_available?).to be true
         expect(permitted_course.assignments).to eq "data"
       end
 
       it "kicks off a background job when creating the Progress model" do
         enable_cache do
           progress = permitted_course.progress_for_background_assignments
-          expect(permitted_course.async_data_available?).to eq false
+          expect(permitted_course.async_data_available?).to be false
           # returns the same progress again
           expect(permitted_course.progress_for_background_assignments).to eq progress
           run_jobs
-          expect(permitted_course.async_data_available?).to eq true
+          expect(permitted_course.async_data_available?).to be true
           expect(permitted_course.progress_for_background_assignments).to eq progress
         end
       end
