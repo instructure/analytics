@@ -35,8 +35,9 @@ describe ContextController, type: :controller do
       @student1 = user_factory(active_all: true)
       course_with_teacher(active_all: true)
       @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, sis_source_id: "my-section-sis-id",
-                                                                            name: "section2")
+      @section = factory_with_protected_attributes(@course.course_sections,
+                                                   sis_source_id: "my-section-sis-id",
+                                                   name: "section2")
       @enrollment = @course.enroll_user(@student1, "StudentEnrollment", section: @section)
       @enrollment.accept!
     end

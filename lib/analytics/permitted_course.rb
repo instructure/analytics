@@ -66,7 +66,8 @@ module Analytics
 
     def current_progress
       Progress.where(
-        context_id: @course, context_type: @course.class.to_s,
+        context_id: @course,
+        context_type: @course.class.to_s,
         cache_key_context: assignments_cache_key
       ).order("created_at").first
     end

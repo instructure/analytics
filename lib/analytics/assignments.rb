@@ -22,9 +22,23 @@ module Analytics
   module Assignments
     # required of host: submissions(assignments)
 
-    SUBMISSION_COLUMNS_SELECT = %i[id assignment_id score user_id submission_type
-                                   submitted_at grade graded_at grader_id updated_at workflow_state cached_due_date excused
-                                   late_policy_status cached_quiz_lti posted_at seconds_late_override].freeze
+    SUBMISSION_COLUMNS_SELECT = %i[id
+                                   assignment_id
+                                   score
+                                   user_id
+                                   submission_type
+                                   submitted_at
+                                   grade
+                                   graded_at
+                                   grader_id
+                                   updated_at
+                                   workflow_state
+                                   cached_due_date
+                                   excused
+                                   late_policy_status
+                                   cached_quiz_lti
+                                   posted_at
+                                   seconds_late_override].freeze
 
     def assignments
       cache_array = [:assignments, allow_student_details?]

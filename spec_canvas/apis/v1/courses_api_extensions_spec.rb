@@ -37,15 +37,17 @@ describe "Courses API Extensions", type: :request do
       @student1 = user_factory(active_all: true)
       course_with_teacher(active_all: true)
       @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, sis_source_id: "my-section-sis-id",
-                                                                            name: "section2")
+      @section = factory_with_protected_attributes(@course.course_sections,
+                                                   sis_source_id: "my-section-sis-id",
+                                                   name: "section2")
       @enrollment = @course.enroll_user(@student1, "StudentEnrollment", section: @section)
       @enrollment.accept!
       @user = @teacher
     end
 
     def expect_injection(course, students)
-      json = api_call(:get, "/api/v1/courses/#{course.id}/users?include[]=enrollments",
+      json = api_call(:get,
+                      "/api/v1/courses/#{course.id}/users?include[]=enrollments",
                       controller: "courses",
                       action: "users",
                       course_id: course.id.to_s,
@@ -69,7 +71,8 @@ describe "Courses API Extensions", type: :request do
     end
 
     def forbid_injection(course, students)
-      json = api_call(:get, "/api/v1/courses/#{course.id}/users?include[]=enrollments",
+      json = api_call(:get,
+                      "/api/v1/courses/#{course.id}/users?include[]=enrollments",
                       controller: "courses",
                       action: "users",
                       course_id: course.id.to_param,
@@ -183,7 +186,8 @@ describe "Courses API Extensions", type: :request do
     end
 
     it "doesn't duplicate the include param" do
-      raw_api_call(:get, "/api/v1/courses/#{@course.id}/users?include[]=enrollments&include[]=analytics_url",
+      raw_api_call(:get,
+                   "/api/v1/courses/#{@course.id}/users?include[]=enrollments&include[]=analytics_url",
                    controller: "courses",
                    action: "users",
                    course_id: @course.id.to_s,
