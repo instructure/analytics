@@ -47,7 +47,9 @@ describe "Analytics API", type: :request do
               format: "json",
               course_id: course.id.to_s,
               student_id: student.id.to_s },
-            {}, {}, opts]
+            {},
+            {},
+            opts]
 
     if user
       api_call_as_user(user, *args)
@@ -61,8 +63,9 @@ describe "Analytics API", type: :request do
       @student1 = user_factory(active_all: true)
       course_with_teacher(active_all: true)
       @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, sis_source_id: "my-section-sis-id",
-                                                                            name: "section2")
+      @section = factory_with_protected_attributes(@course.course_sections,
+                                                   sis_source_id: "my-section-sis-id",
+                                                   name: "section2")
       @course.enroll_user(@student1, "StudentEnrollment", section: @section).accept!
     end
 
@@ -131,8 +134,9 @@ describe "Analytics API", type: :request do
       @student1 = user_factory(active_all: true)
       course_with_teacher(active_all: true)
       @default_section = @course.default_section
-      @section = factory_with_protected_attributes(@course.course_sections, sis_source_id: "my-section-sis-id",
-                                                                            name: "section2")
+      @section = factory_with_protected_attributes(@course.course_sections,
+                                                   sis_source_id: "my-section-sis-id",
+                                                   name: "section2")
       @course.enroll_user(@student1, "StudentEnrollment", section: @section).accept!
 
       quiz = quiz_klass.create!(title: "quiz1", context: @course, points_possible: 10)
@@ -331,8 +335,11 @@ describe "Analytics API", type: :request do
       RoleOverride.manage_role_override(Account.default, teacher_role, "view_all_grades", override: false)
 
       # should fail
-      raw_api_call(:get, "/api/v1/courses/#{@course.id}/analytics/student_summaries",
-                   controller: "analytics_api", action: "course_student_summaries", format: "json",
+      raw_api_call(:get,
+                   "/api/v1/courses/#{@course.id}/analytics/student_summaries",
+                   controller: "analytics_api",
+                   action: "course_student_summaries",
+                   format: "json",
                    course_id: @course.id.to_s)
       expect(response.status.to_i).to eq 401 # Unauthorized
     end

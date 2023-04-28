@@ -21,7 +21,12 @@
 class Analytics::AssignmentRollup
   attr_accessor :title, :points_possible, :due_at, :muted
   attr_accessor :total_submissions, :late_submissions, :missing_submissions, :on_time_submissions
-  attr_accessor :max_score, :min_score, :first_quartile_score, :median_score, :third_quartile_score, :score_buckets,
+  attr_accessor :max_score,
+                :min_score,
+                :first_quartile_score,
+                :median_score,
+                :third_quartile_score,
+                :score_buckets,
                 :non_digital_submission
   attr_accessor :assignment_id, :course_section_id
   attr_accessor :tardiness_breakdown, :buckets

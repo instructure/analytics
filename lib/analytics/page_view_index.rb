@@ -84,8 +84,10 @@ module Analytics::PageViewIndex
       if participation
         database.update("INSERT INTO participations_by_context (context, created_at, request_id, url, asset_user_access_id, asset_code, asset_category) VALUES (?, ?, ?, ?, ?, ?, ?)",
                         "#{context.global_asset_string}/#{user.global_asset_string}",
-                        page_view.created_at, page_view.request_id,
-                        page_view.url, page_view.asset_user_access_id.to_s,
+                        page_view.created_at,
+                        page_view.request_id,
+                        page_view.url,
+                        page_view.asset_user_access_id.to_s,
                         page_view.asset_user_access.asset_code,
                         page_view.asset_user_access.asset_category)
       end
@@ -98,7 +100,8 @@ module Analytics::PageViewIndex
     def self.participations_for_context(context, user)
       participations = []
       database.execute("SELECT created_at, url FROM participations_by_context %CONSISTENCY% WHERE context = ?",
-                       "#{context.global_asset_string}/#{user.global_asset_string}", consistency: read_consistency_level).fetch do |row|
+                       "#{context.global_asset_string}/#{user.global_asset_string}",
+                       consistency: read_consistency_level).fetch do |row|
         participations << row.to_hash.with_indifferent_access
       end
       participations

@@ -359,8 +359,9 @@ describe Analytics::Course do
 
       # add a second enrollment in another section
       add_section("Other Section")
-      @second_enrollment = @course.enroll_student(@student, section: @course_section,
-                                                            allow_multiple_enrollments: true)
+      @second_enrollment = @course.enroll_student(@student,
+                                                  section: @course_section,
+                                                  allow_multiple_enrollments: true)
       @second_enrollment.course = @course
       @second_enrollment.workflow_state = "active"
       @second_enrollment.save!
@@ -539,7 +540,8 @@ describe Analytics::Course do
       active_student(name: "Student2")
       @student2 = @student
 
-      @assignment = @course.assignments.active.create!(due_at: 1.day.ago, submission_types: "online",
+      @assignment = @course.assignments.active.create!(due_at: 1.day.ago,
+                                                       submission_types: "online",
                                                        grading_type: "percent")
       @submission1 = @assignment.submissions.find_or_create_by!(user: @student1)
       @submission2 = @assignment.submissions.find_or_create_by!(user: @student2)

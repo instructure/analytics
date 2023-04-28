@@ -221,7 +221,8 @@ describe "analytics" do
     end
 
     it "shows assignments on submissions graph" do
-      assmt = @course.assignments.create!(title: "new assignment", points_possible: 10,
+      assmt = @course.assignments.create!(title: "new assignment",
+                                          points_possible: 10,
                                           submission_types: "online_url")
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
 
@@ -235,7 +236,8 @@ describe "analytics" do
         teacher = User.create!
         @course.enroll_teacher(teacher)
       end
-      assmt = @course.assignments.create!(title: "new assignment", points_possible: 10,
+      assmt = @course.assignments.create!(title: "new assignment",
+                                          points_possible: 10,
                                           submission_types: "online_url")
       assmt.grade_student(@student, excuse: true, grader: teacher)
       go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")

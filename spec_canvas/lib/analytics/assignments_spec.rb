@@ -152,10 +152,17 @@ module Analytics
         assignments = AssignmentsHarness.new(this_course)
         data = assignments.assignment_rollups_for(section_ids)
         expect(data).to eq [{
-          assignment_id: assignment.id, title: assignment.title, due_at: assignment.due_at,
-          muted: assignment.muted, points_possible: assignment.points_possible,
-          max_score: 95, min_score: 95, first_quartile: 94,
-          median: 94, third_quartile: 94, tardiness_breakdown: {
+          assignment_id: assignment.id,
+          title: assignment.title,
+          due_at: assignment.due_at,
+          muted: assignment.muted,
+          points_possible: assignment.points_possible,
+          max_score: 95,
+          min_score: 95,
+          first_quartile: 94,
+          median: 94,
+          third_quartile: 94,
+          tardiness_breakdown: {
             missing: 0, late: 0, on_time: 1, total: 1
           }
         }]
