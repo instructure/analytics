@@ -28,7 +28,7 @@ describe PageView::Pv4Client do
 
   describe "#user_in_course_participations" do
     it "caches between requests" do
-      stub = double(body: { "participations" => [], "page_views" => [] }.to_json)
+      stub = double(body: { "participations" => [], "page_views" => {} }.to_json)
       expect(CanvasHttp).to receive(:get).once.and_return(stub)
       course = Course.create!
       user = User.create!
