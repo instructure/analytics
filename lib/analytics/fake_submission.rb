@@ -29,10 +29,20 @@
 module Analytics
   class FakeSubmission
     attr_accessor :assignment
-    attr_reader   :assignment_id, :user_id, :score, :submission_type,
-                  :workflow_state, :excused, :submitted_at, :cached_due_date,
-                  :graded_at, :grader_id, :late_policy_status, :accepted_at,
-                  :seconds_late_override, :cached_quiz_lti
+    attr_reader   :assignment_id,
+                  :user_id,
+                  :score,
+                  :submission_type,
+                  :workflow_state,
+                  :excused,
+                  :submitted_at,
+                  :cached_due_date,
+                  :graded_at,
+                  :grader_id,
+                  :late_policy_status,
+                  :accepted_at,
+                  :seconds_late_override,
+                  :cached_quiz_lti
 
     alias_method :excused?, :excused
     alias_method :cached_quiz_lti?, :cached_quiz_lti
