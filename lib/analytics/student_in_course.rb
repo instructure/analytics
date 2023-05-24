@@ -181,7 +181,8 @@ module Analytics
       # TODO: sharding
       @student_conversation_ids ||= ConversationParticipant
                                     .joins(:conversation)
-                                    .where(Conversation.wildcard("conversations.tags", "course_#{@course.id}",
+                                    .where(Conversation.wildcard("conversations.tags",
+                                                                 "course_#{@course.id}",
                                                                  delimiter: ","))
                                     .where(user_id: @student)
                                     .select(:conversation_id)
