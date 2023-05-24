@@ -51,7 +51,10 @@ module Analytics
     Autoextend.hook(:Permissions, after_load: true) do
       ::Permissions.register :view_analytics,
                              label: -> { I18n.t("#role_override.permissions.view_analytics", "Analytics - view pages") },
-                             available_to: %w[AccountAdmin TaEnrollment TeacherEnrollment StudentEnrollment
+                             available_to: %w[AccountAdmin
+                                              TaEnrollment
+                                              TeacherEnrollment
+                                              StudentEnrollment
                                               AccountMembership],
                              true_for: %w[AccountAdmin TaEnrollment TeacherEnrollment],
                              applies_to_concluded: true

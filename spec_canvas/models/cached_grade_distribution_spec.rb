@@ -178,8 +178,10 @@ describe CachedGradeDistribution do
       )
 
       expect(@dist).not_to receive(:recalculate!)
-      GradeCalculator.recompute_final_score([@student.id], @course.id, grading_period_id: gp.id,
-                                                                       update_course_score: false)
+      GradeCalculator.recompute_final_score([@student.id],
+                                            @course.id,
+                                            grading_period_id: gp.id,
+                                            update_course_score: false)
     end
   end
 end

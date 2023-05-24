@@ -74,7 +74,8 @@ describe "analytics course view" do
       validate_element_fill(on_time_bar, GraphColors::SHARP_GREEN)
 
       # validate first bar tooltip info
-      validation_text = [@missed_assignment.title, "Due: " + TextHelper.date_string(@missed_assignment.due_at),
+      validation_text = [@missed_assignment.title,
+                         "Due: " + TextHelper.date_string(@missed_assignment.due_at),
                          "Missing: 100%"]
       validation_text.each do |text|
         validate_tooltip_text("#{finishing_graph_css} .assignment_#{@missed_assignment.id}.cover", text)

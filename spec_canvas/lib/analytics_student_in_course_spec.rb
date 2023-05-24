@@ -42,8 +42,13 @@ module Analytics
 
       it "has a :submission field" do
         assignment = double("assignment")
-        subm = double("subm", user_id: @student.id, score: 10, submitted_at: time1, posted_at: time_posted,
-                              missing?: false, excused?: false)
+        subm = double("subm",
+                      user_id: @student.id,
+                      score: 10,
+                      submitted_at: time1,
+                      posted_at: time_posted,
+                      missing?: false,
+                      excused?: false)
         data = analytics.extended_assignment_data(assignment, [subm])
         expect(data).to eq({
                              excused: false,

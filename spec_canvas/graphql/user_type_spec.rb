@@ -36,7 +36,9 @@ describe Types::UserType do
 
     it "is nil for teachers without permission" do
       RoleOverride.manage_role_override(
-        Account.default, teacher_role, "view_analytics",
+        Account.default,
+        teacher_role,
+        "view_analytics",
         override: false
       )
       expect(
