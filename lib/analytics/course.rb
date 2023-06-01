@@ -135,7 +135,7 @@ module Analytics
           student_scope
         end
       )
-      collection.sort_by(sort_column, page_view_counts: page_view_counts)
+      collection.sort_by(sort_column, page_view_counts:)
 
       student_summaries = StudentSummaries.new(self, page_view_counts)
       collection.format do |student|

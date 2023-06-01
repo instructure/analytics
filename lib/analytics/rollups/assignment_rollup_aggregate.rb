@@ -59,7 +59,7 @@ module Analytics::Rollups
       late = @rollups.sum(&:unscaled_late_submissions)
       on_time = @rollups.sum(&:unscaled_on_time_submissions)
       if total > 0
-        Analytics::TardinessBreakdown.new(missing, late, on_time).as_hash_scaled(total).merge(total: total)
+        Analytics::TardinessBreakdown.new(missing, late, on_time).as_hash_scaled(total).merge(total:)
       else
         { missing: 0, late: 0, on_time: 0, total: 0 }
       end

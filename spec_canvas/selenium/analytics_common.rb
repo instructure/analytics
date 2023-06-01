@@ -56,8 +56,8 @@ shared_examples_for "analytics tests" do
 
     page_view = PageView.new(
       context: course,
-      user: user,
-      controller: controller
+      user:,
+      controller:
     )
 
     page_view.summarized = summarized

@@ -26,7 +26,7 @@ describe AnalyticsApiController do
     allow(controller).to receive_messages(api_request?: true,
                                           require_analytics_for_course: true,
                                           render: "RENDERED!",
-                                          params: params,
+                                          params:,
                                           api_v1_course_student_summaries_url: "/",
                                           session: nil)
   end

@@ -25,8 +25,8 @@ module Analytics
       user = opts[:user] || @user
 
       page_view = page_view_model(
-        context: context,
-        user: user,
+        context:,
+        user:,
         controller: opts[:controller]
       )
 

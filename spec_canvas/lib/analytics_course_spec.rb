@@ -705,7 +705,7 @@ describe Analytics::Course do
 
     # sets @student and @student_enrollment
     @student_enrollment = course_with_student(
-      course: course,
+      course:,
       name: opts[:name] || "Student",
       active_user: true
     )

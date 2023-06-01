@@ -37,7 +37,7 @@ describe Analytics::StudentCollection do
       id = 5
       page_view_counts = { id => { page_views: 0, participations: 0 } }
       collection = Analytics::StudentCollection.new(User)
-      collection.sort_by(:page_views, page_view_counts: page_view_counts)
+      collection.sort_by(:page_views, page_view_counts:)
       expect(collection.sort_strategy.sorted_ids).to eq [id]
     end
   end
@@ -288,7 +288,7 @@ describe Analytics::StudentCollection do
       it "passes :page_view_counts to ByPageViews" do
         id = 5
         page_view_counts = { id => { page_views: 0, participations: 0 } }
-        strategy = Analytics::StudentCollection::SortStrategy.for(:page_views, page_view_counts: page_view_counts)
+        strategy = Analytics::StudentCollection::SortStrategy.for(:page_views, page_view_counts:)
         expect(strategy.sorted_ids).to eq [id]
       end
 
@@ -296,7 +296,7 @@ describe Analytics::StudentCollection do
         id = 5
         page_view_counts = { id => { page_views: 0, participations: 0 } }
         strategy = Analytics::StudentCollection::SortStrategy.for(:participations,
-                                                                  page_view_counts: page_view_counts)
+                                                                  page_view_counts:)
         expect(strategy.sorted_ids).to eq [id]
       end
     end

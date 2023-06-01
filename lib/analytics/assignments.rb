@@ -131,7 +131,7 @@ module Analytics
           first_quartile: quartiles[0],
           median: quartiles[1],
           third_quartile: quartiles[2],
-          module_ids: module_ids
+          module_ids:
         )
       end
 
