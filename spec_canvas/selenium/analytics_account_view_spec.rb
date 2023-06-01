@@ -71,7 +71,7 @@ describe "analytics account view" do
 
     it "validates activity by category graph" do
       controllers = %w[files gradebook2 groups assignments]
-      controllers.each { |controller| page_view(user: @student, course: @course, controller: controller) }
+      controllers.each { |controller| page_view(user: @student, course: @course, controller:) }
       go_to_analytics("/accounts/#{account_id}/analytics")
       controllers.each do |controller|
         validate_tooltip_text("#participating-category-graph .#{controller}", "1 page view")

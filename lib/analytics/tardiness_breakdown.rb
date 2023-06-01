@@ -55,7 +55,7 @@ module Analytics
         late: @late,
         on_time: @on_time,
         floating: @floating,
-        total: total
+        total:
       }
     end
 

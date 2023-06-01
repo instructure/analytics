@@ -142,7 +142,7 @@ module Analytics
       # not via crosslisting)
       @account.course_account_associations
               .joins(:course)
-              .where(courses: { enrollment_term_id: term, workflow_state: workflow_state })
+              .where(courses: { enrollment_term_id: term, workflow_state: })
               .where(course_section_id: nil)
     end
 

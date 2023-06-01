@@ -43,7 +43,7 @@ describe "Analytics API", type: :request do
     args = [:get,
             "/api/v1/courses/#{course.id}/analytics/users/#{student.id}" + suffix,
             { controller: "analytics_api",
-              action: action,
+              action:,
               format: "json",
               course_id: course.id.to_s,
               student_id: student.id.to_s },
