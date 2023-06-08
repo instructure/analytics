@@ -25,8 +25,8 @@ def page_view(opts = {})
 
   page_view = PageView.new(
     context: course,
-    user: user,
-    controller: controller
+    user:,
+    controller:
   )
 
   page_view.request_id = SecureRandom.uuid

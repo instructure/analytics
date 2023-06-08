@@ -66,7 +66,7 @@ module Analytics
       describe "#assignment_data" do
         subject { OpenStruct.new(assignments.assignment_data(assignment, scores)) }
 
-        let(:scores) { (1..5).map { |score| double(score: score, user_id: 123) } }
+        let(:scores) { (1..5).map { |score| double(score:, user_id: 123) } }
 
         before do
           allow(assignments).to receive(:fake_student_ids).and_return([])
@@ -142,9 +142,9 @@ module Analytics
       it "retrieves a hash that looks like assignments if there are rollups" do
         skip("requires the submission cached_due_at updating code")
         user = User.create!
-        enrollment = StudentEnrollment.create!(user: user, course: this_course, course_section: sections.first)
+        enrollment = StudentEnrollment.create!(user:, course: this_course, course_section: sections.first)
         Enrollment.where(id: enrollment).update_all(workflow_state: "active")
-        submission = assignment.submissions.find_or_create_by!(user: user).update! score: 95
+        submission = assignment.submissions.find_or_create_by!(user:).update! score: 95
         submission.submitted_at = 2.days.ago
         submission.graded_at = 2.days.ago
         submission.save!

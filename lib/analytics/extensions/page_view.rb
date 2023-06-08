@@ -44,8 +44,8 @@ module Analytics::Extensions::PageView
   # and there's no direct hook to capture the later constant assignment
   # so hook the creation of the stream, and add our hooks then
   module EventStreamExtension
-    def initialize(&block)
-      super(&block)
+    def initialize(&)
+      super(&)
       if table == "page_views"
         on_insert do |page_view|
           Analytics::PageViewIndex::EventStream.update(page_view, true)
