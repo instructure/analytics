@@ -82,7 +82,7 @@ module Analytics
       unless progress
         progress = Progress.create!(
           context: @course,
-          tag: tag
+          tag:
         ) { |p| p.cache_key_context = assignments_cache_key }
         progress.process_job(self, :assignments, {})
       end

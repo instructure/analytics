@@ -31,7 +31,7 @@ module Analytics
       let(:shard) { double("shard") }
       let(:course) do
         double("course",
-               shard: shard,
+               shard:,
                section_visibilities_for: [{ course_section_id: "SECTION_ID1" }],
                course_sections: double("course_sections",
                                        active: double("active_course_sections",

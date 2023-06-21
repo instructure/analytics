@@ -39,7 +39,7 @@ module Analytics
         participations: participations[:total],
         max_participations: participations[:max],
         participations_level: participations[:level],
-        tardiness_breakdown: tardiness_breakdown,
+        tardiness_breakdown:,
       }
     end
 
@@ -57,7 +57,7 @@ module Analytics
       quartiles = @analysis[:"#{type}_quartiles"]
 
       {
-        total: total,
+        total:,
         max: @analysis[:"max_#{type}"],
         level: level(total, quartiles)
       }

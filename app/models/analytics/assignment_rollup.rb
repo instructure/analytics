@@ -144,17 +144,17 @@ class Analytics::AssignmentRollup
 
   def data
     {
-      assignment_id: assignment_id,
-      title: title,
-      due_at: due_at,
-      muted: muted,
+      assignment_id:,
+      title:,
+      due_at:,
+      muted:,
       first_quartile: first_quartile_score,
-      max_score: max_score,
+      max_score:,
       median: median_score,
-      min_score: min_score,
-      points_possible: points_possible,
+      min_score:,
+      points_possible:,
       third_quartile: third_quartile_score,
-      non_digital_submission: non_digital_submission,
+      non_digital_submission:,
       tardiness_breakdown: {
         late: late_submissions,
         missing: missing_submissions,

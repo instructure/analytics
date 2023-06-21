@@ -75,7 +75,7 @@ module Analytics
                cached_due_date: due_at,
                missing?: false,
                late?: false,
-               submitted_at: submitted_at)
+               submitted_at:)
       end
 
       it "lets overridden_for determine the due_at value" do
