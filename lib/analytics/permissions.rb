@@ -103,7 +103,7 @@ module Analytics::Permissions
   end
 
   def self.included(klass)
-    klass.send :include, InstanceMethods
+    klass.include InstanceMethods
     klass.extend ClassMethods
 
     klass.before_action :require_user # comes from ApplicationController
