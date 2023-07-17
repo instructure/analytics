@@ -108,7 +108,7 @@ module Analytics
 
     def submitted_status
       # If the submission does not exist then assume there are no overrides
-      # and use the assignments date due.  The DueDateCacher should cache due
+      # and use the assignments date due.  The SubmissionLifecycleManager should cache due
       # dates if they are overridden.
       if !@submission
         if @assignment.overdue?
