@@ -56,8 +56,7 @@ module Analytics
         end
 
         it "returns submitted_at when not graded" do
-          allow(submission).to receive(:submitted_at).and_return(date)
-          allow(submission).to receive(:graded?).and_return(false)
+          allow(submission).to receive_messages(submitted_at: date, graded?: false)
 
           assignment_submission = AssignmentSubmission.new(assignment, submission)
           expect(assignment_submission.recorded_at).to eq date
@@ -66,9 +65,7 @@ module Analytics
         it "returns nil when graded_at is nil and not graded nor submitted" do
           assignment_submission = AssignmentSubmission.new(assignment, submission)
 
-          allow(assignment_submission).to receive(:graded?).and_return(true)
-          allow(assignment_submission).to receive(:graded_at).and_return(nil)
-          allow(assignment_submission).to receive(:due_at).and_return(date)
+          allow(assignment_submission).to receive_messages(graded?: true, graded_at: nil, due_at: date)
 
           expect(assignment_submission.recorded_at).to be_nil
         end
@@ -76,9 +73,7 @@ module Analytics
         it "returns graded_at when due_at does not exist" do
           assignment_submission = AssignmentSubmission.new(assignment, submission)
 
-          allow(assignment_submission).to receive(:graded?).and_return(true)
-          allow(assignment_submission).to receive(:graded_at).and_return(date)
-          allow(assignment_submission).to receive(:due_at).and_return(nil)
+          allow(assignment_submission).to receive_messages(graded?: true, graded_at: date, due_at: nil)
 
           expect(assignment_submission.recorded_at).to eq date
         end
@@ -86,9 +81,7 @@ module Analytics
         it "returns due_at when due_at is before graded_at" do
           assignment_submission = AssignmentSubmission.new(assignment, submission)
 
-          allow(assignment_submission).to receive(:graded?).and_return(true)
-          allow(assignment_submission).to receive(:due_at).and_return(date)
-          allow(assignment_submission).to receive(:graded_at).and_return(date + 2.days)
+          allow(assignment_submission).to receive_messages(graded?: true, due_at: date, graded_at: date + 2.days)
 
           expect(assignment_submission.recorded_at).to eq date
         end
@@ -96,17 +89,13 @@ module Analytics
         it "returns graded_at when graded_at is before due_at" do
           assignment_submission = AssignmentSubmission.new(assignment, submission)
 
-          allow(assignment_submission).to receive(:graded?).and_return(true)
-          allow(assignment_submission).to receive(:due_at).and_return(date + 2.days)
-          allow(assignment_submission).to receive(:graded_at).and_return(date)
+          allow(assignment_submission).to receive_messages(graded?: true, due_at: date + 2.days, graded_at: date)
 
           expect(assignment_submission.recorded_at).to eq date
         end
 
         it "returns graded_at when its not passed the due date and graded at a grade greater than zero" do
-          allow(submission).to receive(:graded?).and_return(true)
-          allow(submission).to receive(:graded_at).and_return(date)
-          allow(submission).to receive(:score).and_return(10)
+          allow(submission).to receive_messages(graded?: true, graded_at: date, score: 10)
 
           assignment_submission = AssignmentSubmission.new(assignment, submission)
           allow(assignment_submission).to receive(:due_at).and_return(date + 2.days)
@@ -115,9 +104,7 @@ module Analytics
         end
 
         it "returns nil when its not passed the due date and graded at a grade of zero" do
-          allow(submission).to receive(:graded?).and_return(true)
-          allow(submission).to receive(:graded_at).and_return(date)
-          allow(submission).to receive(:score).and_return(0)
+          allow(submission).to receive_messages(graded?: true, graded_at: date, score: 0)
 
           assignment_submission = AssignmentSubmission.new(assignment, submission)
           allow(assignment_submission).to receive(:due_at).and_return(date + 2.days)
