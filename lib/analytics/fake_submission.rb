@@ -37,6 +37,7 @@ module Analytics
                   :excused,
                   :submitted_at,
                   :cached_due_date,
+                  :custom_grade_status_id,
                   :graded_at,
                   :grader_id,
                   :late_policy_status,
@@ -59,6 +60,7 @@ module Analytics
       @graded_at       = data["graded_at"]
       @grader_id       = data["grader_id"]
       @cached_due_date = data["cached_due_date"]
+      @custom_grade_status_id = data["custom_grade_status_id"]&.to_i
       @late_policy_status = data["late_policy_status"]
       @cached_quiz_lti = data["cached_quiz_lti"].presence || false
 
