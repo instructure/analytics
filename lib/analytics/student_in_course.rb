@@ -185,9 +185,8 @@ module Analytics
                                                                  "course_#{@course.id}",
                                                                  delimiter: ","))
                                     .where(user_id: @student)
-                                    .select(:conversation_id)
                                     .distinct
-                                    .map(&:conversation_id)
+                                    .pluck(:conversation_id)
     end
 
     def shared_conversation_ids
@@ -199,9 +198,8 @@ module Analytics
       @shared_conversation_ids ||= ConversationParticipant
                                    .where(user_id: instructors)
                                    .where(conversation_id: student_conversation_ids)
-                                   .select(:conversation_id)
                                    .distinct
-                                   .map(&:conversation_id)
+                                   .pluck(:conversation_id)
     end
   end
 end
