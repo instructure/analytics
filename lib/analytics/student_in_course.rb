@@ -76,7 +76,7 @@ module Analytics
         # don't want to use Time#to_s on the keys in Hash#to_json
         buckets = {}
         PageView.counters_by_context_and_hour(@course, @student).each do |bucket, count|
-          bucket = bucket.is_a?(String) ? bucket : bucket.in_time_zone.iso8601
+          bucket = bucket.in_time_zone.iso8601 unless bucket.is_a?(String)
           buckets[bucket] = count
         end
         buckets
@@ -185,9 +185,8 @@ module Analytics
                                                                  "course_#{@course.id}",
                                                                  delimiter: ","))
                                     .where(user_id: @student)
-                                    .select(:conversation_id)
                                     .distinct
-                                    .map(&:conversation_id)
+                                    .pluck(:conversation_id)
     end
 
     def shared_conversation_ids
@@ -199,9 +198,8 @@ module Analytics
       @shared_conversation_ids ||= ConversationParticipant
                                    .where(user_id: instructors)
                                    .where(conversation_id: student_conversation_ids)
-                                   .select(:conversation_id)
                                    .distinct
-                                   .map(&:conversation_id)
+                                   .pluck(:conversation_id)
     end
   end
 end

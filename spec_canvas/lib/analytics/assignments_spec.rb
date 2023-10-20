@@ -69,8 +69,7 @@ module Analytics
         let(:scores) { (1..5).map { |score| double(score:, user_id: 123) } }
 
         before do
-          allow(assignments).to receive(:fake_student_ids).and_return([])
-          allow(assignments).to receive(:allow_student_details?).and_return(true)
+          allow(assignments).to receive_messages(fake_student_ids: [], allow_student_details?: true)
         end
 
         describe "#max_score" do

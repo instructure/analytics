@@ -181,8 +181,7 @@ module Analytics
       it "rollups each day between start and end in reverse order" do
         start_day = Date.today - 4.days
         end_day = Date.today
-        allow(PageViewRoller).to receive(:start_day).and_return(start_day)
-        allow(PageViewRoller).to receive(:end_day).and_return(end_day)
+        allow(PageViewRoller).to receive_messages(start_day:, end_day:)
         (start_day..end_day).reverse_each do |day|
           expect(PageViewRoller).to receive(:rollup_one).with(day, anything).ordered
         end

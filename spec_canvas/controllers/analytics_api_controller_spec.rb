@@ -32,8 +32,10 @@ describe AnalyticsApiController do
   end
 
   describe "#course_student_summaries" do
-    let(:course) { double(grants_any_right?: false).as_null_object }
-    let(:user) { double.as_null_object }
+    let(:enrollment) { course_with_teacher }
+    let(:course) { enrollment.course }
+    let(:user) { enrollment.user }
+    let(:role) { enrollment.role }
     let(:analytics) { double(student_summaries: ["summary1"]).as_null_object }
 
     before do
@@ -45,7 +47,8 @@ describe AnalyticsApiController do
 
     describe "when the user can manage_grades" do
       before do
-        expect(course).to receive(:grants_any_right?).with(user, nil, :manage_grades, :view_all_grades).and_return(true)
+        RoleOverride.create!(permission: "manage_grades", enabled: true, context: @course.account, role:)
+        RoleOverride.create!(permission: "view_all_grades", enabled: true, context: @course.account, role:)
       end
 
       it "renders the json" do
@@ -71,6 +74,11 @@ describe AnalyticsApiController do
     end
 
     describe "when the user has no grades permissions" do
+      before do
+        RoleOverride.create!(permission: "manage_grades", enabled: false, context: @course.account, role:)
+        RoleOverride.create!(permission: "view_all_grades", enabled: false, context: @course.account, role:)
+      end
+
       it "does not render the json" do
         expect(controller).to receive(:render_unauthorized_action)
         expect(controller.course_student_summaries).not_to eq "RENDERED!"
