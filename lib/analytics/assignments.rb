@@ -34,6 +34,7 @@ module Analytics
                                    updated_at
                                    workflow_state
                                    cached_due_date
+                                   custom_grade_status_id
                                    excused
                                    late_policy_status
                                    cached_quiz_lti
