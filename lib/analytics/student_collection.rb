@@ -59,7 +59,7 @@ module Analytics
 
       class ByName < Default
         def paginate(scope, pager)
-          super scope.order_by_sortable_name(direction: @direction), pager
+          super(scope.order_by_sortable_name(direction: @direction), pager)
         end
       end
 
@@ -73,7 +73,7 @@ module Analytics
         end
 
         def paginate(scope, pager)
-          super scope.order(order), pager
+          super(scope.order(order), pager)
         end
       end
 
@@ -108,14 +108,14 @@ module Analytics
       class ByPageViews < BySortedIDs
         def initialize(page_view_counts, direction = :ascending)
           sorted_ids = page_view_counts.keys.sort_by { |id| [page_view_counts[id][:page_views], id] }
-          super sorted_ids, direction
+          super(sorted_ids, direction)
         end
       end
 
       class ByParticipations < BySortedIDs
         def initialize(page_view_counts, direction = :ascending)
           sorted_ids = page_view_counts.keys.sort_by { |id| [page_view_counts[id][:participations], id] }
-          super sorted_ids, direction
+          super(sorted_ids, direction)
         end
       end
 

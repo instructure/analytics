@@ -165,8 +165,8 @@ class Analytics::AssignmentRollup
   end
 
   %i[late missing on_time].each do |submission_type|
-    base_method_name = "#{submission_type}_submissions".to_sym
-    define_method "unscaled_#{base_method_name}".to_sym do
+    base_method_name = :"#{submission_type}_submissions"
+    define_method :"unscaled_#{base_method_name}" do
       send(base_method_name) * total_submissions
     end
   end
