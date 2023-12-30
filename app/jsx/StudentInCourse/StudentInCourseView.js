@@ -1,16 +1,34 @@
+/*
+ * Copyright (C) 2023 - present Instructure, Inc.
+ *
+ * This file is part of Canvas.
+ *
+ * Canvas is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, version 3 of the License.
+ *
+ * Canvas is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import React from 'react'
 import $ from 'jquery'
-import _ from 'underscore'
+import {debounce, each, omit, groupBy} from 'lodash'
 import Backbone from '@canvas/backbone'
-import template from '../../views/jst/student_in_course.handlebars'
 import avatarPartial from '@canvas/avatar/jst/_avatar.handlebars'
+import {useScope as useI18nScope} from '@canvas/i18n'
+import template from '../../views/jst/student_in_course.handlebars'
 import PageViews from '../graphs/page_views'
 import Responsiveness from '../graphs/responsiveness'
 import AssignmentTardiness from '../graphs/assignment_tardiness'
 import Grades from '../graphs/grades'
 import colors from '../graphs/colors'
-import StudentComboBox from '../StudentInCourse/StudentComboBox'
-import { useScope as useI18nScope } from '@canvas/i18n';
+import StudentComboBox from './StudentComboBox'
 import util from '../graphs/util'
 import ActivitiesTable from '../components/ActivitiesTable'
 import StudentSubmissionsTable from '../components/StudentSubmissionsTable'
@@ -18,7 +36,7 @@ import GradesTable from '../components/GradesTable'
 import ResponsivenessTable from '../components/ResponsivenessTable'
 import helpers from '../helpers'
 
-const I18n = useI18nScope('student_in_course_view');
+const I18n = useI18nScope('student_in_course_view')
 
 export default class StudentInCourseView extends Backbone.View {
   initialize() {
@@ -32,7 +50,7 @@ export default class StudentInCourseView extends Backbone.View {
     this.$el = $(
       template({
         student: _.omit(student.toJSON(), 'html_url'),
-        course: course.toJSON()
+        course: course.toJSON(),
       })
     )
 
@@ -60,7 +78,7 @@ export default class StudentInCourseView extends Backbone.View {
     })
     return $(window).on(
       'resize',
-      _.debounce(() => {
+      debounce(() => {
         const newWidth = util.computeGraphWidth()
         this.pageViews.resize({width: newWidth})
         this.responsiveness.resize({width: newWidth})
@@ -103,7 +121,7 @@ export default class StudentInCourseView extends Backbone.View {
   }
 
   renderTables(tables = []) {
-    _.each(tables, table => {
+    each(tables, table => {
       if (table.data.loading != null) {
         table.data.loading.done(() => this.renderTable(table))
       } else {
@@ -122,11 +140,11 @@ export default class StudentInCourseView extends Backbone.View {
   //   studentMessages: Number
   // }
   formatResponsivenessData(data) {
-    const groups = _.groupBy(data, 'date')
+    const groups = groupBy(data, 'date')
     return Object.keys(groups).map(key => ({
       date: new Date(key),
       instructorMessages: groups[key].filter(obj => obj.track === 'instructor').length,
-      studentMessages: groups[key].filter(obj => obj.track === 'student').length
+      studentMessages: groups[key].filter(obj => obj.track === 'student').length,
     }))
   }
 
@@ -139,7 +157,7 @@ export default class StudentInCourseView extends Backbone.View {
         data: this.model.get('student').get('participation'),
         sort(a, b) {
           return b.date - a.date
-        }
+        },
       },
       {
         div: '#responsiveness-table',
@@ -147,7 +165,7 @@ export default class StudentInCourseView extends Backbone.View {
         data: this.model.get('student').get('messaging'),
         sort(a, b) {
           return b.date - a.date
-        }
+        },
       },
       {
         div: '#assignment-finishing-table',
@@ -172,9 +190,9 @@ export default class StudentInCourseView extends Backbone.View {
             dueAt: assignment.dueAt,
             submittedAt: assignment.submittedAt,
             status: formattedStatus,
-            score: assignment.studentScore
+            score: assignment.studentScore,
           }
-        }
+        },
       },
       {
         div: '#grades-table',
@@ -186,8 +204,8 @@ export default class StudentInCourseView extends Backbone.View {
               ? assignment.studentScore >= assignment.scoreDistribution.median
                 ? I18n.t('Good')
                 : assignment.studentScore >= assignment.scoreDistribution.firstQuartile
-                  ? I18n.t('Fair')
-                  : I18n.t('Poor')
+                ? I18n.t('Fair')
+                : I18n.t('Poor')
               : I18n.t('Good')
 
           return {
@@ -215,11 +233,11 @@ export default class StudentInCourseView extends Backbone.View {
               max:
                 assignment.scoreDistribution != null
                   ? assignment.scoreDistribution.thirdQuartile
-                  : undefined
-            }
+                  : undefined,
+            },
           }
-        }
-      }
+        },
+      },
     ])
   }
 
@@ -232,12 +250,12 @@ export default class StudentInCourseView extends Backbone.View {
 
     document.title = I18n.t('Analytics: %{course_code} -- %{student_name}', {
       course_code: course.get('course_code'),
-      student_name: student.get('short_name')
+      student_name: student.get('short_name'),
     })
     this.$crumb_span.text(student.get('short_name'))
     this.$crumb_link.attr({href: student.get('analytics_url')})
 
-    this.$('.avatar').replaceWith(avatarPartial(_.omit(student.toJSON(), 'html_url')))
+    this.$('.avatar').replaceWith(avatarPartial(omit(student.toJSON(), 'html_url')))
     this.$student_link.text(student.get('name'))
     this.$student_link.attr({href: student.get('html_url')})
 
@@ -274,14 +292,14 @@ export default class StudentInCourseView extends Backbone.View {
       width: util.computeGraphWidth(),
       frameColor: colors.frame,
       gridColor: colors.grid,
-      horizontalMargin: 40
+      horizontalMargin: 40,
     }
 
     const dateGraphOpts = $.extend({}, graphOpts, {
       startDate: this.options.startDate,
       endDate: this.options.endDate,
       leftPadding: 30, // larger padding on left because of assymetrical
-      rightPadding: 15
+      rightPadding: 15,
     }) // responsiveness bubbles
 
     this.pageViews = new PageViews(
@@ -289,7 +307,7 @@ export default class StudentInCourseView extends Backbone.View {
       $.extend({}, dateGraphOpts, {
         height: 150,
         barColor: colors.lightblue,
-        participationColor: colors.darkblue
+        participationColor: colors.darkblue,
       })
     )
 
@@ -303,7 +321,7 @@ export default class StudentInCourseView extends Backbone.View {
         caratOffset: 7,
         caratSize: 10,
         studentColor: colors.orange,
-        instructorColor: colors.blue
+        instructorColor: colors.blue,
       })
     )
 
@@ -314,7 +332,7 @@ export default class StudentInCourseView extends Backbone.View {
         colorOnTime: colors.sharpgreen,
         colorLate: colors.sharpyellow,
         colorMissing: colors.sharpred,
-        colorUndated: colors.frame
+        colorUndated: colors.frame,
       })
     )
 
@@ -327,7 +345,7 @@ export default class StudentInCourseView extends Backbone.View {
         medianColor: colors.frame,
         colorGood: colors.sharpgreen,
         colorFair: colors.sharpyellow,
-        colorPoor: colors.sharpred
+        colorPoor: colors.sharpred,
       })
     )
   }
