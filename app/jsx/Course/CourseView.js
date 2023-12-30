@@ -1,9 +1,27 @@
+/*
+ * Copyright (C) 2023 - present Instructure, Inc.
+ *
+ * This file is part of Canvas.
+ *
+ * Canvas is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, version 3 of the License.
+ *
+ * Canvas is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import React from 'react'
 import $ from 'jquery'
-import _ from 'underscore'
+import {each, debounce} from 'lodash'
 import Backbone from '@canvas/backbone'
 import template from '../../views/jst/course.handlebars'
-import StudentSummariesView from '../Course/StudentSummariesView'
+import StudentSummariesView from './StudentSummariesView'
 import PageViews from '../graphs/page_views'
 import Grades from '../graphs/grades'
 import FinishingAssignmentsCourse from '../graphs/finishing_assignments_course'
@@ -21,7 +39,7 @@ export default class CourseView extends Backbone.View {
     // build view
     this.$el = $(
       template({
-        course: this.model.toJSON()
+        course: this.model.toJSON(),
       })
     )
 
@@ -37,7 +55,7 @@ export default class CourseView extends Backbone.View {
     if (summaries != null) {
       this.studentSummaries = new StudentSummariesView({
         el: this.$('#students')[0],
-        collection: summaries
+        collection: summaries,
       })
     } else {
       // remove student summary framework
@@ -47,7 +65,7 @@ export default class CourseView extends Backbone.View {
     // redraw graphs on resize
     $(window).on(
       'resize',
-      _.debounce(() => {
+      debounce(() => {
         const newWidth = util.computeGraphWidth()
         this.pageViews.resize({width: newWidth})
         this.finishing.resize({width: newWidth})
@@ -84,7 +102,7 @@ export default class CourseView extends Backbone.View {
         div: '#activities-table',
         component: ActivitiesTable,
         data: this.participation,
-        sort: (a, b) => b.date - a.date
+        sort: (a, b) => b.date - a.date,
       },
       {
         div: '#submissions-table',
@@ -95,9 +113,9 @@ export default class CourseView extends Backbone.View {
             title: assignment.title,
             late: assignment.tardinessBreakdown.late,
             missing: assignment.tardinessBreakdown.missing,
-            onTime: assignment.tardinessBreakdown.onTime
+            onTime: assignment.tardinessBreakdown.onTime,
           }
-        }
+        },
       },
       {
         div: '#grades-table',
@@ -127,11 +145,11 @@ export default class CourseView extends Backbone.View {
               max:
                 assignment.scoreDistribution != null
                   ? assignment.scoreDistribution.thirdQuartile
-                  : undefined
-            }
+                  : undefined,
+            },
           }
-        }
-      }
+        },
+      },
     ])
   }
 
@@ -162,7 +180,7 @@ export default class CourseView extends Backbone.View {
   }
 
   renderTables(tables = []) {
-    _.each(tables, table => {
+    each(tables, table => {
       if (table.data.loading != null) {
         table.data.loading.done(() => this.renderTable(table))
       } else {
@@ -177,20 +195,20 @@ export default class CourseView extends Backbone.View {
       height: 150,
       frameColor: colors.frame,
       gridColor: colors.grid,
-      horizontalMargin: 40
+      horizontalMargin: 40,
     }
 
     const dateGraphOpts = $.extend({}, graphOpts, {
       startDate: this.options.startDate,
       endDate: this.options.endDate,
-      horizontalPadding: 15
+      horizontalPadding: 15,
     })
 
     this.pageViews = new PageViews(
       $('#participating-graph', this.$el),
       $.extend({}, dateGraphOpts, {
         barColor: colors.lightblue,
-        participationColor: colors.darkblue
+        participationColor: colors.darkblue,
       })
     )
 
@@ -199,7 +217,7 @@ export default class CourseView extends Backbone.View {
       $.extend({}, graphOpts, {
         onTimeColor: colors.sharpgreen,
         lateColor: colors.sharpyellow,
-        missingColor: colors.sharpred
+        missingColor: colors.sharpred,
       })
     )
 
@@ -209,7 +227,7 @@ export default class CourseView extends Backbone.View {
         height: 200,
         whiskerColor: colors.blue,
         boxColor: colors.blue,
-        medianColor: colors.darkblue
+        medianColor: colors.darkblue,
       })
     )
   }

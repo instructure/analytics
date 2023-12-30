@@ -1,11 +1,28 @@
-import _ from 'underscore'
-import DateAlignedGraph from '../graphs/DateAlignedGraph'
-import Cover from '../graphs/cover'
-import helpers from '../helpers'
-import { useScope as useI18nScope } from '@canvas/i18n';
-import htmlEscape from 'html-escape'
+/*
+ * Copyright (C) 2023 - present Instructure, Inc.
+ *
+ * This file is part of Canvas.
+ *
+ * Canvas is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, version 3 of the License.
+ *
+ * Canvas is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-const I18n = useI18nScope('time');
+import {reject, each} from 'lodash'
+import {useScope as useI18nScope} from '@canvas/i18n'
+import htmlEscape from 'html-escape'
+import DateAlignedGraph from './DateAlignedGraph'
+import Cover from './cover'
+
+const I18n = useI18nScope('time')
 
 // #
 // AssignmentTardiness visualizes the student's ability to turn in assignments
@@ -56,7 +73,7 @@ const defaultOptions = {
   // Message when dates fall outside bounds of graph
   clippedWarningLabel: I18n.t(
     'Note: some items fall outside the start and/or end dates of the course'
-  )
+  ),
 }
 
 export default class AssignmentTardiness extends DateAlignedGraph {
@@ -87,14 +104,14 @@ export default class AssignmentTardiness extends DateAlignedGraph {
   graph(assignments) {
     if (!super.graph(...arguments)) return
 
-    assignments = _.reject(assignments.assignments, a => a.non_digital_submission)
+    assignments = reject(assignments.assignments, a => a.non_digital_submission)
     if (assignments != null && assignments.length > 0) {
       this.scaleToAssignments(assignments)
       if (this.gridColor) {
         this.drawGrid(assignments)
       }
       this.drawYLabel(I18n.t('Assignments'))
-      _.each(assignments, this.graphAssignment.bind(this))
+      each(assignments, this.graphAssignment.bind(this))
 
       if (this.clippedDate) {
         const label = this.clippedWarningLabel
@@ -114,7 +131,7 @@ export default class AssignmentTardiness extends DateAlignedGraph {
         (assignments.length - 1) * this.barSpacing +
         this.shapeHeight +
         this.laneHeight / 2 +
-        this.bottomPadding
+        this.bottomPadding,
     })
   }
 
@@ -157,14 +174,14 @@ export default class AssignmentTardiness extends DateAlignedGraph {
         return {
           color: this.colorOnTime,
           shape: 'circle',
-          fill: this.colorOnTime
+          fill: this.colorOnTime,
         }
       } else {
         // otherwise it's "future"
         return {
           color: this.colorUndated,
           shape: 'circle',
-          fill: this.colorEmpty
+          fill: this.colorEmpty,
         }
       }
     } else if (assignment.onTime === true) {
@@ -172,28 +189,28 @@ export default class AssignmentTardiness extends DateAlignedGraph {
       return {
         color: this.colorOnTime,
         shape: 'circle',
-        fill: this.colorOnTime
+        fill: this.colorOnTime,
       }
     } else if (assignment.onTime === false) {
       // has due date, turned in late
       return {
         color: this.colorLate,
         shape: 'triangle',
-        fill: this.colorLate
+        fill: this.colorLate,
       }
     } else if (assignment.dueAt > new Date()) {
       // due in the future, not turned in
       return {
         color: this.colorUndated,
         shape: 'circle',
-        fill: this.colorEmpty
+        fill: this.colorEmpty,
       }
     } else {
       // due in the past, not turned in
       return {
         color: this.colorMissing,
         shape: 'square',
-        fill: this.colorMissing
+        fill: this.colorMissing,
       }
     }
   }
@@ -250,8 +267,8 @@ export default class AssignmentTardiness extends DateAlignedGraph {
         contents: this.tooltip(assignment),
         x,
         y: y + this.shapeHeight / 2,
-        direction: 'down'
-      }
+        direction: 'down',
+      },
     })
   }
 
@@ -263,7 +280,7 @@ export default class AssignmentTardiness extends DateAlignedGraph {
     if (assignment.dueAt != null) {
       const dueAtString = I18n.t('due_date', '%{date} by %{time}', {
         date: I18n.l('date.formats.medium', assignment.dueAt),
-        time: I18n.l('time.formats.tiny', assignment.dueAt)
+        time: I18n.l('time.formats.tiny', assignment.dueAt),
       })
       tooltip += `<br/>${htmlEscape(I18n.t('Due: %{dateTime}', {dateTime: dueAtString}))}`
     } else {
@@ -272,7 +289,7 @@ export default class AssignmentTardiness extends DateAlignedGraph {
     if (assignment.submittedAt != null) {
       const submittedAtString = I18n.t('event', '%{date} at %{time}', {
         date: I18n.l('date.formats.medium', assignment.submittedAt),
-        time: I18n.l('time.formats.tiny', assignment.submittedAt)
+        time: I18n.l('time.formats.tiny', assignment.submittedAt),
       })
       tooltip += `<br/>${htmlEscape(
         I18n.t('Submitted: %{dateTime}', {dateTime: submittedAtString})
