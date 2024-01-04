@@ -1,5 +1,4 @@
 import BaseData from '../BaseData'
-import tz from '@canvas/timezone'
 
 //#
 // Loads the participation data for the student and course. Exposes the data

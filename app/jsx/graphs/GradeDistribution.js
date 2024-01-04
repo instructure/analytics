@@ -1,10 +1,28 @@
-import _ from 'underscore'
-import Base from '../graphs/base'
-import Cover from '../graphs/cover'
-import YAxis from '../graphs/YAxis'
-import { useScope as useI18nScope } from '@canvas/i18n';
+/*
+ * Copyright (C) 2023 - present Instructure, Inc.
+ *
+ * This file is part of Canvas.
+ *
+ * Canvas is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, version 3 of the License.
+ *
+ * Canvas is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-const I18n = useI18nScope('grade_distribution');
+import {each, map} from 'lodash'
+import {useScope as useI18nScope} from '@canvas/i18n'
+import Base from './base'
+import Cover from './cover'
+import YAxis from './YAxis'
+
+const I18n = useI18nScope('grade_distribution')
 
 // #
 // GradeDistribution visualizes the distribution of grades across all students
@@ -16,7 +34,7 @@ const defaultOptions = {
 
   // #
   // The fill color of the area under the line graph
-  areaColor: 'lightblue'
+  areaColor: 'lightblue',
 }
 
 export default class GradeDistribution extends Base {
@@ -64,7 +82,7 @@ export default class GradeDistribution extends Base {
     this.drawXLabel(I18n.t('Grades'), {offset: this.labelHeight})
 
     // build path for distribution line
-    let path = _.map(distribution.values, (value, score) => {
+    let path = map(distribution.values, (value, score) => {
       if (score === 0) value = Math.min(value, max)
       return [score === 0 ? 'M' : 'L', this.scoreX(score), this.valueY(value)]
     })
@@ -75,24 +93,24 @@ export default class GradeDistribution extends Base {
       'stroke-width': 2,
       'stroke-linejoin': 'round',
       'stroke-linecap': 'round',
-      'stroke-dasharray': ''
+      'stroke-dasharray': '',
     })
 
     // extend the path to close around the area under the line
     path = path.concat([
       ['L', this.scoreX(100), this.valueY(0)],
       ['L', this.scoreX(0), this.valueY(0)],
-      ['z']
+      ['z'],
     ])
 
     // fill that area
     this.paper.path(path).attr({
       stroke: 'none',
-      fill: this.areaColor
+      fill: this.areaColor,
     })
 
     // add covers
-    _.each(distribution.values, (value, score) => this.cover(score, value))
+    each(distribution.values, (value, score) => this.cover(score, value))
 
     return this.finish()
   }
@@ -122,7 +140,7 @@ export default class GradeDistribution extends Base {
 
   // #
   // Draw a guide along the x-axis. Tick and label every 5 scores.
-  drawXAxis(bins) {
+  drawXAxis(_bins) {
     let i = 0
     return (() => {
       const result = []
@@ -159,8 +177,8 @@ export default class GradeDistribution extends Base {
         contents: this.tooltip(score, value),
         x,
         y: this.base,
-        direction: 'down'
-      }
+        direction: 'down',
+      },
     })
   }
 
@@ -169,7 +187,7 @@ export default class GradeDistribution extends Base {
   tooltip(score, value) {
     return I18n.t('%{percent} of students scored %{score}', {
       percent: this.percentText(value),
-      score: this.percentText(score / 100)
+      score: this.percentText(score / 100),
     })
   }
 

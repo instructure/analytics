@@ -1,13 +1,31 @@
-import _ from 'underscore'
-import Base from '../graphs/base'
-import DayBinner from '../graphs/DayBinner'
-import WeekBinner from '../graphs/WeekBinner'
-import MonthBinner from '../graphs/MonthBinner'
-import ScaleByBins from '../graphs/ScaleByBins'
-import helpers from '../helpers'
-import { useScope as useI18nScope } from '@canvas/i18n';
+/*
+ * Copyright (C) 2023 - present Instructure, Inc.
+ *
+ * This file is part of Canvas.
+ *
+ * Canvas is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, version 3 of the License.
+ *
+ * Canvas is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-const I18n = useI18nScope('page_views');
+import {extend} from 'lodash'
+import {useScope as useI18nScope} from '@canvas/i18n'
+import Base from './base'
+import DayBinner from './DayBinner'
+import WeekBinner from './WeekBinner'
+import MonthBinner from './MonthBinner'
+import ScaleByBins from './ScaleByBins'
+import helpers from '../helpers'
+
+const I18n = useI18nScope('page_views')
 
 // #
 // Parent class for all graphs that have a date-aligned x-axis. Note: Left
@@ -30,7 +48,7 @@ const defaultOptions = {
 
   // #
   // If any date is outside the bounds of the graph, we have a clipped date
-  clippedDate: false
+  clippedDate: false,
 }
 
 export default class DateAlignedGraph extends Base {
@@ -41,7 +59,7 @@ export default class DateAlignedGraph extends Base {
     super(...arguments)
 
     // mixin ScaleByBins functionality
-    _.extend(this, ScaleByBins)
+    extend(this, ScaleByBins)
 
     // check for required options
     if (options.startDate == null) throw new Error('startDate is required')
@@ -145,7 +163,8 @@ export default class DateAlignedGraph extends Base {
     if (this.startDate == null || this.endDate == null) return
     return this.binner.eachTick((tick, chrome) => {
       const x = this.binnedDateX(tick)
-      if (chrome && chrome.label) return this.dateLabel(x, this.topMargin + this.height, chrome.label)
+      if (chrome && chrome.label)
+        return this.dateLabel(x, this.topMargin + this.height, chrome.label)
     })
   }
 
@@ -173,7 +192,7 @@ export default class DateAlignedGraph extends Base {
             : 'date.formats.medium',
           bin.date
         ),
-        end_date: I18n.l('date.formats.medium', lastDay)
+        end_date: I18n.l('date.formats.medium', lastDay),
       })
     } else {
       // one-month bucket; label the month and year

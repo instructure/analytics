@@ -43,7 +43,7 @@ class CachedGradeDistribution < ActiveRecord::Base
     # ignore anomalous scores, we don't have columns for it
     return unless (0..100).cover?(score)
 
-    send("s#{score}=", value)
+    send(:"s#{score}=", value)
   end
 
   def grade_distribution_rows
