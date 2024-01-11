@@ -1,3 +1,4 @@
+import $ from 'jquery'
 import Tooltip from '../graphs/tooltip'
 
 // #
