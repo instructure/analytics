@@ -1,3 +1,4 @@
+import $ from 'jquery'
 import Backbone from '@canvas/backbone'
 import template from '../../views/jst/department_statistics.handlebars'
 import '@canvas/jquery/jquery.disableWhileLoading'
