@@ -32,7 +32,7 @@ class Analytics::AssignmentRollup
   attr_accessor :tardiness_breakdown, :buckets
 
   def initialize(attrs = {})
-    attrs.each { |k, v| send("#{k}=", v) }
+    attrs.each { |k, v| send(:"#{k}=", v) }
   end
 
   def self.init_rollup(assignment)

@@ -1,12 +1,30 @@
-import _ from 'underscore'
-import Base from '../graphs/base'
-import Cover from '../graphs/cover'
-import ScaleByBins from '../graphs/ScaleByBins'
-import YAxis from '../graphs/YAxis'
-import { useScope as useI18nScope } from '@canvas/i18n';
-import htmlEscape from 'html-escape'
+/*
+ * Copyright (C) 2023 - present Instructure, Inc.
+ *
+ * This file is part of Canvas.
+ *
+ * Canvas is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, version 3 of the License.
+ *
+ * Canvas is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-const I18n = useI18nScope('page_views');
+import {extend, maxBy, sortBy, each} from 'lodash'
+import {useScope as useI18nScope} from '@canvas/i18n'
+import htmlEscape from 'html-escape'
+import Base from './base'
+import Cover from './cover'
+import ScaleByBins from './ScaleByBins'
+import YAxis from './YAxis'
+
+const I18n = useI18nScope('page_views')
 
 // #
 // CategorizedPageViews visualizes the student's activity within the course by
@@ -27,50 +45,50 @@ const defaultOptions = {
 
   // #
   // What to sort by ("views", "category")
-  sortBy: 'category'
+  sortBy: 'category',
 }
 
 function internationalizeBin(bin) {
   switch (bin.category) {
-    case "announcements":
-      bin.category = I18n.t("announcements");
-      break;
-    case "assignments":
-      bin.category = I18n.t("assignments");
-      break;
-    case "collaborations":
-      bin.category = I18n.t("collaborations");
-      break;
-    case "conferences":
-      bin.category = I18n.t("conferences");
-      break;
-    case "discussions":
-      bin.category = I18n.t("discussions");
-      break;
-    case "files":
-      bin.category = I18n.t("files");
-      break;
-    case "general":
-      bin.category = I18n.t("general");
-      break;
-    case "grades":
-      bin.category = I18n.t("grades");
-      break;
-    case "groups":
-      bin.category = I18n.t("groups");
-      break;
-    case "modules":
-      bin.category = I18n.t("modules");
-      break;
-    case "other":
-      bin.category = I18n.t("other");
-      break;
-    case "pages":
-      bin.category = I18n.t("pages");
-      break;
-    case "quizzes":
-      bin.category = I18n.t("quizzes");
-      break;
+    case 'announcements':
+      bin.category = I18n.t('announcements')
+      break
+    case 'assignments':
+      bin.category = I18n.t('assignments')
+      break
+    case 'collaborations':
+      bin.category = I18n.t('collaborations')
+      break
+    case 'conferences':
+      bin.category = I18n.t('conferences')
+      break
+    case 'discussions':
+      bin.category = I18n.t('discussions')
+      break
+    case 'files':
+      bin.category = I18n.t('files')
+      break
+    case 'general':
+      bin.category = I18n.t('general')
+      break
+    case 'grades':
+      bin.category = I18n.t('grades')
+      break
+    case 'groups':
+      bin.category = I18n.t('groups')
+      break
+    case 'modules':
+      bin.category = I18n.t('modules')
+      break
+    case 'other':
+      bin.category = I18n.t('other')
+      break
+    case 'pages':
+      bin.category = I18n.t('pages')
+      break
+    case 'quizzes':
+      bin.category = I18n.t('quizzes')
+      break
   }
 }
 
@@ -84,7 +102,7 @@ export default class CategorizedPageViews extends Base {
     this.valueY = this.valueY.bind(this)
 
     // mixin ScaleByBins functionality
-    _.extend(this, ScaleByBins)
+    extend(this, ScaleByBins)
 
     // copy in recognized options with defaults
     for (const key in defaultOptions) {
@@ -106,17 +124,19 @@ export default class CategorizedPageViews extends Base {
     // reduce the bins to the appropriate time scale
     let bins = participation.categoryBins
 
-    bins.forEach(bin => {internationalizeBin(bin)})
+    bins.forEach(bin => {
+      internationalizeBin(bin)
+    })
 
     if (this.sortBy === 'views' && bins.length > 0) {
-      const maxViews = _.max(bins, b => b.views).views
-      bins = _.sortBy(bins, b => [maxViews - b.views, b.category])
+      const maxViews = maxBy(bins, b => b.views).views
+      bins = sortBy(bins, b => [maxViews - b.views, b.category])
     }
 
     this.scaleToData(bins)
     this.drawXAxis(bins)
     this.yAxis.draw()
-    _.each(bins, this.graphBin.bind(this))
+    each(bins, this.graphBin.bind(this))
     return this.finish()
   }
 
@@ -192,8 +212,8 @@ export default class CategorizedPageViews extends Base {
         contents: this.tooltip(bin),
         x,
         y: this.base,
-        direction: 'down'
-      }
+        direction: 'down',
+      },
     })
   }
 

@@ -1,12 +1,30 @@
-import _ from 'underscore'
-import Base from '../graphs/base'
-import Cover from '../graphs/cover'
-import ScaleByBins from '../graphs/ScaleByBins'
-import YAxis from '../graphs/YAxis'
-import htmlEscape from 'html-escape'
-import { useScope as useI18nScope } from '@canvas/i18n';
+/*
+ * Copyright (C) 2023 - present Instructure, Inc.
+ *
+ * This file is part of Canvas.
+ *
+ * Canvas is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, version 3 of the License.
+ *
+ * Canvas is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-const I18n = useI18nScope('analytics_grades');
+import {each, extend} from 'lodash'
+import htmlEscape from 'html-escape'
+import {useScope as useI18nScope} from '@canvas/i18n'
+import Base from './base'
+import Cover from './cover'
+import ScaleByBins from './ScaleByBins'
+import YAxis from './YAxis'
+
+const I18n = useI18nScope('analytics_grades')
 
 // #
 // Grades visualizes the student's scores on assignments compared to the
@@ -39,7 +57,7 @@ const defaultOptions = {
   // #
   // Max width of a bar, in pixels. (Overrides default from ScaleByBins)
   maxBarWidth: 30,
-  gutterPercent: 1.0
+  gutterPercent: 1.0,
 }
 
 export default class Grades extends Base {
@@ -51,7 +69,7 @@ export default class Grades extends Base {
     this.graphAssignment = this.graphAssignment.bind(this)
 
     // mixin ScaleByBins functionality
-    _.extend(this, ScaleByBins)
+    extend(this, ScaleByBins)
 
     // copy in recognized options with defaults
     for (const key in defaultOptions) {
@@ -70,7 +88,7 @@ export default class Grades extends Base {
     this.scaleToAssignments(assignments)
     this.yAxis.draw()
     this.drawXLabel(I18n.t('Assignments'))
-    _.each(assignments, this.graphAssignment.bind(this))
+    each(assignments, this.graphAssignment.bind(this))
 
     return this.finish()
   }
@@ -174,23 +192,23 @@ export default class Grades extends Base {
       if (assignment.studentScore >= assignment.scoreDistribution.median) {
         return {
           fill: this.colorGood,
-          shape: 'circle'
+          shape: 'circle',
         }
       } else if (assignment.studentScore >= assignment.scoreDistribution.firstQuartile) {
         return {
           fill: this.colorFair,
-          shape: 'triangle'
+          shape: 'triangle',
         }
       } else {
         return {
           fill: this.colorPoor,
-          shape: 'square'
+          shape: 'square',
         }
       }
     } else {
       return {
         fill: this.colorGood,
-        shape: 'circle'
+        shape: 'circle',
       }
     }
   }
@@ -210,8 +228,8 @@ export default class Grades extends Base {
         contents: this.tooltip(assignment),
         x,
         y: this.base,
-        direction: 'down'
-      }
+        direction: 'down',
+      },
     })
   }
 

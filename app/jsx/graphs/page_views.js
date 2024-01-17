@@ -1,11 +1,29 @@
-import _ from 'underscore'
-import DateAlignedGraph from '../graphs/DateAlignedGraph'
-import Cover from '../graphs/cover'
-import YAxis from '../graphs/YAxis'
-import { useScope as useI18nScope } from '@canvas/i18n';
-import htmlEscape from 'html-escape'
+/*
+ * Copyright (C) 2023 - present Instructure, Inc.
+ *
+ * This file is part of Canvas.
+ *
+ * Canvas is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, version 3 of the License.
+ *
+ * Canvas is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-const I18n = useI18nScope('page_views');
+import {extend, each} from 'lodash'
+import {useScope as useI18nScope} from '@canvas/i18n'
+import htmlEscape from 'html-escape'
+import DateAlignedGraph from './DateAlignedGraph'
+import Cover from './cover'
+import YAxis from './YAxis'
+
+const I18n = useI18nScope('page_views')
 
 // #
 // PageViews visualizes the student's activity within the course. Each bar
@@ -22,7 +40,7 @@ const defaultOptions = {
 
   // #
   // The fill color of the bars for bins with participations.
-  participationColor: 'lightblue'
+  participationColor: 'lightblue',
 }
 
 export default class PageViews extends DateAlignedGraph {
@@ -49,14 +67,14 @@ export default class PageViews extends DateAlignedGraph {
   reduceBins(sourceBins) {
     const bins = []
     const binMap = {}
-    _.each(sourceBins, bin => {
+    each(sourceBins, bin => {
       if (bin.date.between(this.startDate, this.endDate)) {
         const index = this.binner.reduce(bin.date)
         if (binMap[index]) {
           binMap[index].views += bin.views
           return (binMap[index].participations += bin.participations)
         } else {
-          binMap[index] = _.extend({}, bin)
+          binMap[index] = extend({}, bin)
           binMap[index].date = index
           return bins.push(binMap[index])
         }
@@ -74,7 +92,7 @@ export default class PageViews extends DateAlignedGraph {
     const bins = this.reduceBins(participation.bins)
     this.scaleToData(bins)
     this.yAxis.draw()
-    _.each(bins, this.graphBin.bind(this))
+    each(bins, this.graphBin.bind(this))
 
     return this.finish()
   }
@@ -113,12 +131,12 @@ export default class PageViews extends DateAlignedGraph {
     if (bin.participations > 0) {
       return {
         stroke: 'white',
-        fill: this.participationColor
+        fill: this.participationColor,
       }
     } else {
       return {
         stroke: 'white',
-        fill: this.barColor
+        fill: this.barColor,
       }
     }
   }
@@ -138,8 +156,8 @@ export default class PageViews extends DateAlignedGraph {
         contents: this.tooltip(bin),
         x,
         y: this.base,
-        direction: 'down'
-      }
+        direction: 'down',
+      },
     })
   }
 

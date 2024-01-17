@@ -1,5 +1,24 @@
+/*
+ * Copyright (C) 2023 - present Instructure, Inc.
+ *
+ * This file is part of Canvas.
+ *
+ * Canvas is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, version 3 of the License.
+ *
+ * Canvas is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import $ from 'jquery'
 import Backbone from '@canvas/backbone'
-import _ from 'underscore'
+import {debounce, each} from 'lodash'
 import React from 'react'
 import template from '../../views/jst/department_graphs.handlebars'
 import PageViews from '../graphs/page_views'
@@ -26,7 +45,7 @@ export default class DepartmentGraphView extends Backbone.View {
     })
     $(window).on(
       'resize',
-      _.debounce(() => {
+      debounce(() => {
         this.render()
         this.afterRender()
       }, 200)
@@ -68,7 +87,7 @@ export default class DepartmentGraphView extends Backbone.View {
   }
 
   renderTables(tables = []) {
-    _.each(tables, table => {
+    each(tables, table => {
       if (table.data.loading != null) {
         table.data.loading.done(() => this.renderTable(table))
       } else {
@@ -84,12 +103,12 @@ export default class DepartmentGraphView extends Backbone.View {
         div: '#participating-date-table',
         component: ActivitiesTable,
         data: this.model.get('filter').get('participation'),
-        sort: (a, b) => b.date - a.date
+        sort: (a, b) => b.date - a.date,
       },
       {
         div: '#participating-category-table',
         component: ActivitiesByCategory,
-        data: this.model.get('filter').get('participation')
+        data: this.model.get('filter').get('participation'),
       },
       {
         div: '#grade-distribution-table',
@@ -98,10 +117,10 @@ export default class DepartmentGraphView extends Backbone.View {
         format(percent, key) {
           return {
             score: key,
-            percent
+            percent,
           }
-        }
-      }
+        },
+      },
     ])
     const $toggle = $('#graph_table_toggle')
     if ($toggle.is(':checked')) $toggle.trigger('change')
@@ -118,7 +137,7 @@ export default class DepartmentGraphView extends Backbone.View {
       height: 150,
       frameColor: colors.frame,
       gridColor: colors.grid,
-      horizontalMargin: 50
+      horizontalMargin: 50,
     }
 
     this.pageViews = new PageViews(
@@ -128,7 +147,7 @@ export default class DepartmentGraphView extends Backbone.View {
         endDate: filter.get('endDate'),
         horizontalPadding: 15,
         barColor: colors.lightblue,
-        participationColor: colors.darkblue
+        participationColor: colors.darkblue,
       })
     )
     this.pageViews.graph(participations)
@@ -139,7 +158,7 @@ export default class DepartmentGraphView extends Backbone.View {
         bottomMargin: 25,
         barColor: colors.blue,
         strokeColor: colors.blue,
-        sortBy: 'views'
+        sortBy: 'views',
       })
     )
     this.categorizedPageViews.graph(participations)
@@ -148,7 +167,7 @@ export default class DepartmentGraphView extends Backbone.View {
       this.$('#grade-distribution-graph'),
       $.extend({}, this.graphOpts, {
         areaColor: colors.blue,
-        strokeColor: colors.grid
+        strokeColor: colors.grid,
       })
     )
     return this.gradeDistribution.graph(filter.get('gradeDistribution'))

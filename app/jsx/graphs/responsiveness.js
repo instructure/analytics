@@ -1,10 +1,28 @@
-import _ from 'underscore'
-import DateAlignedGraph from '../graphs/DateAlignedGraph'
-import Cover from '../graphs/cover'
-import { useScope as useI18nScope } from '@canvas/i18n';
-import htmlEscape from 'html-escape'
+/*
+ * Copyright (C) 2023 - present Instructure, Inc.
+ *
+ * This file is part of Canvas.
+ *
+ * Canvas is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, version 3 of the License.
+ *
+ * Canvas is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-const I18n = useI18nScope('responsiveness');
+import {filter, each} from 'lodash'
+import {useScope as useI18nScope} from '@canvas/i18n'
+import htmlEscape from 'html-escape'
+import DateAlignedGraph from './DateAlignedGraph'
+import Cover from './cover'
+
+const I18n = useI18nScope('responsiveness')
 
 // #
 // Responsiveness visualizes the student's communication frequency with the
@@ -36,7 +54,7 @@ const defaultOptions = {
 
   // #
   // The fill color of the icons in the instructor track.
-  instructorColor: 'lightgreen'
+  instructorColor: 'lightgreen',
 }
 
 export default class Responsiveness extends DateAlignedGraph {
@@ -70,7 +88,7 @@ export default class Responsiveness extends DateAlignedGraph {
     this.paper.text(this.leftMargin - 10, this.topMargin, I18n.t('student')).attr({
       fill: this.frameColor,
       transform: 'r-90',
-      'text-anchor': 'end'
+      'text-anchor': 'end',
     })
 
     return this.paper
@@ -82,7 +100,7 @@ export default class Responsiveness extends DateAlignedGraph {
       .attr({
         fill: this.frameColor,
         transform: 'r-90',
-        'text-anchor': 'start'
+        'text-anchor': 'start',
       })
   }
 
@@ -91,12 +109,12 @@ export default class Responsiveness extends DateAlignedGraph {
   graph(messaging) {
     if (!super.graph(...arguments)) return
 
-    const bins = _.filter(
+    const bins = filter(
       messaging.bins,
       bin => bin.date.between(this.startDate, this.endDate) && bin.messages > 0
     )
 
-    _.each(bins, this.graphBin.bind(this))
+    each(bins, this.graphBin.bind(this))
 
     return this.finish()
   }
@@ -139,7 +157,7 @@ export default class Responsiveness extends DateAlignedGraph {
       right: x + this.caratOffset,
       left: x + this.caratOffset - this.markerWidth,
       top: track,
-      bottom: track + this.markerHeight
+      bottom: track + this.markerHeight,
     }
   }
 
@@ -150,7 +168,7 @@ export default class Responsiveness extends DateAlignedGraph {
       left: box.left + 3,
       right: box.right - 3,
       top: box.top + 3,
-      bottom: box.bottom - 3
+      bottom: box.bottom - 3,
     }
   }
 
@@ -167,7 +185,7 @@ export default class Responsiveness extends DateAlignedGraph {
           case 'down':
             return box.bottom + this.caratSize
         }
-      })()
+      })(),
     }
   }
 
@@ -178,23 +196,62 @@ export default class Responsiveness extends DateAlignedGraph {
     const corners = this.markerCorners(box)
     const carat = this.markerCarat(box, 'down')
 
-    return [ 'M', corners.left, box.top,     // start at the top-left
-      'L', corners.right, box.top,    // across the top
-      'A', 3, 3, 0, 0, 1,
-            box.right, corners.top,    // around the top-right corner
-      'L', box.right, corners.bottom, // down the right side
-      'A', 3, 3, 0, 0, 1,
-            corners.right, box.bottom, // around the bottom-right corner
-      'L', carat.right, box.bottom,   // across the bottom to the carat
-            carat.right, carat.tip,    // down to the carat tip
-            carat.left, box.bottom,    // back up to the bottom
-            corners.left, box.bottom,  // across the rest of the bottom
-      'A', 3, 3, 0, 0, 1,
-            box.left, corners.bottom,  // around the bottom-left corner
-      'L', box.left, corners.top,     // up the left side
-      'A', 3, 3, 0, 0, 1,
-            corners.left, box.top,     // around the top-left corner
-      'z' ];                           // done
+    return [
+      'M',
+      corners.left,
+      box.top, // start at the top-left
+      'L',
+      corners.right,
+      box.top, // across the top
+      'A',
+      3,
+      3,
+      0,
+      0,
+      1,
+      box.right,
+      corners.top, // around the top-right corner
+      'L',
+      box.right,
+      corners.bottom, // down the right side
+      'A',
+      3,
+      3,
+      0,
+      0,
+      1,
+      corners.right,
+      box.bottom, // around the bottom-right corner
+      'L',
+      carat.right,
+      box.bottom, // across the bottom to the carat
+      carat.right,
+      carat.tip, // down to the carat tip
+      carat.left,
+      box.bottom, // back up to the bottom
+      corners.left,
+      box.bottom, // across the rest of the bottom
+      'A',
+      3,
+      3,
+      0,
+      0,
+      1,
+      box.left,
+      corners.bottom, // around the bottom-left corner
+      'L',
+      box.left,
+      corners.top, // up the left side
+      'A',
+      3,
+      3,
+      0,
+      0,
+      1,
+      corners.left,
+      box.top, // around the top-left corner
+      'z',
+    ] // done
   }
 
   // #
@@ -204,23 +261,62 @@ export default class Responsiveness extends DateAlignedGraph {
     const corners = this.markerCorners(box)
     const carat = this.markerCarat(box, 'up')
 
-    return [ 'M', corners.left, box.top,     // start at the top-left
-      'L', carat.left, box.top,       // across the top to the carat
-            carat.right, carat.tip,    // up to the carat tip
-            carat.right, box.top,      // back down to the top
-            corners.right, box.top,    // across the rest of the top
-      'A', 3, 3, 0, 0, 1,
-            box.right, corners.top,    // around the top-right corner
-      'L', box.right, corners.bottom, // down the right side
-      'A', 3, 3, 0, 0, 1,
-            corners.right, box.bottom, // around the bottom-right corner
-      'L', corners.left, box.bottom,  // across the bottom
-      'A', 3, 3, 0, 0, 1,
-            box.left, corners.bottom,  // around the bottom-left corner
-      'L', box.left, corners.top,     // up the left side
-      'A', 3, 3, 0, 0, 1,
-            corners.left, box.top,     // around the top-left corner
-      'z' ];                           // done
+    return [
+      'M',
+      corners.left,
+      box.top, // start at the top-left
+      'L',
+      carat.left,
+      box.top, // across the top to the carat
+      carat.right,
+      carat.tip, // up to the carat tip
+      carat.right,
+      box.top, // back down to the top
+      corners.right,
+      box.top, // across the rest of the top
+      'A',
+      3,
+      3,
+      0,
+      0,
+      1,
+      box.right,
+      corners.top, // around the top-right corner
+      'L',
+      box.right,
+      corners.bottom, // down the right side
+      'A',
+      3,
+      3,
+      0,
+      0,
+      1,
+      corners.right,
+      box.bottom, // around the bottom-right corner
+      'L',
+      corners.left,
+      box.bottom, // across the bottom
+      'A',
+      3,
+      3,
+      0,
+      0,
+      1,
+      box.left,
+      corners.bottom, // around the bottom-left corner
+      'L',
+      box.left,
+      corners.top, // up the left side
+      'A',
+      3,
+      3,
+      0,
+      0,
+      1,
+      corners.left,
+      box.top, // around the top-left corner
+      'z',
+    ] // done
   }
 
   // #
@@ -244,8 +340,8 @@ export default class Responsiveness extends DateAlignedGraph {
         contents: this.tooltip(date, value),
         x: box.carat,
         y: this.center,
-        direction
-      }
+        direction,
+      },
     })
   }
 
