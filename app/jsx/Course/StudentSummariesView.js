@@ -1,3 +1,4 @@
+import $ from 'jquery'
 import { useScope as useI18nScope } from '@canvas/i18n';
 import PaginatedView from '@canvas/pagination/backbone/views/PaginatedView'
 import StudentSummaryView from '../Course/StudentSummaryView'
