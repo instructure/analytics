@@ -4,7 +4,7 @@
 	else if(typeof define === 'function' && define.amd)
 		define(["react"], factory);
 	else {
-		var a = typeof exports === 'object' ? factory(require("React")) : factory(root["React"]);
+		var a = typeof exports === 'object' ? factory(require("react")) : factory(root["React"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
 })(this, function(__WEBPACK_EXTERNAL_MODULE_2__) {
