@@ -49,7 +49,7 @@ export default class StudentInCourseView extends Backbone.View {
     // build view
     this.$el = $(
       template({
-        student: _.omit(student.toJSON(), 'html_url'),
+        student: omit(student.toJSON(), 'html_url'),
         course: course.toJSON(),
       })
     )
