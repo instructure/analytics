@@ -62,7 +62,7 @@ shared_examples_for "analytics tests" do
 
     page_view.summarized = summarized
     page_view.request_id = SecureRandom.hex(10)
-    page_view.created_at = opts[:created_at] || Time.now
+    page_view.created_at = opts[:created_at] || Time.now.utc
 
     if opts[:participated]
       page_view.participated = true
@@ -262,19 +262,19 @@ shared_examples_for "analytics tests" do
     it "validates participating graph with a single page view" do
       page_view(user: @student, course: @course)
       go_to_analytics(analytics_url)
-      validate_tooltip_text(date_selector(Time.now), "1 page view")
+      validate_tooltip_text(date_selector(Time.now.utc), "1 page view")
     end
 
     it "validates participating graph with multiple page views" do
       page_view_count = 10
       page_view_count.times { page_view(user: @student, course: @course) }
       go_to_analytics(analytics_url)
-      validate_tooltip_text(date_selector(Time.now), page_view_count.to_s + " page views")
+      validate_tooltip_text(date_selector(Time.now.utc), page_view_count.to_s + " page views")
     end
 
     it "validates participating graph with multiple page views on multiple days" do
-      old_page_views_date = Time.now - 2.days
-      dates = [old_page_views_date, Time.now]
+      old_page_views_date = Time.now.utc - 2.days
+      dates = [old_page_views_date, Time.now.utc]
       number_of_page_views = 5
       number_of_page_views.times { page_view(user: @student, course: @course) }
       number_of_page_views.times do
@@ -287,14 +287,14 @@ shared_examples_for "analytics tests" do
     it "validates the graph color when a student took action on that day" do
       page_view(user: @student, course: @course, participated: true)
       go_to_analytics(analytics_url)
-      validate_element_fill(get_rectangle(Time.now), GraphColors::DARK_BLUE)
-      validate_tooltip_text(date_selector(Time.now), "1 participation")
+      validate_element_fill(get_rectangle(Time.now.utc), GraphColors::DARK_BLUE)
+      validate_tooltip_text(date_selector(Time.now.utc), "1 participation")
     end
 
     it "validates the participation and non participation display" do
-      old_page_view_date = Time.now - 3.days
+      old_page_view_date = Time.now.utc - 3.days
       rectangles = []
-      dates = [old_page_view_date, Time.now]
+      dates = [old_page_view_date, Time.now.utc]
       page_view(user: @student, course: @course)
       page_view(user: @student, course: @course, participated: true, created_at: old_page_view_date)
       go_to_analytics(analytics_url)

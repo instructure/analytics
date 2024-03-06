@@ -57,16 +57,16 @@ describe "analytics account view" do
       page_view_count = 10
       page_view_count.times { page_view(user: @student, course: @course) }
       go_to_analytics("/accounts/#{account_id}/analytics")
-      validate_tooltip_text(date_selector(Time.now, "#participating-date-graph"), page_view_count.to_s + " page views")
-      validate_element_fill(get_rectangle(Time.now, "#participating-date-graph"), GraphColors::LIGHT_BLUE)
+      validate_tooltip_text(date_selector(Time.now.utc, "#participating-date-graph"), page_view_count.to_s + " page views")
+      validate_element_fill(get_rectangle(Time.now.utc, "#participating-date-graph"), GraphColors::LIGHT_BLUE)
     end
 
     it "validates activity by date graph with action taken" do
       page_view(user: @student, course: @course, participated: true)
       expected_text = %w[1 page view 1 participation]
       go_to_analytics("/accounts/#{account_id}/analytics")
-      expected_text.each { |text| validate_tooltip_text(date_selector(Time.now, "#participating-date-graph"), text) }
-      validate_element_fill(get_rectangle(Time.now, "#participating-date-graph"), GraphColors::DARK_BLUE)
+      expected_text.each { |text| validate_tooltip_text(date_selector(Time.now.utc, "#participating-date-graph"), text) }
+      validate_element_fill(get_rectangle(Time.now.utc, "#participating-date-graph"), GraphColors::DARK_BLUE)
     end
 
     it "validates activity by category graph" do
