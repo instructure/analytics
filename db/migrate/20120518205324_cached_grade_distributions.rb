@@ -5,7 +5,7 @@ class CachedGradeDistributions < ActiveRecord::Migration[4.2]
 
   def up
     create_table :cached_grade_distributions, id: false do |t|
-      t.integer :course_id, limit: 8, null: false, primary_key: true
+      t.bigint :course_id, null: false, primary_key: true
       101.times do |i|
         t.integer :"s#{i}", default: 0, null: false
       end
