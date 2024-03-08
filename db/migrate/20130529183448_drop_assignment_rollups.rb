@@ -11,7 +11,7 @@ class DropAssignmentRollups < ActiveRecord::Migration[4.2]
     create_table :assignment_rollups do |t|
       t.bigint :assignment_id, null: false
       t.bigint :course_section_id
-      t.datetime :due_at
+      t.timestamp :due_at
       t.string :title, null: false
       t.boolean :muted
       t.float :max_score
