@@ -33,7 +33,8 @@ module Analytics
                     :"Analytics::Extensions::Account",
                     method: :prepend)
     Autoextend.hook(:Course,
-                    :"Analytics::Extensions::Course")
+                    :"Analytics::Extensions::Course",
+                    after_load: true)
     Autoextend.hook(:CoursesController,
                     :"Analytics::Extensions::CoursesController",
                     method: :prepend)
