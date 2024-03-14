@@ -74,12 +74,11 @@ describe "analytics course view" do
       validate_element_fill(on_time_bar, GraphColors::SHARP_GREEN)
 
       # validate first bar tooltip info
-      validation_text = [@missed_assignment.title,
-                         "Due: " + TextHelper.date_string(@missed_assignment.due_at),
-                         "Missing: 100%"]
-      validation_text.each do |text|
-        validate_tooltip_text("#{finishing_graph_css} .assignment_#{@missed_assignment.id}.cover", text)
-      end
+      first_bar_selector = "#{finishing_graph_css} .assignment_#{@missed_assignment.id}.cover"
+      validate_tooltip_text(first_bar_selector, @missed_assignment.title)
+      # NOTE: the below check fails when run locally due to TZ conflict.  Passes on jenkins
+      validate_tooltip_text(first_bar_selector, "Due: " + TextHelper.date_string(@missed_assignment.due_at))
+      validate_tooltip_text(first_bar_selector, "Missing: 100%")
     end
 
     it "validates grades graph" do
