@@ -34,6 +34,7 @@ class AddCassandraPageViewAnalyticsTables < ActiveRecord::Migration[4.2]
         context text,
         hour_bucket int,
         page_view_count counter,
+        participation_count counter,
         PRIMARY KEY (context, hour_bucket)
       ) #{compression_params}
     SQL
@@ -43,6 +44,7 @@ class AddCassandraPageViewAnalyticsTables < ActiveRecord::Migration[4.2]
         context text,
         user_id text,
         page_view_count counter,
+        participation_count counter,
         PRIMARY KEY (context, user_id)
       ) #{compression_params}
     SQL
