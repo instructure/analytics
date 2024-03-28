@@ -97,8 +97,7 @@ class PageViewsRollup < ActiveRecord::Base
     end
 
     def increment!(course, date, category, participated)
-      if Setting.get("page_view_rollups_method", "") == "redis" &&
-         Canvas.redis_enabled?
+      if Setting.get("page_view_rollups_method", "") == "redis" && Canvas.redis_enabled?
         increment_cached!(course, date, category, participated)
       else
         increment_db!(course, date, category, participated)
@@ -128,7 +127,7 @@ class PageViewsRollup < ActiveRecord::Base
     end
 
     def process_cached_rollups
-      lock_key = "page_view_rollup_processing:#{Shard.current.id}"
+      lock_key = "#{page_views_rollup_keys_set_key}:page_view_rollup_processing"
       lock_time = Setting.get("page_view_rollup_lock_time", 15.minutes.to_s).to_i
 
       # Lock out other processors, letting the lock drop if we take too long to finish.
@@ -180,7 +179,7 @@ class PageViewsRollup < ActiveRecord::Base
     private
 
     def page_views_rollup_keys_set_key
-      "page_views_rollup_keys:#{Shard.current.id}"
+      "{page_views_rollup_keys:#{Shard.current.id}}"
     end
 
     # Our use of Redis in this class is a little unusual. When operating on a
@@ -206,17 +205,17 @@ class PageViewsRollup < ActiveRecord::Base
     end
 
     def page_views_rollup_key_from_course_id(course)
-      ["page_views_rollup",
-       Shard.current.id,
-       course.to_s].join ":"
+      [page_views_rollup_keys_set_key, "course_id", course.to_s].join(":")
     end
 
     def course_id_from_page_views_rollup_key(key)
-      key.split(":")[2].to_i
+      key.split(":")[3].to_i
     end
 
     def data_key_from_date_and_category(date, category, participation: false)
       components = [
+        page_views_rollup_keys_set_key,
+        "category",
         category,
         (date.is_a?(Date) ? date.in_time_zone("UTC") : date.utc.at_beginning_of_day).to_i.to_s
       ]
@@ -225,7 +224,7 @@ class PageViewsRollup < ActiveRecord::Base
     end
 
     def date_and_category_from_data_key(key)
-      category, date, participation = key.split(":")
+      _, _, _, category, date, participation = key.split(":")
       # participation keys are skipped, so don't bother doing the (fairly)
       # expensive timezone calculations on it.
       return [nil, nil] if participation
