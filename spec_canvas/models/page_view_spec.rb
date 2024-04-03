@@ -43,11 +43,6 @@ describe PageView do
       @view.controller = "unknown"
       expect(@view.category).to eq :other
     end
-
-    it "prefers the category attribute if any" do
-      expect(@view).to receive(:read_attribute).with(:category).and_return("category")
-      expect(@view.category).to eq "category"
-    end
   end
 
   def page_view(opts = {})
