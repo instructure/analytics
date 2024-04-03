@@ -32,11 +32,9 @@ module Analytics::Extensions::PageView
   end
 
   def category
-    category = read_attribute(:category)
-    if !category && read_attribute(:controller)
-      category = CONTROLLER_TO_ACTION[controller.downcase.to_sym]
-    end
-    category || :other
+    return self["category"] if has_attribute?("category")
+
+    CONTROLLER_TO_ACTION[read_attribute("controller")&.downcase&.to_sym]
   end
 
   def store
@@ -74,5 +72,5 @@ module Analytics::Extensions::PageView
     quiz_questions: :quizzes,
     "quizzes/quiz_questions": :quizzes,
     gradebook_uploads: :grades
-  }.freeze
+  }.tap { |h| h.default = :other }.freeze
 end
