@@ -21,6 +21,14 @@
 module Analytics::Extensions::PageView
   def self.prepended(klass)
     klass.extend Analytics::PageViewIndex
+
+    klass::EventStream.on_insert do |page_view|
+      Analytics::PageViewIndex::EventStream.update(page_view, true)
+    end
+
+    klass::EventStream.on_update do |page_view|
+      Analytics::PageViewIndex::EventStream.update(page_view, false)
+    end
   end
 
   def category
@@ -39,25 +47,6 @@ module Analytics::Extensions::PageView
     end
     result
   end
-
-  # this is kind of terrible, but PageView::EventStream isn't assigned yet,
-  # and there's no direct hook to capture the later constant assignment
-  # so hook the creation of the stream, and add our hooks then
-  module EventStreamExtension
-    def initialize(&)
-      super(&)
-      if table == "page_views"
-        on_insert do |page_view|
-          Analytics::PageViewIndex::EventStream.update(page_view, true)
-        end
-
-        on_update do |page_view|
-          Analytics::PageViewIndex::EventStream.update(page_view, false)
-        end
-      end
-    end
-  end
-  ::EventStream::Stream.prepend(EventStreamExtension)
 
   CONTROLLER_TO_ACTION = {
     assignments: :assignments,
