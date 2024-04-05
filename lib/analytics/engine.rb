@@ -62,7 +62,8 @@ module Analytics
     end
     Autoextend.hook(:PageView,
                     :"Analytics::Extensions::PageView",
-                    method: :prepend)
+                    method: :prepend,
+                    after_load: true)
     Autoextend.hook(:"PageView::Pv4Client",
                     :"Analytics::Extensions::PageView::Pv4Client")
     Autoextend.hook(:User, :"Analytics::Extensions::User")
