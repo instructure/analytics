@@ -21,14 +21,20 @@
 module Analytics::Extensions::PageView
   def self.prepended(klass)
     klass.extend Analytics::PageViewIndex
+
+    klass::EventStream.on_insert do |page_view|
+      Analytics::PageViewIndex::EventStream.update(page_view, true)
+    end
+
+    klass::EventStream.on_update do |page_view|
+      Analytics::PageViewIndex::EventStream.update(page_view, false)
+    end
   end
 
   def category
-    category = read_attribute(:category)
-    if !category && read_attribute(:controller)
-      category = CONTROLLER_TO_ACTION[controller.downcase.to_sym]
-    end
-    category || :other
+    return self["category"] if has_attribute?("category")
+
+    CONTROLLER_TO_ACTION[read_attribute("controller")&.downcase&.to_sym]
   end
 
   def store
@@ -39,25 +45,6 @@ module Analytics::Extensions::PageView
     end
     result
   end
-
-  # this is kind of terrible, but PageView::EventStream isn't assigned yet,
-  # and there's no direct hook to capture the later constant assignment
-  # so hook the creation of the stream, and add our hooks then
-  module EventStreamExtension
-    def initialize(&)
-      super(&)
-      if table == "page_views"
-        on_insert do |page_view|
-          Analytics::PageViewIndex::EventStream.update(page_view, true)
-        end
-
-        on_update do |page_view|
-          Analytics::PageViewIndex::EventStream.update(page_view, false)
-        end
-      end
-    end
-  end
-  ::EventStream::Stream.prepend(EventStreamExtension)
 
   CONTROLLER_TO_ACTION = {
     assignments: :assignments,
@@ -85,5 +72,5 @@ module Analytics::Extensions::PageView
     quiz_questions: :quizzes,
     "quizzes/quiz_questions": :quizzes,
     gradebook_uploads: :grades
-  }.freeze
+  }.tap { |h| h.default = :other }.freeze
 end
