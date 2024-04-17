@@ -64,7 +64,7 @@ module Analytics
       end
 
       describe "#assignment_data" do
-        subject { OpenStruct.new(assignments.assignment_data(assignment, scores)) }
+        subject { double(assignments.assignment_data(assignment, scores)) }
 
         let(:scores) { (1..5).map { |score| double(score:, user_id: 123) } }
 
@@ -112,7 +112,7 @@ module Analytics
       end
 
       describe "#base_data" do
-        subject { OpenStruct.new(assignments.basic_assignment_data(assignment)) }
+        subject { double(assignments.basic_assignment_data(assignment)) }
 
         include_examples "basic assignment data"
       end
