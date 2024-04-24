@@ -24,6 +24,6 @@ module Analytics::Extensions::User
   end
 
   def computed_current_score
-    read_attribute(:computed_current_score) || @computed_current_score
+    self["computed_current_score"] || @computed_current_score
   end
 end
