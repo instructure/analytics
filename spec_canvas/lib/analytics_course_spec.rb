@@ -18,8 +18,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative "../cassandra_spec_helper"
-
 describe Analytics::Course do
   before do
     # set @course, @teacher, @teacher_enrollment
@@ -453,73 +451,60 @@ describe Analytics::Course do
   end
 
   describe "student summaries" do
-    shared_examples_for "#student_summaries" do
-      describe "a student's summary" do
-        before do
-          active_student(name: "Student1")
-        end
+    before do
+      active_student(name: "Student1")
+    end
 
-        it "counts page_views for that student" do
-          page_view(user: @student, course: @course)
-          expect(student_summary[:page_views]).to eq 1
-        end
+    it "counts page_views for that student" do
+      page_view(user: @student, course: @course)
+      expect(student_summary[:page_views]).to eq 1
+    end
 
-        it "counts participations for that student" do
-          page_view(user: @student, course: @course, participated: true)
-          expect(student_summary[:participations]).to eq 1
-        end
+    it "counts participations for that student" do
+      page_view(user: @student, course: @course, participated: true)
+      expect(student_summary[:participations]).to eq 1
+    end
 
-        context "levels" do
-          before do
-            @student1 = @student
-            @student2 = active_student.user
-            @student3 = active_student.user
-          end
+    context "levels" do
+      before do
+        @student1 = @student
+        @student2 = active_student.user
+        @student3 = active_student.user
+      end
 
-          it "returns 'level' for page_views / participation" do
-            page_view(user: @student1, course: @course, participated: true)
-            3.times { page_view(user: @student2, course: @course, participated: true) }
-            2.times { page_view(user: @student2, course: @course, participated: false) }
-            summaries = @teacher_analytics.student_summaries.paginate(per_page: 100)
-            levels = summaries.index_by { |x| x[:id] }
+      it "returns 'level' for page_views / participation" do
+        page_view(user: @student1, course: @course, participated: true)
+        3.times { page_view(user: @student2, course: @course, participated: true) }
+        2.times { page_view(user: @student2, course: @course, participated: false) }
+        summaries = @teacher_analytics.student_summaries.paginate(per_page: 100)
+        levels = summaries.index_by { |x| x[:id] }
 
-            expect(levels[@student1.id][:page_views_level]).to eq 2
-            expect(levels[@student2.id][:page_views_level]).to eq 3
-            expect(levels[@student3.id][:page_views_level]).to eq 0
+        expect(levels[@student1.id][:page_views_level]).to eq 2
+        expect(levels[@student2.id][:page_views_level]).to eq 3
+        expect(levels[@student3.id][:page_views_level]).to eq 0
 
-            expect(levels[@student1.id][:participations_level]).to eq 2
-            expect(levels[@student2.id][:participations_level]).to eq 3
-            expect(levels[@student3.id][:participations_level]).to eq 0
-          end
-        end
-
-        it "can return results for specific students", priority: "1" do
-          student2 = active_student(name: "Student2").user
-          summaries = @teacher_analytics
-                      .student_summaries(student_ids: [student2.id])
-                      .paginate(per_page: 100)
-          expect(summaries.size).to eq 1
-          expect(summaries.first[:id]).to eq student2.id
-        end
-
-        it "is able to sort by page view even with superfluous counts" do
-          old_page_view_counts = @teacher_analytics.page_views_by_student
-          allow(@teacher_analytics).to receive(:page_views_by_student)
-            .and_return(old_page_view_counts.merge(user_factory.id => { page_views: 0, participations: 0 }))
-          result = @teacher_analytics.student_summaries(sort_column: "page_views_ascending").paginate(page: 1,
-                                                                                                      per_page: 2).first
-          expect(result[:id]).to eq @student.id
-        end
+        expect(levels[@student1.id][:participations_level]).to eq 2
+        expect(levels[@student2.id][:participations_level]).to eq 3
+        expect(levels[@student3.id][:participations_level]).to eq 0
       end
     end
 
-    describe "#student_summaries db" do
-      include_examples "#student_summaries"
+    it "can return results for specific students", priority: "1" do
+      student2 = active_student(name: "Student2").user
+      summaries = @teacher_analytics
+                  .student_summaries(student_ids: [student2.id])
+                  .paginate(per_page: 100)
+      expect(summaries.size).to eq 1
+      expect(summaries.first[:id]).to eq student2.id
     end
 
-    describe "#student_summaries cassandra" do
-      include_examples "analytics cassandra page views"
-      include_examples "#student_summaries"
+    it "is able to sort by page view even with superfluous counts" do
+      old_page_view_counts = @teacher_analytics.page_views_by_student
+      allow(@teacher_analytics).to receive(:page_views_by_student)
+        .and_return(old_page_view_counts.merge(user_factory.id => { page_views: 0, participations: 0 }))
+      result = @teacher_analytics.student_summaries(sort_column: "page_views_ascending").paginate(page: 1,
+                                                                                                  per_page: 2).first
+      expect(result[:id]).to eq @student.id
     end
   end
 
