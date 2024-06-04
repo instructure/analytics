@@ -21,14 +21,6 @@
 module Analytics::Extensions::PageView
   def self.prepended(klass)
     klass.extend Analytics::PageViewIndex
-
-    klass::EventStream.on_insert do |page_view|
-      Analytics::PageViewIndex::EventStream.update(page_view, true)
-    end
-
-    klass::EventStream.on_update do |page_view|
-      Analytics::PageViewIndex::EventStream.update(page_view, false)
-    end
   end
 
   def category
