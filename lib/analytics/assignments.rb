@@ -95,7 +95,7 @@ module Analytics
         scope = this_course.assignments.published
 
         if user && differentiated_assignments_applies?(this_course, user)
-          scope = scope.visible_to_students_in_course_with_da(user.id, this_course.id)
+          scope = scope.visible_to_students_in_course_with_da([user.id], [this_course.id])
         end
 
         scope.preload(:versions) # Optimizes AssignmentOverrideApplicator
