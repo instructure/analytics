@@ -18,8 +18,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative "../cassandra_spec_helper"
-
 describe Analytics::StudentCollection do
   it "defaults sort_strategy to Default" do
     collection = Analytics::StudentCollection.new(User)
