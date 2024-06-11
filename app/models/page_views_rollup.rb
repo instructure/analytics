@@ -49,7 +49,7 @@ class PageViewsRollup < ActiveRecord::Base
 
       # ensure just the date portion, and that relative to UTC
       if date.is_a?(ActiveSupport::TimeWithZone)
-        date = date.in_time_zone("UTC").to_date
+        date = date.utc.to_date
       end
 
       # they passed a course
