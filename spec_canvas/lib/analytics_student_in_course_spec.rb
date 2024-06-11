@@ -37,8 +37,8 @@ module Analytics
 
     describe "#extended_assignment_data" do
       let(:analytics) { StudentInCourse.new(@teacher, @course, @student) }
-      let(:time1) { Time.local(2012, 10, 1) }
-      let(:time_posted) { Time.local(2022, 10, 1) }
+      let(:time1) { Time.zone.local(2012, 10, 1) }
+      let(:time_posted) { Time.zone.local(2022, 10, 1) }
 
       it "has a :submission field" do
         assignment = double("assignment")
