@@ -22,8 +22,6 @@ module Analytics::PageViewIndex
   def analytics_index_backing
     if PageView.pv4?
       PageView.pv4_client
-    elsif PageView.cassandra?
-      Analytics::PageViewIndex::EventStream
     else
       Analytics::PageViewIndex::DB
     end
@@ -36,114 +34,6 @@ module Analytics::PageViewIndex
   # Takes a context (right now, only a Course is valid), and a list of User
   # ids. Returns a hash of { user_id => { :page_views => count, :participations => count } }
   delegate :counters_by_context_for_users, to: :analytics_index_backing
-
-  module EventStream
-    def self.database
-      PageView::EventStream.database
-    end
-
-    def self.bucket_size
-      1.hour
-    end
-
-    def self.bucket_for_time(time)
-      time.to_i - (time.to_i % bucket_size.to_i)
-    end
-
-    def self.update(page_view, new_record)
-      context = case page_view.context_type
-                when "Course"
-                  page_view.context
-                when "Group"
-                  if page_view.context.context_type == "Course"
-                    page_view.context.context
-                  end
-                end
-      return unless page_view.user && context
-
-      user = page_view.user
-      participation = (new_record || page_view.participated_changed? || page_view.asset_user_access_id_changed?) &&
-                      page_view.participated &&
-                      page_view.asset_user_access
-
-      counts_updates = []
-      counts_updates << "page_view_count = page_view_count + 1" if new_record
-      counts_updates << "participation_count = participation_count + 1" if participation
-
-      unless counts_updates.empty?
-        counts_update = counts_updates.join(", ")
-        bucket = bucket_for_time(page_view.created_at)
-        database.update_counter(
-          "UPDATE page_views_counters_by_context_and_hour SET #{counts_update} WHERE context = ? AND hour_bucket = ?", "#{context.global_asset_string}/#{user.global_asset_string}", bucket
-        )
-        database.update_counter(
-          "UPDATE page_views_counters_by_context_and_user SET #{counts_update} WHERE context = ? AND user_id = ?", context.global_asset_string, user.global_id.to_s
-        )
-      end
-
-      if participation
-        database.update("INSERT INTO participations_by_context (context, created_at, request_id, url, asset_user_access_id, asset_code, asset_category) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                        "#{context.global_asset_string}/#{user.global_asset_string}",
-                        page_view.created_at,
-                        page_view.request_id,
-                        page_view.url,
-                        page_view.asset_user_access_id.to_s,
-                        page_view.asset_user_access.asset_code,
-                        page_view.asset_user_access.asset_category)
-      end
-    end
-
-    def self.read_consistency_level
-      PageView::EventStream.read_consistency_level
-    end
-
-    def self.participations_for_context(context, user)
-      participations = []
-      database.execute("SELECT created_at, url FROM participations_by_context %CONSISTENCY% WHERE context = ?",
-                       "#{context.global_asset_string}/#{user.global_asset_string}",
-                       consistency: read_consistency_level).fetch do |row|
-        participations << row.to_hash.with_indifferent_access
-      end
-      participations
-    end
-
-    def self.counters_by_context_and_hour(context, user)
-      counts = ::ActiveSupport::OrderedHash.new
-      database.execute(
-        "SELECT hour_bucket, page_view_count FROM page_views_counters_by_context_and_hour %CONSISTENCY% WHERE context = ?", "#{context.global_asset_string}/#{user.global_asset_string}", consistency: read_consistency_level
-      ).fetch do |row|
-        time = row["hour_bucket"].to_i
-        if time > 0
-          counts[Time.at(time)] = row["page_view_count"] || 0
-        end
-      end
-      counts
-    end
-
-    def self.counters_by_context_for_users(context, user_ids)
-      counters = {}
-      user_ids.each do |id|
-        counters[id] = {
-          page_views: 0,
-          participations: 0
-        }
-      end
-
-      id_map = user_ids.index_by { |id| Shard.global_id_for(id).to_s }
-      database.execute(
-        "SELECT user_id, page_view_count, participation_count FROM page_views_counters_by_context_and_user %CONSISTENCY% WHERE context = ?", context.global_asset_string, consistency: read_consistency_level
-      ).fetch do |row|
-        if (id = id_map[row["user_id"]])
-          counters[id] = {
-            page_views: row["page_view_count"].to_i,
-            participations: row["participation_count"].to_i
-          }
-        end
-      end
-
-      counters
-    end
-  end
 
   module DB
     def self.scope_for_context_and_user(context, user)

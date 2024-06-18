@@ -18,8 +18,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative "../cassandra_spec_helper"
-
 describe PageView do
   before do
     Setting.set("enable_page_views", "db")
@@ -100,7 +98,7 @@ describe PageView do
     expect(PageViewsRollup.bin_for(course, time.utc.to_date, "other").views).to eq 1
   end
 
-  shared_examples_for ".participations_for_context" do
+  describe ".participations_for_context" do
     before do
       student_in_course(active_all: true)
     end
@@ -121,15 +119,6 @@ describe PageView do
       parts = PageView.participations_for_context(@course, @user)
       expect(parts.count).to eq 1
     end
-  end
-
-  describe ".participations_for_context db" do
-    include_examples ".participations_for_context"
-  end
-
-  describe ".participations_for_context cassandra" do
-    include_examples "analytics cassandra page views"
-    include_examples ".participations_for_context"
   end
 
   describe ".counters_by_context_and_hour db" do
@@ -168,49 +157,7 @@ describe PageView do
     end
   end
 
-  # these tests are not shared with the db tests above, because cassandra
-  # actually changes the behavior here -- it puts the counts in one-hour
-  # buckets instead of 24-hour buckets, to solve the problem of people viewing
-  # analytics from different timezones.
-  describe ".counters_by_context_and_hour cassandra" do
-    before do
-      student_in_course(active_all: true)
-    end
-
-    include_examples "analytics cassandra page views"
-
-    it "returns user page view counts in the course by hour" do
-      timewarp = Time.parse("2012-12-26T19:15:00Z")
-      allow(Time).to receive(:now).and_return(timewarp)
-      page_view(user: @user, context: @course, created_at: 2.days.ago)
-      page_view(user: @user, context: @course, created_at: 2.days.ago)
-      page_view(user: @user, context: @course, created_at: 3.hours.ago)
-      page_view(user: @user, context: @course, created_at: 1.hour.ago)
-      page_view(user: @user, context: @course, created_at: 1.hour.ago)
-      counts = PageView.counters_by_context_and_hour(@course, @user)
-      expect(counts.size).to eq 3
-      expect(counts.values.sum).to eq 5
-    end
-
-    it "returns user page view counts in course groups" do
-      timewarp = Time.parse("2012-12-26T19:15:00Z")
-      allow(Time).to receive(:now).and_return(timewarp)
-
-      group_model(context: @course)
-      @group.add_user(@user, "accepted")
-
-      page_view(user: @user, context: @group, created_at: 2.days.ago)
-      page_view(user: @user, context: @group, created_at: 2.days.ago)
-      page_view(user: @user, context: @group, created_at: 3.hours.ago)
-      page_view(user: @user, context: @group, created_at: 1.hour.ago)
-      page_view(user: @user, context: @group, created_at: 1.hour.ago)
-      counts = PageView.counters_by_context_and_hour(@course, @user)
-      expect(counts.size).to eq 3
-      expect(counts.values.sum).to eq 5
-    end
-  end
-
-  shared_examples_for ".counters_by_context_for_users" do
+  describe ".counters_by_context_for_users" do
     before do
       @user1 = student_in_course(active_all: true).user
       @user2 = student_in_course(active_all: true).user
@@ -254,14 +201,5 @@ describe PageView do
       # partial retrieval
       expect(PageView.counters_by_context_for_users(@course, [@user2.id])).to eq({ @user2.id => counts[@user2.id] })
     end
-  end
-
-  describe ".counters_by_context_for_users db" do
-    include_examples ".counters_by_context_for_users"
-  end
-
-  describe ".counters_by_context_for_users cassandra" do
-    include_examples ".counters_by_context_for_users"
-    include_examples "analytics cassandra page views"
   end
 end

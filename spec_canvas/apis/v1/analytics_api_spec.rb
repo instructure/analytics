@@ -21,7 +21,6 @@
 # This file is part of the analytics engine
 
 require "apis/api_spec_helper"
-require_relative "../../cassandra_spec_helper"
 
 describe "Analytics API", type: :request do
   before do
@@ -411,26 +410,12 @@ describe "Analytics API", type: :request do
       expect(json.first["submission"]["score"]).to eq 1
     end
 
-    context "cassandra" do
-      include_examples "analytics cassandra page views"
-      it "has iso8601 page_views keys" do
-        pv = page_view(user: @student, course: @course)
-
-        bucket = Analytics::PageViewIndex::EventStream.bucket_for_time(pv.created_at)
-        expected = Time.zone.at(bucket).iso8601
-        json = analytics_api_call(:participation, @course, @student, user: @teacher)
-        expect(json["page_views"].keys).to eq [expected]
-      end
-    end
-
-    context "non-cassandra" do
-      it "has date string page_views keys" do
-        pv = page_view(user: @student, course: @course)
-        pv.save!
-        expected = pv.created_at.to_date.strftime("%Y-%m-%d")
-        json = analytics_api_call(:participation, @course, @student, user: @teacher)
-        expect(json["page_views"].keys).to eq [expected]
-      end
+    it "has date string page_views keys" do
+      pv = page_view(user: @student, course: @course)
+      pv.save!
+      expected = pv.created_at.to_date.strftime("%Y-%m-%d") # rubocop:disable Specs/NoStrftime
+      json = analytics_api_call(:participation, @course, @student, user: @teacher)
+      expect(json["page_views"].keys).to eq [expected]
     end
   end
 end
