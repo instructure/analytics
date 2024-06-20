@@ -76,11 +76,11 @@ module Analytics
       # lack time zone information but are guaranteed to actually mean UTC. we
       # add the zulu marker before using Time.parse to make sure they're
       # correctly interpreted regardless of the system time zone
-      @submitted_at    = Time.parse(@submitted_at + "Z")    if @submitted_at.is_a?(String)
-      @graded_at       = Time.parse(@graded_at + "Z")       if @graded_at.is_a?(String)
-      @cached_due_date = Time.parse(@cached_due_date + "Z") if @cached_due_date.is_a?(String)
+      @submitted_at    = Time.zone.parse(@submitted_at + "Z")    if @submitted_at.is_a?(String)
+      @graded_at       = Time.zone.parse(@graded_at + "Z")       if @graded_at.is_a?(String)
+      @cached_due_date = Time.zone.parse(@cached_due_date + "Z") if @cached_due_date.is_a?(String)
       @accepted_at = if data["accepted_at"].present?
-                       data["accepted_at"].is_a?(String) ? Time.parse(data["accepted_at"] + "Z") : data["accepted_at"]
+                       data["accepted_at"].is_a?(String) ? Time.zone.parse(data["accepted_at"] + "Z") : data["accepted_at"]
                      else
                        @submitted_at
                      end

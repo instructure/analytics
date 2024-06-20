@@ -366,7 +366,7 @@ describe "Analytics API", type: :request do
         title: "assignment",
         context: @course,
         points_possible: 10,
-        due_at: Time.now + 2.days
+        due_at: 2.days.from_now
       )
 
       json = api_call(:get, url, course_assignments_route)

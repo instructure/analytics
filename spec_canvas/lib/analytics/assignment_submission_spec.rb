@@ -21,7 +21,7 @@
 module Analytics
   describe AssignmentSubmission do
     let(:assignment) { ::Assignment.create!({ context: course_factory }) }
-    let(:date) { Time.now.change(sec: 0) }
+    let(:date) { Time.zone.now.change(sec: 0) }
 
     context "with submission" do
       let(:submission) do
@@ -114,7 +114,7 @@ module Analytics
       end
 
       it "returns cached due_date" do
-        allow(submission).to receive(:cached_due_date).and_return(Time.now)
+        allow(submission).to receive(:cached_due_date).and_return(Time.zone.now)
 
         assignment_submission = AssignmentSubmission.new(assignment, submission)
         expect(assignment_submission.due_at).to eq submission.cached_due_date.change(sec: 0)
