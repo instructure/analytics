@@ -122,7 +122,7 @@ module Analytics
       let(:this_course) { course_factory }
       let(:sections) { this_course.course_sections }
       let(:section_ids) { sections.map(&:id) }
-      let!(:assignment) { this_course.assignments.create!(points_possible: 100, due_at: Date.today) }
+      let!(:assignment) { this_course.assignments.create!(points_possible: 100, due_at: Time.zone.today) }
 
       before do
         3.times do

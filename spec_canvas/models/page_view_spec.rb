@@ -81,7 +81,7 @@ describe PageView do
   end
 
   it "increments the rollup when a new page view is created" do
-    date = Date.today
+    date = Time.zone.today
     course = course_model
     expect(PageViewsRollup.bin_for(course, date, "other").views).to eq 0
 

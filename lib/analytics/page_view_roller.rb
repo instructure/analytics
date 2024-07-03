@@ -100,7 +100,7 @@ module Analytics::PageViewRoller
       # aggregate gets slow. if that's too early for other installs/shards
       # running this migration, advance a month at a time until we find some.
       day = Date.new(2010, 11)
-      today = Date.today
+      today = Time.zone.today
       loop do
         logger.info "Looking for oldest page view before #{day}." if opts[:verbose] == "flood"
         row = PAGE_VIEWS.where("created_at<=?", day).minimum(:created_at)
@@ -139,7 +139,7 @@ module Analytics::PageViewRoller
 
       logger.info "Looking for oldest roll up on or after #{opts[:start_day]}." if opts[:verbose] == "flood"
       date = PageViewsRollup.where("date>=?", opts[:start_day]).minimum(:date)
-      date || Date.today
+      date || Time.zone.today
     end
   end
 

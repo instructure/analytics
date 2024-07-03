@@ -74,8 +74,8 @@ module Analytics
       end
 
       it "returns the earliest page_view's created_at" do
-        date1 = Date.today - 1.day
-        date2 = Date.today - 2.days
+        date1 = Time.zone.today - 1.day
+        date2 = Time.zone.today - 2.days
         [date1, date2].each { |date| build_page_view(created_at: date) }
         expect(PageViewRoller.start_day).to eq date2
       end
@@ -87,22 +87,22 @@ module Analytics
       end
 
       it "returns the earliest existing rollup's date" do
-        date1 = Date.today - 1.day
-        date2 = Date.today - 2.days
+        date1 = Time.zone.today - 1.day
+        date2 = Time.zone.today - 2.days
         build_page_view(created_at: date2)
         [date1, date2].each { |date| PageViewsRollup.bin_for(@course, date, "other").save }
         expect(PageViewRoller.end_day).to eq date2
       end
 
       it "returns today if no existing rollup's but existing page views" do
-        build_page_view(created_at: Date.today - 2.days)
+        build_page_view(created_at: Time.zone.today - 2.days)
         PageViewsRollup.delete_all
-        expect(PageViewRoller.end_day).to eq Date.today
+        expect(PageViewRoller.end_day).to eq Time.zone.today
       end
 
       it "ignores rollups before overridden start_day" do
-        date1 = Date.today - 1.day
-        date2 = Date.today - 2.days
+        date1 = Time.zone.today - 1.day
+        date2 = Time.zone.today - 2.days
         build_page_view(created_at: date2)
         [date1, date2].each { |date| PageViewsRollup.bin_for(@course, date, "other").save }
         expect(PageViewRoller.end_day(start_day: date1)).to eq date1
@@ -120,7 +120,7 @@ module Analytics
       end
 
       it "bins page views on that day" do
-        date = Date.today
+        date = Time.zone.today
         build_page_view(created_at: date)
         build_page_view(created_at: date)
         mockbin(@course.id, date, "other") do |bin|
@@ -131,7 +131,7 @@ module Analytics
       end
 
       it "only bins page views on that day" do
-        date = Date.today
+        date = Time.zone.today
         build_page_view(created_at: date)
         expect(PageViewsRollup).not_to receive(:augment!)
         PageViewRoller.rollup_one(date - 1.day)
@@ -140,7 +140,7 @@ module Analytics
       it "bins by course" do
         first_course = @course
         second_course = course_model
-        date = Date.today
+        date = Time.zone.today
         build_page_view(context: first_course, created_at: date)
         build_page_view(context: first_course, created_at: date)
         build_page_view(context: second_course, created_at: date)
@@ -150,7 +150,7 @@ module Analytics
       end
 
       it "bins by category" do
-        date = Date.today
+        date = Time.zone.today
         build_page_view(controller: "gradebooks", created_at: date)
         build_page_view(controller: "discussion_topics", created_at: date)
         build_page_view(controller: "discussion_topics", created_at: date)
@@ -160,7 +160,7 @@ module Analytics
       end
 
       it "skips existing bins" do
-        date = Date.today
+        date = Time.zone.today
         build_page_view(created_at: date)
         mockbin(@course.id, date, "other", false) do |bin|
           expect(bin).not_to receive(:augment)
@@ -170,7 +170,7 @@ module Analytics
       end
 
       it "recognizes participations" do
-        date = Date.today
+        date = Time.zone.today
         build_page_view(participated: true, created_at: date)
         expect(mockbin(@course.id, date, "other")).to receive(:augment).with(1, 1).once
         PageViewRoller.rollup_one(date)
@@ -179,8 +179,8 @@ module Analytics
 
     describe "#rollup_all" do
       it "rollups each day between start and end in reverse order" do
-        start_day = Date.today - 4.days
-        end_day = Date.today
+        start_day = Time.zone.today - 4.days
+        end_day = Time.zone.today
         allow(PageViewRoller).to receive_messages(start_day:, end_day:)
         (start_day..end_day).reverse_each do |day|
           expect(PageViewRoller).to receive(:rollup_one).with(day, anything).ordered

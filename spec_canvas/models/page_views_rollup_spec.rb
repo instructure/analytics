@@ -34,7 +34,7 @@ describe PageViewsRollup do
     end
 
     it "works for a single date" do
-      today = Date.today
+      today = Time.zone.today
       rollup = create_rollup(course: @course, date: today, category: "other")
       other = create_rollup(course: @course, date: today - 1.day, category: "other")
       expect(PageViewsRollup.for_dates(today)).to include(rollup)
@@ -42,7 +42,7 @@ describe PageViewsRollup do
     end
 
     it "works for a date range" do
-      end_day = Date.today - 1.day
+      end_day = Time.zone.today - 1.day
       start_day = end_day - 3.days
 
       rollups = (start_day..end_day).map do |day|
@@ -62,7 +62,7 @@ describe PageViewsRollup do
   describe ".for_category" do
     before do
       @course = course_model
-      @today = Date.today
+      @today = Time.zone.today
     end
 
     it "includes all rollups for that category" do
@@ -83,7 +83,7 @@ describe PageViewsRollup do
   describe ".bin_for" do
     before do
       @course = course_model
-      @today = Date.today
+      @today = Time.zone.today
       @category = "other"
     end
 
@@ -193,7 +193,7 @@ describe PageViewsRollup do
 
   describe "#augment" do
     before do
-      @bin = PageViewsRollup.bin_for(course_model, Date.today, "other")
+      @bin = PageViewsRollup.bin_for(course_model, Time.zone.today, "other")
     end
 
     it "increases views" do
@@ -216,7 +216,7 @@ describe PageViewsRollup do
   describe ".augment!" do
     it "augments the appropriate bin and save" do
       @course = course_model
-      @today = Date.today
+      @today = Time.zone.today
       @category = "other"
 
       bin = double("bin")
@@ -233,7 +233,7 @@ describe PageViewsRollup do
 
     it "handles creation race condition" do
       course = course_model
-      today = Date.today
+      today = Time.zone.today
       category = "other"
 
       scope = PageViewsRollup.bin_scope_for(course)
@@ -250,7 +250,7 @@ describe PageViewsRollup do
   describe ".increment_db!" do
     it "augments the appropriate bin by 1" do
       @course = course_model
-      @today = Date.today
+      @today = Time.zone.today
       @category = "other"
 
       expect(PageViewsRollup).to receive(:augment!).with(@course, @today, @category, 1, 1).once
@@ -259,7 +259,7 @@ describe PageViewsRollup do
 
     it "augments the bin's participations only if participated" do
       @course = course_model
-      @today = Date.today
+      @today = Time.zone.today
       @category = "other"
 
       expect(PageViewsRollup).to receive(:augment!).with(@course, @today, @category, 1, 0).once
@@ -276,7 +276,7 @@ describe PageViewsRollup do
       describe ".increment_cached!" do
         it "increments via redis and a batch job" do
           @course = course_model
-          @today = Date.today
+          @today = Time.zone.today
           @category = "other"
 
           PageViewsRollup.increment!(@course, @today, @category, false)

@@ -28,9 +28,9 @@ describe Analytics::Course do
   end
 
   describe "extended_assignment_data" do
-    let(:aug1) { Time.local(2012, 8, 1) }
-    let(:sep1) { Time.local(2012, 9, 1) }
-    let(:oct1) { Time.local(2012, 10, 1) }
+    let(:aug1) { Time.zone.local(2012, 8, 1) }
+    let(:sep1) { Time.zone.local(2012, 9, 1) }
+    let(:oct1) { Time.zone.local(2012, 10, 1) }
 
     describe "with assignment having multiple due dates" do
       let(:assignment) do
