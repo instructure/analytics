@@ -49,17 +49,6 @@ module Analytics
     Autoextend.hook(:"Loaders::CourseStudentAnalyticsLoader",
                     :"Analytics::Extensions::GraphQL::CourseStudentAnalyticsLoader",
                     method: :prepend)
-    Autoextend.hook(:Permissions, after_load: true) do
-      ::Permissions.register :view_analytics,
-                             label: -> { I18n.t("#role_override.permissions.view_analytics", "Analytics - view pages") },
-                             available_to: %w[AccountAdmin
-                                              TaEnrollment
-                                              TeacherEnrollment
-                                              StudentEnrollment
-                                              AccountMembership],
-                             true_for: %w[AccountAdmin TaEnrollment TeacherEnrollment],
-                             applies_to_concluded: true
-    end
     Autoextend.hook(:PageView,
                     :"Analytics::Extensions::PageView",
                     method: :prepend,
@@ -67,5 +56,22 @@ module Analytics
     Autoextend.hook(:"PageView::Pv4Client",
                     :"Analytics::Extensions::PageView::Pv4Client")
     Autoextend.hook(:User, :"Analytics::Extensions::User")
+
+    config.to_prepare do
+      ::Permissions.register(
+        {
+          view_analytics: {
+            label: -> { I18n.t("#role_override.permissions.view_analytics", "Analytics - view pages") },
+            available_to: %w[AccountAdmin
+                             TaEnrollment
+                             TeacherEnrollment
+                             StudentEnrollment
+                             AccountMembership],
+            true_for: %w[AccountAdmin TaEnrollment TeacherEnrollment],
+            applies_to_concluded: true
+          }
+        }
+      )
+    end
   end
 end
