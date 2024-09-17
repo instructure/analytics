@@ -22,7 +22,7 @@ module Analytics::Extensions
   module CustomSidebarLinksHelper
     def roster_user_custom_links(user)
       links = super
-      return links if @context.feature_enabled?(:analytics_2)
+      return links if @context.feature_enabled?(:analytics_2) || @context.feature_enabled?(:remove_legacy_account_analytics)
 
       if analytics_enabled_course? && analytics_enabled_student?(user)
         links << {
@@ -36,7 +36,7 @@ module Analytics::Extensions
 
     def course_custom_links
       links = super
-      return links if @context.feature_enabled?(:analytics_2)
+      return links if @context.feature_enabled?(:analytics_2) || @context.feature_enabled?(:remove_legacy_account_analytics)
 
       if analytics_enabled_course? && @context.grants_right?(@current_user, :read_as_admin)
         links << {

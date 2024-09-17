@@ -27,6 +27,10 @@ class AnalyticsController < ApplicationController
   def department
     return unless require_analytics_for_department
 
+    if @account.feature_enabled?(:remove_legacy_account_analytics)
+      deprecated
+    end
+
     @account_json = account_json(@account, @current_user, session, ["html_url"])
 
     if @filter
@@ -87,6 +91,10 @@ class AnalyticsController < ApplicationController
   def course
     return unless require_analytics_for_course
 
+    if @course.feature_enabled?(:remove_legacy_account_analytics)
+      deprecated
+    end
+
     @course_json = course_json(@course, @current_user, session, ["html_url"], false)
     @course_json[:students] = students_json(@course_analytics) if @course_analytics.allow_student_details?
     @start_date = @course_analytics.start_date
@@ -95,6 +103,10 @@ class AnalyticsController < ApplicationController
 
   def student_in_course
     return unless require_analytics_for_student_in_course
+
+    if @course.feature_enabled?(:remove_legacy_account_analytics)
+      deprecated
+    end
 
     @course_json = course_json(@course, @current_user, session, ["html_url"], false)
     if @course.grants_right?(@current_user, session, :read_as_admin)
@@ -111,6 +123,11 @@ class AnalyticsController < ApplicationController
   end
 
   private
+
+  def deprecated
+    @title = t "analytics", "Analytics(deprecated) %{account}", account: @account.name
+    render template: "analytics/deprecated", layout: "application"
+  end
 
   def students_json(analytics)
     students = analytics.students
