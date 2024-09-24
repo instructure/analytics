@@ -344,7 +344,7 @@ describe "Analytics API", type: :request do
     end
   end
 
-  context "#course_assignments" do
+  describe "#course_assignments" do
     before do
       course_with_teacher(active_all: true)
       student_in_course(active_all: true)
@@ -395,7 +395,7 @@ describe "Analytics API", type: :request do
     end
   end
 
-  context "#student_in_course_participation" do
+  describe "#student_in_course_participation" do
     before do
       course_with_teacher(active_all: true)
       course_with_student(course: @course, active_all: true)
