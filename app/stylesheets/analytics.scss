@@ -1,6 +1,24 @@
 @import "components/ui.selectmenu";
 
 div#analytics_body {
+  .deprecated_container {
+    display: grid;
+    justify-items: center;
+    height: 80vh;
+
+    .deprecated_content {
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      max-width: 600px;
+
+      p {
+        text-align: center;
+        text-wrap: balance;
+      }
+    }
+  }
+
   .status_green {
     color: #39a12c;
     font-weight: bolder;
