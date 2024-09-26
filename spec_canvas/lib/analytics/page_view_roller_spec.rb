@@ -110,7 +110,7 @@ module Analytics
     end
 
     describe "#rollup_one" do
-      def mockbin(course, date, category, new_record = true)
+      def mockbin(course, date, category, new_record: true)
         mockbin = double("fake bin")
         expect(PageViewsRollup).to receive(:bin_for).with(course, date, category).once.and_return(mockbin)
         allow(mockbin).to receive(:new_record?).and_return(new_record)
@@ -162,7 +162,7 @@ module Analytics
       it "skips existing bins" do
         date = Time.zone.today
         build_page_view(created_at: date)
-        mockbin(@course.id, date, "other", false) do |bin|
+        mockbin(@course.id, date, "other", new_record: false) do |bin|
           expect(bin).not_to receive(:augment)
           expect(bin).not_to receive(:save!)
         end
