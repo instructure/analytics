@@ -1,0 +1,20 @@
+<%
+  @body_classes << 'full-width'
+  add_crumb @account.name, url_for(@account)
+  add_crumb t(:analytics, "Analytics"), ".."
+
+  css_bundle :analytics, :plugin => :analytics
+%>
+
+<% content_for :page_title do %><%= @title %><% end %>
+
+<div id="analytics_body">
+  <div class="deprecated_container">
+    <div class="deprecated_content">
+      <%= image_tag('deprecated_panda.svg') %>
+      <h1><%= t(:deprecated, "Legacy Analytics has been removed!") %></h1>
+      <p><%= t(:deprecated_message, "Please visit the Analytics Hub to view even more Canvas usage data, Canvas course success data, and Canvas student engagement data. In Admin Analytics, you can view data for multiple sub-accounts and terms at once, or you can filter by account, term, course start date, course name, teacher name, and more.") %></p>
+      <a href="<%= url_for(controller: :analytics_hub, action: :show) %>">Go to Analytics Hub</a>
+    </div>
+  </div>
+</div>

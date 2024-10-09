@@ -93,7 +93,7 @@ describe Analytics::Department do
     end
   end
 
-  context "#calculate_and_clamp_dates" do
+  describe "#calculate_and_clamp_dates" do
     ## Use Case Grid
     #
     # start_at | end_at     | result                    | comments
