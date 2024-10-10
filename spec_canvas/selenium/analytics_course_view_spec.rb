@@ -146,7 +146,7 @@ describe "analytics course view" do
     end
 
     it "counts submissions" do
-      setup_variety_assignments(false)
+      setup_variety_assignments(add_no_due_date: false)
       go_to_analytics("/courses/#{@course.id}/analytics")
       # Only 2 submissions are real now
       expect(find("#student_#{@student.id} .submissions")).to include_text("2")

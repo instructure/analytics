@@ -129,7 +129,7 @@ shared_examples_for "analytics tests" do
     tooltip
   end
 
-  def setup_variety_assignments(add_no_due_date = true)
+  def setup_variety_assignments(add_no_due_date: true)
     @missed_assignment = @course.assignments.create!(title: "missed assignment",
                                                      due_at: 5.days.ago,
                                                      points_possible: 10,
@@ -199,7 +199,7 @@ shared_examples_for "analytics tests" do
     end
   end
 
-  def validate_analytics_button_exists(exists = true)
+  def validate_analytics_button_exists(exists: true)
     student = StudentEnrollment.last.user
     get "/courses/#{@course.id}/users/#{student.id}"
     buttons = right_nav_buttons.map { |button| button.text.strip }
@@ -210,10 +210,10 @@ shared_examples_for "analytics tests" do
     end
   end
 
-  def validate_analytics_icons_exist(exist = true)
+  def validate_analytics_icons_exist(exists: true)
     get "/courses/#{@course.id}/users"
     wait_for_ajaximations
-    if exist
+    if exists
       expect(ff(analytics_icon_css).count).to eq student_roster.count
     else
       expect(f("#content")).not_to contain_css(analytics_icon_css)
@@ -250,11 +250,11 @@ shared_examples_for "analytics tests" do
 
   shared_examples_for "analytics permissions specs" do
     it "validates analytics icons display" do
-      validate_analytics_icons_exist(validate)
+      validate_analytics_icons_exist(exists: validate)
     end
 
     it "validates analytics button display" do
-      validate_analytics_button_exists(validate)
+      validate_analytics_button_exists(exists: validate)
     end
   end
 
