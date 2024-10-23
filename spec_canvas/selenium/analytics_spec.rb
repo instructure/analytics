@@ -246,8 +246,8 @@ describe "analytics" do
     end
 
     describe "student combo box" do
-      def validate_combobox_presence(is_present = true)
-        if is_present
+      def validate_combobox_presence(present: true)
+        if present
           expect(find(".ui-combobox")).to be_displayed
         else
           expect(f("body")).not_to contain_css(".ui-combobox")
@@ -262,7 +262,7 @@ describe "analytics" do
 
       it "does not show the combo box when course student count = 1" do
         go_to_analytics("/courses/#{@course.id}/analytics/users/#{@student.id}")
-        validate_combobox_presence(false)
+        validate_combobox_presence(present: false)
       end
 
       it "displays the correct student info when selected in the combo box" do
