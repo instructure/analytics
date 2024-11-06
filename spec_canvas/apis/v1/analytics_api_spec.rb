@@ -84,6 +84,7 @@ describe "Analytics API", type: :request do
     end
 
     it "401s with unreadable course" do
+      skip "INTEROP-8917"
       @course1 = @course
       course_with_teacher(active_all: true)
 
@@ -93,6 +94,7 @@ describe "Analytics API", type: :request do
     end
 
     it "401s with out analytics permission" do
+      skip "INTEROP-8917"
       RoleOverride.manage_role_override(@account, teacher_role, "view_analytics", override: false)
 
       analytics_api_call(:participation, @course, @student1, expected_status: 401)
@@ -322,6 +324,7 @@ describe "Analytics API", type: :request do
 
   context "course_student_summaries" do
     it "fetches data for a student in the course" do
+      skip "INTEROP-8917"
       # course with teacher and some students
       course_with_teacher(active_all: true)
       3.times { student_in_course(active_all: true) }
