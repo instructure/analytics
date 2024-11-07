@@ -83,23 +83,21 @@ describe "Analytics API", type: :request do
       analytics_api_call(:messaging, @course, @student1, expected_status: 404)
     end
 
-    it "401s with unreadable course" do
-      skip "INTEROP-8917"
+    it "403s with unreadable course" do
       @course1 = @course
       course_with_teacher(active_all: true)
 
-      analytics_api_call(:participation, @course1, @student1, expected_status: 401)
-      analytics_api_call(:assignments, @course1, @student1, expected_status: 401)
-      analytics_api_call(:messaging, @course1, @student1, expected_status: 401)
+      analytics_api_call(:participation, @course1, @student1, expected_status: 403)
+      analytics_api_call(:assignments, @course1, @student1, expected_status: 403)
+      analytics_api_call(:messaging, @course1, @student1, expected_status: 403)
     end
 
-    it "401s with out analytics permission" do
-      skip "INTEROP-8917"
+    it "403s with out analytics permission" do
       RoleOverride.manage_role_override(@account, teacher_role, "view_analytics", override: false)
 
-      analytics_api_call(:participation, @course, @student1, expected_status: 401)
-      analytics_api_call(:assignments, @course, @student1, expected_status: 401)
-      analytics_api_call(:messaging, @course, @student1, expected_status: 401)
+      analytics_api_call(:participation, @course, @student1, expected_status: 403)
+      analytics_api_call(:assignments, @course, @student1, expected_status: 403)
+      analytics_api_call(:messaging, @course, @student1, expected_status: 403)
     end
 
     it "404s with unreadable student" do
@@ -324,7 +322,6 @@ describe "Analytics API", type: :request do
 
   context "course_student_summaries" do
     it "fetches data for a student in the course" do
-      skip "INTEROP-8917"
       # course with teacher and some students
       course_with_teacher(active_all: true)
       3.times { student_in_course(active_all: true) }
@@ -341,7 +338,7 @@ describe "Analytics API", type: :request do
                    action: "course_student_summaries",
                    format: "json",
                    course_id: @course.id.to_s)
-      expect(response.status.to_i).to eq 401 # Unauthorized
+      expect(response.status.to_i).to eq 403 # Forbidden
     end
   end
 
