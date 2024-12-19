@@ -61,7 +61,7 @@ module Analytics::Extensions::PageView::Pv4Client
        @last_user_in_course_participations_timestamp > Time.now.utc - 5.seconds
       @last_user_in_course_participations
     else
-      response = CanvasHttp.get(@uri.merge("courses/#{course_id}/users/#{user.global_id}/participation").to_s,
+      response = CanvasHttp.get(@uri.merge("courses/#{course_id}/users/#{user.global_id}/participation?#{cached_root_account_uuids_for(user:)}").to_s,
                                 { "Authorization" => "Bearer #{@access_token}" })
 
       @last_user_in_course_participations_timestamp = Time.now.utc
