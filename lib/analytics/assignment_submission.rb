@@ -40,7 +40,7 @@ module Analytics
         # if we expect a submission return submitted_at because canvas expects a
         # submission to be submitted.
         submitted_at
-      elsif graded_at.nil? || (@submission.graded? && @submission.score == 0) # rubocop:disable Lint/DuplicateBranch https://github.com/rubocop/rubocop/issues/10153
+      elsif graded_at.nil? || (@submission.graded? && @submission.score == 0) # rubocop:disable Lint/DuplicateBranch -- https://github.com/rubocop/rubocop/issues/10153
         # if graded_at is nil we know that due_at is in the future.  We know it
         # must be in the future because @submission.missing? above would have
         # been true.  With due_at in the future, means it has not been recorded yet.
@@ -100,9 +100,7 @@ module Analytics
       @submission&.submitted_at
     end
 
-    def non_digital_submission?
-      @assignment.non_digital_submission?
-    end
+    delegate :non_digital_submission?, to: :@assignment
 
     private
 
