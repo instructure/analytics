@@ -69,13 +69,9 @@ module Analytics::Rollups
       ((value / @bucket_size) + 0.5).floor
     end
 
-    def max
-      @counter.max
-    end
+    delegate :max, to: :@counter
 
-    def min
-      @counter.min
-    end
+    delegate :min, to: :@counter
 
     def first_quartile
       @counter.quartiles[0]
