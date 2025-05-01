@@ -24,7 +24,7 @@ require_relative "analytics_common"
 describe "analytics" do
   let(:analytics_icon_css) { ".roster .icon-analytics" }
 
-  include_examples "analytics tests"
+  include_context "analytics tests"
 
   describe "course view" do
     describe "links" do
@@ -71,7 +71,7 @@ describe "analytics" do
           add_students_to_course(5)
         end
 
-        include_examples "analytics permissions specs"
+        it_behaves_like "analytics permissions specs"
       end
 
       describe "with analytics turned off" do
@@ -83,7 +83,7 @@ describe "analytics" do
           add_students_to_course(5)
         end
 
-        include_examples "analytics permissions specs"
+        it_behaves_like "analytics permissions specs"
       end
     end
 
@@ -98,7 +98,7 @@ describe "analytics" do
           add_students_to_course(5)
         end
 
-        include_examples "analytics permissions specs"
+        it_behaves_like "analytics permissions specs"
       end
 
       describe "with analytics permissions off" do
@@ -111,7 +111,7 @@ describe "analytics" do
           add_students_to_course(5)
         end
 
-        include_examples "analytics permissions specs"
+        it_behaves_like "analytics permissions specs"
       end
     end
   end
@@ -140,9 +140,9 @@ describe "analytics" do
     end
 
     context "participation view" do
-      let(:analytics_url) { "/courses/#{@course.id}/analytics/users/#{@student.id}" }
-
-      include_examples "participation graph specs"
+      it_behaves_like "participation graph specs" do
+        let(:analytics_url) { "/courses/#{@course.id}/analytics/users/#{@student.id}" }
+      end
     end
 
     it "validates responsiveness graph" do

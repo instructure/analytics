@@ -31,7 +31,7 @@ describe "analytics account view" do
     @course.save!
   end
 
-  include_examples "analytics tests"
+  include_context "analytics tests"
 
   def validate_data_point(data_point, expected_count = "1")
     expect(find(".AnalyticsStats__#{data_point}").find(".AnalyticsStats__Count").text).to eq expected_count
