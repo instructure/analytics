@@ -138,7 +138,7 @@ describe Analytics::StudentCollection do
         @expected_sort = [1, 0, 2].map { |i| @users[i] }
       end
 
-      include_examples "paginated sort strategy"
+      it_behaves_like "paginated sort strategy"
     end
 
     describe Analytics::StudentCollection::SortStrategy::ByScore do
@@ -163,7 +163,7 @@ describe Analytics::StudentCollection do
         @expected_sort = [2, 1, 0, 3].map { |i| @users[i] }
       end
 
-      include_examples "paginated sort strategy"
+      it_behaves_like "paginated sort strategy"
     end
 
     describe Analytics::StudentCollection::SortStrategy::ByPageViews do
@@ -179,7 +179,7 @@ describe Analytics::StudentCollection do
         @expected_sort = [1, 0, 2].map { |i| @users[i] }
       end
 
-      include_examples "paginated sort strategy"
+      it_behaves_like "paginated sort strategy"
     end
 
     describe Analytics::StudentCollection::SortStrategy::ByParticipations do
@@ -196,7 +196,7 @@ describe Analytics::StudentCollection do
         @expected_sort = [1, 0, 2].map { |i| @users[i] }
       end
 
-      include_examples "paginated sort strategy"
+      it_behaves_like "paginated sort strategy"
     end
 
     describe ".for(strategy_name)" do

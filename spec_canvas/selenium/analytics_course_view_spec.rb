@@ -37,7 +37,7 @@ describe "analytics course view" do
     student_in_course(name: initial_student_name, active_all: true)
   end
 
-  include_examples "analytics tests"
+  include_context "analytics tests"
 
   def get_bar(graph_selector, assignment_id)
     driver.execute_script("return $('#{graph_selector} .assignment_#{assignment_id}').prev()[0]")
@@ -53,9 +53,9 @@ describe "analytics course view" do
 
   context "course graphs" do
     context "participation graph" do
-      let(:analytics_url) { "/courses/#{@course.id}/analytics" }
-
-      include_examples "participation graph specs"
+      it_behaves_like "participation graph specs" do
+        let(:analytics_url) { "/courses/#{@course.id}/analytics" }
+      end
     end
 
     it "validates finishing assignments graph" do
