@@ -177,7 +177,7 @@ describe PageView do
 
       counts = PageView.counters_by_context_for_users(@course, [@user1.id, @user2.id])
       expect(counts).to eq({ @user1.id => { page_views: 4, participations: 3 },
-                             @user2.id => { page_views: 5, participations: 1 },  })
+                             @user2.id => { page_views: 5, participations: 1 }  })
 
       # partial retrieval
       expect(PageView.counters_by_context_for_users(@course, [@user2.id])).to eq({ @user2.id => counts[@user2.id] })
@@ -196,7 +196,7 @@ describe PageView do
 
       counts = PageView.counters_by_context_for_users(@course, [@user1.id, @user2.id])
       expect(counts).to eq({ @user1.id => { page_views: 3, participations: 2 },
-                             @user2.id => { page_views: 2, participations: 1 },  })
+                             @user2.id => { page_views: 2, participations: 1 }  })
 
       # partial retrieval
       expect(PageView.counters_by_context_for_users(@course, [@user2.id])).to eq({ @user2.id => counts[@user2.id] })

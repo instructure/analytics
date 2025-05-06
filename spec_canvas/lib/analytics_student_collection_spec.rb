@@ -69,7 +69,7 @@ describe Analytics::StudentCollection do
       collection.sort_by(:page_views, page_view_counts: {
                            @users[0].id => { page_views: 40, participations: 10 },
                            @users[1].id => { page_views: 20, participations: 10 },
-                           @users[2].id => { page_views: 60, participations: 10 },
+                           @users[2].id => { page_views: 60, participations: 10 }
                          })
       students = collection.paginate(page: 1, per_page: 3)
       expect(students).to eq([1, 0, 2].map { |i| @users[i] })
@@ -171,7 +171,7 @@ describe Analytics::StudentCollection do
         page_view_counts = {
           @users[0].id => { page_views: 40, participations: 10 },
           @users[1].id => { page_views: 20, participations: 10 },
-          @users[2].id => { page_views: 60, participations: 10 },
+          @users[2].id => { page_views: 60, participations: 10 }
         }
         @scope = User.active
         @strategy = Analytics::StudentCollection::SortStrategy::ByPageViews.new(page_view_counts)
@@ -187,7 +187,7 @@ describe Analytics::StudentCollection do
         page_view_counts = {
           @users[0].id => { participations: 40, page_views: 100 },
           @users[1].id => { participations: 20, page_views: 100 },
-          @users[2].id => { participations: 60, page_views: 100 },
+          @users[2].id => { participations: 60, page_views: 100 }
         }
         @scope = User.active
         @strategy = Analytics::StudentCollection::SortStrategy::ByParticipations.new(page_view_counts)
