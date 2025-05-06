@@ -41,7 +41,7 @@ module Analytics
         max_page_views: page_view_stats.max,
         page_views_quartiles: page_view_stats.quartiles,
         max_participations: participation_stats.max,
-        participations_quartiles: participation_stats.quartiles,
+        participations_quartiles: participation_stats.quartiles
       }
     end
   end

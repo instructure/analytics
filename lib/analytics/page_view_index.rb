@@ -47,7 +47,7 @@ module Analytics::PageViewIndex
         .where("participated AND asset_user_access_id IS NOT NULL").map do |participation|
         {
           created_at: participation.created_at,
-          url: participation.url,
+          url: participation.url
         }.with_indifferent_access
       end
     end
