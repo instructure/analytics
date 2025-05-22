@@ -30,8 +30,8 @@ module GraphColors
   BACKGROUND = "#ffffff"
 end
 
-shared_examples_for "analytics tests" do
-  include_examples "in-process server selenium tests"
+shared_context "analytics tests" do
+  include_context "in-process server selenium tests"
 
   def enable_analytics
     @account = Account.default
@@ -247,63 +247,63 @@ shared_examples_for "analytics tests" do
       to_grade_left -= 1
     end
   end
+end
 
-  shared_examples_for "analytics permissions specs" do
-    it "validates analytics icons display" do
-      validate_analytics_icons_exist(exists: validate)
-    end
-
-    it "validates analytics button display" do
-      validate_analytics_button_exists(exists: validate)
-    end
+shared_examples_for "analytics permissions specs" do
+  it "validates analytics icons display" do
+    validate_analytics_icons_exist(exists: validate)
   end
 
-  shared_examples_for "participation graph specs" do
-    it "validates participating graph with a single page view" do
-      page_view(user: @student, course: @course)
-      go_to_analytics(analytics_url)
-      validate_tooltip_text(date_selector(Time.now.utc), "1 page view")
-    end
+  it "validates analytics button display" do
+    validate_analytics_button_exists(exists: validate)
+  end
+end
 
-    it "validates participating graph with multiple page views" do
-      page_view_count = 10
-      page_view_count.times { page_view(user: @student, course: @course) }
-      go_to_analytics(analytics_url)
-      validate_tooltip_text(date_selector(Time.now.utc), page_view_count.to_s + " page views")
-    end
+shared_examples_for "participation graph specs" do
+  it "validates participating graph with a single page view" do
+    page_view(user: @student, course: @course)
+    go_to_analytics(analytics_url)
+    validate_tooltip_text(date_selector(Time.now.utc), "1 page view")
+  end
 
-    it "validates participating graph with multiple page views on multiple days" do
-      old_page_views_date = Time.now.utc - 2.days
-      dates = [old_page_views_date, Time.now.utc]
-      number_of_page_views = 5
-      number_of_page_views.times { page_view(user: @student, course: @course) }
-      number_of_page_views.times do
-        page_view(user: @student, course: @course, created_at: old_page_views_date)
-      end
-      go_to_analytics(analytics_url)
-      dates.each { |date| validate_tooltip_text(date_selector(date), number_of_page_views.to_s + " page views") }
-    end
+  it "validates participating graph with multiple page views" do
+    page_view_count = 10
+    page_view_count.times { page_view(user: @student, course: @course) }
+    go_to_analytics(analytics_url)
+    validate_tooltip_text(date_selector(Time.now.utc), page_view_count.to_s + " page views")
+  end
 
-    it "validates the graph color when a student took action on that day" do
-      page_view(user: @student, course: @course, participated: true)
-      go_to_analytics(analytics_url)
-      validate_element_fill(get_rectangle(Time.now.utc), GraphColors::DARK_BLUE)
-      validate_tooltip_text(date_selector(Time.now.utc), "1 participation")
+  it "validates participating graph with multiple page views on multiple days" do
+    old_page_views_date = Time.now.utc - 2.days
+    dates = [old_page_views_date, Time.now.utc]
+    number_of_page_views = 5
+    number_of_page_views.times { page_view(user: @student, course: @course) }
+    number_of_page_views.times do
+      page_view(user: @student, course: @course, created_at: old_page_views_date)
     end
+    go_to_analytics(analytics_url)
+    dates.each { |date| validate_tooltip_text(date_selector(date), number_of_page_views.to_s + " page views") }
+  end
 
-    it "validates the participation and non participation display" do
-      old_page_view_date = Time.now.utc - 3.days
-      rectangles = []
-      dates = [old_page_view_date, Time.now.utc]
-      page_view(user: @student, course: @course)
-      page_view(user: @student, course: @course, participated: true, created_at: old_page_view_date)
-      go_to_analytics(analytics_url)
-      dates.each do |date|
-        rect = get_rectangle(date)
-        rectangles.push(rect)
-      end
-      validate_element_fill(rectangles[0], GraphColors::DARK_BLUE)
-      validate_element_fill(rectangles[1], GraphColors::LIGHT_BLUE)
+  it "validates the graph color when a student took action on that day" do
+    page_view(user: @student, course: @course, participated: true)
+    go_to_analytics(analytics_url)
+    validate_element_fill(get_rectangle(Time.now.utc), GraphColors::DARK_BLUE)
+    validate_tooltip_text(date_selector(Time.now.utc), "1 participation")
+  end
+
+  it "validates the participation and non participation display" do
+    old_page_view_date = Time.now.utc - 3.days
+    rectangles = []
+    dates = [old_page_view_date, Time.now.utc]
+    page_view(user: @student, course: @course)
+    page_view(user: @student, course: @course, participated: true, created_at: old_page_view_date)
+    go_to_analytics(analytics_url)
+    dates.each do |date|
+      rect = get_rectangle(date)
+      rectangles.push(rect)
     end
+    validate_element_fill(rectangles[0], GraphColors::DARK_BLUE)
+    validate_element_fill(rectangles[1], GraphColors::LIGHT_BLUE)
   end
 end

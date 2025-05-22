@@ -108,13 +108,13 @@ module Analytics
           it { is_expected.to eq 4.5 }
         end
 
-        include_examples "basic assignment data"
+        it_behaves_like "basic assignment data"
       end
 
       describe "#base_data" do
         subject { double(assignments.basic_assignment_data(assignment)) }
 
-        include_examples "basic assignment data"
+        it_behaves_like "basic assignment data"
       end
     end
 

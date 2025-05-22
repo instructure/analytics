@@ -96,7 +96,7 @@ module Analytics
           discussion_topics: discussion_topics.count,
           media_objects: media_objects.count,
           attachments: attachments.count,
-          assignments: assignments.count,
+          assignments: assignments.count
         }
       end
     end

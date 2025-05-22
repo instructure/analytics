@@ -39,7 +39,7 @@ module Analytics
         participations: participations[:total],
         max_participations: participations[:max],
         participations_level: participations[:level],
-        tardiness_breakdown:,
+        tardiness_breakdown:
       }
     end
 
