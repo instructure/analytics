@@ -36,7 +36,7 @@ describe "Analytics API", type: :request do
     action, suffix = {
       participation: ["student_in_course_participation", "/activity"],
       assignments: ["student_in_course_assignments", "/assignments"],
-      messaging: ["student_in_course_messaging", "/communication"],
+      messaging: ["student_in_course_messaging", "/communication"]
     }[action]
     user = opts.delete(:user)
     args = [:get,

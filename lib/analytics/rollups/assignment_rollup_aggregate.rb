@@ -42,7 +42,7 @@ module Analytics::Rollups
           min_score: @rollups.filter_map(&:min_score).min,
           first_quartile: buckets.first_quartile,
           median: buckets.median,
-          third_quartile: buckets.third_quartile,
+          third_quartile: buckets.third_quartile
         }
       else
         Hash.new(0)
