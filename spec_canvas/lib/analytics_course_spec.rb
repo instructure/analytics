@@ -537,10 +537,10 @@ describe Analytics::Course do
       @summaries = @teacher_analytics.student_summaries.paginate(page: 1, per_page: 2)
       expect(@summaries.detect do |s|
                s[:id] == @submission1.user_id
-             end             [:tardiness_breakdown]).to eq expected_breakdown(:on_time)
+             end[:tardiness_breakdown]).to eq expected_breakdown(:on_time)
       expect(@summaries.detect do |s|
                s[:id] == @submission2.user_id
-             end             [:tardiness_breakdown]).to eq expected_breakdown(:late)
+             end[:tardiness_breakdown]).to eq expected_breakdown(:late)
     end
 
     context "an assignment that has a due date" do
