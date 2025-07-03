@@ -27,7 +27,7 @@ class AnalyticsController < ApplicationController
   def department
     return unless require_analytics_for_department
 
-    if @account.feature_enabled?(:remove_legacy_account_analytics)
+    if @account.feature_enabled?(:remove_legacy_account_analytics) || @account.feature_enabled?(:hide_legacy_course_analytics)
       deprecated
     end
 
