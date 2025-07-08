@@ -91,7 +91,7 @@ class AnalyticsController < ApplicationController
   def course
     return unless require_analytics_for_course
 
-    if @course.feature_enabled?(:remove_legacy_account_analytics)
+    if @course.feature_enabled?(:remove_legacy_account_analytics) || @course.feature_enabled?(:hide_legacy_course_analytics)
       deprecated
     end
 
