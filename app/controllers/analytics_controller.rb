@@ -125,7 +125,8 @@ class AnalyticsController < ApplicationController
   private
 
   def deprecated
-    @title = t "analytics", "Analytics(deprecated) %{account}", account: @account.name
+    account = @account || @course&.account
+    @title = t "analytics", "Analytics(deprecated) %{account}", account: account&.name || "Unknown"
     render template: "analytics/deprecated", layout: "application"
   end
 
