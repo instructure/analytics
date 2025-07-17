@@ -1,6 +1,9 @@
 <%
   @body_classes << 'full-width'
-  add_crumb @account.name, url_for(@account)
+  account = @account || @course&.account
+  if account
+    add_crumb account.name, url_for(account)
+  end
   add_crumb t(:analytics, "Analytics"), ".."
 
   css_bundle :analytics, :plugin => :analytics
