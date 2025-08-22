@@ -69,7 +69,7 @@ module Analytics
         context_id: @course,
         context_type: @course.class.to_s,
         cache_key_context: assignments_cache_key
-      ).order("created_at").first
+      ).order(:created_at).first
     end
 
     def progress_for_background_assignments
