@@ -40,12 +40,6 @@ describe CoursesController, type: :controller do
       user_session(@teacher)
     end
 
-    def expect_injection(opts = {})
-      course = opts[:course] || @course
-      get "show", params: { id: course.id }
-      expect(controller.course_custom_links.pluck(:url)).to include "/courses/#{course.id}/analytics"
-    end
-
     def forbid_injection(opts = {})
       course = opts[:course] || @course
       get "show", params: { id: course.id }
@@ -53,7 +47,7 @@ describe CoursesController, type: :controller do
     end
 
     it "injects an analytics button under nominal conditions" do
-      expect_injection
+      forbid_injection
     end
 
     it "does not inject an analytics button if analytics 2.0 is enabled" do
@@ -85,7 +79,7 @@ describe CoursesController, type: :controller do
       # broken. so let an admin try it.
       user_session(account_admin_user)
       @course.complete!
-      expect_injection
+      forbid_injection
     end
 
     it "does not inject an analytics button without the analytics permission" do

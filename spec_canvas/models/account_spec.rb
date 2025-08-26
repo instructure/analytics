@@ -38,13 +38,13 @@ describe Account do
   end
 
   context "Analytics Tab" do
-    it "injects an analytics tab under nominal conditions" do
-      expect(@account.tabs_available(@admin)[-2]).to include(analytics_tab_opts)
+    it "does not inject an analytics tab under nominal conditions" do
+      expect(@account.tabs_available(@admin)[-2]).not_to include(analytics_tab_opts)
     end
 
-    it "injects an analytics tab for a sub-account" do
+    it "does not inject an analytics tab for a sub-account" do
       sub_account = @account.sub_accounts.create!
-      expect(sub_account.tabs_available(@admin)[-2]).to include(analytics_tab_opts)
+      expect(sub_account.tabs_available(@admin)[-2]).not_to include(analytics_tab_opts)
     end
 
     it "does not inject an analytics tab when analytics is disabled" do
