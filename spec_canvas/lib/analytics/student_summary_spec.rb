@@ -22,10 +22,10 @@ module Analytics
   describe StudentSummary do
     describe "#tardiness_breakdown" do
       it "serves a blank hash for a missing student id" do
-        student = double(id: 42)
-        course = double(tardiness_breakdowns: { students: {} })
-        page_view_counts = double
-        analysis = double
+        student = instance_double(User, id: 42)
+        course = instance_double(Course, tardiness_breakdowns: { students: {} })
+        page_view_counts = {}
+        analysis = {}
         summary = StudentSummary.new(student, course, page_view_counts, analysis)
         expect(summary.tardiness_breakdown).to eq({})
       end

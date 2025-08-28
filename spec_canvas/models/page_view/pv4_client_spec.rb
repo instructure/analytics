@@ -22,13 +22,13 @@ describe PageView::Pv4Client do
   let(:client) { PageView::Pv4Client.new("http://pv4/", "token") }
 
   def stub_http_request(response)
-    stub = double(body: response.to_json)
+    stub = instance_double(Net::HTTPSuccess, body: response.to_json)
     allow(CanvasHttp).to receive(:get).and_return(stub)
   end
 
   describe "#user_in_course_participations" do
     it "caches between requests" do
-      stub = double(body: { "participations" => [], "page_views" => {} }.to_json)
+      stub = instance_double(Net::HTTPSuccess, body: { "participations" => [], "page_views" => {} }.to_json)
       expect(CanvasHttp).to receive(:get).once.and_return(stub)
       course = Course.create!
       user = User.create!
@@ -40,7 +40,7 @@ describe PageView::Pv4Client do
 
   describe "#counters_by_context_for_users" do
     it "transforms the response to a hash" do
-      stub = double(body: {
+      stub = instance_double(Net::HTTPSuccess, body: {
         "users" => [
           { "user_id" => 1, "page_views" => [], "participations" => [] },
           { "user_id" => 2, "page_views" => [], "participations" => [] }

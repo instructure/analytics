@@ -24,86 +24,84 @@ module Analytics
 
     describe "building assigment data" do
       let(:assignment) do
-        double(
-          id: 2,
-          title: "title",
-          unlock_at: "2/2/2",
-          points_possible: 5,
-          muted?: true,
-          multiple_due_dates: false,
-          grading_type: "percent",
-          submission_types: "online",
-          non_digital_submission?: false
-        )
+        instance_double(Assignment,
+                        id: 2,
+                        title: "title",
+                        unlock_at: "2/2/2",
+                        points_possible: 5,
+                        muted?: true,
+                        grading_type: "percent",
+                        submission_types: "online",
+                        non_digital_submission?: false)
       end
 
       shared_examples_for "basic assignment data" do
         describe "#points_possible" do
-          subject { super().points_possible }
+          subject { super()[:points_possible] }
 
           it { is_expected.to eq assignment.points_possible }
         end
 
         describe "#unlock_at" do
-          subject { super().unlock_at }
+          subject { super()[:unlock_at] }
 
           it { is_expected.to eq assignment.unlock_at }
         end
 
         describe "#assignment_id" do
-          subject { super().assignment_id }
+          subject { super()[:assignment_id] }
 
           it { is_expected.to eq assignment.id }
         end
 
         describe "#title" do
-          subject { super().title }
+          subject { super()[:title] }
 
           it { is_expected.to eq assignment.title }
         end
       end
 
       describe "#assignment_data" do
-        subject { double(assignments.assignment_data(assignment, scores)) }
+        subject { assignments.assignment_data(assignment, scores) }
 
-        let(:scores) { (1..5).map { |score| double(score:, user_id: 123) } }
+        let(:scores) { (1..5).map { |score| instance_double(Submission, score:, user_id: 123) } }
 
         before do
           allow(assignments).to receive_messages(fake_student_ids: [], allow_student_details?: true)
         end
 
         describe "#max_score" do
-          subject { super().max_score }
+          subject { super()[:max_score] }
 
           it { is_expected.to eq 5 }
         end
 
         describe "#min_score" do
-          subject { super().min_score }
+          subject { super()[:min_score] }
 
           it { is_expected.to eq 1 }
         end
 
         describe "#muted" do
-          subject { super().muted }
+          subject { super()[:muted] }
 
           it { is_expected.to be_falsey }
         end
 
         describe "#first_quartile" do
-          subject { super().first_quartile }
+          subject { super()[:first_quartile] }
 
           it { is_expected.to eq 1.5 }
         end
 
         describe "#median" do
-          subject { super().median }
+          subject { super()[:median] }
 
           it { is_expected.to eq 3 }
         end
 
         describe "#third_quartile" do
-          subject { super().third_quartile }
+          subject { super()[:third_quartile] }
 
           it { is_expected.to eq 4.5 }
         end
@@ -112,7 +110,7 @@ module Analytics
       end
 
       describe "#base_data" do
-        subject { double(assignments.basic_assignment_data(assignment)) }
+        subject { assignments.basic_assignment_data(assignment) }
 
         it_behaves_like "basic assignment data"
       end
