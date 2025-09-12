@@ -41,14 +41,14 @@ module Analytics
       let(:time_posted) { Time.zone.local(2022, 10, 1) }
 
       it "has a :submission field" do
-        assignment = double("assignment")
-        subm = double("subm",
-                      user_id: @student.id,
-                      score: 10,
-                      submitted_at: time1,
-                      posted_at: time_posted,
-                      missing?: false,
-                      excused?: false)
+        assignment = instance_double(Assignment)
+        subm = instance_double(Submission,
+                               user_id: @student.id,
+                               score: 10,
+                               submitted_at: time1,
+                               posted_at: time_posted,
+                               missing?: false,
+                               excused?: false)
         data = analytics.extended_assignment_data(assignment, [subm])
         expect(data).to eq({
                              excused: false,
@@ -66,16 +66,15 @@ module Analytics
       let(:submitted_at) { 101.days.ago.change(usec: 0) }
 
       let(:analytics) { StudentInCourse.new(@teacher, @course, @student) }
-      let(:assignment) { double("assignment").as_null_object }
+      let(:assignment) { instance_double(Assignment).as_null_object }
       let(:submission) do
-        double("submission",
-               assignment_id: assignment.id,
-               assigment: assignment,
-               user_id: @student.id,
-               cached_due_date: due_at,
-               missing?: false,
-               late?: false,
-               submitted_at:)
+        instance_double(Submission,
+                        assignment_id: assignment.id,
+                        user_id: @student.id,
+                        cached_due_date: due_at,
+                        missing?: false,
+                        late?: false,
+                        submitted_at:)
       end
 
       it "lets overridden_for determine the due_at value" do

@@ -1,8 +1,0 @@
-{
-  "name": "analytics",
-  "version": "1.0.0",
-  "dependencies": {
-    "graphael": "https://github.com/instructure/graphael.git",
-    "react": "0.14.9"
-  }
-}

@@ -22,20 +22,21 @@ module Analytics
   describe PermittedCourse do
     describe "#assignments" do
       let(:analytics) do
-        double("course_analytics",
-               assignment_rollups_for: ["SECTIONAL_ROLLUP"],
-               assignments: ["ASSIGNMENT_DATA"])
+        instance_double(Course,
+                        assignment_rollups_for: ["SECTIONAL_ROLLUP"],
+                        assignments: ["ASSIGNMENT_DATA"])
       end
 
-      let(:user) { double("user") }
-      let(:shard) { double("shard") }
+      let(:user) { instance_double(User) }
+      let(:shard) { instance_double(Shard) }
       let(:course) do
-        double("course",
-               shard:,
-               section_visibilities_for: [{ course_section_id: "SECTION_ID1" }],
-               course_sections: double("course_sections",
-                                       active: double("active_course_sections",
-                                                      pluck: ["SECTION_ID1", "SECTION_ID2"])))
+        instance_double(::Course,
+                        shard:,
+                        section_visibilities_for: [{ course_section_id: "SECTION_ID1" }],
+                        course_sections:
+                          class_double(::CourseSection,
+                                       active: class_double(::CourseSection,
+                                                            pluck: ["SECTION_ID1", "SECTION_ID2"])))
       end
       let(:permitted_course) { PermittedCourse.new(user, course) }
 
