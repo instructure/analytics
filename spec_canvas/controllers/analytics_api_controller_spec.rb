@@ -36,7 +36,7 @@ describe AnalyticsApiController do
     let(:course) { enrollment.course }
     let(:user) { enrollment.user }
     let(:role) { enrollment.role }
-    let(:analytics) { double(student_summaries: ["summary1"]).as_null_object }
+    let(:analytics) { instance_double(Analytics::Course, student_summaries: ["summary1"]).as_null_object }
 
     before do
       controller.instance_variable_set(:@current_user, user)

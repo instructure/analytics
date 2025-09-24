@@ -219,8 +219,8 @@ describe PageViewsRollup do
       @today = Time.zone.today
       @category = "other"
 
-      bin = double("bin")
-      scope = double("scope")
+      bin = instance_double(PageViewsRollup)
+      scope = class_double(PageViewsRollup)
       allow(scope).to receive(:transaction).and_yield
       allow(PageViewsRollup).to receive(:bin_scope_for).with(@course).and_return(scope)
       allow(PageViewsRollup).to receive(:bin_for).with(scope, @today, @category).and_return(bin)

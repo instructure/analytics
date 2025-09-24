@@ -20,53 +20,8 @@
 
 module Analytics::Extensions
   module CustomSidebarLinksHelper
-    def roster_user_custom_links(user)
-      links = super
-      return links if @context.feature_enabled?(:analytics_2) || @context.feature_enabled?(:remove_legacy_account_analytics) || @context.feature_enabled?(:hide_legacy_course_analytics)
-
-      if analytics_enabled_course? && analytics_enabled_student?(user)
-        links << {
-          url: analytics_student_in_course_path(course_id: @context.id, student_id: user.id),
-          icon_class: "icon-analytics",
-          text: I18n.t("Analytics")
-        }
-      end
-      links
-    end
-
-    def course_custom_links
-      links = super
-      return links if @context.feature_enabled?(:analytics_2) || @context.feature_enabled?(:remove_legacy_account_analytics) || @context.feature_enabled?(:hide_legacy_course_analytics)
-
-      if analytics_enabled_course? && @context.grants_right?(@current_user, :read_as_admin)
-        links << {
-          url: analytics_course_path(course_id: @context.id),
-          icon_class: "icon-analytics",
-          text: I18n.t("View Course Analytics")
-        }
-      end
-      links
-    end
-
-    private
-
-    # is the context a course with the necessary conditions to view analytics in
-    # the course?
-    def analytics_enabled_course?
-      RequestCache.cache("analytics_enabled_course", @context) do
-        @context.is_a?(Course) &&
-          ["available", "completed"].include?(@context.workflow_state) &&
-          service_enabled?(:analytics) &&
-          @context.grants_right?(@current_user, session, :view_analytics) &&
-          Analytics::Course.available_for?(@current_user, @context)
-      end
-    end
-
-    # can the user view analytics for this student in the course?
-    def analytics_enabled_student?(student)
-      analytics = Analytics::StudentInCourse.new(@current_user, @context, student)
-      analytics.available? &&
-        analytics.enrollment.grants_right?(@current_user, :read_grades)
+    def roster_user_custom_links(_user = nil)
+      super
     end
   end
 end

@@ -111,7 +111,7 @@ module Analytics
 
     describe "#rollup_one" do
       def mockbin(course, date, category, new_record: true)
-        mockbin = double("fake bin")
+        mockbin = instance_double(PageViewsRollup)
         expect(PageViewsRollup).to receive(:bin_for).with(course, date, category).once.and_return(mockbin)
         allow(mockbin).to receive(:new_record?).and_return(new_record)
         allow(mockbin).to receive(:save!)
