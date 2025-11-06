@@ -135,35 +135,6 @@ module Analytics
         data = assignments.assignment_rollups_for(section_ids)
         expect(data).to eq []
       end
-
-      it "retrieves a hash that looks like assignments if there are rollups" do
-        skip("requires the submission cached_due_at updating code")
-        user = User.create!
-        enrollment = StudentEnrollment.create!(user:, course: this_course, course_section: sections.first)
-        Enrollment.where(id: enrollment).update_all(workflow_state: "active")
-        submission = assignment.submissions.find_or_create_by!(user:).update! score: 95
-        submission.submitted_at = 2.days.ago
-        submission.graded_at = 2.days.ago
-        submission.save!
-
-        assignments = AssignmentsHarness.new(this_course)
-        data = assignments.assignment_rollups_for(section_ids)
-        expect(data).to eq [{
-          assignment_id: assignment.id,
-          title: assignment.title,
-          due_at: assignment.due_at,
-          muted: assignment.muted,
-          points_possible: assignment.points_possible,
-          max_score: 95,
-          min_score: 95,
-          first_quartile: 94,
-          median: 94,
-          third_quartile: 94,
-          tardiness_breakdown: {
-            missing: 0, late: 0, on_time: 1, total: 1
-          }
-        }]
-      end
     end
 
     describe "#assignment_scope" do
