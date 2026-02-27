@@ -107,7 +107,7 @@ describe PageView do
       page_view(user: @user, context: @course, participated: true)
       page_view(user: @user, context: @course, participated: true)
       page_view(user: @user, context: @course)
-      parts = PageView.participations_for_context(@course, @user)
+      parts = PageView.participations_for_context(@course, @user, viewer: @user)
       expect(parts.size).to eq 2
       expect(parts).to all(have_key(:created_at))
     end
@@ -116,7 +116,7 @@ describe PageView do
       group_model(context: @course)
       @group.add_user(@user, "accepted")
       page_view(user: @user, context: @group, participated: true)
-      parts = PageView.participations_for_context(@course, @user)
+      parts = PageView.participations_for_context(@course, @user, viewer: @user)
       expect(parts.count).to eq 1
     end
   end
@@ -134,7 +134,7 @@ describe PageView do
       page_view(user: @user, context: @course, created_at: 3.hours.ago)
       page_view(user: @user, context: @course, created_at: 1.hour.ago)
       page_view(user: @user, context: @course, created_at: 1.hour.ago)
-      counts = PageView.counters_by_context_and_hour(@course, @user)
+      counts = PageView.counters_by_context_and_hour(@course, @user, viewer: @user)
       expect(counts.size).to eq 2
       expect(counts.values.sum).to eq 5
     end
@@ -151,7 +151,7 @@ describe PageView do
       page_view(user: @user, context: @group, created_at: 3.hours.ago)
       page_view(user: @user, context: @group, created_at: 1.hour.ago)
       page_view(user: @user, context: @group, created_at: 1.hour.ago)
-      counts = PageView.counters_by_context_and_hour(@course, @user)
+      counts = PageView.counters_by_context_and_hour(@course, @user, viewer: @user)
       expect(counts.size).to eq 2
       expect(counts.values.sum).to eq 5
     end
@@ -175,12 +175,12 @@ describe PageView do
       page_view(user: @user2, context: @course, participated: false, created_at: 1.hour.ago)
       page_view(user: @user2, context: @course, participated: false, created_at: 1.hour.ago)
 
-      counts = PageView.counters_by_context_for_users(@course, [@user1.id, @user2.id])
+      counts = PageView.counters_by_context_for_users(@course, [@user1.id, @user2.id], viewer: @user1)
       expect(counts).to eq({ @user1.id => { page_views: 4, participations: 3 },
                              @user2.id => { page_views: 5, participations: 1 }  })
 
       # partial retrieval
-      expect(PageView.counters_by_context_for_users(@course, [@user2.id])).to eq({ @user2.id => counts[@user2.id] })
+      expect(PageView.counters_by_context_for_users(@course, [@user2.id], viewer: @user1)).to eq({ @user2.id => counts[@user2.id] })
     end
 
     it "returns user total page views and participants counts with groups" do
@@ -194,12 +194,12 @@ describe PageView do
       page_view(user: @user2, context: @group, participated: true,  created_at: 1.day.ago)
       page_view(user: @user2, context: @group, participated: false, created_at: 1.hour.ago)
 
-      counts = PageView.counters_by_context_for_users(@course, [@user1.id, @user2.id])
+      counts = PageView.counters_by_context_for_users(@course, [@user1.id, @user2.id], viewer: @user1)
       expect(counts).to eq({ @user1.id => { page_views: 3, participations: 2 },
                              @user2.id => { page_views: 2, participations: 1 }  })
 
       # partial retrieval
-      expect(PageView.counters_by_context_for_users(@course, [@user2.id])).to eq({ @user2.id => counts[@user2.id] })
+      expect(PageView.counters_by_context_for_users(@course, [@user2.id], viewer: @user1)).to eq({ @user2.id => counts[@user2.id] })
     end
   end
 end

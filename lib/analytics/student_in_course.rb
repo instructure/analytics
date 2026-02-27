@@ -75,7 +75,7 @@ module Analytics
         # convert non-string keys from time objects to iso8601 strings since we
         # don't want to use Time#to_s on the keys in Hash#to_json
         buckets = {}
-        PageView.counters_by_context_and_hour(@course, @student).each do |bucket, count|
+        PageView.counters_by_context_and_hour(@course, @student, viewer: @current_user).each do |bucket, count|
           bucket = bucket.in_time_zone.iso8601 unless bucket.is_a?(String)
           buckets[bucket] = count
         end
@@ -85,7 +85,7 @@ module Analytics
 
     def participations
       secondaried(cache_as: :participations) do
-        PageView.participations_for_context(@course, @student)
+        PageView.participations_for_context(@course, @student, viewer: @current_user)
       end
     end
 
