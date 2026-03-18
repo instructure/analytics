@@ -9,24 +9,6 @@ CanvasRails::Application.routes.draw do
   course_path = "courses/:course_id/analytics"
   student_in_course_path = course_path + "/users/:student_id"
 
-  scope controller: :analytics, as: "analytics", via: :get do
-    # default department route. basically an alias for one of
-    #  - analytics_department_term :term_id => account.default_enrollment_term_id
-    #  - analytics_department_current
-    # depending on the number of terms in the account
-    get department_path, action: :department, as: :department
-    # department: specific term
-    get department_term_path, action: :department, as: :department_term
-    # department: default term, current courses
-    get department_current_path, action: :department, filter: "current", as: :department_current
-    # department: default term, concluded courses
-    get department_completed_path, action: :department, filter: "completed", as: :department_completed
-    # course
-    get course_path, action: :course, as: :course
-    # student in course
-    get student_in_course_path, action: :student_in_course, as: :student_in_course
-  end
-
   ApiRouteSet::V1.draw(self) do
     scope controller: :analytics_api do
       get department_term_path + "/statistics", action: :department_statistics
