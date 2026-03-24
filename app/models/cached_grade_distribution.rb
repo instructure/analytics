@@ -18,7 +18,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-class CachedGradeDistribution < ActiveRecord::Base
+class CachedGradeDistribution < ApplicationRecord
   self.primary_key = :course_id
 
   belongs_to :course
