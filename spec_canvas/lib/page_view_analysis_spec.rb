@@ -18,8 +18,6 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-require_relative "../../lib/analytics/page_view_analysis"
-
 module Analytics
   describe PageViewAnalysis do
     let(:page_view_counts) do
