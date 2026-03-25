@@ -106,7 +106,6 @@ module Analytics::Permissions
     klass.include InstanceMethods
     klass.extend ClassMethods
 
-    klass.before_action :require_user # comes from ApplicationController
     klass.before_action :require_analytics_enabled
   end
 end

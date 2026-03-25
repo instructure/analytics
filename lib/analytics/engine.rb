@@ -35,9 +35,6 @@ module Analytics
     Autoextend.hook(:Course,
                     :"Analytics::Extensions::Course",
                     after_load: true)
-    Autoextend.hook(:CoursesController,
-                    :"Analytics::Extensions::CoursesController",
-                    method: :prepend)
     Autoextend.hook(:CustomSidebarLinksHelper,
                     :"Analytics::Extensions::CustomSidebarLinksHelper",
                     method: :prepend)
