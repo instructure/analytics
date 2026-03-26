@@ -19,7 +19,12 @@
 #
 
 describe PageView::Pv4Client do
-  let(:client) { PageView::Pv4Client.new("http://pv4/", "token") }
+  let(:requestor_user) { instance_double(User) }
+  let(:client) { PageView::Pv4Client.new("http://pv4/", requestor_user:) }
+
+  before do
+    allow(CanvasSecurity::ServicesJwt).to receive(:for_user).and_return("token")
+  end
 
   def stub_http_request(response)
     stub = instance_double(Net::HTTPSuccess, body: response.to_json)

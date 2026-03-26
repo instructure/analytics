@@ -22,7 +22,7 @@
 # available or completed course, we don't know at the time of rollup what the
 # future workflow state of course will be. so we have to keep rollup data for
 # all courses.
-class PageViewsRollup < ActiveRecord::Base
+class PageViewsRollup < ApplicationRecord
   belongs_to :course
 
   class << self
