@@ -21,14 +21,6 @@
 module Analytics
   class Engine < ::Rails::Engine
     config.paths["lib"].eager_load!
-
-    Autoextend.hook(:AccountServices, after_load: true) do
-      AccountServices.register_service :analytics,
-                                       name: "Analytics",
-                                       description: "",
-                                       expose_to_ui: :setting,
-                                       default: false
-    end
     Autoextend.hook(:Account,
                     :"Analytics::Extensions::Account",
                     method: :prepend)
