@@ -25,13 +25,6 @@ module Analytics::Permissions
   end
 
   module InstanceMethods
-    def require_analytics_enabled
-      # does the account even have analytics enabled?
-      raise ActiveRecord::RecordNotFound unless service_enabled?(:analytics)
-
-      true
-    end
-
     def require_analytics_for_department
       # do you have permission to use them?
       account_scope = Account.active
@@ -105,7 +98,5 @@ module Analytics::Permissions
   def self.included(klass)
     klass.include InstanceMethods
     klass.extend ClassMethods
-
-    klass.before_action :require_analytics_enabled
   end
 end
