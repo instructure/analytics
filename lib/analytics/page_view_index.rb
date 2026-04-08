@@ -19,21 +19,27 @@
 #
 
 module Analytics::PageViewIndex
-  def analytics_index_backing
+  def analytics_index_backing(requestor_user:)
     if PageView.pv4?
-      PageView.pv4_client
+      PageView.pv4_client(requestor_user:)
     else
       Analytics::PageViewIndex::DB
     end
   end
 
-  delegate :participations_for_context, to: :analytics_index_backing
+  def participations_for_context(context, user, viewer:)
+    analytics_index_backing(requestor_user: viewer || user).participations_for_context(context, user)
+  end
 
-  delegate :counters_by_context_and_hour, to: :analytics_index_backing
+  def counters_by_context_and_hour(context, user, viewer:)
+    analytics_index_backing(requestor_user: viewer || user).counters_by_context_and_hour(context, user)
+  end
 
   # Takes a context (right now, only a Course is valid), and a list of User
   # ids. Returns a hash of { user_id => { :page_views => count, :participations => count } }
-  delegate :counters_by_context_for_users, to: :analytics_index_backing
+  def counters_by_context_for_users(context, user_ids, viewer:)
+    analytics_index_backing(requestor_user: viewer).counters_by_context_for_users(context, user_ids)
+  end
 
   module DB
     def self.scope_for_context_and_user(context, user)

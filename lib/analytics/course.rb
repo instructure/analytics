@@ -147,7 +147,7 @@ module Analytics
 
     def page_views_by_student
       secondaried(cache_as: :page_views_by_student) do
-        PageView.counters_by_context_for_users(@course, student_ids)
+        PageView.counters_by_context_for_users(@course, student_ids, viewer: @current_user)
       end
     end
 
