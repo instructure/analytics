@@ -19,12 +19,6 @@
 #
 
 describe Loaders::CourseStudentAnalyticsLoader do
-  before do
-    @account = Account.default
-    @account.allowed_services = "+analytics"
-    @account.save!
-  end
-
   it "works" do
     course_with_student(active_all: true)
     GraphQL::Batch.batch do
