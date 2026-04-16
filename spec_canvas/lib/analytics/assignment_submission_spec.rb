@@ -226,9 +226,9 @@ module Analytics
         expect(assignment_submission.status).to eq :floating
       end
 
-      it "returns missing status when assignment overdue" do
+      it "returns floating status when assignment overdue (no submission row exists)" do
         allow(assignment).to receive(:overdue?).and_return(true)
-        expect(AssignmentSubmission.new(assignment).status).to eq :missing
+        expect(AssignmentSubmission.new(assignment).status).to eq :floating
       end
 
       it "returns score" do

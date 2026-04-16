@@ -638,6 +638,26 @@ describe Analytics::Course do
       end
     end
 
+    context "an assignment the student has no submission row for" do
+      # Simulates the orphan case: student has no Submission row (DA
+      # visibility). Canvas requires a row to evaluate
+      # Submission#missing?, so gradebook and the submissions API
+      # never count these as missing — analytics should match.
+      before do
+        @assignment = @course.assignments.active.create!(
+          due_at: 1.day.ago,
+          submission_types: "online_text_entry",
+          grading_type: "percent"
+        )
+        Submission.where(assignment_id: @assignment.id, user_id: @student.id).delete_all
+      end
+
+      it "does not count as missing" do
+        expect_assignment_breakdown(:floating, total: 1)
+        expect_summary_breakdown(:floating)
+      end
+    end
+
     context "an assignment that has no due date" do
       before do
         @assignment = @course.assignments.active.create!(submission_types: "online", grading_type: "percent")
