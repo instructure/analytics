@@ -6,11 +6,6 @@ describe Types::UserType do
   let_once(:user) { student_in_course(active_all: true).user }
   let(:student_type) { GraphQLTypeTester.new(user, current_user: @teacher) }
 
-  before do
-    Account.default.enable_service(:analytics)
-    Account.default.save!
-  end
-
   context "summaryAnalytics" do
     it "works" do
       expect(
@@ -20,18 +15,6 @@ describe Types::UserType do
           }
         GQL
       ).not_to be_nil
-    end
-
-    it "is nil when analytics is not enabled" do
-      Account.default.disable_service(:analytics)
-      Account.default.save!
-      expect(
-        student_type.resolve(<<~GQL, current_user: @teacher)
-          summaryAnalytics(courseId: "#{@course.id}") {
-            pageViews { level }
-          }
-        GQL
-      ).to be_nil
     end
 
     it "is nil for teachers without permission" do

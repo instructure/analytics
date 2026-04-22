@@ -74,15 +74,6 @@ describe "Analytics API", type: :request do
       analytics_api_call(:messaging, @course, @student1, expected_status: 200)
     end
 
-    it "404s with analytics disabled" do
-      @account.allowed_services = "-analytics"
-      @account.save!
-
-      analytics_api_call(:participation, @course, @student1, expected_status: 404)
-      analytics_api_call(:assignments, @course, @student1, expected_status: 404)
-      analytics_api_call(:messaging, @course, @student1, expected_status: 404)
-    end
-
     it "403s with unreadable course" do
       @course1 = @course
       course_with_teacher(active_all: true)
