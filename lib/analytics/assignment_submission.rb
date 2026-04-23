@@ -105,22 +105,16 @@ module Analytics
     private
 
     def submitted_status
-      # If the submission does not exist then assume there are no overrides
-      # and use the assignments date due.  The SubmissionLifecycleManager should cache due
-      # dates if they are overridden.
-      if !@submission
-        if @assignment.overdue?
-          :missing
-        else
-          :floating
-        end
-      elsif @submission.missing?
+      if @submission&.missing?
         :missing
-      elsif @submission.late?
+      elsif @submission&.late?
         :late
       elsif recorded?
         :on_time
       else
+        # No Submission row = assignment doesn't apply to this student
+        # (assignment visibility). Gradebook and the submissions API
+        # don't count these as missing — match that.
         :floating
       end
     end
